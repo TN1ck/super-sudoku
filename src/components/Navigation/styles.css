@@ -1,0 +1,14 @@
+.navigation-wrapper {
+    composes: relative px1 flex border from 'src/styles/lib/basscss.css';
+    composes: border-color-grey--lighter from 'src/styles/colors.css';
+}
+
+.navigation-item {
+    composes: p1 flex-none text-decoration-none from 'src/styles/lib/basscss.css';
+    composes: hover-cursor-pointer from 'src/styles/util.css';
+    composes: color-grey color-hover-black from 'src/styles/colors.css';
+}
+
+.navigation-item--active {
+    composes: color-black from 'src/styles/colors.css';
+}

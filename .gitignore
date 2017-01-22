@@ -1,0 +1,6 @@
+dist
+.DS_Store
+.awcache
+.vscode
+typings
+node_modules

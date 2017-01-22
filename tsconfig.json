@@ -1,0 +1,31 @@
+{
+  "compileOnSave": false,
+  "buildOnSave": false,
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths" : {
+      "src/*": ["./src/*"]
+    },
+    "module": "commonjs",
+    "target": "es6",
+    "jsx": "react",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": false,
+    "removeComments": false,
+    "sourceMap": false,
+    "inlineSourceMap": true,
+    "noEmitHelpers": true
+  },
+  "awesomeTypescriptLoaderOptions": {
+    "useBabel": true,
+    "useWebpackText": true,
+    "forkChecker": true,
+    "useCache": true,
+    "emitRequireType": false
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

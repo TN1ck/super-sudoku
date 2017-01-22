@@ -1,0 +1,17 @@
+
+:root {
+    --color__white: white;
+    --color__black: #252731;
+    --color__grey: #555555;
+    --color__grey--brighter: #808080;
+    --color__grey--light: #C2C2C2;
+    --color__grey--lighter: #EEEEEE;
+    --color__primary: #EF233C;
+    --color__red: #EF233C;
+    --color__red-two: #CE3049;
+    --color__blue--dark: #355D8A;
+    --color__blue: #6290C3;
+    --color__green--dark: #2ECC71;
+    --color__green: #7CAE8A;
+    --color__orange: #F0BA61;
+}

@@ -1,0 +1,7 @@
+.hover-cursor-pointer:hover {
+    cursor: pointer;
+}
+
+.hover-cursor-default:hover {
+    cursor: default;
+}

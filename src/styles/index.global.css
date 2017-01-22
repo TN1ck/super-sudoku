@@ -1,0 +1,67 @@
+/*
+    This file exports the classes into the global namespace,
+    exactly like you normally use css.
+*/
+
+@import './lib/basscss';
+@import './colors';
+
+* {
+    box-sizing: border-box;
+}
+
+@font-face {
+    font-family: 'Noto Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Noto Sans'), local('NotoSans'), url('/src/assets/fonts/noto/NotoSans-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Noto Sans';
+    font-style: italic;
+    font-weight: 400;
+    src: local('Noto Sans'), local('NotoSans'), url('/src/assets/fonts/noto/NotoSans-Italic.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Noto Sans';
+    font-style: normal;
+    font-weight: 700;
+    src: local('Noto Sans'), local('NotoSans'), url('/src/assets/fonts/noto/NotoSans-Bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Noto Sans';
+    font-style: italic;
+    font-weight: 700;
+    src: local('Noto Sans'), local('NotoSans'), url('/src/assets/fonts/noto/NotoSans-BoldItalic.ttf') format('truetype');
+}
+
+.noto-font-style-italic-400 {
+    font-family: 'Noto Sans', Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-style: italic;
+    font-weight: 400;
+}
+
+.noto-font-style-normal-400 {
+    font-family: 'Noto Sans', Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-style: normal;
+    font-weight: 400;
+}
+
+.noto-font-style-italic-700 {
+    font-family: 'Noto Sans', Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-style: italic;
+    font-weight: 700;
+}
+
+.noto-font-style-normal-700 {
+    font-family: 'Noto Sans', Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-style: normal;
+    font-weight: 700;
+}
+
+body {
+    font-family: 'Noto Sans', Helvetica Neue, Helvetica, Arial, sans-serif;
+}

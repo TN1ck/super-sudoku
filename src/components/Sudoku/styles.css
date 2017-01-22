@@ -1,0 +1,96 @@
+.cell-container {
+    position: relative;
+    width: 33.333%;
+    height: 33.333%;
+    border-width: 1px;
+    border-style: solid;
+    composes: border-color-grey--light from 'src/styles/colors.css';
+}
+
+.cell {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cell-note-container {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+}
+
+.cell-number {
+    z-index: 9;
+    font-size: 16px;
+}
+
+.cell-note {
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 33.33%;
+    height: 33.33%;
+    composes: color-grey--light from 'src/styles/colors.css';
+    @media (max-width: 600px) {
+        font-size: 10px;
+    }
+}
+
+.grid-container {
+    width: 550px;
+    height: 550px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    flex-grow: 0;
+    display: flex;
+
+    @media (max-width: 600px) {
+        width: 90vw;
+        height: 90vw;
+    }
+
+    @media (min-width: 601px) and (max-width: 800px) {
+        width: 450px;
+        height: 450px;
+    }
+}
+
+.grid-3x3 {
+    border: 1px solid black;
+    display: flex;
+    flex-wrap: wrap;
+    width: 33.333%;
+    height: 33.333%;
+}
+
+.menu-container {
+    position: absolute;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.menu-row {
+    display: flex;
+}
+
+.menu-item {
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 10;
+    border-width: 1px;
+    border-style: solid;
+    composes: border-color-grey--light from 'src/styles/colors.css';
+    background-opacity: 0.5;
+    composes: cell;
+    flex-grow: 0;
+    flex-shrink: 0;
+    height: 30px;
+    width: 30px;
+}
