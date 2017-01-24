@@ -109,6 +109,10 @@ function getSquares (grid) {
     return squares;
 }
 
+function squareIndex (x, y) {
+    return Math.floor(y  / 3) * 3 + Math.floor(x / 3);
+}
+
 function getMinimumRemainingValue (grid, rows, columns, squares) {
     const numberOfRemainingValuesForEveryCell: Array<{x: number, y: number, remainingValues: Array<number>}> = [];
 
@@ -118,8 +122,7 @@ function getMinimumRemainingValue (grid, rows, columns, squares) {
             if (grid[y][x] === undefined) {
                 const row = rows[y];
                 const column = columns[x];
-                const squareIndex = Math.floor(y  / 3) * 3 + Math.floor(x / 3);
-                const square = squares[squareIndex];
+                const square = squares[squareIndex(x, y)];
                 const numbers = row.concat(column).concat(square);
                 const remainingValues = SUDOKU_NUMBERS.filter(i => {
                     return numbers.indexOf(i) === -1;
@@ -176,12 +179,132 @@ export function _solveGrid (stack: Array<Array<Array<number>>> = []) : Array<Arr
 
 }
 
+export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = []) : Array<Array<number>> {
+    if (stack.length === 0) {
+        console.log('EMPTY STACK');
+        return null;
+    }
+    const [grid, ...rest] = stack;
+
+    const rows    = grid;
+
+    const bla = grid.map(row => {
+        return row.map(cells => {
+            return cells.length === 1 ? cells[0] : undefined;
+        });
+    });
+
+    // add row column constraints
+    for (let y = 0; y < 9; y++) {
+        const row = rows[y];
+        for (let x = 0; x < 8;) {
+
+            let domain1 = row[x];
+            let change = false;
+            for (let xx = x + 1; xx < 9; xx++) {
+                let domain2 = row[xx];
+
+                for (let vx of domain1) {
+                    if (!domain2.find(vy => vy !== vx)) {
+                        domain1 = domain1.filter(_vx => _vx !== vx);
+                        rows[y][x] = domain1;
+                        change = true;
+                    };
+                }
+            }
+
+            for (let yy = y + 1; yy < 9; yy++) {
+                let domain2 = rows[yy][x];
+                let change = false;
+                for (let vx of domain1) {
+                    if (!domain2.find(vy => vy !== vx)) {
+                        domain1 = domain1.filter(_vx => _vx !== vx);
+                        rows[y][x] = domain1;
+                        change = true;
+                    }
+                }
+            }
+
+            const square = SQUARE_TABLE[squareIndex(x, y)].filter(([xx, yy]) => xx !== x || yy !== y);
+            for (let s of square) {
+                let [xx, yy] = s;
+                let domain2 = rows[yy][xx];
+                 for (let vx of domain1) {
+                    if (!domain2.find(vy => vy !== vx)) {
+                        domain1 = domain1.filter(_vx => _vx !== vx);
+                        rows[y][x] = domain1;
+                        change = true;
+                    };
+                }
+            }
+
+            if (change) {
+                if (domain1.length === 0) {
+                    return _solveGridAC3(rest);
+                }
+                // we loop again and simulate the adding of the edges
+            } else {
+                x++;
+            }
+        }
+
+    }
+
+    const isFilled = grid.every(row => {
+        return row.every(cells => {
+            return cells.length === 1;
+        });
+    });
+
+    if (!isFilled) {
+        const rowIndex= grid.findIndex(row => {
+            return row.some(cells => cells.length !== 1);
+        });
+        const cellIndex = grid[rowIndex].findIndex(cells => cells.length !== 1);
+        const cell = grid[rowIndex][cellIndex];
+        const newGrids = cell.map(n => {
+            return grid.map((row, r) => {
+                if (r === rowIndex) {
+                    return row.map((cells, c) => {
+                        if (c === cellIndex) {
+                            return [n];
+                        }
+                        return [].concat(cells);
+                    });
+                }
+                return [].concat(row);
+            });
+        });
+        const newStack = newGrids.concat(rest);
+        return _solveGridAC3(newStack);
+    }
+
+    return grid.map(row => {
+        return row.map(cells => {
+            return cells.length === 1 ? cells[0] : undefined;
+        });
+    });
+
+}
+
 export function solveGrid (stack: Array<Array<Array<number>>> = []) : Array<Array<number>> {
     const t0 = performance.now();
     let result;
-    const TIMES = 1000;
+    const TIMES = 1;
     for (let i = TIMES; i > 0; i--) {
-        result = _solveGrid(stack);
+        console.log(printSimpleSudoku(stack[0]));
+        const newStack = stack.map(grid => {
+            return grid.map(row => {
+                return row.map(c => {
+                    return (c === undefined) ? SUDOKU_NUMBERS : [c];
+                });
+            });
+        });
+        const correct = _solveGrid(stack);
+        result = _solveGridAC3(newStack);
+        console.log(printSimpleSudoku(correct));
+        console.log(result);
+        console.log(printSimpleSudoku(result));
     }
     const t1 = performance.now();
     console.log("Call to solveGrid took " + (t1 - t0) / TIMES + " milliseconds.")
