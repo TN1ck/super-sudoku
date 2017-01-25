@@ -50,7 +50,7 @@ export const SQUARE_TABLE = (function () {
     const grouped = _.groupBy(cells, ([x, y]) => {
         return Math.floor(y / 3) * 3 + Math.floor(x / 3);
     });
-    const squares = _.sortBy(_.keys(grouped), k => k).map(k => grouped[k]);
+    const squares = _.sortBy(_.keys(grouped), k => k).map(k => _.sortBy(grouped[k], ([x, y]) => `${y-x}`));
     return squares;
 })();
 
@@ -225,8 +225,13 @@ export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = []) :
                 }
             }
 
-            const square = SQUARE_TABLE[squareIndex(x, y)].filter(([xx, yy]) => xx !== x || yy !== y);
-            for (let s of square) {
+            // the square is sorted, so we can find the coordinate index inside the square
+            // to know where we have to start
+            const square = SQUARE_TABLE[squareIndex(x, y)]
+            const cellIndexInSquare = square.findIndex(([xx, yy]) => xx === x && yy === y);
+            // we add 1, because we don't need to compare te the current variable
+            for (let c = cellIndexInSquare + 1; c < 9; c++) {
+                const s = square[c];
                 let [xx, yy] = s;
                 let domain2 = rows[yy][xx];
                  for (let vx of domain1) {
@@ -288,24 +293,23 @@ export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = []) :
 }
 
 export function solveGrid (stack: Array<Array<Array<number>>> = []) : Array<Array<number>> {
-    const t0 = performance.now();
-    let result;
-    const TIMES = 1;
-    for (let i = TIMES; i > 0; i--) {
-        console.log(printSimpleSudoku(stack[0]));
-        const newStack = stack.map(grid => {
-            return grid.map(row => {
-                return row.map(c => {
-                    return (c === undefined) ? SUDOKU_NUMBERS : [c];
-                });
+    console.log(printSimpleSudoku(stack[0]));
+    const newStack = stack.map(grid => {
+        return grid.map(row => {
+            return row.map(c => {
+                return (c === undefined) ? SUDOKU_NUMBERS : [c];
             });
         });
-        const correct = _solveGrid(stack);
+    });
+    const t0 = performance.now();
+    let result;
+    const TIMES = 20;
+    for (let i = TIMES; i > 0; i--) {
         result = _solveGridAC3(newStack);
-        console.log(printSimpleSudoku(correct));
-        console.log(result);
-        console.log(printSimpleSudoku(result));
     }
+    const correct = _solveGrid(stack);
+    console.log(printSimpleSudoku(correct));
+    console.log(printSimpleSudoku(result));
     const t1 = performance.now();
     console.log("Call to solveGrid took " + (t1 - t0) / TIMES + " milliseconds.")
     return result;
