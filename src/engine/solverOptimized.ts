@@ -179,6 +179,20 @@ export function _solveGrid (stack: Array<Array<Array<number>>> = []) : Array<Arr
 
 }
 
+// inplace
+function removeValuesFromDomain (domain1, domain2) {
+    let change = false;
+    if (domain2.length === 1) {
+        const index = domain1.indexOf(domain2[0]);
+        if (index !== -1) {
+            domain1 = [].concat(domain1);
+            domain1.splice(index, 1);
+            change = true;
+        }
+    }
+    return [domain1, change];
+}
+
 export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = []) : Array<Array<number>> {
     if (stack.length === 0) {
         console.log('EMPTY STACK');
@@ -186,13 +200,7 @@ export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = []) :
     }
     const [grid, ...rest] = stack;
 
-    const rows    = grid;
-
-    const bla = grid.map(row => {
-        return row.map(cells => {
-            return cells.length === 1 ? cells[0] : undefined;
-        });
-    });
+    const rows = grid;
 
     // add row column constraints
     for (let y = 0; y < 9; y++) {
@@ -203,26 +211,18 @@ export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = []) :
             let change = false;
             for (let xx = x + 1; xx < 9; xx++) {
                 let domain2 = row[xx];
-
-                for (let vx of domain1) {
-                    if (!domain2.find(vy => vy !== vx)) {
-                        domain1 = domain1.filter(_vx => _vx !== vx);
-                        rows[y][x] = domain1;
-                        change = true;
-                    };
-                }
+                const result = removeValuesFromDomain(domain1, domain2);
+                domain1 = result[0];
+                change = result[1];
+                row[x] = domain1;
             }
 
             for (let yy = y + 1; yy < 9; yy++) {
                 let domain2 = rows[yy][x];
-                let change = false;
-                for (let vx of domain1) {
-                    if (!domain2.find(vy => vy !== vx)) {
-                        domain1 = domain1.filter(_vx => _vx !== vx);
-                        rows[y][x] = domain1;
-                        change = true;
-                    }
-                }
+                const result = removeValuesFromDomain(domain1, domain2);
+                domain1 = result[0];
+                change = result[1];
+                row[x] = domain1;
             }
 
             // the square is sorted, so we can find the coordinate index inside the square
@@ -234,13 +234,10 @@ export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = []) :
                 const s = square[c];
                 let [xx, yy] = s;
                 let domain2 = rows[yy][xx];
-                 for (let vx of domain1) {
-                    if (!domain2.find(vy => vy !== vx)) {
-                        domain1 = domain1.filter(_vx => _vx !== vx);
-                        rows[y][x] = domain1;
-                        change = true;
-                    };
-                }
+                const result = removeValuesFromDomain(domain1, domain2);
+                domain1 = result[0];
+                change = result[1];
+                row[x] = domain1;
             }
 
             if (change) {
@@ -308,6 +305,7 @@ export function solveGrid (stack: Array<Array<Array<number>>> = []) : Array<Arra
         result = _solveGridAC3(newStack);
     }
     const correct = _solveGrid(stack);
+    console.log(result);
     console.log(printSimpleSudoku(correct));
     console.log(printSimpleSudoku(result));
     const t1 = performance.now();
