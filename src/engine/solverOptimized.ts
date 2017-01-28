@@ -182,7 +182,7 @@ export function _solveGrid (stack: Array<Array<Array<number>>> = []) : Array<Arr
 // inplace
 function removeValuesFromDomain (domain1, domain2) {
     let change = false;
-    if (domain2.length === 1) {
+    if (domain2.length <= 1) {
         const index = domain1.indexOf(domain2[0]);
         if (index !== -1) {
             domain1 = [].concat(domain1);
@@ -193,12 +193,24 @@ function removeValuesFromDomain (domain1, domain2) {
     return [domain1, change];
 }
 
-export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = []) : Array<Array<number>> {
+export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = [], counter: number) : Array<Array<number>> {
     if (stack.length === 0) {
         console.log('EMPTY STACK');
         return null;
     }
+
     const [grid, ...rest] = stack;
+
+    counter++;
+    if (counter > 1000) {
+        console.log('COMPUTATION TIME OUT');
+        const bla = grid.map(row => {
+            return row.map(cells => {
+                return cells.length === 1 ? cells[0] : undefined;
+            });
+        });
+        return bla;
+    }
 
     const rows = grid;
 
@@ -221,7 +233,7 @@ export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = []) :
                 let domain2 = rows[yy][x];
                 const result = removeValuesFromDomain(domain1, domain2);
                 domain1 = result[0];
-                change = result[1];
+                change = change || result[1];
                 row[x] = domain1;
             }
 
@@ -236,13 +248,13 @@ export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = []) :
                 let domain2 = rows[yy][xx];
                 const result = removeValuesFromDomain(domain1, domain2);
                 domain1 = result[0];
-                change = result[1];
+                change = change || result[1];
                 row[x] = domain1;
             }
 
             if (change) {
                 if (domain1.length === 0) {
-                    return _solveGridAC3(rest);
+                    return _solveGridAC3(rest, counter);
                 }
                 // we loop again and simulate the adding of the edges
             } else {
@@ -278,9 +290,10 @@ export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = []) :
             });
         });
         const newStack = newGrids.concat(rest);
-        return _solveGridAC3(newStack);
+        return _solveGridAC3(newStack, counter);
     }
 
+    console.log('counter: ' + counter);
     return grid.map(row => {
         return row.map(cells => {
             return cells.length === 1 ? cells[0] : undefined;
@@ -300,9 +313,9 @@ export function solveGrid (stack: Array<Array<Array<number>>> = []) : Array<Arra
     });
     const t0 = performance.now();
     let result;
-    const TIMES = 20;
+    const TIMES = 1;
     for (let i = TIMES; i > 0; i--) {
-        result = _solveGridAC3(newStack);
+        result = _solveGridAC3(newStack, 0);
     }
     const correct = _solveGrid(stack);
     console.log(result);
