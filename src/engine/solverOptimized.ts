@@ -202,8 +202,8 @@ export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = [], c
     const [grid, ...rest] = stack;
 
     counter++;
-    if (counter > 1000) {
-        console.log('COMPUTATION TIME OUT');
+    if (counter > 2000) {
+        console.log('COMPUTATION TIME OUT', counter);
         const bla = grid.map(row => {
             return row.map(cells => {
                 return cells.length === 1 ? cells[0] : undefined;
@@ -221,7 +221,12 @@ export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = [], c
 
             let domain1 = row[x];
             let change = false;
-            for (let xx = x + 1; xx < 9; xx++) {
+            // I tried to be clever and tried not to compare cells twice
+            // but this is will falsify the algorithm
+            for (let xx = 0; xx < 9; xx++) {
+                if (xx === x) {
+                    continue;
+                }
                 let domain2 = row[xx];
                 const result = removeValuesFromDomain(domain1, domain2);
                 domain1 = result[0];
@@ -229,7 +234,10 @@ export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = [], c
                 row[x] = domain1;
             }
 
-            for (let yy = y + 1; yy < 9; yy++) {
+            for (let yy = 0; yy < 9; yy++) {
+                if (yy === y) {
+                    continue;
+                }
                 let domain2 = rows[yy][x];
                 const result = removeValuesFromDomain(domain1, domain2);
                 domain1 = result[0];
@@ -237,14 +245,13 @@ export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = [], c
                 row[x] = domain1;
             }
 
-            // the square is sorted, so we can find the coordinate index inside the square
-            // to know where we have to start
             const square = SQUARE_TABLE[squareIndex(x, y)]
-            const cellIndexInSquare = square.findIndex(([xx, yy]) => xx === x && yy === y);
-            // we add 1, because we don't need to compare te the current variable
-            for (let c = cellIndexInSquare + 1; c < 9; c++) {
+            for (let c = 0; c < 9; c++) {
                 const s = square[c];
                 let [xx, yy] = s;
+                if (xx === x && yy === y) {
+                    continue;
+                }
                 let domain2 = rows[yy][xx];
                 const result = removeValuesFromDomain(domain1, domain2);
                 domain1 = result[0];
@@ -252,7 +259,7 @@ export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = [], c
                 row[x] = domain1;
             }
 
-            if (change) {
+            if (change || domain1.length === 0) {
                 if (domain1.length === 0) {
                     return _solveGridAC3(rest, counter);
                 }
@@ -271,10 +278,27 @@ export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = [], c
     });
 
     if (!isFilled) {
-        const rowIndex= grid.findIndex(row => {
-            return row.some(cells => cells.length !== 1);
+        const possibleRowAndCells = grid.reduce((current: Array<[number, number]>, row, index) => {
+            const possibleCells = row.reduce((currentCells, cells, cellIndex) => {
+                if (cells.length > 1) {
+                    return currentCells.concat([[index, cellIndex]]);
+                }
+                return currentCells;
+            }, []);
+            return current.concat(possibleCells);
+        }, []);
+        const sortedPossibleRowAndCells = _.sortBy(possibleRowAndCells, ([rowIndex, cellIndex]) => {
+            return grid[rowIndex][cellIndex].length;
         });
-        const cellIndex = grid[rowIndex].findIndex(cells => cells.length !== 1);
+        // random often fails to find a solution in sufficient time, probably we create loops, because
+        // we don't have a real strategy with randomness
+        // the underlying paper I used for this
+        // (Rating and Generating Sudoku Puzzles Based On Constraint Satisfaction Problems)
+        // didn't mention any difficulties with their method of choosing random variables for the domain splitting
+        // let [rowIndex, cellIndex] = possibleRowAndCells[_.random(0, possibleRowAndCells.length - 1)];
+        // minimum remaining value
+        const [rowIndex, cellIndex] = sortedPossibleRowAndCells[0];
+        // const cellIndex = grid[rowIndex].findIndex(cells => cells.length !== 1);
         const cell = grid[rowIndex][cellIndex];
         const newGrids = cell.map(n => {
             return grid.map((row, r) => {
