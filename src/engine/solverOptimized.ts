@@ -1,16 +1,10 @@
 import * as _ from 'lodash';
-
-interface SimpleCell {
-    x: number;
-    y: number;
-    number: number;
-}
-
-function printSimpleSudoku (grid: Array<Array<number>>) {
-    return grid.map(row => {
-        return row.map(c => c === undefined ? '_' : ('' + c)).join('');
-    }).join('\n');
-}
+import {
+    SUDOKU_NUMBERS,
+    SQUARE_TABLE,
+    squareIndex,
+    SimpleSudoku
+} from './utility';
 
 function duplicates (array: Array<number>) : number {
     const filtered = array.filter(c => c !== undefined);
@@ -22,43 +16,11 @@ function duplicates (array: Array<number>) : number {
     return _.values(picked).length;
 }
 
-/*
-    _x = 0       _x = 1     _x = 2
-.-----0-----------1----------2------|
-|   x < 3   | 3 < x < 6 |   x > 6   |  _y = 0
-|   y < 3   | y < 3     |   y < 3   |
-|-----3-----------4----------5------|
-|   x < 3   | 3 < x < 6 |   x > 6   |  _y = 1
-| 3 < y < 6 | 3 < y < 6 | 3 < y < 6 |
-.-----6-----------7----------8------|
-|   x < 3   | 3 < x < 6 |   x > 6   |  _y = 2
-|   y > 6   | y > 6     |   y > 6   |
-|-----------------------------------|
-square = _y * 3 + _x;
-*/
-
-const SUDOKU_COORDINATES = [0, 1, 2, 3, 4, 5, 6, 7, 8];
-const SUDOKU_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-
-// SQUARE TABLE
-export const SQUARE_TABLE = (function () {
-    const cells: Array<[number, number]> = [].concat(...SUDOKU_COORDINATES.map(x => {
-        return SUDOKU_COORDINATES.map(y => {
-            return [x, y];
-        });
-    }));
-    const grouped = _.groupBy(cells, ([x, y]) => {
-        return Math.floor(y / 3) * 3 + Math.floor(x / 3);
-    });
-    const squares = _.sortBy(_.keys(grouped), k => k).map(k => _.sortBy(grouped[k], ([x, y]) => `${y-x}`));
-    return squares;
-})();
-
-function isFilled (grid) {
+function isFilled (grid: SimpleSudoku) : boolean {
     return grid.every(row => row.every(n => n !== undefined))
 }
 
-function isCorrect (rows, columns, squares) {
+function isCorrect (rows: SimpleSudoku, columns: SimpleSudoku, squares: SimpleSudoku) : boolean {
     const duplicatesInRow = rows.some(row => {
         return duplicates(row) !== 0;
     });
@@ -80,11 +42,11 @@ function isCorrect (rows, columns, squares) {
     return true;
 }
 
-function getColumns (grid) {
-    const columns = [];
+function getColumns (grid: SimpleSudoku): SimpleSudoku {
+    const columns: SimpleSudoku = [];
     // calculate the duplicates for every column
     for (let x = 0; x < 9; x++) {
-        const column = [];
+        const column: Array<number> = [];
         for (let y = 0; y < 9; y++) {
             const cell = grid[y][x];
             column.push(cell);
@@ -94,12 +56,12 @@ function getColumns (grid) {
     return columns;
 }
 
-function getSquares (grid) {
-    const squares = [];
+function getSquares (grid: SimpleSudoku): SimpleSudoku {
+    const squares: SimpleSudoku = [];
      // calculate the duplicates in every square
     for (let s = 0; s < 9; s++) {
         const square = SQUARE_TABLE[s];
-        const squareValues = [];
+        const squareValues: Array<number> = [];
         for (let xy = 0; xy < 9; xy++) {
             const [x, y] = square[xy];
             squareValues.push(grid[y][x]);
@@ -109,11 +71,9 @@ function getSquares (grid) {
     return squares;
 }
 
-function squareIndex (x, y) {
-    return Math.floor(y  / 3) * 3 + Math.floor(x / 3);
-}
-
-function getMinimumRemainingValue (grid, rows, columns, squares) {
+function getMinimumRemainingValue (
+    grid: SimpleSudoku, rows: SimpleSudoku, columns: SimpleSudoku, squares: SimpleSudoku)
+{
     const numberOfRemainingValuesForEveryCell: Array<{x: number, y: number, remainingValues: Array<number>}> = [];
 
     // find minimum remaining value
@@ -140,7 +100,7 @@ function getMinimumRemainingValue (grid, rows, columns, squares) {
     return sortedRemainingValues[0];
 }
 
-function createNewGrids (grid, x, y, values) {
+function createNewGrids (grid: SimpleSudoku, x: number, y: number, values) {
      const newGrids = values.map(number => {
         return grid.map((row, i) => {
             // save some memory
@@ -155,11 +115,12 @@ function createNewGrids (grid, x, y, values) {
     return newGrids;
 }
 
-export function _solveGrid (stack: Array<Array<Array<number>>> = []) : Array<Array<number>> {
+export function _solveGrid (stack: Array<SimpleSudoku> = [], counter: number) : SimpleSudoku {
     if (stack.length === 0) {
         return null;
     }
     const [grid, ...rest] = stack;
+    counter++;
 
     const rows    = grid;
     const columns = getColumns(grid);
@@ -167,190 +128,18 @@ export function _solveGrid (stack: Array<Array<Array<number>>> = []) : Array<Arr
 
     const completelyFilled = isFilled(grid);
     if (completelyFilled && isCorrect(rows, columns, squares)) {
+        console.log('counter: ' + counter);
         return grid;
     } else {
-        _solveGrid(rest);
+        _solveGrid(rest, counter);
     }
 
     const {remainingValues, x, y} = getMinimumRemainingValue(grid, rows, columns, squares);
     const newGrids = createNewGrids(grid, x, y, remainingValues);
 
-    return _solveGrid(newGrids.concat(rest));
-
+    return _solveGrid(newGrids.concat(rest), counter);
 }
 
-// inplace
-function removeValuesFromDomain (domain1, domain2) {
-    let change = false;
-    // this is an optimizitation:
-    // AC3 checks if there is a value in domain1 that
-    // does not comply the constraint with at least one value in domain2.
-    // But because the contraint is inequality, the case happens only
-    // when the domain2 is just one variable. The <= is just a safe-check.
-    if (domain2.length <= 1) {
-        const index = domain1.indexOf(domain2[0]);
-        if (index !== -1) {
-            domain1 = [].concat(domain1);
-            domain1.splice(index, 1);
-            change = true;
-        }
-    }
-    return [domain1, change];
-}
-
-/**
- * For more information see the paper
- * Rating and Generating Sudoku Puzzles Based On Constraint Satisfaction Problems
- * by Bahare Fatemi, Seyed Mehran Kazemi, Nazanin Mehrasa
- */
-export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = [], counter: number) : Array<Array<number>> {
-    if (stack.length === 0) {
-        console.log('EMPTY STACK');
-        return null;
-    }
-
-    const [grid, ...rest] = stack;
-
-    counter++;
-    if (counter > 2000) {
-        console.log('COMPUTATION TIME OUT', counter);
-        const bla = grid.map(row => {
-            return row.map(cells => {
-                return cells.length === 1 ? cells[0] : undefined;
-            });
-        });
-        return bla;
-    }
-
-    const rows = grid;
-
-    // add row column constraints
-    for (let y = 0; y < 9; y++) {
-        const row = rows[y];
-        for (let x = 0; x < 8; ) {
-
-            let domain1 = row[x];
-            let change = false;
-            // I tried to be clever and tried not to compare cells twice
-            // but this is will falsify the algorithm
-            for (let xx = 0; xx < 9; xx++) {
-                if (xx === x) {
-                    continue;
-                }
-                let domain2 = row[xx];
-                const result = removeValuesFromDomain(domain1, domain2);
-                domain1 = result[0];
-                change = result[1];
-                row[x] = domain1;
-            }
-
-            for (let yy = 0; yy < 9; yy++) {
-                if (yy === y) {
-                    continue;
-                }
-                let domain2 = rows[yy][x];
-                const result = removeValuesFromDomain(domain1, domain2);
-                domain1 = result[0];
-                change = change || result[1];
-                row[x] = domain1;
-            }
-
-            const square = SQUARE_TABLE[squareIndex(x, y)]
-            for (let c = 0; c < 9; c++) {
-                const s = square[c];
-                let [xx, yy] = s;
-                if (xx === x && yy === y) {
-                    continue;
-                }
-                let domain2 = rows[yy][xx];
-                const result = removeValuesFromDomain(domain1, domain2);
-                domain1 = result[0];
-                change = change || result[1];
-                row[x] = domain1;
-            }
-
-            if (change || domain1.length === 0) {
-                if (domain1.length === 0) {
-                    return _solveGridAC3(rest, counter);
-                }
-            // we loop again and simulate the adding of the edges
-            } else {
-                x++;
-            }
-        }
-
-    }
-
-    const isFilled = grid.every(row => {
-        return row.every(cells => {
-            return cells.length === 1;
-        });
-    });
-
-    if (!isFilled) {
-        const possibleRowAndCells = grid.reduce((current: Array<[number, number]>, row, index) => {
-            const possibleCells = row.reduce((currentCells, cells, cellIndex) => {
-                if (cells.length > 1) {
-                    return currentCells.concat([[index, cellIndex]]);
-                }
-                return currentCells;
-            }, []);
-            return current.concat(possibleCells);
-        }, []);
-        const sortedPossibleRowAndCells = _.sortBy(possibleRowAndCells, ([rowIndex, cellIndex]) => {
-            return grid[rowIndex][cellIndex].length;
-        });
-        // use a random variable
-        // let [rowIndex, cellIndex] = possibleRowAndCells[_.random(0, possibleRowAndCells.length - 1)];
-        // minimum remaining value
-        const [rowIndex, cellIndex] = sortedPossibleRowAndCells[0];
-        const cell = grid[rowIndex][cellIndex];
-        const newGrids = cell.map(n => {
-            return grid.map((row, r) => {
-                if (r === rowIndex) {
-                    return row.map((cells, c) => {
-                        if (c === cellIndex) {
-                            return [n];
-                        }
-                        return [].concat(cells);
-                    });
-                }
-                return [].concat(row);
-            });
-        });
-        const newStack = newGrids.concat(rest);
-        return _solveGridAC3(newStack, counter);
-    }
-
-    console.log('counter: ' + counter);
-    return grid.map(row => {
-        return row.map(cells => {
-            return cells.length === 1 ? cells[0] : undefined;
-        });
-    });
-
-}
-
-export function solveGrid (stack: Array<Array<Array<number>>> = []) : Array<Array<number>> {
-    console.log(printSimpleSudoku(stack[0]));
-    const newStack = stack.map(grid => {
-        return grid.map(row => {
-            return row.map(c => {
-                return (c === undefined) ? SUDOKU_NUMBERS : [c];
-            });
-        });
-    });
-    const t0 = performance.now();
-    let result;
-    const TIMES = 100;
-    for (let i = TIMES; i > 0; i--) {
-        result = _solveGridAC3(newStack, 0);
-    }
-    const correct = _solveGrid(stack);
-    console.log(result);
-    console.log(printSimpleSudoku(correct));
-    console.log(printSimpleSudoku(result));
-    const t1 = performance.now();
-    console.log("Call to solveGrid took " + (t1 - t0) / TIMES + " milliseconds.")
-    return result;
+export function solve (grid: SimpleSudoku) {
+    return _solveGrid([grid], 0);
 }

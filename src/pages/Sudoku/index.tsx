@@ -6,11 +6,7 @@ import {Cell, printSudoku, parseSudoku, parseSudokuToSimple, solvableSudoku1} fr
 import {GridComponent} from 'src/components/Sudoku';
 import {
     solveGrid
-} from 'src/engine/solver';
-import * as solverOptimized from 'src/engine/solverOptimized';
-
-const sudoku1 = parseSudokuToSimple(parseSudoku(solvableSudoku1));
-console.log(solverOptimized.solveGrid([sudoku1]));
+} from 'src/engine/solverNaive';
 
 import * as Grid from 'src/components/Grid';
 

@@ -1,9 +1,11 @@
 import * as React from 'react';
 
 import * as Grid from 'src/components/Grid';
-import * as Test from 'src/engine/solver';
+import {solve} from 'src/engine/solver';
+import {parseSudoku, parseSudokuToSimple, solvableSudoku1} from 'src/ducks/sudoku/model';
 
-console.log(Test);
+solve(parseSudokuToSimple(parseSudoku(solvableSudoku1)));
+
 
 const Home: React.StatelessComponent<{}> = function (props) {
     return (
