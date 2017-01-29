@@ -182,6 +182,11 @@ export function _solveGrid (stack: Array<Array<Array<number>>> = []) : Array<Arr
 // inplace
 function removeValuesFromDomain (domain1, domain2) {
     let change = false;
+    // this is an optimizitation:
+    // AC3 checks if there is a value in domain1 that
+    // does not comply the constraint with at least one value in domain2.
+    // But because the contraint is inequality, the case happens only
+    // when the domain2 is just one variable. The <= is just a safe-check.
     if (domain2.length <= 1) {
         const index = domain1.indexOf(domain2[0]);
         if (index !== -1) {
@@ -193,6 +198,11 @@ function removeValuesFromDomain (domain1, domain2) {
     return [domain1, change];
 }
 
+/**
+ * For more information see the paper
+ * Rating and Generating Sudoku Puzzles Based On Constraint Satisfaction Problems
+ * by Bahare Fatemi, Seyed Mehran Kazemi, Nazanin Mehrasa
+ */
 export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = [], counter: number) : Array<Array<number>> {
     if (stack.length === 0) {
         console.log('EMPTY STACK');
@@ -217,7 +227,7 @@ export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = [], c
     // add row column constraints
     for (let y = 0; y < 9; y++) {
         const row = rows[y];
-        for (let x = 0; x < 8;) {
+        for (let x = 0; x < 8; ) {
 
             let domain1 = row[x];
             let change = false;
@@ -263,7 +273,7 @@ export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = [], c
                 if (domain1.length === 0) {
                     return _solveGridAC3(rest, counter);
                 }
-                // we loop again and simulate the adding of the edges
+            // we loop again and simulate the adding of the edges
             } else {
                 x++;
             }
@@ -290,15 +300,10 @@ export function _solveGridAC3 (stack: Array<Array<Array<Array<number>>>> = [], c
         const sortedPossibleRowAndCells = _.sortBy(possibleRowAndCells, ([rowIndex, cellIndex]) => {
             return grid[rowIndex][cellIndex].length;
         });
-        // random often fails to find a solution in sufficient time, probably we create loops, because
-        // we don't have a real strategy with randomness
-        // the underlying paper I used for this
-        // (Rating and Generating Sudoku Puzzles Based On Constraint Satisfaction Problems)
-        // didn't mention any difficulties with their method of choosing random variables for the domain splitting
+        // use a random variable
         // let [rowIndex, cellIndex] = possibleRowAndCells[_.random(0, possibleRowAndCells.length - 1)];
         // minimum remaining value
         const [rowIndex, cellIndex] = sortedPossibleRowAndCells[0];
-        // const cellIndex = grid[rowIndex].findIndex(cells => cells.length !== 1);
         const cell = grid[rowIndex][cellIndex];
         const newGrids = cell.map(n => {
             return grid.map((row, r) => {
@@ -337,7 +342,7 @@ export function solveGrid (stack: Array<Array<Array<number>>> = []) : Array<Arra
     });
     const t0 = performance.now();
     let result;
-    const TIMES = 1;
+    const TIMES = 100;
     for (let i = TIMES; i > 0; i--) {
         result = _solveGridAC3(newStack, 0);
     }
