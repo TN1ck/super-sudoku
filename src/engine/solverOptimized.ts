@@ -3,18 +3,9 @@ import {
     SUDOKU_NUMBERS,
     SQUARE_TABLE,
     squareIndex,
-    SimpleSudoku
+    SimpleSudoku,
+    duplicates
 } from './utility';
-
-function duplicates (array: Array<number>) : number {
-    const filtered = array.filter(c => c !== undefined);
-    const grouped = _.groupBy(filtered, c => c);
-    const picked = _.pickBy(
-        grouped,
-        x => x.length > 1
-    );
-    return _.values(picked).length;
-}
 
 function isFilled (grid: SimpleSudoku) : boolean {
     return grid.every(row => row.every(n => n !== undefined))

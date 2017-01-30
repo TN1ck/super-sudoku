@@ -1,37 +1,41 @@
 import * as _ from 'lodash';
 import {
-    Cell
-} from 'src/ducks/sudoku/model';
+    SUDOKU_NUMBERS
+} from './utility';
 
-function duplicates (array: Array<Cell>) : Array<Cell> {
+interface SimpleCell {
+    x: number;
+    y: number;
+    number: number;
+}
+
+function duplicates (array: Array<SimpleCell>) : Array<SimpleCell> {
     const grouped = _.groupBy(array, c => String(c.number));
     const picked = _.pickBy(
         grouped,
         x => x.length > 1
     );
-
     return [].concat(..._.values(picked));
-
 }
 
 // A sudoku has 3 constraints
 
-function checkRow (grid: Array<Cell>, cell: Cell) : Array<Cell> {
+function checkRow (grid: Array<SimpleCell>, cell: SimpleCell) : Array<SimpleCell> {
     const currentRow = grid.filter(c => c.x === cell.x);
     const currentRowNumbers = currentRow.filter(c => c.number);
     return currentRowNumbers;
 }
 
-function checkColumn (grid: Array<Cell>, cell: Cell) : Array<Cell> {
+function checkColumn (grid: Array<SimpleCell>, cell: SimpleCell) : Array<SimpleCell> {
     const currentColumn = grid.filter(c => c.y === cell.y);
     const currentColumnNumbers = currentColumn.filter(c => c.number);
     return currentColumnNumbers;
 }
 
-function checkSquare (grid: Array<Cell>, cell: Cell) : Array<Cell> {
-    const squares: Array<Array<Cell>> = _.values(_.groupBy(
+function checkSquare (grid: Array<SimpleCell>, cell: SimpleCell) : Array<SimpleCell> {
+    const squares: Array<Array<SimpleCell>> = _.values(_.groupBy(
         grid,
-        (c: Cell) => {
+        (c: SimpleCell) => {
             return `${Math.floor((c.x - 1) / 3)}-${Math.floor((c.y - 1) / 3)}`;
         }
     ));
@@ -43,31 +47,51 @@ function checkSquare (grid: Array<Cell>, cell: Cell) : Array<Cell> {
     return currentSquareNumbers;
 }
 
-function checkCellForDuplicates (grid: Array<Cell>, cell: Cell) : Array<Cell> {
+function checkCellForDuplicates (grid: Array<SimpleCell>, cell: SimpleCell) : Array<SimpleCell> {
     const row = duplicates(checkRow(grid, cell));
     const column = duplicates(checkColumn(grid, cell));
     const square = duplicates(checkSquare(grid, cell));
     const uniques = _.uniqBy(
         row.concat(column).concat(square),
-        function (c: Cell) {
+        function (c: SimpleCell) {
             return `${c.x}-${c.y}`;
         }
     );
     return uniques;
 }
 
-function everyFieldIsFilledWithANumber (grid: Array<Cell>): Boolean {
+function everyFieldIsFilledWithANumber (grid: Array<SimpleCell>): Boolean {
     return grid.filter(c => c.number).length === grid.length;
 }
 
-function everyFieldIsCorrect (grid: Array<Cell>): Boolean {
+function everyFieldIsCorrect (grid: Array<SimpleCell>): Boolean {
     const result = grid.every(c => {
         return checkCellForDuplicates(grid, c).length === 0;
     });
     return result;
 }
 
-export function* solveGrid (stack: Array<Array<Cell>> = []) : Iterable<Array<Array<Cell> | Array<Cell> | Cell>> {
+function getMinimumRemainingValue (grid: Array<SimpleCell>) {
+     // take an empty field using
+    // minimum remaining value
+    const remainingValues = grid
+        .filter(c => !c.number)
+        .map(c => {
+            const cells = checkRow(grid, c)
+                .concat(checkColumn(grid, c))
+                .concat(checkSquare(grid, c));
+            const uniqCells = _.uniqBy(cells, c => c.number);
+            return {
+                cell: c,
+                cells: uniqCells
+            }
+        });
+    const sortedRemainingValues = _.sortBy(remainingValues, ({cells}) => -cells.length);
+    const emptyCell = sortedRemainingValues[0].cell;
+    return emptyCell;
+}
+
+export function* solveGrid (stack: Array<Array<SimpleCell>> = []) : Iterable<Array<SimpleCell>> {
     const[grid, ...rest] = stack;
 
     const _everyFieldIsFilledWithANumber = everyFieldIsFilledWithANumber(grid);
@@ -79,26 +103,9 @@ export function* solveGrid (stack: Array<Array<Cell>> = []) : Iterable<Array<Arr
         if (!_everyFieldIsCorrect) {
             yield *solveGrid(rest);
         } else {
-            // take an empty field using
-            // minimum remaining value
-            const remainingValues = grid
-                .filter(c => !c.number)
-                .map(c => {
-                    const cells = checkRow(grid, c)
-                        .concat(checkColumn(grid, c))
-                        .concat(checkSquare(grid, c));
-                    const uniqCells = _.uniqBy(cells, c => c.number);
-                    return {
-                        cell: c,
-                        cells: uniqCells
-                    }
-                });
-            const sortedRemainingValues = _.sortBy(remainingValues, ({cells}) => -cells.length);
-            const emptyCell = sortedRemainingValues[0].cell;
-
+            const emptyCell = getMinimumRemainingValue(grid);
             // find a valid value
-            const numbers = _.range(1, 10);
-            const filteredNumbers: Array<Cell> = numbers
+            const filteredNumbers: Array<SimpleCell> = SUDOKU_NUMBERS
                 .map((n, i) => {
                     return Object.assign({}, emptyCell, {number: i + 1});
                 })
@@ -110,9 +117,9 @@ export function* solveGrid (stack: Array<Array<Cell>> = []) : Iterable<Array<Arr
             if (filteredNumbers.length === 0) {
                 yield *solveGrid(rest);
             } else {
-                const newGrids = filteredNumbers.map((c: Cell): Array<Cell> => {
-                // remove the cell from the grid and use the new one
-                const newGrid = grid.filter(cc => `${c.x}-${c.y}` !== `${cc.x}-${cc.y}`);
+                const newGrids = filteredNumbers.map((c: SimpleCell): Array<SimpleCell> => {
+                    // remove the cell from the grid and use the new one
+                    const newGrid = grid.filter(cc => `${c.x}-${c.y}` !== `${cc.x}-${cc.y}`);
                     newGrid.push(c);
                     return newGrid;
                 });

@@ -45,3 +45,13 @@ export function printSimpleSudoku (grid: SimpleSudoku) {
         return row.map(c => c === undefined ? '_' : ('' + c)).join('');
     }).join('\n');
 }
+
+export function duplicates (array: Array<number>) : number {
+    const filtered = array.filter(c => c !== undefined);
+    const grouped = _.groupBy(filtered, c => c);
+    const picked = _.pickBy(
+        grouped,
+        x => x.length > 1
+    );
+    return _.values(picked).length;
+}
