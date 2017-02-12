@@ -112,12 +112,7 @@ export function* solveGridGenerator (stack: Array<Array<SimpleCell>> = []) : Ite
                 return newGrid;
             }).filter(g => everyFieldIsCorrect(g));
 
-            // we hit a wall
-            if (newGrids.length === 0) {
-                yield *solveGridGenerator(rest);
-            } else {
-                yield *solveGridGenerator(newGrids.concat(rest));
-            }
+            yield *solveGridGenerator(newGrids.concat(rest));
         }
     }
 }
@@ -149,11 +144,6 @@ export function _solveGrid (stack: Array<Array<SimpleCell>> = [], counter: numbe
         newGrid.push(c);
         return newGrid;
     }).filter(g => everyFieldIsCorrect(g));
-
-    // we hit a wall
-    if (newGrids.length === 0) {
-        return _solveGrid(rest, counter);
-    }
 
     return _solveGrid(newGrids.concat(rest), counter);
 }
