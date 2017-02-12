@@ -1,12 +1,15 @@
 import {
     SimpleSudoku,
-    printSimpleSudoku
+    printSimpleSudoku,
+    complexSudokuToSimpleSudoku,
+    simpleSudokuToComplexSudoku
 } from './utility';
 
 import * as solverAC3 from './solverAC3';
 import * as solverOptimized from './solverOptimized';
+import * as solverNaive from './solverNaive';
 
-function measureTime (fn, times) {
+function measureTime<T> (fn: () => T, times: number) : T {
     let result;
     const t0 = performance.now();
     for (let i = times; i > 0; i--) {
@@ -20,13 +23,20 @@ function measureTime (fn, times) {
 export function solve (grid: SimpleSudoku) : SimpleSudoku {
     console.log(printSimpleSudoku(grid));
 
-    const TIMES = 100;
+    const TIMES = 1;
+    const naiveResult = measureTime(() => {
+        return solverNaive.solve(simpleSudokuToComplexSudoku(grid));
+    }, TIMES);
     const AC3Result = measureTime(() => {
         return solverAC3.solve(grid);
     }, TIMES);
     const optimizedResult = measureTime(() => {
         return solverOptimized.solve(grid);
     }, TIMES);
+
+    console.log(printSimpleSudoku(
+        complexSudokuToSimpleSudoku(naiveResult))
+    );
     console.log(printSimpleSudoku(AC3Result));
     console.log(printSimpleSudoku(optimizedResult));
 

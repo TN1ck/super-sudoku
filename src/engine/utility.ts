@@ -14,6 +14,14 @@ import * as _ from 'lodash';
 square = _y * 3 + _x;
 */
 
+
+export interface SimpleCell {
+    x: number;
+    y: number;
+    number: number | undefined;
+}
+
+export type ComplexSudoku = Array<SimpleCell>;
 export type SimpleSudoku = Array<Array<number>>;
 export type DomainSudoku = Array<Array<Array<number>>>;
 
@@ -54,4 +62,38 @@ export function duplicates (array: Array<number>) : number {
         x => x.length > 1
     );
     return _.values(picked).length;
+}
+
+export function simpleSudokuToComplexSudoku (grid: SimpleSudoku) : ComplexSudoku {
+    return [].concat(...grid.map((row, y) => {
+        return row.map((n, x) => {
+            return {
+                x: x,
+                y: y,
+                number: n
+            };
+        });
+    }));
+}
+
+export function complexSudokuToSimpleSudoku (sudoku: ComplexSudoku) : Array<Array<number>> {
+    const simple = [[], [], [], [], [], [], [], [], []];
+    sudoku.forEach(cell => {
+        simple[cell.y][cell.x] = cell.number;
+    });
+    return simple;
+}
+
+export function printComplexSudoku (grid: ComplexSudoku) {
+    return _(grid)
+        .groupBy(c => {
+            return c.y;
+        })
+        .toPairs()
+        .sortBy(([, k]) => k)
+        .map(([, cells]: [String, ComplexSudoku]) => {
+            return _.sortBy(cells, c => c.x).map(c => {
+                return c.number === undefined ? '_' : String(c.number);
+            }).join('');
+        }).join('\n');
 }

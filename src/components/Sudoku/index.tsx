@@ -179,7 +179,7 @@ const _Grid : React.StatelessComponent<{
     const threeTimesThreeContainer = _.groupBy(
         props.grid,
         cell => {
-            return `${Math.floor((cell.y - 1) / 3)}-${Math.floor((cell.x - 1) / 3)}`;
+            return `${Math.floor((cell.y) / 3)}-${Math.floor((cell.x) / 3)}`;
         }
     );
     const keys = _.sortBy(_.keys(threeTimesThreeContainer), k => k);

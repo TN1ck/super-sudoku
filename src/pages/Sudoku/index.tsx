@@ -2,10 +2,10 @@ import * as React from 'react';
 
 import {connect} from 'react-redux';
 import {SudokuState} from 'src/ducks/sudoku';
-import {Cell, printSudoku, parseSudoku, parseSudokuToSimple, solvableSudoku1} from 'src/ducks/sudoku/model';
+import {Cell} from 'src/ducks/sudoku/model';
 import {GridComponent} from 'src/components/Sudoku';
 import {
-    solveGrid
+    solveGridGenerator
 } from 'src/engine/solverNaive';
 
 import * as Grid from 'src/components/Grid';
@@ -51,7 +51,7 @@ class SudokuStateComponent extends React.Component<{
     }
     solve () {
         const grids = [this.props.sudoku.grid];
-        this.iterator = solveGrid(grids);
+        this.iterator = solveGridGenerator(grids);
         this.setState({
             grid: this.props.sudoku.grid
         });

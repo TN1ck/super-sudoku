@@ -1,13 +1,8 @@
 import * as _ from 'lodash';
 import {
-    SUDOKU_NUMBERS
+    SUDOKU_NUMBERS,
+    SimpleCell
 } from './utility';
-
-interface SimpleCell {
-    x: number;
-    y: number;
-    number: number;
-}
 
 function duplicates (array: Array<SimpleCell>) : Array<SimpleCell> {
     const grouped = _.groupBy(array, c => String(c.number));
@@ -36,7 +31,7 @@ function checkSquare (grid: Array<SimpleCell>, cell: SimpleCell) : Array<SimpleC
     const squares: Array<Array<SimpleCell>> = _.values(_.groupBy(
         grid,
         (c: SimpleCell) => {
-            return `${Math.floor((c.x - 1) / 3)}-${Math.floor((c.y - 1) / 3)}`;
+            return `${Math.floor(c.x / 3)}-${Math.floor(c.y / 3)}`;
         }
     ));
 
@@ -91,7 +86,7 @@ function getMinimumRemainingValue (grid: Array<SimpleCell>) {
     return emptyCell;
 }
 
-export function* solveGrid (stack: Array<Array<SimpleCell>> = []) : Iterable<Array<SimpleCell>> {
+export function* solveGridGenerator (stack: Array<Array<SimpleCell>> = []) : Iterable<Array<SimpleCell>> {
     const[grid, ...rest] = stack;
 
     const _everyFieldIsFilledWithANumber = everyFieldIsFilledWithANumber(grid);
@@ -101,31 +96,68 @@ export function* solveGrid (stack: Array<Array<SimpleCell>> = []) : Iterable<Arr
     } else {
         yield grid;
         if (!_everyFieldIsCorrect) {
-            yield *solveGrid(rest);
+            yield *solveGridGenerator(rest);
         } else {
             const emptyCell = getMinimumRemainingValue(grid);
-            // find a valid value
-            const filteredNumbers: Array<SimpleCell> = SUDOKU_NUMBERS
+
+            const newCells: Array<SimpleCell> = SUDOKU_NUMBERS
                 .map((n, i) => {
                     return Object.assign({}, emptyCell, {number: i + 1});
-                })
-                .filter(c => {
-                    return everyFieldIsCorrect(grid);
                 });
+
+            const newGrids = newCells.map((c: SimpleCell): Array<SimpleCell> => {
+                // remove the cell from the grid and use the new one
+                const newGrid = grid.filter(cc => `${c.x}-${c.y}` !== `${cc.x}-${cc.y}`);
+                newGrid.push(c);
+                return newGrid;
+            }).filter(g => everyFieldIsCorrect(g));
 
             // we hit a wall
-            if (filteredNumbers.length === 0) {
-                yield *solveGrid(rest);
+            if (newGrids.length === 0) {
+                yield *solveGridGenerator(rest);
             } else {
-                const newGrids = filteredNumbers.map((c: SimpleCell): Array<SimpleCell> => {
-                    // remove the cell from the grid and use the new one
-                    const newGrid = grid.filter(cc => `${c.x}-${c.y}` !== `${cc.x}-${cc.y}`);
-                    newGrid.push(c);
-                    return newGrid;
-                });
-
-                yield *solveGrid(newGrids.concat(rest));
+                yield *solveGridGenerator(newGrids.concat(rest));
             }
         }
     }
+}
+
+export function _solveGrid (stack: Array<Array<SimpleCell>> = [], counter: number) : Array<SimpleCell> {
+    const[grid, ...rest] = stack;
+    counter++;
+
+    const _everyFieldIsFilledWithANumber = everyFieldIsFilledWithANumber(grid);
+    const _everyFieldIsCorrect = everyFieldIsCorrect(grid);
+    if (_everyFieldIsFilledWithANumber && _everyFieldIsCorrect) {
+        console.log('counter: ' + counter);
+        return grid;
+    }
+    // should actually never happen
+    if (!_everyFieldIsCorrect) {
+        return _solveGrid(rest, counter);
+    }
+    const emptyCell = getMinimumRemainingValue(grid);
+
+    const newCells: Array<SimpleCell> = SUDOKU_NUMBERS
+        .map((n, i) => {
+            return Object.assign({}, emptyCell, {number: i + 1});
+        });
+
+    const newGrids = newCells.map((c: SimpleCell): Array<SimpleCell> => {
+        // remove the cell from the grid and use the new one
+        const newGrid = grid.filter(cc => `${c.x}-${c.y}` !== `${cc.x}-${cc.y}`);
+        newGrid.push(c);
+        return newGrid;
+    }).filter(g => everyFieldIsCorrect(g));
+
+    // we hit a wall
+    if (newGrids.length === 0) {
+        return _solveGrid(rest, counter);
+    }
+
+    return _solveGrid(newGrids.concat(rest), counter);
+}
+
+export function solve (grid: Array<SimpleCell>) : Array<SimpleCell> {
+    return _solveGrid([grid], 0);
 }

@@ -1,8 +1,9 @@
+import {
+    SimpleCell
+} from 'src/engine/utility';
 
-export interface Cell {
-    readonly x: number; // x position in the Sudoku
-    readonly y: number; // y position in the Sudoku
-    number: number | undefined; // we also allow that no number is set
+
+export interface Cell extends SimpleCell {
     notes: Set<number>;
     showMenu: boolean; // show the menu for this cell
     allowed: Set<number>;
@@ -37,14 +38,6 @@ export const solvableSudoku1 = [
     '57_______',
 ].join('\n');
 
-export function parseSudokuToSimple (sudoku: Array<Cell>) : Array<Array<number>> {
-    const simple = [[], [], [], [], [], [], [], [], []];
-    sudoku.forEach(cell => {
-        simple[cell.y - 1][cell.x - 1] = cell.number;
-    });
-    return simple;
-}
-
 export function parseSudoku (sudoku: String): Array<Cell> {
     const lines = sudoku.split('\n');
     return [].concat(...lines
@@ -53,8 +46,8 @@ export function parseSudoku (sudoku: String): Array<Cell> {
             return characters.map((c, x) => {
                 const number = c === '_' ? undefined : Number(c);
                 return createCell(
-                    x + 1,
-                    y + 1,
+                    x,
+                    y,
                     number,
                     new Set([]),
                     new Set([])
@@ -62,17 +55,3 @@ export function parseSudoku (sudoku: String): Array<Cell> {
             });
         }));
 };
-
-export function printSudoku (grid: Array<Cell>) {
-    return _(grid)
-        .groupBy(c => {
-            return c.y;
-        })
-        .toPairs()
-        .sortBy(([, k]) => k)
-        .map(([, cells]: [String, Array<Cell>]) => {
-            return _.sortBy(cells, c => c.x).map(c => {
-                return c.number === undefined ? '_' : String(c.number);
-            }).join('');
-        }).join('\n');
-}
