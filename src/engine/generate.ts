@@ -20,8 +20,10 @@
 
 import * as _ from 'lodash';
 import * as solverAC3 from './solverAC3';
+import * as solverOptimized from './solverOptimized';
 import {
     SUDOKU_NUMBERS,
+    SUDOKU_COORDINATES,
     SimpleSudoku,
 } from './utility';
 
@@ -46,6 +48,10 @@ const DIFFICULTY_MAPPING = {
  * if not solveable - return infinity
  */
 function costFunction (sudoku: SimpleSudoku) : number {
+    const resultFast = solverOptimized.solve(sudoku);
+    if (resultFast.iterations === Infinity) {
+        return resultFast.iterations;
+    }
     const result = solverAC3.solve(sudoku);
     return result.iterations;
 }
@@ -54,26 +60,27 @@ function getRandomSudokuNumber () : number {
     return (_.random(10) > 8) ? _.random(1, 9) :  undefined;
 }
 
-function checkForUniqueness (sudoku: SimpleSudoku) : boolean {
+export function checkForUniqueness (sudoku: SimpleSudoku) : boolean {
     let rowIndex = 0;
     for (let row of sudoku) {
         let colIndex = 0;
-        for (let col of sudoku) {
+        for (let col of row) {
             // if it's undefined, we try every number and if it's still solveable
             // with two different numbers it's not unique
             if (col === undefined) {
                 let timesSolved = 0;
                 for (let num of SUDOKU_NUMBERS) {
                     const newSudoku = sudoku.map((r, ri) => {
-                        return row.map((c, ci) => {
+                        return r.map((c, ci) => {
                             if (rowIndex === ri && colIndex === ci) {
                                 return num;
                             }
                             return c;
                         });
                     });
-                    const result = solverAC3.solve(newSudoku);
-                    if (result.iterations < Infinity) {
+
+                    const result = solverOptimized.solve(newSudoku);
+                    if (result.iterations !== Infinity) {
                         timesSolved++;
                     }
                 }
@@ -86,6 +93,38 @@ function checkForUniqueness (sudoku: SimpleSudoku) : boolean {
         rowIndex++;
     }
     return true;
+}
+
+function enhanceUniqueness (sudoku: SimpleSudoku) : SimpleSudoku {
+    const randomRows = _.shuffle(SUDOKU_COORDINATES);
+    for (let row of randomRows) {
+        const randomColumns = _.shuffle(SUDOKU_COORDINATES);
+        for (let col of randomColumns) {
+            const num = sudoku[row][col];
+            if (num === undefined) {
+                let timesSolved = 0;
+                for (let num of SUDOKU_NUMBERS) {
+                    const newSudoku = sudoku.map((r, ri) => {
+                        return r.map((c, ci) => {
+                            if (row === ri && col === ci) {
+                                return num;
+                            }
+                            return c;
+                        });
+                    });
+
+                    const result = solverOptimized.solve(newSudoku);
+                    if (result.iterations !== Infinity) {
+                        timesSolved++;
+                        if (timesSolved > 1) {
+                            return newSudoku;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return sudoku;
 }
 
 export function generateSudoku (difficulty: DIFFICULTY): SimpleSudoku {
@@ -138,6 +177,13 @@ export function generateSudoku (difficulty: DIFFICULTY): SimpleSudoku {
         if (rateCosts(bestCost) === Infinity || rateCosts(newCost) < rateCosts(bestCost)) {
             bestSudoku = newSudoku;
             bestCost = newCost;
+        }
+
+        if (rateCosts(bestCost) < 10) {
+            if (!checkForUniqueness(bestSudoku)) {
+                bestSudoku = enhanceUniqueness(bestSudoku);
+                console.log('cost before/after', bestCost, costFunction(bestSudoku));
+            }
         }
     }
 

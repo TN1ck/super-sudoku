@@ -110,8 +110,11 @@ export function _solveGrid (stack: Array<SimpleSudoku> = [], iterations: number)
     sudoku: SimpleSudoku,
     iterations: number
 } {
-    if (stack.length === 0) {
-        return null;
+    if (stack.length === 0 || iterations > 4000) {
+        return {
+            sudoku: null,
+            iterations: Infinity
+        };
     }
     const [grid, ...rest] = stack;
     iterations++;
@@ -121,14 +124,15 @@ export function _solveGrid (stack: Array<SimpleSudoku> = [], iterations: number)
     const squares = getSquares(grid);
 
     const completelyFilled = isFilled(grid);
-    if (completelyFilled && isCorrect(rows, columns, squares)) {
-        console.log('iterations: ' + iterations);
-        return {
-            sudoku: grid,
-            iterations
-        };
-    } else {
-        _solveGrid(rest, iterations);
+    if (completelyFilled) {
+         if (isCorrect(rows, columns, squares)) {
+            console.log('iterations: ' + iterations);
+            return {
+                sudoku: grid,
+                iterations
+            };
+         }
+         return _solveGrid(rest, iterations);
     }
 
     const {remainingValues, x, y} = getMinimumRemainingValue(grid, rows, columns, squares);

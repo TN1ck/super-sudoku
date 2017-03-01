@@ -1,16 +1,29 @@
 import * as React from 'react';
 
 import * as Grid from 'src/components/Grid';
-import {generateSudoku, DIFFICULTY} from 'src/engine/generate';
+import {generateSudoku, DIFFICULTY, checkForUniqueness} from 'src/engine/generate';
 import {solve} from 'src/engine/solver';
-import {complexSudokuToSimpleSudoku, printSimpleSudoku} from 'src/engine/utility';
-import {parseSudoku, solvableSudoku1} from 'src/ducks/sudoku/model';
+import {complexSudokuToSimpleSudoku, printSimpleSudoku, parseSudoku, solvableSudoku1} from 'src/engine/utility';
 
-// solve(complexSudokuToSimpleSudoku(parseSudoku(solvableSudoku1)));
+// const sudoku = parseSudoku([
+//     '_________',
+//     '_________',
+//     '_________',
+//     '_____4___',
+//     '_________',
+//     '_________',
+//     '_________',
+//     '_________',
+//     '_________'
+// ].join('\n'));
 
-setTimeout(() => {
-    console.log(printSimpleSudoku(generateSudoku(DIFFICULTY.HARD)));
-});
+// console.log('is it unque?', checkForUniqueness(sudoku));
+// console.log('is it unque?', checkForUniqueness(parseSudoku(solvableSudoku1)));
+
+
+// setTimeout(() => {
+//     console.log(printSimpleSudoku(generateSudoku(DIFFICULTY.HARD)));
+// });
 
 const Home: React.StatelessComponent<{}> = function (props) {
     return (

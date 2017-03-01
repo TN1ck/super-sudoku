@@ -28,6 +28,30 @@ export type DomainSudoku = Array<Array<Array<number>>>;
 export const SUDOKU_COORDINATES = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 export const SUDOKU_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
+export const solvableSudoku1 = [
+    '_1____674',
+    '_897_____',
+    '__2_638__',
+    '_28___76_',
+    '___1__43_',
+    '__692__18',
+    '_6_235___',
+    '2__4_81_6',
+    '57_______',
+].join('\n');
+
+export const solvableSudoku2 = [
+    '34567892_',
+    '68914_57_',
+    '71__3_68_',
+    '27__86_3_',
+    '8_47___9_',
+    '_6___58__',
+    '__78__1__',
+    '__8____5_',
+    '_________'
+].join('\n');
+
 // SQUARE TABLE
 export const SQUARE_TABLE = (function () {
     const cells: Array<[number, number]> = [].concat(...SUDOKU_COORDINATES.map(x => {
@@ -83,6 +107,18 @@ export function complexSudokuToSimpleSudoku (sudoku: ComplexSudoku) : Array<Arra
     });
     return simple;
 }
+
+export function parseSudoku (sudoku: String): SimpleSudoku {
+    const lines = sudoku.split('\n');
+    return lines
+        .map((line, y) => {
+            const characters = line.split('');
+            return characters.map((c, x) => {
+                const number = c === '_' ? undefined : Number(c);
+                return number;
+            });
+        });
+};
 
 export function printComplexSudoku (grid: ComplexSudoku) {
     return _(grid)
