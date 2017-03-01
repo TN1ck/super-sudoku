@@ -46,18 +46,28 @@ function toDomainSudoku (grid: SimpleSudoku) : DomainSudoku {
  * Rating and Generating Sudoku Puzzles Based On Constraint Satisfaction Problems
  * by Bahare Fatemi, Seyed Mehran Kazemi, Nazanin Mehrasa
  */
-export function _solveGridAC3 (stack: Array<DomainSudoku> = [], counter: number) : SimpleSudoku {
+export function _solveGridAC3 (stack: Array<DomainSudoku> = [], iterations: number) : {
+    sudoku: SimpleSudoku,
+    iterations: number
+} {
     if (stack.length === 0) {
-        console.log('EMPTY STACK');
-        return null;
+        return {
+            sudoku: null,
+            iterations: Infinity
+        };
     }
 
     const [grid, ...rest] = stack;
 
-    counter++;
-    if (counter > 2000) {
-        console.log('COMPUTATION TIME OUT', counter);
-        return toSimpeSudoku(grid);
+    iterations++;
+    // evil puzzles have an average of about 500, everything more than 2000 than is actually solvable
+    // will be too difficult for the normal user
+    if (iterations > 2000) {
+        console.log('COMPUTATION TIME OUT', iterations);
+        return {
+            sudoku: toSimpeSudoku(grid),
+            iterations: Infinity
+        };
     }
 
     const rows = grid;
@@ -109,7 +119,7 @@ export function _solveGridAC3 (stack: Array<DomainSudoku> = [], counter: number)
 
             if (change || domain1.length === 0) {
                 if (domain1.length === 0) {
-                    return _solveGridAC3(rest, counter);
+                    return _solveGridAC3(rest, iterations);
                 }
             // we loop again and simulate the adding of the edges
             } else {
@@ -157,15 +167,21 @@ export function _solveGridAC3 (stack: Array<DomainSudoku> = [], counter: number)
             });
         });
         const newStack = newGrids.concat(rest);
-        return _solveGridAC3(newStack, counter);
+        return _solveGridAC3(newStack, iterations);
     }
 
-    console.log('counter: ' + counter);
-    return toSimpeSudoku(grid);
+    console.log('iterations: ' + iterations);
+    return {
+        sudoku: toSimpeSudoku(grid),
+        iterations
+    };
 
 }
 
-export function solve (grid: SimpleSudoku) : SimpleSudoku {
+export function solve (grid: SimpleSudoku) : {
+    sudoku: SimpleSudoku,
+    iterations: number
+} {
     const stack = [toDomainSudoku(grid)];
     return _solveGridAC3(stack, 0);
 }

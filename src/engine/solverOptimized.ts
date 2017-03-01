@@ -106,12 +106,15 @@ function createNewGrids (grid: SimpleSudoku, x: number, y: number, values) {
     return newGrids;
 }
 
-export function _solveGrid (stack: Array<SimpleSudoku> = [], counter: number) : SimpleSudoku {
+export function _solveGrid (stack: Array<SimpleSudoku> = [], iterations: number) : {
+    sudoku: SimpleSudoku,
+    iterations: number
+} {
     if (stack.length === 0) {
         return null;
     }
     const [grid, ...rest] = stack;
-    counter++;
+    iterations++;
 
     const rows    = grid;
     const columns = getColumns(grid);
@@ -119,16 +122,19 @@ export function _solveGrid (stack: Array<SimpleSudoku> = [], counter: number) : 
 
     const completelyFilled = isFilled(grid);
     if (completelyFilled && isCorrect(rows, columns, squares)) {
-        console.log('counter: ' + counter);
-        return grid;
+        console.log('iterations: ' + iterations);
+        return {
+            sudoku: grid,
+            iterations
+        };
     } else {
-        _solveGrid(rest, counter);
+        _solveGrid(rest, iterations);
     }
 
     const {remainingValues, x, y} = getMinimumRemainingValue(grid, rows, columns, squares);
     const newGrids = createNewGrids(grid, x, y, remainingValues);
 
-    return _solveGrid(newGrids.concat(rest), counter);
+    return _solveGrid(newGrids.concat(rest), iterations);
 }
 
 export function solve (grid: SimpleSudoku) {

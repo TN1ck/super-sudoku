@@ -35,10 +35,10 @@ export function solve (grid: SimpleSudoku) : SimpleSudoku {
     }, TIMES);
 
     console.log(printSimpleSudoku(
-        complexSudokuToSimpleSudoku(naiveResult))
+        complexSudokuToSimpleSudoku(naiveResult.sudoku))
     );
-    console.log(printSimpleSudoku(AC3Result));
-    console.log(printSimpleSudoku(optimizedResult));
+    console.log(printSimpleSudoku(AC3Result.sudoku));
+    console.log(printSimpleSudoku(optimizedResult.sudoku));
 
-    return optimizedResult;
+    return optimizedResult.sudoku;
 }
