@@ -1,14 +1,16 @@
 import * as React from 'react';
 
 import * as Grid from 'src/components/Grid';
-import generateSudoku from 'src/engine/generate';
+import {generateSudoku, DIFFICULTY} from 'src/engine/generate';
 import {solve} from 'src/engine/solver';
 import {complexSudokuToSimpleSudoku, printSimpleSudoku} from 'src/engine/utility';
 import {parseSudoku, solvableSudoku1} from 'src/ducks/sudoku/model';
 
 // solve(complexSudokuToSimpleSudoku(parseSudoku(solvableSudoku1)));
 
-console.log(printSimpleSudoku(generateSudoku('easy')));
+setTimeout(() => {
+    console.log(printSimpleSudoku(generateSudoku(DIFFICULTY.HARD)));
+});
 
 const Home: React.StatelessComponent<{}> = function (props) {
     return (
