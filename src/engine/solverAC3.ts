@@ -137,7 +137,7 @@ export function _solveGridAC3 (stack: Array<DomainSudoku> = [], iterations: numb
 
     if (!isFilled) {
         const possibleRowAndCells = grid.reduce((current: Array<[number, number]>, row, index) => {
-            const possibleCells = row.reduce((currentCells, cells, cellIndex) => {
+            const possibleCells = row.reduce((currentCells: Array<[number, number]>, cells, cellIndex) => {
                 if (cells.length > 1) {
                     return currentCells.concat([[index, cellIndex]]);
                 }

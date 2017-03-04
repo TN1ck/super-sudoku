@@ -7,6 +7,7 @@ new WebpackDevServer(webpack(config), {
     hot: true,
     historyApiFallback: true,
     inline: true,
+    stats: { colors: true },
     headers: { 'Access-Control-Allow-Origin': '*' }
 }).listen(8080, 'localhost', function (err, result) {
     if (err) {

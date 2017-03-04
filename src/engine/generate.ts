@@ -136,8 +136,8 @@ export function generateSudoku (difficulty: DIFFICULTY): SimpleSudoku {
     }
 
     // 1. create a random sudoku
-    const randomSudoku : SimpleSudoku = SUDOKU_NUMBERS.map(row => {
-        return SUDOKU_NUMBERS.map(col => {
+    const randomSudoku : SimpleSudoku = SUDOKU_NUMBERS.map(() => {
+        return SUDOKU_NUMBERS.map(() => {
             return getRandomSudokuNumber();
         });
     });

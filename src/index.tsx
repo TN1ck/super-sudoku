@@ -22,8 +22,8 @@ function renderApp (RootComponent) {
 
 renderApp(Root);
 
-if ((module as any).hot) {
-    (module as any).hot.accept(
+if (module.hot) {
+    module.hot.accept(
         './Root.tsx',
         () => renderApp(require('./Root.tsx').default)
     );

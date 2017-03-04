@@ -105,8 +105,8 @@ export function* solveGridGenerator (stack: Array<ComplexSudoku> = []) : Iterabl
             const emptyCell = getMinimumRemainingValue(grid);
 
             const newCells: ComplexSudoku = SUDOKU_NUMBERS
-                .map((n, i) => {
-                    return Object.assign({}, emptyCell, {number: i + 1});
+                .map((n) => {
+                    return Object.assign({}, emptyCell, {number: n});
                 });
 
             const newGrids = newCells.map((c: SimpleCell): ComplexSudoku => {
@@ -144,8 +144,8 @@ export function _solveGrid (stack: Array<ComplexSudoku> = [], iterations: number
     const emptyCell = getMinimumRemainingValue(grid);
 
     const newCells: ComplexSudoku = SUDOKU_NUMBERS
-        .map((n, i) => {
-            return Object.assign({}, emptyCell, {number: i + 1});
+        .map(n => {
+            return Object.assign({}, emptyCell, {number: n});
         });
 
     const newGrids = newCells.map((c: SimpleCell): ComplexSudoku => {

@@ -12,7 +12,6 @@ const App: React.StatelessComponent<IAppProps> = function (props) {
                 <Grid.Row>
                     <Navigation.Wrapper>
                         <Navigation.Item to={'/home'}>{'Home'}</Navigation.Item>
-                        <Navigation.Item to={'/counter'}>{'Counter'}</Navigation.Item>
                         <Navigation.Item to={'/sudoku'}>{'Sudoku'}</Navigation.Item>
                     </Navigation.Wrapper>
                 </Grid.Row>

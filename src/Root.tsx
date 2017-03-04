@@ -6,7 +6,6 @@ import { Route, Router, browserHistory, IndexRedirect } from 'react-router';
 
 import App from 'src/pages/App';
 import Home from 'src/pages/Home';
-import Counter from 'src/pages/Counter';
 import Sudoku from 'src/pages/Sudoku';
 
 // import it here to activate hot-reloading for css
@@ -17,7 +16,6 @@ const routes = (
     <Route path='/' component={ App }>
         <IndexRedirect to='/home' />
         <Route path='/home' component={ Home } />
-        <Route path='/counter' component={ Counter } />
         <Route path='/sudoku' component={ Sudoku } />
     </Route>
 );

@@ -1,14 +1,13 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {
-    SudokuState, showMenu, setNumber, clearNumber
+    showMenu, setNumber, clearNumber
 } from 'src/ducks/sudoku';
 import {
     Cell
 } from 'src/ducks/sudoku/model';
 import * as _ from 'lodash';
-const styles = require('./styles.css');
-const CSSModules = require('react-css-modules');
+import * as styles from './styles.css';
 
 //
 // Menu
@@ -18,15 +17,15 @@ const MenuRow : React.StatelessComponent<{
     cell: Cell;
     numbers: Array<number>;
     setNumber: (cell, number) => void
-}> = CSSModules(function _MenuRow (props) {
+}> = function _MenuRow (props) {
     const cell = props.cell;
     return (
-        <div styleName='menu-row'>
+        <div className={styles.menuRow}>
             {
                 props.numbers.map(n => {
                     return (
                         <div
-                            styleName='menu-item'
+                            className={styles.menuItem}
                             onClick={() => {
                                 props.setNumber(cell, n);
                             }}
@@ -38,19 +37,19 @@ const MenuRow : React.StatelessComponent<{
             }
         </div>
     );
-}, styles);
+};
 
-const _Menu : React.StatelessComponent<{
+const Menu : React.StatelessComponent<{
     cell: Cell;
-    setNumber: (cell, number) => void;
-    showMenu: (cell) => void;
-    clearNumber: (cell) => void;
+    setNumber: (cell, number) => any;
+    showMenu: (cell) => any;
+    clearNumber: (cell) => any;
 
-}> = CSSModules(function _Menu (props) {
+}> = function Menu (props) {
     const cell = props.cell;
 
     return (
-        <div styleName='menu-container'>
+        <div className={styles.menuContainer}>
             <MenuRow
                 cell={cell}
                 numbers={[1, 2, 3]}
@@ -66,15 +65,15 @@ const _Menu : React.StatelessComponent<{
                 numbers={[7, 8, 9]}
                 setNumber={props.setNumber}
             />
-            <div styleName='menu-row'>
+            <div className={styles.menuRow}>
                 <div
-                    styleName='menu-item'
+                    className={styles.menuItem}
                     onClick={() => props.clearNumber(cell)}
                 >
                     {'H'}
                 </div>
                 <div
-                    styleName='menu-item'
+                    className={styles.menuItem}
                     onClick={() => props.clearNumber(cell)}
                 >
                     {'C'}
@@ -82,11 +81,13 @@ const _Menu : React.StatelessComponent<{
             </div>
         </div>
     );
-}, styles);
+};
 
-export const MenuComponent = connect(
-    function (state) {
-        return {}
+export const MenuComponent = connect<{}, {}, {
+    cell: Cell
+}>(
+    function () {
+        return {};
     },
     function (dispatch) {
         return {
@@ -95,8 +96,7 @@ export const MenuComponent = connect(
             clearNumber: (cell) => dispatch(clearNumber(cell))
         };
     }
-// TODO
-)(_Menu) as any;
+)(Menu);
 
 //
 // Cell
@@ -104,7 +104,7 @@ export const MenuComponent = connect(
 
 class CellComponentBasic extends React.Component<{
     cell: Cell;
-    showMenu: (cell) => void
+    showMenu: (cell) => any
 }, {
 }> {
     constructor (props) {
@@ -121,16 +121,18 @@ class CellComponentBasic extends React.Component<{
         const cell = this.props.cell;
         const notes = [...cell.notes.values()];
         return (
-            <div className={styles['cell-container']} onClick={this.toggleMenu}>
+            <div className={styles.cellContainer} onClick={this.toggleMenu}>
                 {this.props.cell.showMenu  ?
-                    <MenuComponent cell={this.props.cell} /> :
+                    <MenuComponent
+                        cell={this.props.cell}
+                    /> :
                     null
                 }
-                <div className={styles['cell']}>
-                    <div className={styles['cell-number']}>
+                <div className={styles.cell}>
+                    <div className={styles.cellNumber}>
                         {this.props.cell.number}
                     </div>
-                    <div className={styles['cell-note-container']}>
+                    <div className={styles.cellNoteContainer}>
                         {notes.map(n => {
                             return (
                                 <div className={styles['cell-note']}>{n}</div>
@@ -143,17 +145,18 @@ class CellComponentBasic extends React.Component<{
     }
 };
 
-export const CellComponent = connect(
-    function (state) {
-        return {}
+export const CellComponent = connect<{}, {}, {
+    cell: Cell
+}>(
+    function () {
+        return {};
     },
     function (dispatch) {
         return {
             showMenu: (cell) => dispatch(showMenu(cell))
         };
     }
-// TODO
-)(CellComponentBasic) as any;
+)(CellComponentBasic);
 
 //
 // Grid
@@ -173,7 +176,7 @@ export const CellComponent = connect(
 |-----------------------------------|
 */
 
-const _Grid : React.StatelessComponent<{
+export const GridComponent : React.StatelessComponent<{
      grid: Array<Cell>;
 }> = function _Grid (props) {
     const threeTimesThreeContainer = _.groupBy(
@@ -184,14 +187,14 @@ const _Grid : React.StatelessComponent<{
     );
     const keys = _.sortBy(_.keys(threeTimesThreeContainer), k => k);
     return (
-        <div styleName='grid-container' >
+        <div className={styles.gridContainer} >
             {keys.map((key) => {
                 const container = threeTimesThreeContainer[key];
                 const sorted = _.sortBy(container, c => {
                     return `${c.y}-${c.x}`;
                 });
                 return (
-                    <div key={key} styleName='grid-3x3'>
+                    <div key={key} className={styles.grid3X3}>
                         {sorted.map(cell => {
                             const k = `${cell.y}-${cell.x}`;
                             return <CellComponent key={k} cell={cell} />;
@@ -202,7 +205,5 @@ const _Grid : React.StatelessComponent<{
         </div>
     );
 };
-
-export const GridComponent = CSSModules(_Grid, styles);
 
 

@@ -9,8 +9,7 @@ import {
 } from 'src/engine/solverNaive';
 
 import * as Grid from 'src/components/Grid';
-
-const styles = require('./styles.css');
+import * as styles from './styles.css';
 
 const Sudoku: React.StatelessComponent<{
     grid: Array<Cell>
@@ -21,7 +20,7 @@ const Sudoku: React.StatelessComponent<{
                 <Grid.Row>
                     <Grid.Col xs={12}>
                         <h1>{'Sudoku'}</h1>
-                        <div className={styles['sudoku-container']}>
+                        <div className={styles.sudokuContainer}>
                             <GridComponent
                                 grid={props.grid}
                             />
@@ -83,8 +82,7 @@ export default connect(
             sudoku: (state.sudoku as SudokuState)
         };
     },
-    function (dispatch) {
-        return {
-        };
+    function () {
+        return {};
     }
 )(SudokuStateComponent);

@@ -39,6 +39,7 @@
     width: 33.33%;
     height: 33.33%;
     composes: color-grey--light from 'src/styles/colors.css';
+
     @media (max-width: 600px) {
         font-size: 10px;
     }

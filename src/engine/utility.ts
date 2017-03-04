@@ -111,9 +111,9 @@ export function complexSudokuToSimpleSudoku (sudoku: ComplexSudoku) : Array<Arra
 export function parseSudoku (sudoku: String): SimpleSudoku {
     const lines = sudoku.split('\n');
     return lines
-        .map((line, y) => {
+        .map((line) => {
             const characters = line.split('');
-            return characters.map((c, x) => {
+            return characters.map((c) => {
                 const number = c === '_' ? undefined : Number(c);
                 return number;
             });

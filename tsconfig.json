@@ -2,6 +2,8 @@
   "compileOnSave": false,
   "buildOnSave": false,
   "compilerOptions": {
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "baseUrl": "./",
     "paths" : {
       "src/*": ["./src/*"]
