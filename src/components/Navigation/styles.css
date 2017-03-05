@@ -1,12 +1,25 @@
+@import 'src/styles/variables.css';
+
 .navigation-wrapper {
-    composes: relative px1 flex border from 'src/styles/lib/basscss.css';
-    composes: border-color-grey--lighter from 'src/styles/colors.css';
+    position: relative;
+    padding: 10px;
+    margin-bottom: 40px;
+    color: white;
+    display: flex;
+    background-color: var(--color__blue);
+    border-bottom: 1px solid var(--color__dark-blue-two);
 }
 
 .navigation-item {
-    composes: p1 flex-none text-decoration-none from 'src/styles/lib/basscss.css';
-    composes: hover-cursor-pointer from 'src/styles/util.css';
-    composes: color-grey color-hover-black from 'src/styles/colors.css';
+    color: var(--color__grey--lighter);
+    flex: none;
+    padding: 10px;
+    text-decoration: none;
+
+    &:hover {
+        color: white;
+        cursor: pointer;
+    }
 }
 
 .navigation-item--active {

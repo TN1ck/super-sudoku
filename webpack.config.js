@@ -19,7 +19,12 @@ const GENERATE_TYPINGS = process.env.GENERATE_TYPINGS === 'TRUE';
 const postcssBasePlugins = [
     require('postcss-modules-local-by-default'),
     require('postcss-import')({
-        addDependencyTo: webpack
+        addDependencyTo: webpack,
+        path: [
+            path.resolve(__dirname),
+            path.join(__dirname, 'src'),
+            path.join(__dirname, 'src/styles')
+        ]
     }),
     require('postcss-cssnext'),
     require('postcss-nested')

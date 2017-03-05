@@ -1,19 +1,28 @@
+@import 'src/styles/variables.css';
+
 .cell-container {
     position: relative;
     width: 33.333%;
     height: 33.333%;
     border-width: 1px;
     border-style: solid;
-    composes: border-color-grey--light from 'src/styles/colors.css';
+    border-color: var(--color__grey--lighter);
 }
 
 .cell {
+    user-select: none;
     position: relative;
     width: 100%;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: background-color 0.1s ease;
+
+    &:hover {
+        background-color: var(--color__grey--lighter);
+        cursor: pointer;
+    }
 }
 
 .cell-note-container {
@@ -46,6 +55,8 @@
 }
 
 .grid-container {
+    box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.75);
+    background-color: white;
     width: 550px;
     height: 550px;
     flex-wrap: wrap;
@@ -65,17 +76,28 @@
 }
 
 .grid-3x3 {
-    border: 1px solid black;
+    border: 1px solid var(--color__grey--light);
     display: flex;
     flex-wrap: wrap;
     width: 33.333%;
     height: 33.333%;
 }
 
+.menu-circle {
+    stroke-width: 30px;
+
+    &:hover {
+        stroke-width: 40px;
+        cursor: pointer;
+    }
+}
+
+.menu-circle-stroke {
+    stroke-width: 32px;
+}
+
 .menu-container {
-    position: absolute;
-    display: flex;
-    flex-wrap: wrap;
+    display: block;
 }
 
 .menu-row {
@@ -83,15 +105,14 @@
 }
 
 .menu-item {
-    background-color: rgba(255, 255, 255, 0.8);
-    z-index: 10;
-    border-width: 1px;
-    border-style: solid;
-    composes: border-color-grey--light from 'src/styles/colors.css';
-    background-opacity: 0.5;
-    composes: cell;
-    flex-grow: 0;
-    flex-shrink: 0;
+    user-select: none;
+    pointer-events: none;
+    transform: translate(50%, 50%);
     height: 30px;
     width: 30px;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
 }

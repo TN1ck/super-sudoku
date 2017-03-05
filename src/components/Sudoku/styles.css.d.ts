@@ -5,6 +5,8 @@ export const cellNumber: string;
 export const cellNote: string;
 export const gridContainer: string;
 export const grid3X3: string;
+export const menuCircle: string;
+export const menuCircleStroke: string;
 export const menuContainer: string;
 export const menuRow: string;
 export const menuItem: string;

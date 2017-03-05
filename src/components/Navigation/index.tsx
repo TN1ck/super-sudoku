@@ -6,7 +6,7 @@ import { Link } from 'react-router';
 function _Item (props) {
     return (
         <Link
-            activeStyle={{color: 'black', fontWeight: 'bold'}}
+            activeStyle={{color: 'white', fontWeight: 'bold'}}
             className={styles['navigation-item']}
             to={props.to}
         >

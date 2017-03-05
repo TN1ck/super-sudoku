@@ -63,5 +63,11 @@
 }
 
 body {
+    margin: 0;
     font-family: 'Noto Sans', Helvetica Neue, Helvetica, Arial, sans-serif;
+    height: 100%;
+}
+
+html {
+    height: 100%;
 }

@@ -5,7 +5,7 @@ import { Store } from 'redux';
 import { Route, Router, browserHistory, IndexRedirect } from 'react-router';
 
 import App from 'src/pages/App';
-import Home from 'src/pages/Home';
+import About from 'src/pages/About';
 import Sudoku from 'src/pages/Sudoku';
 
 // import it here to activate hot-reloading for css
@@ -14,8 +14,8 @@ import './styles/index.global.css';
 
 const routes = (
     <Route path='/' component={ App }>
-        <IndexRedirect to='/home' />
-        <Route path='/home' component={ Home } />
+        <IndexRedirect to='/sudoku' />
+        <Route path='/about' component={ About } />
         <Route path='/sudoku' component={ Sudoku } />
     </Route>
 );

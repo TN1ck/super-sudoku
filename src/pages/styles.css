@@ -1,0 +1,6 @@
+@import 'variables.css';
+
+.app-wrapper {
+    background-color: var(--color__dark-blue);
+    height: 100%;
+}

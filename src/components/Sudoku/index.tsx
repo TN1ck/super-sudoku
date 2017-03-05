@@ -6,35 +6,54 @@ import {
 import {
     Cell
 } from 'src/ducks/sudoku/model';
+import {
+    SUDOKU_NUMBERS
+} from 'src/engine/utility';
 import * as _ from 'lodash';
+// import * as colors from 'src/utility/colors';
 import * as styles from './styles.css';
 
 //
 // Menu
 //
 
-const MenuRow : React.StatelessComponent<{
+// const MenuRow : React.StatelessComponent<{
+//     cell: Cell;
+//     numbers: Array<number>;
+//     setNumber: (cell, number) => void
+// }> = function _MenuRow (props) {
+//     const cell = props.cell;
+//     return (
+//         <div className={styles.menuRow}>
+//             {
+//                 props.numbers.map(n => {
+//                     return (
+//                         <div
+//                             className={styles.menuItem}
+//                             onClick={() => {
+//                                 props.setNumber(cell, n);
+//                             }}
+//                         >
+//                             {n}
+//                         </div>
+//                     );
+//                 })
+//             }
+//         </div>
+//     );
+// };
+
+const MenuItem : React.StatelessComponent<{
     cell: Cell;
-    numbers: Array<number>;
-    setNumber: (cell, number) => void
-}> = function _MenuRow (props) {
-    const cell = props.cell;
+    number: number;
+    style: React.CSSProperties;
+}> = function _MenuItem ({style, number}) {
     return (
-        <div className={styles.menuRow}>
-            {
-                props.numbers.map(n => {
-                    return (
-                        <div
-                            className={styles.menuItem}
-                            onClick={() => {
-                                props.setNumber(cell, n);
-                            }}
-                        >
-                            {n}
-                        </div>
-                    );
-                })
-            }
+         <div
+            className={styles.menuItem}
+            style={style}
+        >
+            {number}
         </div>
     );
 };
@@ -48,37 +67,84 @@ const Menu : React.StatelessComponent<{
 }> = function Menu (props) {
     const cell = props.cell;
 
+    const TAU = Math.PI * 2;
+    const radius = 60;
+    const degreePerStep = TAU / SUDOKU_NUMBERS.length;
+
     return (
         <div className={styles.menuContainer}>
-            <MenuRow
-                cell={cell}
-                numbers={[1, 2, 3]}
-                setNumber={props.setNumber}
-            />
-            <MenuRow
-                cell={cell}
-                numbers={[4, 5, 6]}
-                setNumber={props.setNumber}
-            />
-            <MenuRow
-                cell={cell}
-                numbers={[7, 8, 9]}
-                setNumber={props.setNumber}
-            />
-            <div className={styles.menuRow}>
-                <div
-                    className={styles.menuItem}
-                    onClick={() => props.clearNumber(cell)}
-                >
-                    {'H'}
-                </div>
-                <div
-                    className={styles.menuItem}
-                    onClick={() => props.clearNumber(cell)}
-                >
-                    {'C'}
-                </div>
-            </div>
+            <svg
+                style={{
+                    zIndex: 99,
+                    height: radius * 4,
+                    width: radius * 4,
+                    left: '50%',
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    position: 'absolute',
+                    opacity: 0.9
+                }}
+            >
+                {
+                    SUDOKU_NUMBERS.map((number, i) => {
+                        const circumcircle = TAU * radius;
+                        const step = (degreePerStep / TAU) * circumcircle;
+                        const percentage = (step * i);
+                        return (
+                            <g key={number}>
+                                 <circle
+                                    r={radius}
+                                    cx={radius * 2}
+                                    cy={radius * 2}
+                                    fill='none'
+                                    className={styles.menuCircleStroke}
+                                    style={{
+                                        stroke: 'gray',
+                                        strokeDashoffset: -percentage,
+                                        strokeDasharray: `${step} ${circumcircle}`
+                                    }}
+                                />
+                                <circle
+                                    r={radius}
+                                    cx={radius * 2}
+                                    cy={radius * 2}
+                                    fill='none'
+                                    className={styles.menuCircle}
+                                    onClick={() => {
+                                        props.setNumber(cell, number);
+                                    }}
+                                    style={{
+                                        stroke: 'white',
+                                        strokeDashoffset: -percentage,
+                                        strokeDasharray: `${step} ${circumcircle}`
+                                    }}
+                                />
+                            </g>
+                        );
+                    })
+                }
+            </svg>
+            {
+                SUDOKU_NUMBERS.map((n, i) => {
+                    // the 0.5 is for centering
+                    const x = radius *  Math.cos(degreePerStep * (i + 0.5));
+                    const y = radius *  Math.sin(degreePerStep * (i + 0.5));
+                    const style = {
+                        left: x,
+                        top: y,
+                        zIndex: 100,
+                        color: 'black'
+                    };
+                    return (
+                        <MenuItem
+                            key={n}
+                            style={style}
+                            cell={cell}
+                            number={n}
+                        />
+                    );
+                })
+            }
         </div>
     );
 };

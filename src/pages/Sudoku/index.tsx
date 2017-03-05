@@ -19,7 +19,6 @@ const Sudoku: React.StatelessComponent<{
             <Grid.Container>
                 <Grid.Row>
                     <Grid.Col xs={12}>
-                        <h1>{'Sudoku'}</h1>
                         <div className={styles.sudokuContainer}>
                             <GridComponent
                                 grid={props.grid}
@@ -46,7 +45,7 @@ class SudokuStateComponent extends React.Component<{
         };
     }
     componentDidMount () {
-        this.solve();
+        // this.solve();
     }
     solve () {
         const grids = [this.props.sudoku.grid];
@@ -67,7 +66,7 @@ class SudokuStateComponent extends React.Component<{
 
     }
     render () {
-        const grid = this.state.grid;
+        const grid = this.props.sudoku.grid;
         return (
             <Sudoku
                 grid={grid}
