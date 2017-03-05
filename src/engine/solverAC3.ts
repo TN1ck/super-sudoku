@@ -170,7 +170,6 @@ export function _solveGridAC3 (stack: Array<DomainSudoku> = [], iterations: numb
         return _solveGridAC3(newStack, iterations);
     }
 
-    console.log('iterations: ' + iterations);
     return {
         sudoku: toSimpeSudoku(grid),
         iterations

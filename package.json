@@ -10,6 +10,9 @@
     "prebuild": "npm run clean && export GENERATE_TYPINGS=TRUE && node build.js",
     "build": "export GENERATE_TYPINGS=FALSE && NODE_ENV=production && node build.js",
     "clean": "rm -rf dist/",
+    "test": "jest",
+    "test-watch": "jest --watch",
+    "test-watchAll": "jest --watchAll",
     "start": "node server.js"
   },
   "keywords": [
@@ -20,8 +23,20 @@
     "starter",
     "seed"
   ],
+  "jest": {
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ]
+  },
   "dependencies": {
     "@types/classnames": "0.0.32",
+    "@types/jest": "^18.1.1",
     "@types/lodash": "^4.14.52",
     "@types/moment": "^2.13.0",
     "@types/node": "^7.0.5",
@@ -46,6 +61,7 @@
     "history": "^4.5.1",
     "html-webpack-plugin": "^2.9.0",
     "imports-loader": "^0.7.1",
+    "jest": "^19.0.2",
     "json-loader": "^0.5.4",
     "lodash": "^4.16.4",
     "postcss-cssnext": "^2.4.0",
@@ -69,6 +85,7 @@
     "stylelint-order": "^0.3.0",
     "stylelint-webpack-plugin": "^0.7.0",
     "ts-helpers": "^1.1.1",
+    "ts-jest": "^19.0.0",
     "tslint": "^4.5.1",
     "tslint-loader": "^3.4.3",
     "typescript": "^2.0.3",

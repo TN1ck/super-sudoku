@@ -40,6 +40,18 @@ export const solvableSudoku1 = [
     '57_______',
 ].join('\n');
 
+export const solvedSudoku1 = [
+     '315892674',
+     '689741325',
+     '742563891',
+     '128354769',
+     '957186432',
+     '436927518',
+     '861235947',
+     '293478156',
+     '574619283'
+].join('\n');
+
 export const solvableSudoku2 = [
     '34567892_',
     '68914_57_',
@@ -109,10 +121,28 @@ export function complexSudokuToSimpleSudoku (sudoku: ComplexSudoku) : Array<Arra
 }
 
 export function parseSudoku (sudoku: String): SimpleSudoku {
+
+    // check if the input-data is correct
+    const inputDataIsCorrectDomain = [...sudoku].every(char => {
+        return ((['\n', '_']).concat(SUDOKU_NUMBERS.map(n => String(n)))).indexOf(char) >= 0;
+    });
+
+    if (!inputDataIsCorrectDomain) {
+        throw new Error('The input data is incorrect, only _, \n and 1...9 allowed');
+    }
+
     const lines = sudoku.split('\n');
+
+    if (lines.length !== 9) {
+        throw new Error('Wrong number of lines! Only 9 allowed');
+    }
+
     return lines
         .map((line) => {
             const characters = line.split('');
+            if (characters.length !== 9) {
+                throw new Error('Wrong number of characters in line! Only 9 allowed');
+            }
             return characters.map((c) => {
                 const number = c === '_' ? undefined : Number(c);
                 return number;

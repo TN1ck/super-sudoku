@@ -68,8 +68,6 @@ function everyFieldIsCorrect (grid: ComplexSudoku): Boolean {
 }
 
 function getMinimumRemainingValue (grid: ComplexSudoku) {
-     // take an empty field using
-    // minimum remaining value
     const remainingValues = grid
         .filter(c => !c.number)
         .map(c => {
@@ -131,7 +129,6 @@ export function _solveGrid (stack: Array<ComplexSudoku> = [], iterations: number
     const _everyFieldIsFilledWithANumber = everyFieldIsFilledWithANumber(grid);
     const _everyFieldIsCorrect = everyFieldIsCorrect(grid);
     if (_everyFieldIsFilledWithANumber && _everyFieldIsCorrect) {
-        console.log('iterations: ' + iterations);
         return {
             sudoku: grid,
             iterations
@@ -141,6 +138,8 @@ export function _solveGrid (stack: Array<ComplexSudoku> = [], iterations: number
     if (!_everyFieldIsCorrect) {
         return _solveGrid(rest, iterations);
     }
+    // take an empty field using
+    // minimum remaining value
     const emptyCell = getMinimumRemainingValue(grid);
 
     const newCells: ComplexSudoku = SUDOKU_NUMBERS
