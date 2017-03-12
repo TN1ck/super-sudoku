@@ -5,7 +5,6 @@
     padding: 10px;
     margin-bottom: 40px;
     color: white;
-    display: flex;
     background-color: var(--color__blue);
     border-bottom: 1px solid var(--color__dark-blue-two);
 }

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as classNames from 'classnames';
 import {connect} from 'react-redux';
 import {
     showMenu, setNumber, clearNumber
@@ -68,53 +69,46 @@ const Menu : React.StatelessComponent<{
     const cell = props.cell;
 
     const TAU = Math.PI * 2;
-    const radius = 60;
+    const radius = 50;
+    const circleRadius = 45;
     const degreePerStep = TAU / SUDOKU_NUMBERS.length;
 
     return (
         <div className={styles.menuContainer}>
             <svg
+                className={styles.menuCircleContainer}
                 style={{
-                    zIndex: 99,
-                    height: radius * 4,
-                    width: radius * 4,
-                    left: '50%',
-                    top: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    position: 'absolute',
-                    opacity: 0.9
+                    height: circleRadius * 4,
+                    width: circleRadius * 4,
                 }}
             >
+                <circle
+                    r={circleRadius}
+                    cx={circleRadius * 2}
+                    cy={circleRadius * 2}
+                    style={{
+                        pointerEvents: 'none'
+                    }}
+                    fill='none'
+                    className={styles.menuCircle}
+                />
                 {
                     SUDOKU_NUMBERS.map((number, i) => {
-                        const circumcircle = TAU * radius;
+                        const circumcircle = TAU * circleRadius;
                         const step = (degreePerStep / TAU) * circumcircle;
-                        const percentage = (step * i);
+                        const percentage = Math.ceil(step * i);
                         return (
                             <g key={number}>
-                                 <circle
-                                    r={radius}
-                                    cx={radius * 2}
-                                    cy={radius * 2}
-                                    fill='none'
-                                    className={styles.menuCircleStroke}
-                                    style={{
-                                        stroke: 'gray',
-                                        strokeDashoffset: -percentage,
-                                        strokeDasharray: `${step} ${circumcircle}`
-                                    }}
-                                />
                                 <circle
-                                    r={radius}
-                                    cx={radius * 2}
-                                    cy={radius * 2}
+                                    r={circleRadius}
+                                    cx={circleRadius * 2}
+                                    cy={circleRadius * 2}
                                     fill='none'
                                     className={styles.menuCircle}
                                     onClick={() => {
                                         props.setNumber(cell, number);
                                     }}
                                     style={{
-                                        stroke: 'white',
                                         strokeDashoffset: -percentage,
                                         strokeDasharray: `${step} ${circumcircle}`
                                     }}
@@ -123,6 +117,14 @@ const Menu : React.StatelessComponent<{
                         );
                     })
                 }
+                <rect
+                    className={styles.menuSquare}
+                    fill={'white'}
+                    height={'40px'}
+                    width={'40px'}
+                    x={circleRadius * 2}
+                    y={circleRadius * 2}
+                />
             </svg>
             {
                 SUDOKU_NUMBERS.map((n, i) => {
@@ -133,7 +135,7 @@ const Menu : React.StatelessComponent<{
                         left: x,
                         top: y,
                         zIndex: 100,
-                        color: 'black'
+                        color: 'white'
                     };
                     return (
                         <MenuItem
@@ -187,15 +189,17 @@ class CellComponentBasic extends React.Component<{
         const cell = this.props.cell;
         const notes = [...cell.notes.values()];
         return (
-            <div className={styles.cellContainer} onClick={this.toggleMenu}>
-                {this.props.cell.showMenu  ?
-                    <MenuComponent
-                        cell={this.props.cell}
-                    /> :
-                    null
-                }
-                <div className={styles.cell}>
-                    <div className={styles.cellNumber}>
+            <div
+                className={classNames(styles.cellContainer, {
+                    [styles.cellContainerInitial]: cell.initial
+                })}
+                onClick={this.toggleMenu}
+            >
+                <div className={classNames(styles.cell, {
+                    [styles.cellActive]: cell.showMenu
+                })}>
+                    <div className={styles.cellNumber}
+                    >
                         {this.props.cell.number}
                     </div>
                     <div className={styles.cellNoteContainer}>
@@ -206,6 +210,12 @@ class CellComponentBasic extends React.Component<{
                         })}
                     </div>
                 </div>
+                {this.props.cell.showMenu  ?
+                    <MenuComponent
+                        cell={this.props.cell}
+                    /> :
+                    null
+                }
             </div>
         );
     }

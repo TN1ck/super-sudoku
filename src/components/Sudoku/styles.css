@@ -7,6 +7,21 @@
     border-width: 1px;
     border-style: solid;
     border-color: var(--color__grey--lighter);
+
+    &:hover {
+        border-color: var(--color__blue);
+        cursor: pointer;
+    }
+}
+
+.cell-container--initial {
+    font-weight: bold;
+    pointer-events: none;
+    cursor: default;
+
+    &:hover {
+        cursor: default;
+    }
 }
 
 .cell {
@@ -19,10 +34,10 @@
     justify-content: center;
     transition: background-color 0.1s ease;
 
-    &:hover {
-        background-color: var(--color__grey--lighter);
-        cursor: pointer;
-    }
+}
+
+.cell--active {
+    z-index: 1001;
 }
 
 .cell-note-container {
@@ -84,16 +99,27 @@
 }
 
 .menu-circle {
-    stroke-width: 30px;
+    stroke-width: 50px;
+    stroke: var(--color__blue);
 
     &:hover {
-        stroke-width: 40px;
+        stroke-width: 60px;
         cursor: pointer;
+        stroke: var(--color__dark-blue);
     }
 }
 
-.menu-circle-stroke {
-    stroke-width: 32px;
+.menu-square {
+    fill: white;
+    transform: translate(-50%, -50%);
+}
+
+.menu-circle-container {
+    z-index: 99;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
 }
 
 .menu-container {

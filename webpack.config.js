@@ -108,7 +108,8 @@ loaders.css = {
                 loader: 'postcss-loader',
                 options: {
                     plugins: postcssPlugins,
-                    importLoaders: 1
+                    importLoaders: 1,
+                    name: '[name]'
                 }
             }
         ]

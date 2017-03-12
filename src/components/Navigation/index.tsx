@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as Grid from '../Grid';
 const CSSModules = require('react-css-modules');
 const styles = require('./styles.css');
 import { Link } from 'react-router';
@@ -18,7 +19,13 @@ function _Item (props) {
 function _Wrapper (props) {
     return (
         <div styleName='navigation-wrapper'>
-            {props.children}
+            <Grid.Container>
+                <Grid.Row>
+                    <Grid.Col xs={12}>
+                        {props.children}
+                    </Grid.Col>
+                </Grid.Row>
+            </Grid.Container>
         </div>
     );
 };

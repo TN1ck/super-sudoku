@@ -4,6 +4,7 @@ import {
 
 
 export interface Cell extends SimpleCell {
+    initial: boolean;
     notes: Set<number>;
     showMenu: boolean; // show the menu for this cell
     allowed: Set<number>;
@@ -14,7 +15,8 @@ export function createCell (
     y: number,
     number: number | undefined,
     notes: Set<number>,
-    allowed: Set<number>
+    allowed: Set<number>,
+    initial: boolean
 ) : Cell {
     return {
         x,
@@ -22,7 +24,8 @@ export function createCell (
         number,
         notes,
         allowed,
-        showMenu: false
+        showMenu: false,
+        initial
     };
 }
 
@@ -50,7 +53,8 @@ export function parseSudoku (sudoku: String): Array<Cell> {
                     y,
                     number,
                     new Set([]),
-                    new Set([])
+                    new Set([]),
+                    !(number === undefined)
                 );
             });
         }));
