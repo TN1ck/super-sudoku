@@ -6,7 +6,8 @@ export const Col: React.StatelessComponent<{
     sm?: number,
     md?: number,
     lg?: number,
-    children?: React.ReactChild
+    children?: React.ReactChild,
+    style?: React.CSSProperties
 }> = function _Col (props) {
 
     const xsClass = props.xs ? 'col-' + props.xs : '';
@@ -22,10 +23,12 @@ export const Col: React.StatelessComponent<{
 };
 
 export const Row: React.StatelessComponent<{
-    children?: React.ReactChild
+    children?: React.ReactChild,
+    style?: React.CSSProperties,
+    className?: string
 }> = function _Row (props) {
     return (
-        <div className='clearfix mxn2'>
+        <div className={`clearfix mxn2 ${props.className}`}>
             {props.children}
         </div>
     );
@@ -35,7 +38,7 @@ export const Container: React.StatelessComponent<{
     children?: React.ReactChild,
     fluid?: boolean
 }> = function _Container (props) {
-    const classes = classNames('clearfix', 'mx-auto', {
+    const classes = classNames('clearfix', 'mx-auto', 'px2', {
         'max-width-4': !props.fluid
     });
     return (

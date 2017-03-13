@@ -2,6 +2,7 @@ const NEW_GAME = 'game/NEW_GAME';
 const RESET_GAME = 'game/RESET_GAME';
 const PAUSE_GAME = 'game/PAUSE_GAME';
 const CONTINUE_GAME = 'game/CONTINUE_GAME';
+const INCREMENT_ONE_SECOND = 'game/INCREMENT_ONE_SECOND';
 
 export function newGame () {
     return {
@@ -27,6 +28,12 @@ export function continueGame () {
     };
 }
 
+export function incrementOneSecond () {
+    return {
+        type: INCREMENT_ONE_SECOND
+    };
+}
+
 const gameState = {
     timePassedInSeconds: 0,
     running: false
@@ -41,6 +48,10 @@ export default function gameReducer (state = gameState, action) {
     case CONTINUE_GAME:
         return Object.assign({}, state, {
             running: true
+        });
+    case INCREMENT_ONE_SECOND:
+        return Object.assign({}, state, {
+            timePassedInSeconds: state.timePassedInSeconds + 1
         });
     default:
         return state;

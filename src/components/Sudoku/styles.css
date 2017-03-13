@@ -38,6 +38,7 @@
 
 .cell--active {
     z-index: 1001;
+    pointer-events: none;
 }
 
 .cell-note-container {
@@ -70,6 +71,7 @@
 }
 
 .grid-container {
+    color: black;
     box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.75);
     background-color: white;
     width: 550px;
@@ -80,8 +82,8 @@
     display: flex;
 
     @media (max-width: 600px) {
-        width: 90vw;
-        height: 90vw;
+        width: calc(100vw - 2rem);
+        height: calc(100vw - 2rem);
     }
 
     @media (min-width: 601px) and (max-width: 800px) {
