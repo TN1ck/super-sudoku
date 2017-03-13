@@ -123,6 +123,7 @@
 }
 
 .menu-container {
+    position: relative;
     display: block;
 }
 
@@ -133,9 +134,8 @@
 .menu-item {
     user-select: none;
     pointer-events: none;
-    transform: translate(50%, 50%);
-    height: 30px;
-    width: 30px;
+    height: 100%;
+    width: 100%;
     position: absolute;
     display: flex;
     justify-content: center;

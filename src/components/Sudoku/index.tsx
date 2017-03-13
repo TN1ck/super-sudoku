@@ -59,6 +59,8 @@ const MenuItem : React.StatelessComponent<{
     );
 };
 
+
+
 const Menu : React.StatelessComponent<{
     cell: Cell;
     setNumber: (cell, number) => any;
@@ -71,15 +73,46 @@ const Menu : React.StatelessComponent<{
     const TAU = Math.PI * 2;
     const radius = 50;
     const circleRadius = 45;
-    const degreePerStep = TAU / SUDOKU_NUMBERS.length;
+
+    // TODO: use these only dymanically on small screens
+    let minRad = 0;
+    let maxRad = TAU;
+
+
+    let containerLeft = '0%';
+    let containerTop = '-50%';
+
+    if (cell.x === 0) {
+        minRad = (TAU / 4) * -1;
+        maxRad = (TAU / 4) * 1;
+        containerLeft = '-50%';
+    }
+
+    if (cell.x === 8) {
+        minRad = (TAU / 4) * 1;
+        maxRad = (TAU / 4) * 3;
+        containerLeft = '50%';
+    }
+
+    const usedRad = Math.abs(maxRad - minRad);
+    const circumCircle = TAU * circleRadius;
+    const radPerStep = usedRad / SUDOKU_NUMBERS.length;
+    const step = (radPerStep / TAU) * circumCircle;
 
     return (
-        <div className={styles.menuContainer}>
+        <div
+            className={styles.menuContainer}
+            style={{
+                left: containerLeft,
+                top: containerTop,
+            }}
+        >
             <svg
                 className={styles.menuCircleContainer}
                 style={{
                     height: circleRadius * 4,
                     width: circleRadius * 4,
+                    transform: `translate(-50%, -50%) rotate(${minRad}rad)`
                 }}
             >
                 <circle
@@ -87,50 +120,41 @@ const Menu : React.StatelessComponent<{
                     cx={circleRadius * 2}
                     cy={circleRadius * 2}
                     style={{
-                        pointerEvents: 'none'
+                        pointerEvents: 'none',
+                        strokeDashoffset: 0,
+                        strokeDasharray: `${(usedRad / TAU) * circumCircle} ${circumCircle}`
                     }}
                     fill='none'
                     className={styles.menuCircle}
                 />
                 {
                     SUDOKU_NUMBERS.map((number, i) => {
-                        const circumcircle = TAU * circleRadius;
-                        const step = (degreePerStep / TAU) * circumcircle;
-                        const percentage = Math.ceil(step * i);
+                        const currentCircum = Math.ceil(step * i);
                         return (
-                            <g key={number}>
-                                <circle
-                                    r={circleRadius}
-                                    cx={circleRadius * 2}
-                                    cy={circleRadius * 2}
-                                    fill='none'
-                                    className={styles.menuCircle}
-                                    onClick={() => {
-                                        props.setNumber(cell, number);
-                                    }}
-                                    style={{
-                                        strokeDashoffset: -percentage,
-                                        strokeDasharray: `${step} ${circumcircle}`
-                                    }}
-                                />
-                            </g>
+                            <circle
+                                key={number}
+                                r={circleRadius}
+                                cx={circleRadius * 2}
+                                cy={circleRadius * 2}
+                                fill='none'
+                                className={styles.menuCircle}
+                                onClick={() => {
+                                    props.setNumber(cell, number);
+                                }}
+                                style={{
+                                    strokeDashoffset: -currentCircum,
+                                    strokeDasharray: `${step} ${circumCircle}`
+                                }}
+                            />
                         );
                     })
                 }
-                <rect
-                    className={styles.menuSquare}
-                    fill={'white'}
-                    height={'40px'}
-                    width={'40px'}
-                    x={circleRadius * 2}
-                    y={circleRadius * 2}
-                />
             </svg>
             {
                 SUDOKU_NUMBERS.map((n, i) => {
                     // the 0.5 is for centering
-                    const x = radius *  Math.cos(degreePerStep * (i + 0.5));
-                    const y = radius *  Math.sin(degreePerStep * (i + 0.5));
+                    const x = radius *  Math.cos(minRad + radPerStep * (i + 0.5));
+                    const y = radius *  Math.sin(minRad + radPerStep * (i + 0.5));
                     const style = {
                         left: x,
                         top: y,
