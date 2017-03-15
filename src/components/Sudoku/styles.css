@@ -111,6 +111,29 @@
     }
 }
 
+.menu-circle-notes {
+    stroke-width: 50px;
+    stroke: var(--color__grey--brighter);
+
+    &:hover {
+        stroke-width: 60px;
+        cursor: pointer;
+        stroke: var(--color__black);
+    }
+}
+
+.menu-circle-notes-hover {
+    stroke-width: 60px;
+    cursor: pointer;
+    stroke: var(--color__black);
+}
+
+.menu-circle-hover {
+    stroke-width: 60px;
+    cursor: pointer;
+    stroke: var(--color__dark-blue);
+}
+
 .menu-square {
     fill: white;
     transform: translate(-50%, -50%);

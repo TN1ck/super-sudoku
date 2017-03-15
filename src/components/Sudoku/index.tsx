@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import {connect} from 'react-redux';
 import {
-    showMenu, setNumber, clearNumber
+    showMenu, setNumber, clearNumber, setNote, clearNote
 } from 'src/ducks/sudoku';
 import {
     Cell
@@ -61,122 +61,151 @@ const MenuItem : React.StatelessComponent<{
 
 
 
-const Menu : React.StatelessComponent<{
+class Menu extends React.Component<{
     cell: Cell;
     setNumber: (cell, number) => any;
+    setNote: (cell, number) => any;
+    clearNote: (cell, number) => any;
     showMenu: (cell) => any;
     clearNumber: (cell) => any;
+    notesMode: boolean;
+}, {}> {
+    render () {
+        const cell = this.props.cell;
 
-}> = function Menu (props) {
-    const cell = props.cell;
+        const TAU = Math.PI * 2;
+        const circleRadius = 45;
 
-    const TAU = Math.PI * 2;
-    const radius = 50;
-    const circleRadius = 45;
-
-    // TODO: use these only dymanically on small screens
-    let minRad = 0;
-    let maxRad = TAU;
+        // TODO: use these only dymanically on small screens
+        let minRad = 0;
+        let maxRad = TAU;
 
 
-    let containerLeft = '0%';
-    let containerTop = '-50%';
+        let containerLeft = '0%';
+        let containerTop = '-50%';
 
-    if (cell.x === 0) {
-        minRad = (TAU / 4) * -1;
-        maxRad = (TAU / 4) * 1;
-        containerLeft = '-50%';
-    }
+        if (cell.x === 0) {
+            minRad = (TAU / 4) * -1;
+            maxRad = (TAU / 4) * 1;
+            containerLeft = '-50%';
+        }
 
-    if (cell.x === 8) {
-        minRad = (TAU / 4) * 1;
-        maxRad = (TAU / 4) * 3;
-        containerLeft = '50%';
-    }
+        if (cell.x === 8) {
+            minRad = (TAU / 4) * 1;
+            maxRad = (TAU / 4) * 3;
+            containerLeft = '50%';
+        }
 
-    const usedRad = Math.abs(maxRad - minRad);
-    const circumCircle = TAU * circleRadius;
-    const radPerStep = usedRad / SUDOKU_NUMBERS.length;
-    const step = (radPerStep / TAU) * circumCircle;
+        const usedRad = Math.abs(maxRad - minRad);
+        const circumCircle = TAU * circleRadius;
+        const radPerStep = usedRad / SUDOKU_NUMBERS.length;
+        const step = (radPerStep / TAU) * circumCircle;
 
-    return (
-        <div
-            className={styles.menuContainer}
-            style={{
-                left: containerLeft,
-                top: containerTop,
-            }}
-        >
-            <svg
-                className={styles.menuCircleContainer}
+        return (
+            <div
+                className={styles.menuContainer}
                 style={{
-                    height: circleRadius * 4,
-                    width: circleRadius * 4,
-                    transform: `translate(-50%, -50%) rotate(${minRad}rad)`
+                    left: containerLeft,
+                    top: containerTop,
                 }}
             >
-                <circle
-                    r={circleRadius}
-                    cx={circleRadius * 2}
-                    cy={circleRadius * 2}
+                <svg
+                    className={styles.menuCircleContainer}
                     style={{
-                        pointerEvents: 'none',
-                        strokeDashoffset: 0,
-                        strokeDasharray: `${(usedRad / TAU) * circumCircle} ${circumCircle}`
+                        height: circleRadius * 4,
+                        width: circleRadius * 4,
+                        transform: `translate(-50%, -50%) rotate(${minRad}rad)`
                     }}
-                    fill='none'
-                    className={styles.menuCircle}
-                />
+                >
+                    <circle
+                        r={circleRadius}
+                        cx={circleRadius * 2}
+                        cy={circleRadius * 2}
+                        style={{
+                            pointerEvents: 'none',
+                            strokeDashoffset: 0,
+                            strokeDasharray: `${(usedRad / TAU) * circumCircle} ${circumCircle}`
+                        }}
+                        fill='none'
+                        className={this.props.notesMode ? styles.menuCircleNotes : styles.menuCircle}
+                    />
+                    {
+                        SUDOKU_NUMBERS.map((number, i) => {
+                            const currentCircum = Math.ceil(step * i);
+                            let isActive = number === cell.number;
+                            if (this.props.notesMode) {
+                                isActive = cell.notes.has(number);
+                            }
+                            return (
+                                <circle
+                                    key={number}
+                                    r={circleRadius}
+                                    cx={circleRadius * 2}
+                                    cy={circleRadius * 2}
+                                    fill='none'
+                                    className={classNames({
+                                        [styles.menuCircle]: !this.props.notesMode,
+                                        [styles.menuCircleHover]: !this.props.notesMode && isActive,
+                                        [styles.menuCircleNotes]: this.props.notesMode,
+                                        [styles.menuCircleNotesHover]: this.props.notesMode && isActive,
+                                    })}
+                                    onClick={(e) => {
+                                        if (this.props.notesMode) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                        }
+                                        if (isActive) {
+                                            if (this.props.notesMode) {
+                                                this.props.clearNote(cell, number);
+                                            } else {
+                                                this.props.clearNumber(cell);
+                                            }
+                                            return;
+                                        }
+                                        if (this.props.notesMode) {
+                                            this.props.setNote(cell, number);
+                                        } else {
+                                            this.props.setNumber(cell, number);
+                                        }
+                                    }}
+                                    style={{
+                                        strokeDashoffset: -currentCircum,
+                                        strokeDasharray: `${step} ${circumCircle}`
+                                    }}
+                                />
+                            );
+                        })
+                    }
+                </svg>
                 {
-                    SUDOKU_NUMBERS.map((number, i) => {
-                        const currentCircum = Math.ceil(step * i);
+                    SUDOKU_NUMBERS.map((n, i) => {
+                        // the 0.5 is for centering
+                        const x = circleRadius *  Math.cos(minRad + radPerStep * (i + 0.5));
+                        const y = circleRadius *  Math.sin(minRad + radPerStep * (i + 0.5));
+                        const style = {
+                            left: x,
+                            top: y,
+                            zIndex: 100,
+                            color: 'white'
+                        };
                         return (
-                            <circle
-                                key={number}
-                                r={circleRadius}
-                                cx={circleRadius * 2}
-                                cy={circleRadius * 2}
-                                fill='none'
-                                className={styles.menuCircle}
-                                onClick={() => {
-                                    props.setNumber(cell, number);
-                                }}
-                                style={{
-                                    strokeDashoffset: -currentCircum,
-                                    strokeDasharray: `${step} ${circumCircle}`
-                                }}
+                            <MenuItem
+                                key={n}
+                                style={style}
+                                cell={cell}
+                                number={n}
                             />
                         );
                     })
                 }
-            </svg>
-            {
-                SUDOKU_NUMBERS.map((n, i) => {
-                    // the 0.5 is for centering
-                    const x = radius *  Math.cos(minRad + radPerStep * (i + 0.5));
-                    const y = radius *  Math.sin(minRad + radPerStep * (i + 0.5));
-                    const style = {
-                        left: x,
-                        top: y,
-                        zIndex: 100,
-                        color: 'white'
-                    };
-                    return (
-                        <MenuItem
-                            key={n}
-                            style={style}
-                            cell={cell}
-                            number={n}
-                        />
-                    );
-                })
-            }
-        </div>
-    );
+            </div>
+        );
+    }
 };
 
 export const MenuComponent = connect<{}, {}, {
-    cell: Cell
+    cell: Cell;
+    notesMode: boolean;
 }>(
     function () {
         return {};
@@ -185,6 +214,8 @@ export const MenuComponent = connect<{}, {}, {
         return {
             showMenu: (cell) => dispatch(showMenu(cell)),
             setNumber: (cell, number) => dispatch(setNumber(cell, number)),
+            setNote: (cell, number) => dispatch(setNote(cell, number)),
+            clearNote: (cell, number) => dispatch(clearNote(cell, number)),
             clearNumber: (cell) => dispatch(clearNumber(cell))
         };
     }
@@ -198,16 +229,41 @@ class CellComponentBasic extends React.Component<{
     cell: Cell;
     showMenu: (cell) => any
 }, {
+    notesMode: boolean
 }> {
+    clickTimer: Date;
     constructor (props) {
         super(props);
+        this.state = {
+            notesMode: false
+        };
         this.toggleMenu = this.toggleMenu.bind(this);
+        this.enterNotesMode = this.enterNotesMode.bind(this);
+        this.exitNotesMode = this.exitNotesMode.bind(this);
     }
-    shouldComponentUpdate (props) {
-        return props.cell !== this.props.cell;
+    shouldComponentUpdate (props, state) {
+        return props.cell !== this.props.cell || this.state !== state;
+    }
+    enterNotesMode() {
+        this.setState({
+            notesMode: true
+        });
+    }
+    exitNotesMode() {
+        this.setState({
+            notesMode: false
+        });
     }
     toggleMenu () {
+        const newDate = new Date();
+        const shouldEnterNotesMode = (+newDate - +this.clickTimer) < 500;
+        if (shouldEnterNotesMode) {
+            this.enterNotesMode();
+            return;
+        }
+        this.clickTimer = newDate;
         this.props.showMenu(this.props.cell);
+        this.exitNotesMode();
     }
     render () {
         const cell = this.props.cell;
@@ -227,7 +283,7 @@ class CellComponentBasic extends React.Component<{
                         {this.props.cell.number}
                     </div>
                     <div className={styles.cellNoteContainer}>
-                        {notes.map(n => {
+                        {notes.sort().map(n => {
                             return (
                                 <div className={styles['cell-note']}>{n}</div>
                             );
@@ -236,6 +292,7 @@ class CellComponentBasic extends React.Component<{
                 </div>
                 {this.props.cell.showMenu  ?
                     <MenuComponent
+                        notesMode={this.state.notesMode}
                         cell={this.props.cell}
                     /> :
                     null

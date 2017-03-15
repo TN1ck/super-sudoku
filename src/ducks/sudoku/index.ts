@@ -3,7 +3,8 @@
 //
 
 const SHOW_MENU = 'sudoku/SHOW_MENU';
-const SET_NOTES = 'sudoku/SET_NOTES';
+const SET_NOTE = 'sudoku/SET_NOTE';
+const CLEAR_NOTE = 'sudoku/CLEAR_NOTE';
 const SET_NUMBER = 'sudoku/SET_NUMBER';
 const CLEAR_NUMBER = 'sudoku/CLEAR_NUMBER';
 const GET_HINT = 'sudoku/GET_HINT';
@@ -19,19 +20,28 @@ import {
 // Actions
 //
 
-interface SetNotesAction {
+interface NoteAction {
     type: string;
     cell: Cell;
-    notes: Set<number>;
+    note: number;
 }
 
-export function setNotes (cell: Cell, notes: Set<number>) : SetNotesAction {
+export function setNote (cell: Cell, note: number) : NoteAction {
     return {
-        type: SET_NOTES,
+        type: SET_NOTE,
         cell,
-        notes
+        note
     };
 }
+
+export function clearNote (cell: Cell, note: number) : NoteAction {
+    return {
+        type: CLEAR_NOTE,
+        cell,
+        note
+    };
+}
+
 
 interface SetNumberAction {
     type: string;
@@ -88,7 +98,8 @@ const initialState : SudokuState = {
 export default function sudokuReducer (state: SudokuState = initialState, action) {
     if (![
         SHOW_MENU,
-        SET_NOTES,
+        SET_NOTE,
+        CLEAR_NOTE,
         SET_NUMBER,
         CLEAR_NUMBER,
         GET_HINT,
@@ -109,7 +120,21 @@ export default function sudokuReducer (state: SudokuState = initialState, action
                         });
                     }
                     return cell;
-            case SET_NOTES:
+            case SET_NOTE:
+                if (id === actionCellId) {
+                    return Object.assign({}, cell, {
+                        notes: cell.notes.add(action.note)
+                    });
+                }
+                return cell;
+            case CLEAR_NOTE:
+                if (id === actionCellId) {
+                    console.log('clear note', action.note);
+                    cell.notes.delete(action.note);
+                    return Object.assign({}, cell, {
+                        notes: cell.notes
+                    });
+                }
                 return cell;
             case SET_NUMBER:
                 if (id === actionCellId) {
