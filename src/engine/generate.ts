@@ -57,7 +57,7 @@ function costFunction (sudoku: SimpleSudoku) : number {
 }
 
 function getRandomSudokuNumber () : number {
-    return (_.random(10) > 8) ? _.random(1, 9) :  undefined;
+    return (_.random(10) > 8) ? _.random(1, 9) : undefined;
 }
 
 export function checkForUniqueness (sudoku: SimpleSudoku) : boolean {
@@ -132,7 +132,10 @@ export function generateSudoku (difficulty: DIFFICULTY): SimpleSudoku {
     const iterationGoal = DIFFICULTY_MAPPING[difficulty];
 
     function rateCosts (cost) {
-        return Math.abs(cost - iterationGoal);
+        if (cost === Infinity) {
+            return cost;
+        }
+        return Math.abs((cost / iterationGoal) - 1) * 100;
     }
 
     // 1. create a random sudoku
@@ -151,7 +154,7 @@ export function generateSudoku (difficulty: DIFFICULTY): SimpleSudoku {
             return false;
         }
         if (!checkForUniqueness(sudoku)) {
-            console.log('Not unique!');
+            // console.log('Not unique!');
             return false;
         }
         return true;
@@ -167,7 +170,7 @@ export function generateSudoku (difficulty: DIFFICULTY): SimpleSudoku {
                 }
             }
         }
-        console.log(iterations, numberOfNumbers);
+
         let newSudoku = [].concat(bestSudoku.map(row => {
             return [].concat(row);
         }));
@@ -179,10 +182,12 @@ export function generateSudoku (difficulty: DIFFICULTY): SimpleSudoku {
             bestCost = newCost;
         }
 
+        // console.log(rateCosts(bestCost));
+
         if (rateCosts(bestCost) < 10) {
             if (!checkForUniqueness(bestSudoku)) {
                 bestSudoku = enhanceUniqueness(bestSudoku);
-                console.log('cost before/after', bestCost, costFunction(bestSudoku));
+                // console.log('cost before/after', bestCost, costFunction(bestSudoku));
             }
         }
     }

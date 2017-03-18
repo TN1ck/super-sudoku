@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@types/classnames": "0.0.32",
+    "@types/commander": "^2.3.31",
     "@types/jest": "^18.1.1",
     "@types/lodash": "^4.14.52",
     "@types/moment": "^2.13.0",
@@ -52,6 +53,7 @@
     "babel-preset-es2015": "^6.22.0",
     "babel-preset-react-hmre": "^1.1.1",
     "classnames": "^2.2.3",
+    "commander": "^2.9.0",
     "copy-webpack-plugin": "^4.0.1",
     "css-loader": "^0.26.2",
     "cssnano": "^3.5.2",

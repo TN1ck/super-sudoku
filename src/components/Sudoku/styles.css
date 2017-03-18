@@ -38,6 +38,7 @@
 
 .cell--active {
     z-index: 1001;
+    background-color: white;
     pointer-events: none;
 }
 

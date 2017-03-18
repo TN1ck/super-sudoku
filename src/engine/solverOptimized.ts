@@ -126,7 +126,7 @@ export function _solveGrid (stack: Array<SimpleSudoku> = [], iterations: number)
     const completelyFilled = isFilled(grid);
     if (completelyFilled) {
          if (isCorrect(rows, columns, squares)) {
-            console.log('iterations: ' + iterations);
+            // console.log('iterations: ' + iterations);
             return {
                 sudoku: grid,
                 iterations

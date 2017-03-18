@@ -22,8 +22,8 @@ const TAU = Math.PI * 2;
 
 const MenuCircle : React.StatelessComponent<{
     radius: number;
-    notesMode: boolean;
-    isActive: boolean;
+    notesMode?: boolean;
+    isActive?: boolean;
     onClick: (any) => void;
     minRad: number;
     maxRad: number;
@@ -32,11 +32,12 @@ const MenuCircle : React.StatelessComponent<{
     radius, notesMode, isActive, onClick, minRad, maxRad, children
 }) {
     const yOffset = 7;
+    const textRadius = radius + 8;
     const circumCircle = TAU * radius;
     const step = Math.abs(maxRad - minRad);
     const center = radius * 2;
-    const x = (radius * Math.cos(minRad + step * 0.5)) + center;
-    const y = (radius * Math.sin(minRad + step * 0.5)) + center + yOffset;
+    const x = (textRadius * Math.cos(minRad + step * 0.5)) + center;
+    const y = (textRadius * Math.sin(minRad + step * 0.5)) + center + yOffset;
 
     return (
         <g>
@@ -80,6 +81,8 @@ class Menu extends React.Component<{
     clearNote: (cell, number) => any;
     showMenu: (cell) => any;
     clearNumber: (cell) => any;
+    enterNotesMode: () => any;
+    exitNotesMode: () => any;
     notesMode: boolean;
 }, {}> {
     render () {
@@ -94,21 +97,21 @@ class Menu extends React.Component<{
         let containerLeft = '0%';
         let containerTop = '-50%';
 
-        if (cell.x === 0) {
-            minRad = (TAU / 4) * -1;
-            maxRad = (TAU / 4) * 1;
-            containerLeft = '-50%';
-        }
+        // if (cell.x === 0) {
+        //     minRad = (TAU / 4) * -1;
+        //     maxRad = (TAU / 4) * 1;
+        //     containerLeft = '-50%';
+        // }
 
-        if (cell.x === 8) {
-            minRad = (TAU / 4) * 1;
-            maxRad = (TAU / 4) * 3;
-            containerLeft = '50%';
-        }
+        // if (cell.x === 8) {
+        //     minRad = (TAU / 4) * 1;
+        //     maxRad = (TAU / 4) * 3;
+        //     containerLeft = '50%';
+        // }
 
         const usedRad = Math.abs(maxRad - minRad);
         const circumCircle = TAU * circleRadius;
-        const radPerStep = usedRad / SUDOKU_NUMBERS.length;
+        const radPerStep = usedRad / (SUDOKU_NUMBERS.length + 1);
         // const step = (radPerStep / TAU);
 
         return (
@@ -141,7 +144,7 @@ class Menu extends React.Component<{
                     />
                     {
                         SUDOKU_NUMBERS.map((number, i) => {
-                            const currentMinRad = minRad + radPerStep * i;
+                            const currentMinRad = minRad + radPerStep * (i + 1);
                             const currentMaxRad = currentMinRad + radPerStep;
                             let isActive = number === cell.number;
                             if (this.props.notesMode) {
@@ -179,6 +182,21 @@ class Menu extends React.Component<{
                             );
                         })
                     }
+                     <MenuCircle
+                        radius={circleRadius}
+                        notesMode={this.props.notesMode}
+                        minRad={minRad}
+                        maxRad={minRad + radPerStep}
+                        onClick={(e) => {
+                            if (!this.props.notesMode) {
+                                this.props.enterNotesMode();
+                                e.preventDefault();
+                                e.stopPropagation();
+                            }
+                        }}
+                    >
+                        {'N'}
+                    </MenuCircle>
                 </svg>
             </div>
         );
@@ -188,6 +206,8 @@ class Menu extends React.Component<{
 export const MenuComponent = connect<{}, {}, {
     cell: Cell;
     notesMode: boolean;
+    enterNotesMode: () => any;
+    exitNotesMode: () => any;
 }>(
     function () {
         return {};
@@ -198,7 +218,7 @@ export const MenuComponent = connect<{}, {}, {
             setNumber: (cell, number) => dispatch(setNumber(cell, number)),
             setNote: (cell, number) => dispatch(setNote(cell, number)),
             clearNote: (cell, number) => dispatch(clearNote(cell, number)),
-            clearNumber: (cell) => dispatch(clearNumber(cell))
+            clearNumber: (cell) => dispatch(clearNumber(cell)),
         };
     }
 )(Menu);
@@ -211,9 +231,9 @@ class CellComponentBasic extends React.Component<{
     cell: Cell;
     showMenu: (cell) => any
 }, {
-    notesMode: boolean
+    notesMode: boolean;
 }> {
-    clickTimer: Date;
+
     constructor (props) {
         super(props);
         this.state = {
@@ -237,13 +257,6 @@ class CellComponentBasic extends React.Component<{
         });
     }
     toggleMenu () {
-        const newDate = new Date();
-        const shouldEnterNotesMode = (+newDate - +this.clickTimer) < 500;
-        if (shouldEnterNotesMode) {
-            this.enterNotesMode();
-            return;
-        }
-        this.clickTimer = newDate;
         this.props.showMenu(this.props.cell);
         this.exitNotesMode();
     }
@@ -274,6 +287,8 @@ class CellComponentBasic extends React.Component<{
                 </div>
                 {this.props.cell.showMenu  ?
                     <MenuComponent
+                        enterNotesMode={this.enterNotesMode}
+                        exitNotesMode={this.exitNotesMode}
                         notesMode={this.state.notesMode}
                         cell={this.props.cell}
                     /> :
