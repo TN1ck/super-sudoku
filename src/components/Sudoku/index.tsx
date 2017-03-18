@@ -14,52 +14,64 @@ import * as _ from 'lodash';
 // import * as colors from 'src/utility/colors';
 import * as styles from './styles.css';
 
+const TAU = Math.PI * 2;
+
 //
 // Menu
 //
 
-// const MenuRow : React.StatelessComponent<{
-//     cell: Cell;
-//     numbers: Array<number>;
-//     setNumber: (cell, number) => void
-// }> = function _MenuRow (props) {
-//     const cell = props.cell;
-//     return (
-//         <div className={styles.menuRow}>
-//             {
-//                 props.numbers.map(n => {
-//                     return (
-//                         <div
-//                             className={styles.menuItem}
-//                             onClick={() => {
-//                                 props.setNumber(cell, n);
-//                             }}
-//                         >
-//                             {n}
-//                         </div>
-//                     );
-//                 })
-//             }
-//         </div>
-//     );
-// };
+const MenuCircle : React.StatelessComponent<{
+    radius: number;
+    notesMode: boolean;
+    isActive: boolean;
+    onClick: (any) => void;
+    minRad: number;
+    maxRad: number;
+    children?: React.ReactChild,
+}> = function MenuCircle ({
+    radius, notesMode, isActive, onClick, minRad, maxRad, children
+}) {
+    const yOffset = 7;
+    const circumCircle = TAU * radius;
+    const step = Math.abs(maxRad - minRad);
+    const center = radius * 2;
+    const x = (radius * Math.cos(minRad + step * 0.5)) + center;
+    const y = (radius * Math.sin(minRad + step * 0.5)) + center + yOffset;
 
-const MenuItem : React.StatelessComponent<{
-    cell: Cell;
-    number: number;
-    style: React.CSSProperties;
-}> = function _MenuItem ({style, number}) {
     return (
-         <div
-            className={styles.menuItem}
-            style={style}
-        >
-            {number}
-        </div>
+        <g>
+            <circle
+                r={radius}
+                cx={radius * 2}
+                cy={radius * 2}
+                fill='none'
+                className={classNames({
+                    [styles.menuCircle]: !notesMode,
+                    [styles.menuCircleHover]: !notesMode && isActive,
+                    [styles.menuCircleNotes]: notesMode,
+                    [styles.menuCircleNotesHover]: notesMode && isActive,
+                })}
+                onClick={onClick}
+                style={{
+                    strokeDashoffset: -(minRad / TAU * circumCircle),
+                    strokeDasharray: `${step / TAU * circumCircle} ${circumCircle}`
+                }}
+            />
+            <text
+                x={x}
+                y={y}
+                style={{
+                    fill: 'white',
+                    textAnchor: 'middle',
+                    zIndex: 100,
+                    pointerEvents: 'none'
+                }}
+            >
+                {children}
+            </text>
+        </g>
     );
-};
-
-
+}
 
 class Menu extends React.Component<{
     cell: Cell;
@@ -72,8 +84,6 @@ class Menu extends React.Component<{
 }, {}> {
     render () {
         const cell = this.props.cell;
-
-        const TAU = Math.PI * 2;
         const circleRadius = 45;
 
         // TODO: use these only dymanically on small screens
@@ -99,7 +109,7 @@ class Menu extends React.Component<{
         const usedRad = Math.abs(maxRad - minRad);
         const circumCircle = TAU * circleRadius;
         const radPerStep = usedRad / SUDOKU_NUMBERS.length;
-        const step = (radPerStep / TAU) * circumCircle;
+        // const step = (radPerStep / TAU);
 
         return (
             <div
@@ -131,24 +141,19 @@ class Menu extends React.Component<{
                     />
                     {
                         SUDOKU_NUMBERS.map((number, i) => {
-                            const currentCircum = Math.ceil(step * i);
+                            const currentMinRad = minRad + radPerStep * i;
+                            const currentMaxRad = currentMinRad + radPerStep;
                             let isActive = number === cell.number;
                             if (this.props.notesMode) {
                                 isActive = cell.notes.has(number);
                             }
                             return (
-                                <circle
-                                    key={number}
-                                    r={circleRadius}
-                                    cx={circleRadius * 2}
-                                    cy={circleRadius * 2}
-                                    fill='none'
-                                    className={classNames({
-                                        [styles.menuCircle]: !this.props.notesMode,
-                                        [styles.menuCircleHover]: !this.props.notesMode && isActive,
-                                        [styles.menuCircleNotes]: this.props.notesMode,
-                                        [styles.menuCircleNotesHover]: this.props.notesMode && isActive,
-                                    })}
+                                <MenuCircle
+                                    radius={circleRadius}
+                                    notesMode={this.props.notesMode}
+                                    isActive={isActive}
+                                    minRad={currentMinRad}
+                                    maxRad={currentMaxRad}
                                     onClick={(e) => {
                                         if (this.props.notesMode) {
                                             e.preventDefault();
@@ -168,36 +173,13 @@ class Menu extends React.Component<{
                                             this.props.setNumber(cell, number);
                                         }
                                     }}
-                                    style={{
-                                        strokeDashoffset: -currentCircum,
-                                        strokeDasharray: `${step} ${circumCircle}`
-                                    }}
-                                />
+                                >
+                                    {number}
+                                </MenuCircle>
                             );
                         })
                     }
                 </svg>
-                {
-                    SUDOKU_NUMBERS.map((n, i) => {
-                        // the 0.5 is for centering
-                        const x = circleRadius *  Math.cos(minRad + radPerStep * (i + 0.5));
-                        const y = circleRadius *  Math.sin(minRad + radPerStep * (i + 0.5));
-                        const style = {
-                            left: x,
-                            top: y,
-                            zIndex: 100,
-                            color: 'white'
-                        };
-                        return (
-                            <MenuItem
-                                key={n}
-                                style={style}
-                                cell={cell}
-                                number={n}
-                            />
-                        );
-                    })
-                }
             </div>
         );
     }
