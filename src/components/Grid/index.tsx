@@ -36,9 +36,10 @@ export const Row: React.StatelessComponent<{
 
 export const Container: React.StatelessComponent<{
     children?: React.ReactChild,
-    fluid?: boolean
+    fluid?: boolean,
+    className?: string
 }> = function _Container (props) {
-    const classes = classNames('clearfix', 'mx-auto', 'px2', {
+    const classes = classNames(props.className, 'clearfix', 'mx-auto', 'px2', {
         'max-width-4': !props.fluid
     });
     return (

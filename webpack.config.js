@@ -125,7 +125,7 @@ loaders.globalcss = {
             {
                 loader: 'css-loader',
                 options: {
-                    localIdentName: '[name]'
+                    localIdentName: '[local]'
                 }
             },
             {

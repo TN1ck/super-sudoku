@@ -1,11 +1,14 @@
 import * as React from 'react';
+import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group'
+// import * as classNames from 'classnames';
 
 import {connect} from 'react-redux';
 import {SudokuState} from 'src/ducks/sudoku';
 import {
-    // pauseGame,
+    pauseGame,
     continueGame,
-    incrementOneSecond
+    incrementOneSecond,
+    resetGame
 } from 'src/ducks/game';
 import {Cell} from 'src/ducks/sudoku/model';
 import {GridComponent} from 'src/components/Sudoku';
@@ -90,7 +93,7 @@ function GameTimer ({seconds}) {
     const minutes = Math.floor(seconds / 60);
     const secondRest = seconds % 60;
 
-    const minuteString : string = minutes    < 10 ? ('0' + minutes) : String(minutes);
+    const minuteString : string = minutes    < 10 ? ('0' + minutes)    : String(minutes);
     const secondString : string = secondRest < 10 ? ('0' + secondRest) : String(secondRest);
 
     const timerString = minuteString + ':' + secondString;
@@ -100,14 +103,78 @@ function GameTimer ({seconds}) {
     );
 }
 
+function PauseButton ({pauseGame}) {
+    return (
+        <div
+            onClick={pauseGame}
+            className={styles.pauseButton}
+        >
+            {'Pause'}
+        </div>
+    )
+}
+
+function GameMenuItem (props) {
+    return (
+        <li className={styles.gameMenuListItem} onClick={props.onClick}>
+            {props.children}
+        </li>
+    );
+}
+
+const GameMenu = connect(
+    function (state) {
+        return {
+            running: state.game.running
+        };
+    },
+    function (dispatch) {
+        return {
+            continueGame: () => dispatch(continueGame()),
+            resetGame: () => dispatch(resetGame())
+        }
+    }
+)(function GameMenu ({continueGame, running}) {
+    const actualMenu = (
+        <div className={styles.gameMenu} key='el'>
+            <ul className={styles.gameMenuList}>
+                <GameMenuItem onClick={continueGame}>
+                    {'Continue'}
+                </GameMenuItem>
+                <GameMenuItem onClick={resetGame}>
+                    {'Reset Game'}
+                </GameMenuItem>
+                <GameMenuItem>
+                    {'New Game'}
+                </GameMenuItem>
+            </ul>
+        </div>
+    );
+    const inner = running ? [] : [actualMenu];
+    return (
+        <div>
+            <ReactCSSTransitionGroup
+                component='div'
+                transitionName='opacity'
+                transitionEnterTimeout={500}
+                transitionLeaveTimeout={300}
+                transitionAppear
+                transitionAppearTimeout={500}
+            >
+                {inner}
+            </ReactCSSTransitionGroup>
+        </div>
+    );
+});
+
 class Game extends React.Component<{
     game: any,
     continueGame: () => any,
     incrementOneSecond: () => any,
+    pauseGame: () => any
 }, {}> {
     interval: number;
     componentDidMount () {
-        this.props.continueGame();
         this.interval = window.setInterval(() => {
             if (this.props.game.running) {
                 this.props.incrementOneSecond();
@@ -115,24 +182,31 @@ class Game extends React.Component<{
         }, 1000);
     }
     render () {
-        const game = this.props.game;
+        const {
+            game,
+            pauseGame
+        } = this.props;
         return (
-            <Grid.Container>
-                <Grid.Row>
-                    <Grid.Col xs={12}>
-                        <div className={styles.gameContainer}>
-                            <GameTimer
-                                seconds={game.timePassedInSeconds}
-                            />
-                        </div>
-                    </Grid.Col>
-                </Grid.Row>
-                <Grid.Row>
-                    <Grid.Col xs={12}>
-                        <ConnectedSudoku />
-                    </Grid.Col>
-                </Grid.Row>
-            </Grid.Container>
+            <div className={styles.game}>
+                <GameMenu />
+                <Grid.Container>
+                    <Grid.Row>
+                        <Grid.Col xs={12}>
+                            <div className={styles.gameContainer}>
+                                <GameTimer
+                                    seconds={game.timePassedInSeconds}
+                                />
+                                <PauseButton pauseGame={pauseGame} />
+                            </div>
+                        </Grid.Col>
+                    </Grid.Row>
+                    <Grid.Row>
+                        <Grid.Col xs={12}>
+                            <ConnectedSudoku />
+                        </Grid.Col>
+                    </Grid.Row>
+                </Grid.Container>
+            </div>
         )
     }
 }
@@ -145,9 +219,9 @@ export default connect(
     },
     function (dispatch) {
         return {
-            // pauseGame: () => dispatch(pauseGame()),
             continueGame: () => dispatch(continueGame()),
             incrementOneSecond: () => dispatch(incrementOneSecond()),
+            pauseGame: () => dispatch(pauseGame())
         };
     }
 )(Game);

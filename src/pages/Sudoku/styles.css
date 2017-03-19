@@ -3,6 +3,10 @@
     justify-content: center;
 }
 
+.game {
+    // position: relative;
+}
+
 .game-container {
     color: white;
     margin: auto;
@@ -14,5 +18,41 @@
 
     @media (min-width: 601px) and (max-width: 800px) {
         width: 450px;
+    }
+}
+
+.pause-button {
+    float: right;
+}
+
+.game-menu {
+    background-color: rgba(255, 255, 255, 0.8);
+    position: absolute;
+    z-index: 9999;
+    top: -16px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.game-menu-list {
+    padding: 0;
+    margin: 0;
+}
+
+.game-menu-list-item {
+    color: white;
+    background-color: var(--color__blue);
+    list-style-type: none;
+    margin: 0;
+    margin-bottom: 10px;
+    padding: 5px;
+
+    &:hover {
+        cursor: pointer;
+        background-color: var(--color__dark-blue);
     }
 }
