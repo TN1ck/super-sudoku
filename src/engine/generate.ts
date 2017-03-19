@@ -127,15 +127,37 @@ function enhanceUniqueness (sudoku: SimpleSudoku) : SimpleSudoku {
     return sudoku;
 }
 
+const RELATIVE_DRIFT = 10;
+// this is mostly needed for the esay difficulty, because the iterations needed there
+// are too low that the relative drift would do anything
+const ABSOLUTE_DRIFT = 5;
+
 export function generateSudoku (difficulty: DIFFICULTY): SimpleSudoku {
 
     const iterationGoal = DIFFICULTY_MAPPING[difficulty];
 
-    function rateCosts (cost) {
+    /**
+     * returns the percentage of how close we are to the iteration goal
+     */
+    function rateCostsPercentage (cost) {
         if (cost === Infinity) {
             return cost;
         }
         return Math.abs((cost / iterationGoal) - 1) * 100;
+    }
+
+    /**
+     * returns the absolute difference to the iteration goal
+     */
+    function rateCostsAbsolute (cost) {
+        return cost - iterationGoal;
+    }
+
+    /**
+     * returns if the costs are close enough to the requested difficulty level
+     */
+    function validCosts (cost) {
+        return rateCostsPercentage(cost) < RELATIVE_DRIFT || rateCostsAbsolute(cost) < ABSOLUTE_DRIFT;
     }
 
     // 1. create a random sudoku
@@ -150,7 +172,8 @@ export function generateSudoku (difficulty: DIFFICULTY): SimpleSudoku {
     let iterations = 0;
 
     function isFinished (sudoku, cost) {
-        if (rateCosts(cost) > 10) {
+
+        if (!validCosts(cost)) {
             return false;
         }
         if (!checkForUniqueness(sudoku)) {
@@ -176,15 +199,16 @@ export function generateSudoku (difficulty: DIFFICULTY): SimpleSudoku {
         }));
         newSudoku[_.random(0, 8)][_.random(0, 8)] = getRandomSudokuNumber();
         let newCost = costFunction(newSudoku);
+
         // hillclimbing
-        if (rateCosts(bestCost) === Infinity || rateCosts(newCost) < rateCosts(bestCost)) {
+        if (rateCostsAbsolute(bestCost) === Infinity || rateCostsAbsolute(newCost) < rateCostsAbsolute(bestCost)) {
             bestSudoku = newSudoku;
             bestCost = newCost;
         }
 
-        // console.log(rateCosts(bestCost));
+        // console.log(bestCost, newCost, validCosts(bestCost));
 
-        if (rateCosts(bestCost) < 10) {
+        if (validCosts(bestCost)) {
             if (!checkForUniqueness(bestSudoku)) {
                 bestSudoku = enhanceUniqueness(bestSudoku);
                 // console.log('cost before/after', bestCost, costFunction(bestSudoku));
