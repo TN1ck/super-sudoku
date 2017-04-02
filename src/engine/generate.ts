@@ -24,15 +24,9 @@ import * as solverOptimized from './solverOptimized';
 import {
     SUDOKU_NUMBERS,
     SUDOKU_COORDINATES,
+    DIFFICULTY​​,
     SimpleSudoku,
 } from './utility';
-
-export enum DIFFICULTY {
-    EASY,
-    MEDIUM,
-    HARD,
-    EVIL
-};
 
 const DIFFICULTY_MAPPING = {
     [DIFFICULTY.EASY]: 6.234,

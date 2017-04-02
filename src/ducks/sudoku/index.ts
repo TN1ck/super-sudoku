@@ -3,12 +3,17 @@
 //
 
 const SHOW_MENU = 'sudoku/SHOW_MENU';
+const SET_SUDOKU = 'sudoku/SET_SUDOKU';
 const SET_NOTE = 'sudoku/SET_NOTE';
 const CLEAR_NOTE = 'sudoku/CLEAR_NOTE';
 const SET_NUMBER = 'sudoku/SET_NUMBER';
 const CLEAR_NUMBER = 'sudoku/CLEAR_NUMBER';
 const GET_HINT = 'sudoku/GET_HINT';
 const SELECT_NUMBER_FOR_EDIT = 'sudoku/SELECT_NUMBER_FOR_EDIT';
+
+import {
+    DIFFICULTY
+} from 'src/engine/utility';
 
 import {
     Cell,
@@ -83,6 +88,14 @@ export function showMenu (cell: Cell) : CellAction {
     };
 }
 
+export function setSudoku (difficulty: DIFFICULTY, sudoku: string) {
+    return {
+        difficulty,
+        type: SET_SUDOKU,
+        sudoku: parseSudoku(sudoku)
+    }
+}
+
 export interface SudokuState {
     grid: Array<Cell>;
     selectedNumber: number | undefined;
@@ -99,6 +112,7 @@ export default function sudokuReducer (state: SudokuState = initialState, action
     if (![
         SHOW_MENU,
         SET_NOTE,
+        SET_SUDOKU,
         CLEAR_NOTE,
         SET_NUMBER,
         CLEAR_NUMBER,
@@ -107,6 +121,15 @@ export default function sudokuReducer (state: SudokuState = initialState, action
     ].find(d => d === action.type)) {
         return state;
     }
+
+    switch (action.type) {
+        case SET_SUDOKU:
+            console.log(action.sudoku, 'test');
+            return Object.assign({}, state, {
+                grid: action.sudoku
+            });
+    }
+
     const actionCell : Cell = action.cell;
         // hide all menus in all cells
     const newGrid = state.grid.map(cell => {
@@ -129,7 +152,6 @@ export default function sudokuReducer (state: SudokuState = initialState, action
                 return cell;
             case CLEAR_NOTE:
                 if (id === actionCellId) {
-                    console.log('clear note', action.note);
                     cell.notes.delete(action.note);
                     return Object.assign({}, cell, {
                         notes: cell.notes

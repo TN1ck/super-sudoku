@@ -14,6 +14,12 @@ import * as _ from 'lodash';
 square = _y * 3 + _x;
 */
 
+export enum DIFFICULTY {
+    EASY,
+    MEDIUM,
+    HARD,
+    EVIL
+};
 
 export interface SimpleCell {
     x: number;

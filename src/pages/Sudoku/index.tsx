@@ -3,15 +3,23 @@ import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 // import * as classNames from 'classnames';
 
 import {connect} from 'react-redux';
-import {SudokuState} from 'src/ducks/sudoku';
+import {
+    SudokuState,
+    setSudoku
+} from 'src/ducks/sudoku';
 import {
     pauseGame,
     continueGame,
     incrementOneSecond,
-    resetGame
+    resetGame,
+    newGame
 } from 'src/ducks/game';
+import {
+    DIFFICULTY
+} from 'src/engine/utility'
 import {Cell} from 'src/ducks/sudoku/model';
 import {GridComponent} from 'src/components/Sudoku';
+import SUDOKUS from 'src/sudokus';
 
 
 // import {
@@ -125,53 +133,168 @@ function GameMenuItem (props) {
 const GameMenu = connect(
     function (state) {
         return {
-            running: state.game.running
+            running: state.game.running,
+            hasGame: state.game.currentlySelectedSudokuId !== undefined
         };
     },
     function (dispatch) {
         return {
             continueGame: () => dispatch(continueGame()),
-            resetGame: () => dispatch(resetGame())
+            resetGame: () => dispatch(resetGame()),
+            newGame: (difficulty, sudokuId) => dispatch(newGame(difficulty, sudokuId)),
+            setSudoku: (difficulty, sudoku) => dispatch(setSudoku(difficulty, sudoku)),
         }
     }
-)(function GameMenu ({continueGame, running}) {
-    const actualMenu = (
-        <div className={styles.gameMenu} key='el'>
-            <ul className={styles.gameMenuList}>
-                <GameMenuItem onClick={continueGame}>
-                    {'Continue'}
-                </GameMenuItem>
-                <GameMenuItem onClick={resetGame}>
-                    {'Reset Game'}
-                </GameMenuItem>
-                <GameMenuItem>
-                    {'New Game'}
-                </GameMenuItem>
-            </ul>
-        </div>
-    );
-    const inner = running ? [] : [actualMenu];
-    return (
-        <div>
-            <ReactCSSTransitionGroup
-                component='div'
-                transitionName='opacity'
-                transitionEnterTimeout={500}
-                transitionLeaveTimeout={300}
-                transitionAppear
-                transitionAppearTimeout={500}
-            >
-                {inner}
-            </ReactCSSTransitionGroup>
-        </div>
-    );
+)(class GameMenu extends React.Component<{
+    continueGame: () => any;
+    resetGame: () => any;
+    newGame: (difficulty, sudokuId) => any;
+    setSudoku: (difficulty, sudoku) => any;
+    running: boolean;
+    hasGame: boolean;
+}, {
+    menuState: string;
+    difficulty: DIFFICULTY;
+}> {
+    constructor (props) {
+        super(props);
+        this.state = {
+            menuState: 'INITIAL',
+            difficulty: undefined
+        };
+        this.chooseDifficulty = this.chooseDifficulty.bind(this);
+        this.setDifficulty = this.setDifficulty.bind(this);
+        this.newGame = this.newGame.bind(this);
+    }
+    chooseDifficulty () {
+        this.setState({
+            menuState: 'SET_DIFFICULTY'
+        });
+    }
+    setDifficulty (difficulty) {
+        this.setState({
+            difficulty,
+            menuState: 'CHOOSE_GAME'
+        });
+    }
+    newGame (sudokuId, sudoku) {
+        this.props.setSudoku(this.state.difficulty, sudoku);
+        this.props.newGame(this.state.difficulty, sudokuId);
+        this.props.continueGame();
+        this.setState({
+            menuState: 'INITIAL'
+        });
+    }
+    render () {
+        const {
+            continueGame,
+            resetGame,
+            running,
+            hasGame
+        } = this.props;
+
+        let items = [];
+
+        if (this.state.menuState === 'INITIAL') {
+            if (hasGame) {
+                items.push(
+                    <GameMenuItem onClick={continueGame} key='continue'>
+                        {'Continue'}
+                    </GameMenuItem>
+                );
+                items.push(
+                    <GameMenuItem onClick={resetGame} key='reset-game'>
+                        {'Reset Game'}
+                    </GameMenuItem>
+                );
+            } else {
+                items.push(
+                    <GameMenuItem
+                        key='new-game'
+                        onClick={this.chooseDifficulty}
+                    >
+                        {'New Game'}
+                    </GameMenuItem>
+                );
+            }
+        }
+
+        if (this.state.menuState === 'SET_DIFFICULTY') {
+            const difficulties = [
+                {
+                    label: 'Easy',
+                    difficulty: DIFFICULTY.EASY
+                },
+                {
+                    label: 'Medium',
+                    difficulty: DIFFICULTY.MEDIUM
+                },
+                {
+                    label: 'Hard',
+                    difficulty: DIFFICULTY.HARD
+                },
+                {
+                    label: 'Evil',
+                    difficulty: DIFFICULTY.EVIL
+                }
+            ];
+            items = difficulties.map(({label, difficulty}) => {
+                const onClick = () => this.setDifficulty(difficulty);
+                return (
+                    <GameMenuItem onClick={onClick} key={difficulty}>
+                        {label}
+                    </GameMenuItem>
+                );
+            });
+        }
+
+        if (this.state.menuState === 'CHOOSE_GAME') {
+            const sudokus = SUDOKUS[this.state.difficulty];
+            items = sudokus.map((sudoku, i) => {
+                const onClick = () => this.newGame(i, sudoku);
+                return (
+                    <GameMenuItem key={i} onClick={onClick}>
+                        {i}
+                    </GameMenuItem>
+                );
+            });
+        }
+
+        const actualMenu = (
+            <div className={styles.gameMenu} key='el'>
+                <ul className={styles.gameMenuList}>
+                    {items}
+                </ul>
+            </div>
+        );
+        const inner = running ? [] : [actualMenu];
+
+        return (
+            <div>
+                <ReactCSSTransitionGroup
+                    component='div'
+                    transitionName='opacity'
+                    transitionEnterTimeout={500}
+                    transitionLeaveTimeout={300}
+                    transitionAppear
+                    transitionAppearTimeout={500}
+                >
+                    {inner}
+                </ReactCSSTransitionGroup>
+            </div>
+        );
+
+    }
+
 });
 
 class Game extends React.Component<{
     game: any,
     continueGame: () => any,
+    resetGame: () => any,
     incrementOneSecond: () => any,
-    pauseGame: () => any
+    pauseGame: () => any,
+    newGame: () => any,
 }, {}> {
     interval: number;
     componentDidMount () {
@@ -221,7 +344,8 @@ export default connect(
         return {
             continueGame: () => dispatch(continueGame()),
             incrementOneSecond: () => dispatch(incrementOneSecond()),
-            pauseGame: () => dispatch(pauseGame())
+            pauseGame: () => dispatch(pauseGame()),
+            resetGame: () => dispatch(resetGame())
         };
     }
 )(Game);

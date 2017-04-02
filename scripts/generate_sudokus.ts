@@ -3,7 +3,8 @@ import * as program from 'commander';
 import * as generate from '../src/engine/generate';
 import {
     SimpleSudoku,
-    printSimpleSudoku
+    printSimpleSudoku,
+    DIFFICULTY
 } from '../src/engine/utility';
 
 program
@@ -18,10 +19,10 @@ program
     .parse(process.argv);
 
 const mapping = {
-    easy: generate.DIFFICULTY.EASY,
-    medium: generate.DIFFICULTY.MEDIUM,
-    hard: generate.DIFFICULTY.HARD,
-    evil: generate.DIFFICULTY.EVIL
+    easy: DIFFICULTY.EASY,
+    medium: DIFFICULTY.MEDIUM,
+    hard: DIFFICULTY.HARD,
+    evil: DIFFICULTY.EVIL
 };
 
 
