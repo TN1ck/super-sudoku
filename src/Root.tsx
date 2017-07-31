@@ -11,20 +11,20 @@ import Sudoku from 'src/pages/Sudoku';
 import './styles/index.global.css';
 
 const Root: React.StatelessComponent<{
-    children?: React.ReactNode
-}> = function _Root () {
-    return (
-        <Switch>
-            <Route path='/'>
-                <App>
-                    <Switch>
-                        <Route exact path='/about' component={ About } />
-                        <Route exact path='/sudoku' component={ Sudoku } />
-                    </Switch>
-                </App>
-            </Route>
-        </Switch>
-    );
+  children?: React.ReactNode;
+}> = function _Root() {
+  return (
+    <Switch>
+      <Route path="/">
+        <App>
+          <Switch>
+            <Route exact path="/about" component={About} />
+            <Route exact path="/sudoku" component={Sudoku} />
+          </Switch>
+        </App>
+      </Route>
+    </Switch>
+  );
 };
 
 export default Root;

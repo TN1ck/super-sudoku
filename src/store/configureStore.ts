@@ -1,30 +1,26 @@
-import {
-    createStore, applyMiddleware, compose
-}                                      from 'redux';
-import thunkMiddleWare                 from 'redux-thunk';
-import rootReducer                     from 'src/ducks';
+import {createStore, applyMiddleware, compose} from 'redux';
+import thunkMiddleWare from 'redux-thunk';
+import rootReducer from 'src/ducks';
 import {createLogger} from 'redux-logger';
 
 const logger = createLogger({collapsed: true});
 
-const middleware = [
-    thunkMiddleWare
-].concat(process.env.__DEV__ ? [logger as any] : []);
-
-const enhancer = compose(
-    applyMiddleware(...middleware)
+const middleware = [thunkMiddleWare].concat(
+  process.env.__DEV__ ? [logger as any] : [],
 );
 
-export default function configureStore (initialState) {
-    const store = createStore(rootReducer, initialState, enhancer);
+const enhancer = compose(applyMiddleware(...middleware));
 
-    if ((module as any).hot) {
-        // Enable Webpack hot module replacement for reducers
-        (module as any).hot.accept('../ducks', () => {
-            const nextRootReducer = require('src/ducks');
-            store.replaceReducer(nextRootReducer);
-        });
-    }
+export default function configureStore(initialState) {
+  const store = createStore(rootReducer, initialState, enhancer);
 
-    return store;
-};
+  if ((module as any).hot) {
+    // Enable Webpack hot module replacement for reducers
+    (module as any).hot.accept('../ducks', () => {
+      const nextRootReducer = require('src/ducks');
+      store.replaceReducer(nextRootReducer);
+    });
+  }
+
+  return store;
+}

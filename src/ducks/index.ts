@@ -1,10 +1,10 @@
-import { combineReducers } from 'redux';
+import {combineReducers} from 'redux';
 import sudoku from './sudoku';
 import game from './game';
 
 const rootReducer = combineReducers({
-    sudoku,
-    game
+  sudoku,
+  game,
 });
 
 export default rootReducer;
