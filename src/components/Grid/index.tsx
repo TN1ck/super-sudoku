@@ -6,7 +6,7 @@ export const Col: React.StatelessComponent<{
     sm?: number,
     md?: number,
     lg?: number,
-    children?: React.ReactChild,
+    children?: React.ReactNode,
     style?: React.CSSProperties
 }> = function _Col (props) {
 
@@ -23,7 +23,7 @@ export const Col: React.StatelessComponent<{
 };
 
 export const Row: React.StatelessComponent<{
-    children?: React.ReactChild,
+    children?: React.ReactNode,
     style?: React.CSSProperties,
     className?: string
 }> = function _Row (props) {
@@ -35,7 +35,7 @@ export const Row: React.StatelessComponent<{
 };
 
 export const Container: React.StatelessComponent<{
-    children?: React.ReactChild,
+    children?: React.ReactNode,
     fluid?: boolean,
     className?: string
 }> = function _Container (props) {

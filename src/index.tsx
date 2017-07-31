@@ -2,6 +2,8 @@ require('whatwg-fetch');
 import 'babel-polyfill';
 const { AppContainer } = require('react-hot-loader');
 
+import { Provider } from 'react-redux';
+import {BrowserRouter} from 'react-router-dom';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import Root from './Root';
@@ -12,9 +14,11 @@ const store = configureStore({});
 function renderApp (RootComponent) {
     ReactDOM.render(
         <AppContainer>
-            <RootComponent
-                store={store}
-            />
+            <Provider store={store}>
+                <BrowserRouter>
+                    <RootComponent />
+                </BrowserRouter>
+            </Provider>
         </AppContainer>,
         document.getElementById('root')
     );

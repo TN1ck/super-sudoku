@@ -3,11 +3,13 @@ import {
 }                                      from 'redux';
 import thunkMiddleWare                 from 'redux-thunk';
 import rootReducer                     from 'src/ducks';
+import {createLogger} from 'redux-logger';
 
-const createLogger = require('redux-logger');
+const logger = createLogger({collapsed: true});
+
 const middleware = [
     thunkMiddleWare
-].concat(process.env.__DEV__ ? [createLogger({collapsed: true})] : []);
+].concat(process.env.__DEV__ ? [logger as any] : []);
 
 const enhancer = compose(
     applyMiddleware(...middleware)

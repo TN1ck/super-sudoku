@@ -1,8 +1,6 @@
 import * as React from 'react';
 
-import { Provider } from 'react-redux';
-import { Store } from 'redux';
-import { Route, Router, browserHistory, IndexRedirect } from 'react-router';
+import {Route, Switch} from 'react-router-dom';
 
 import App from 'src/pages/App';
 import About from 'src/pages/About';
@@ -12,24 +10,20 @@ import Sudoku from 'src/pages/Sudoku';
 // (see index.tsx and search for module.hot)
 import './styles/index.global.css';
 
-const routes = (
-    <Route path='/' component={ App }>
-        <IndexRedirect to='/sudoku' />
-        <Route path='/about' component={ About } />
-        <Route path='/sudoku' component={ Sudoku } />
-    </Route>
-);
-
 const Root: React.StatelessComponent<{
-    children?: React.ReactChild,
-    store: Store<any>
-}> = function _Root (props) {
+    children?: React.ReactNode
+}> = function _Root () {
     return (
-        <Provider store={props.store}>
-            <Router history={browserHistory}>
-                { routes }
-            </Router>
-        </Provider>
+        <Switch>
+            <Route path='/'>
+                <App>
+                    <Switch>
+                        <Route exact path='/about' component={ About } />
+                        <Route exact path='/sudoku' component={ Sudoku } />
+                    </Switch>
+                </App>
+            </Route>
+        </Switch>
     );
 };
 

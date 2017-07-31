@@ -305,6 +305,7 @@ class Game extends React.Component<{
         }, 1000);
     }
     render () {
+        console.log('test');
         const {
             game,
             pauseGame
