@@ -37,6 +37,8 @@
       false
     ],
     "no-shadowed-variable": false,
+    "variable-name": ["allow-leading-underscore"],
+    "max-classes-per-file": [true, 5],
     "jsx-boolean-value": false,
     "jsx-no-lambda": false,
     "jsx-no-multiline-js": false,

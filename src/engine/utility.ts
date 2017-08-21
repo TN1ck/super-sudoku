@@ -27,9 +27,9 @@ export interface SimpleCell {
   number: number | undefined;
 }
 
-export type ComplexSudoku = Array<SimpleCell>;
-export type SimpleSudoku = Array<Array<number>>;
-export type DomainSudoku = Array<Array<Array<number>>>;
+export type ComplexSudoku = SimpleCell[];
+export type SimpleSudoku = number[][];
+export type DomainSudoku = number[][][];
 
 export const SUDOKU_COORDINATES = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 export const SUDOKU_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -101,7 +101,7 @@ export function printSimpleSudoku(grid: SimpleSudoku) {
     .join('\n');
 }
 
-export function duplicates(array: Array<number>): number {
+export function duplicates(array: number[]): number {
   const filtered = array.filter(c => c !== undefined);
   const grouped = _.groupBy(filtered, c => c);
   const picked = _.pickBy(grouped, x => x.length > 1);
@@ -113,8 +113,8 @@ export function simpleSudokuToComplexSudoku(grid: SimpleSudoku): ComplexSudoku {
     ...grid.map((row, y) => {
       return row.map((n, x) => {
         return {
-          x: x,
-          y: y,
+          x,
+          y,
           number: n,
         };
       });
@@ -124,7 +124,7 @@ export function simpleSudokuToComplexSudoku(grid: SimpleSudoku): ComplexSudoku {
 
 export function complexSudokuToSimpleSudoku(
   sudoku: ComplexSudoku,
-): Array<Array<number>> {
+): number[][] {
   const simple = [[], [], [], [], [], [], [], [], []];
   sudoku.forEach(cell => {
     simple[cell.y][cell.x] = cell.number;
@@ -132,7 +132,7 @@ export function complexSudokuToSimpleSudoku(
   return simple;
 }
 
-export function parseSudoku(sudoku: String): SimpleSudoku {
+export function parseSudoku(sudoku: string): SimpleSudoku {
   // check if the input-data is correct
   const inputDataIsCorrectDomain = [...sudoku].every(char => {
     return (
@@ -171,7 +171,7 @@ export function printComplexSudoku(grid: ComplexSudoku) {
     })
     .toPairs()
     .sortBy(([, k]) => k)
-    .map(([, cells]: [String, ComplexSudoku]) => {
+    .map(([, cells]: [string, ComplexSudoku]) => {
       return _.sortBy(cells, c => c.x)
         .map(c => {
           return c.number === undefined ? '_' : String(c.number);

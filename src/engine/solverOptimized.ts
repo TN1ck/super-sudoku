@@ -41,7 +41,7 @@ function getColumns(grid: SimpleSudoku): SimpleSudoku {
   const columns: SimpleSudoku = [];
   // calculate the duplicates for every column
   for (let x = 0; x < 9; x++) {
-    const column: Array<number> = [];
+    const column: number[] = [];
     for (let y = 0; y < 9; y++) {
       const cell = grid[y][x];
       column.push(cell);
@@ -56,7 +56,7 @@ function getSquares(grid: SimpleSudoku): SimpleSudoku {
   // calculate the duplicates in every square
   for (let s = 0; s < 9; s++) {
     const square = SQUARE_TABLE[s];
-    const squareValues: Array<number> = [];
+    const squareValues: number[] = [];
     for (let xy = 0; xy < 9; xy++) {
       const [x, y] = square[xy];
       squareValues.push(grid[y][x]);
@@ -75,7 +75,7 @@ function getMinimumRemainingValue(
   const numberOfRemainingValuesForEveryCell: Array<{
     x: number;
     y: number;
-    remainingValues: Array<number>;
+    remainingValues: number[];
   }> = [];
 
   // find minimum remaining value
@@ -121,7 +121,7 @@ function createNewGrids(grid: SimpleSudoku, x: number, y: number, values) {
 }
 
 export function _solveGrid(
-  stack: Array<SimpleSudoku> = [],
+  stack: SimpleSudoku[] = [],
   iterations: number,
 ): {
   sudoku: SimpleSudoku;

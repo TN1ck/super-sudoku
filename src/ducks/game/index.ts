@@ -43,29 +43,33 @@ const gameState = {
   running: false,
   currentlySelectedDifficulty: undefined,
   currentlySelectedSudokuId: undefined,
-  sudokus: sudokus,
+  sudokus,
 };
 
 export default function gameReducer(state = gameState, action) {
   switch (action.type) {
     case NEW_GAME:
-      return Object.assign({}, state, {
+      return {
+        ...state,
         currentlySelectedDifficulty: action.difficulty,
         currentlySelectedSudokuId: action.sudokuId,
         timePassedInSeconds: 0,
-      });
+      };
     case PAUSE_GAME:
-      return Object.assign({}, state, {
+      return {
+        ...state,
         running: false,
-      });
+      };
     case CONTINUE_GAME:
-      return Object.assign({}, state, {
+      return {
+        ...state,
         running: true,
-      });
+      };
     case INCREMENT_ONE_SECOND:
-      return Object.assign({}, state, {
+      return {
+        ...state,
         timePassedInSeconds: state.timePassedInSeconds + 1,
-      });
+      };
     default:
       return state;
   }

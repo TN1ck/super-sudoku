@@ -8,9 +8,9 @@ import {
 } from './utility';
 
 function removeValuesFromDomain(
-  domain1: Array<number>,
-  domain2: Array<number>,
-): [Array<number>, boolean] {
+  domain1: number[],
+  domain2: number[],
+): [number[], boolean] {
   let change = false;
   // this is an optimizitation:
   // AC3 checks if there is a value in domain1 that
@@ -50,7 +50,7 @@ function toDomainSudoku(grid: SimpleSudoku): DomainSudoku {
  * by Bahare Fatemi, Seyed Mehran Kazemi, Nazanin Mehrasa
  */
 export function _solveGridAC3(
-  stack: Array<DomainSudoku> = [],
+  stack: DomainSudoku[] = [],
   iterations: number,
 ): {
   sudoku: SimpleSudoku;
@@ -90,7 +90,7 @@ export function _solveGridAC3(
         if (xx === x) {
           continue;
         }
-        let domain2 = row[xx];
+        const domain2 = row[xx];
         const result = removeValuesFromDomain(domain1, domain2);
         domain1 = result[0];
         change = result[1];
@@ -101,7 +101,7 @@ export function _solveGridAC3(
         if (yy === y) {
           continue;
         }
-        let domain2 = rows[yy][x];
+        const domain2 = rows[yy][x];
         const result = removeValuesFromDomain(domain1, domain2);
         domain1 = result[0];
         change = change || result[1];
@@ -111,11 +111,11 @@ export function _solveGridAC3(
       const square = SQUARE_TABLE[squareIndex(x, y)];
       for (let c = 0; c < 9; c++) {
         const s = square[c];
-        let [xx, yy] = s;
+        const [xx, yy] = s;
         if (xx === x && yy === y) {
           continue;
         }
-        let domain2 = rows[yy][xx];
+        const domain2 = rows[yy][xx];
         const result = removeValuesFromDomain(domain1, domain2);
         domain1 = result[0];
         change = change || result[1];

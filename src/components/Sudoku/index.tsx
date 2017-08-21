@@ -99,11 +99,11 @@ class Menu extends React.Component<
     const circleRadius = 45;
 
     // TODO: use these only dymanically on small screens
-    let minRad = 0;
-    let maxRad = TAU;
+    const minRad = 0;
+    const maxRad = TAU;
 
-    let containerLeft = '0%';
-    let containerTop = '-50%';
+    const containerLeft = '0%';
+    const containerTop = '-50%';
 
     // if (cell.x === 0) {
     //     minRad = (TAU / 4) * -1;
@@ -353,7 +353,7 @@ export const CellComponent = connect<
 */
 
 export const GridComponent: React.StatelessComponent<{
-  grid: Array<Cell>;
+  grid: Cell[];
 }> = function _Grid(props) {
   const threeTimesThreeContainer = _.groupBy(props.grid, cell => {
     return `${Math.floor(cell.y / 3)}-${Math.floor(cell.x / 3)}`;

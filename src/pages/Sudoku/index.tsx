@@ -24,7 +24,7 @@ import * as Grid from 'src/components/Grid';
 import * as styles from './styles.css';
 
 const Sudoku: React.StatelessComponent<{
-  grid: Array<Cell>;
+  grid: Cell[];
 }> = function _Sudoku(props) {
   return (
     <div className={styles.sudokuContainer}>

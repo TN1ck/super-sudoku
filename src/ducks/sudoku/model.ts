@@ -38,7 +38,7 @@ export const solvableSudoku1 = [
   '57_______',
 ].join('\n');
 
-export function parseSudoku(sudoku: String): Array<Cell> {
+export function parseSudoku(sudoku: string): Cell[] {
   const lines = sudoku.split('\n');
   return [].concat(
     ...lines.map((line, y) => {

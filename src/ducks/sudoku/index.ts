@@ -77,7 +77,7 @@ export function getHint(cell: Cell): CellAction {
 export function showMenu(cell: Cell): CellAction {
   return {
     type: SHOW_MENU,
-    cell: cell,
+    cell,
   };
 }
 
@@ -90,7 +90,7 @@ export function setSudoku(difficulty: DIFFICULTY, sudoku: string) {
 }
 
 export interface SudokuState {
-  grid: Array<Cell>;
+  grid: Cell[];
   selectedNumber: number | undefined;
 }
 
@@ -123,9 +123,7 @@ export default function sudokuReducer(
   switch (action.type) {
     case SET_SUDOKU:
       console.log(action.sudoku, 'test');
-      return Object.assign({}, state, {
-        grid: action.sudoku,
-      });
+      return {...state, grid: action.sudoku};
   }
 
   const actionCell: Cell = action.cell;
@@ -136,38 +134,28 @@ export default function sudokuReducer(
     switch (action.type) {
       case SHOW_MENU:
         if (cell.showMenu || id === actionCellId) {
-          return Object.assign({}, cell, {
-            showMenu: !cell.showMenu,
-          });
+          return {...cell, showMenu: !cell.showMenu};
         }
         return cell;
       case SET_NOTE:
         if (id === actionCellId) {
-          return Object.assign({}, cell, {
-            notes: cell.notes.add(action.note),
-          });
+          return {...cell, notes: cell.notes.add(action.note)};
         }
         return cell;
       case CLEAR_NOTE:
         if (id === actionCellId) {
           cell.notes.delete(action.note);
-          return Object.assign({}, cell, {
-            notes: cell.notes,
-          });
+          return {...cell, notes: cell.notes};
         }
         return cell;
       case SET_NUMBER:
         if (id === actionCellId) {
-          return Object.assign({}, cell, {
-            number: action.number,
-          });
+          return {...cell, number: action.number};
         }
         return cell;
       case CLEAR_NUMBER:
         if (id === actionCellId) {
-          return Object.assign({}, cell, {
-            number: undefined,
-          });
+          return {...cell, number: undefined};
         }
         return cell;
       case GET_HINT:
@@ -179,7 +167,5 @@ export default function sudokuReducer(
     }
   });
 
-  return Object.assign({}, state, {
-    grid: newGrid,
-  });
+  return {...state, grid: newGrid};
 }

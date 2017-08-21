@@ -22,7 +22,7 @@ function checkColumn(grid: ComplexSudoku, cell: SimpleCell): ComplexSudoku {
 }
 
 function checkSquare(grid: ComplexSudoku, cell: SimpleCell): ComplexSudoku {
-  const squares: Array<ComplexSudoku> = _.values(
+  const squares: ComplexSudoku[] = _.values(
     _.groupBy(grid, (c: SimpleCell) => {
       return `${Math.floor(c.x / 3)}-${Math.floor(c.y / 3)}`;
     }),
@@ -50,11 +50,11 @@ function checkCellForDuplicates(
   return uniques;
 }
 
-function everyFieldIsFilledWithANumber(grid: ComplexSudoku): Boolean {
+function everyFieldIsFilledWithANumber(grid: ComplexSudoku): boolean {
   return grid.filter(c => c.number).length === grid.length;
 }
 
-function everyFieldIsCorrect(grid: ComplexSudoku): Boolean {
+function everyFieldIsCorrect(grid: ComplexSudoku): boolean {
   const result = grid.every(c => {
     return checkCellForDuplicates(grid, c).length === 0;
   });
@@ -84,7 +84,7 @@ function getMinimumRemainingValue(grid: ComplexSudoku) {
  * Only used for the UI, to show how it's solved
  */
 export function* solveGridGenerator(
-  stack: Array<ComplexSudoku> = [],
+  stack: ComplexSudoku[] = [],
 ): Iterable<ComplexSudoku> {
   const [grid, ...rest] = stack;
 
@@ -100,7 +100,7 @@ export function* solveGridGenerator(
       const emptyCell = getMinimumRemainingValue(grid);
 
       const newCells: ComplexSudoku = SUDOKU_NUMBERS.map(n => {
-        return Object.assign({}, emptyCell, {number: n});
+        return {...emptyCell, number: n};
       });
 
       const newGrids = newCells
@@ -120,7 +120,7 @@ export function* solveGridGenerator(
 }
 
 export function _solveGrid(
-  stack: Array<ComplexSudoku> = [],
+  stack: ComplexSudoku[] = [],
   iterations: number,
 ): {
   sudoku: ComplexSudoku;
@@ -146,7 +146,7 @@ export function _solveGrid(
   const emptyCell = getMinimumRemainingValue(grid);
 
   const newCells: ComplexSudoku = SUDOKU_NUMBERS.map(n => {
-    return Object.assign({}, emptyCell, {number: n});
+    return {...emptyCell, number: n};
   });
 
   const newGrids = newCells
