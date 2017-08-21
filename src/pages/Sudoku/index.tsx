@@ -7,9 +7,10 @@ import {SudokuState, setSudoku} from 'src/ducks/sudoku';
 import {
   pauseGame,
   continueGame,
-  incrementOneSecond,
   resetGame,
   newGame,
+  GameState,
+  getTime,
 } from 'src/ducks/game';
 import {DIFFICULTY} from 'src/engine/utility';
 import {Cell} from 'src/ducks/sudoku/model';
@@ -89,21 +90,46 @@ const ConnectedSudoku = connect(
   },
 )(Sudoku);
 
-function GameTimer({seconds}) {
-  const minutes = Math.floor(seconds / 60);
-  const secondRest = seconds % 60;
+class GameTimer extends React.Component<{
+  startTime: number;
+  offsetTime: number;
+  stopTime: number;
+}> {
+  _isMounted: boolean = false;
+  componentDidMount() {
+    this._isMounted = true;
+    const timer = () => {
+      requestAnimationFrame(() => {
+        this.forceUpdate();
+        if (this._isMounted) {
+          timer();
+        }
+      });
+    };
+    timer();
+  }
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
+  render() {
+    const {startTime, offsetTime, stopTime} = this.props;
+    const milliseconds = getTime(startTime, offsetTime, stopTime);
+    const seconds = Math.round(milliseconds / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const secondRest = seconds % 60;
 
-  const minuteString: string = minutes < 10 ? '0' + minutes : String(minutes);
-  const secondString: string =
-    secondRest < 10 ? '0' + secondRest : String(secondRest);
+    const minuteString: string = minutes < 10 ? '0' + minutes : String(minutes);
+    const secondString: string =
+      secondRest < 10 ? '0' + secondRest : String(secondRest);
 
-  const timerString = minuteString + ':' + secondString;
+    const timerString = minuteString + ':' + secondString;
 
-  return (
-    <span>
-      {timerString}
-    </span>
-  );
+    return (
+      <span>
+        {timerString}
+      </span>
+    );
+  }
 }
 
 function PauseButton({pauseGame}) {
@@ -279,25 +305,15 @@ const GameMenu = connect(
 
 class Game extends React.Component<
   {
-    game: any;
-    continueGame: () => any;
-    resetGame: () => any;
-    incrementOneSecond: () => any;
-    pauseGame: () => any;
-    newGame: () => any;
+    game: GameState;
+    continueGame: typeof continueGame;
+    resetGame: typeof resetGame;
+    pauseGame: typeof pauseGame;
+    newGame: typeof newGame;
   },
   {}
 > {
-  interval: number;
-  componentDidMount() {
-    this.interval = window.setInterval(() => {
-      if (this.props.game.running) {
-        this.props.incrementOneSecond();
-      }
-    }, 1000);
-  }
   render() {
-    console.log('test');
     const {game, pauseGame} = this.props;
     return (
       <div className={styles.game}>
@@ -306,7 +322,11 @@ class Game extends React.Component<
           <Grid.Row>
             <Grid.Col xs={12}>
               <div className={styles.gameContainer}>
-                <GameTimer seconds={game.timePassedInSeconds} />
+                <GameTimer
+                  startTime={game.startTime}
+                  stopTime={game.stopTime}
+                  offsetTime={game.offsetTime}
+                />
                 <PauseButton pauseGame={pauseGame} />
               </div>
             </Grid.Col>
@@ -328,12 +348,9 @@ export default connect(
       game: state.game,
     };
   },
-  function(dispatch) {
-    return {
-      continueGame: () => dispatch(continueGame()),
-      incrementOneSecond: () => dispatch(incrementOneSecond()),
-      pauseGame: () => dispatch(pauseGame()),
-      resetGame: () => dispatch(resetGame()),
-    };
+  {
+    continueGame,
+    pauseGame,
+    resetGame,
   },
 )(Game);

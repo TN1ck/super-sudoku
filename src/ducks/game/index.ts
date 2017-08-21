@@ -4,7 +4,6 @@ const NEW_GAME = 'game/NEW_GAME';
 const RESET_GAME = 'game/RESET_GAME';
 const PAUSE_GAME = 'game/PAUSE_GAME';
 const CONTINUE_GAME = 'game/CONTINUE_GAME';
-const INCREMENT_ONE_SECOND = 'game/INCREMENT_ONE_SECOND';
 
 export function newGame(difficulty, sudokuId) {
   return {
@@ -32,43 +31,66 @@ export function continueGame() {
   };
 }
 
-export function incrementOneSecond() {
-  return {
-    type: INCREMENT_ONE_SECOND,
-  };
+export interface GameState {
+  startTime: number;
+  offsetTime: number;
+  stopTime: number;
+  running: boolean;
+  currentlySelectedDifficulty: string;
+  currentlySelectedSudokuId: string;
+  sudokus: typeof sudokus;
 }
 
-const gameState = {
-  timePassedInSeconds: 0,
+const gameState: GameState = {
+  startTime: 0,
+  offsetTime: 0,
+  stopTime: 0,
   running: false,
   currentlySelectedDifficulty: undefined,
   currentlySelectedSudokuId: undefined,
   sudokus,
 };
 
-export default function gameReducer(state = gameState, action) {
+export function getTime(startTime: number, offsetTime: number, stopTime: number) {
+  const now = +(new Date());
+  if (startTime === 0) {
+    return 0;
+  }
+  if (stopTime !== 0) {
+    return Math.floor(stopTime - startTime - offsetTime);
+  }
+  return Math.floor(now - startTime - offsetTime);
+}
+
+export default function gameReducer(state: GameState = gameState, action): GameState {
   switch (action.type) {
     case NEW_GAME:
       return {
         ...state,
         currentlySelectedDifficulty: action.difficulty,
         currentlySelectedSudokuId: action.sudokuId,
-        timePassedInSeconds: 0,
       };
     case PAUSE_GAME:
       return {
         ...state,
+        stopTime: +(new Date()),
         running: false,
       };
     case CONTINUE_GAME:
+      let offsetTime = state.offsetTime;
+      let startTime = state.startTime;
+      if (state.startTime === 0) {
+        startTime = +(new Date());
+      }
+      if (state.stopTime > 0) {
+        offsetTime = state.offsetTime + (+(new Date()) - state.stopTime);
+      }
       return {
         ...state,
         running: true,
-      };
-    case INCREMENT_ONE_SECOND:
-      return {
-        ...state,
-        timePassedInSeconds: state.timePassedInSeconds + 1,
+        startTime,
+        offsetTime,
+        stopTime: 0,
       };
     default:
       return state;
