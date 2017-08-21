@@ -4,7 +4,7 @@ import * as generate from '../src/engine/generate';
 import {
     SimpleSudoku,
     printSimpleSudoku,
-    DIFFICULTY
+    DIFFICULTY,
 } from '../src/engine/utility';
 
 program
@@ -14,7 +14,7 @@ program
         '-d, --difficulty [type]',
         'Difficulty [easy], [medium], [hard], [evil]',
         /^(easy|medium|hard|evil)$/i,
-        'medium'
+        'medium',
     )
     .parse(process.argv);
 
@@ -22,19 +22,19 @@ const mapping = {
     easy: DIFFICULTY.EASY,
     medium: DIFFICULTY.MEDIUM,
     hard: DIFFICULTY.HARD,
-    evil: DIFFICULTY.EVIL
+    evil: DIFFICULTY.EVIL,
 };
-
 
 const difficulty = (program as any).difficulty;
 const sudokuDifficulty = mapping[difficulty];
 
-
-function writeSudoku (sudoku : SimpleSudoku) {
+function writeSudoku(sudoku: SimpleSudoku) {
     const printedSudoku = printSimpleSudoku(sudoku);
     console.log('write sudoku\n', printedSudoku);
     fs.appendFile('sudokus.txt', printedSudoku + '\n\n', (err) => {
-        if (err) throw err;
+        if (err) {
+          throw err;
+        }
     });
 }
 

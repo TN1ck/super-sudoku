@@ -36,7 +36,7 @@ const DIFFICULTY_MAPPING = {
 };
 
 /**
- * The cost function is rather SimpleSudoku
+ * The cost function is rather simple
  * It takes a soduku and returns the cost, which is calculated like this:
  * if solveable - return the iterations needed to solve it
  * if not solveable - return infinity
@@ -56,14 +56,14 @@ function getRandomSudokuNumber(): number {
 
 export function checkForUniqueness(sudoku: SimpleSudoku): boolean {
   let rowIndex = 0;
-  for (let row of sudoku) {
+  for (const row of sudoku) {
     let colIndex = 0;
-    for (let col of row) {
+    for (const col of row) {
       // if it's undefined, we try every number and if it's still solveable
       // with two different numbers it's not unique
       if (col === undefined) {
         let timesSolved = 0;
-        for (let num of SUDOKU_NUMBERS) {
+        for (const num of SUDOKU_NUMBERS) {
           const newSudoku = sudoku.map((r, ri) => {
             return r.map((c, ci) => {
               if (rowIndex === ri && colIndex === ci) {
@@ -91,13 +91,13 @@ export function checkForUniqueness(sudoku: SimpleSudoku): boolean {
 
 function enhanceUniqueness(sudoku: SimpleSudoku): SimpleSudoku {
   const randomRows = _.shuffle(SUDOKU_COORDINATES);
-  for (let row of randomRows) {
+  for (const row of randomRows) {
     const randomColumns = _.shuffle(SUDOKU_COORDINATES);
-    for (let col of randomColumns) {
+    for (const col of randomColumns) {
       const num = sudoku[row][col];
       if (num === undefined) {
         let timesSolved = 0;
-        for (let num of SUDOKU_NUMBERS) {
+        for (const num of SUDOKU_NUMBERS) {
           const newSudoku = sudoku.map((r, ri) => {
             return r.map((c, ci) => {
               if (row === ri && col === ci) {
@@ -130,9 +130,9 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
   const iterationGoal = DIFFICULTY_MAPPING[difficulty];
 
   /**
-     * returns the percentage of how close we are to the iteration goal
-     */
-  function rateCostsPercentage(cost) {
+   * returns the percentage of how close we are to the iteration goal
+   */
+  function rateCostsPercentage(cost: number): number {
     if (cost === Infinity) {
       return cost;
     }
@@ -140,16 +140,16 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
   }
 
   /**
-     * returns the absolute difference to the iteration goal
-     */
-  function rateCostsAbsolute(cost) {
+   * returns the absolute difference to the iteration goal
+   */
+  function rateCostsAbsolute(cost: number): number {
     return cost - iterationGoal;
   }
 
   /**
-     * returns if the costs are close enough to the requested difficulty level
-     */
-  function validCosts(cost) {
+   * returns if the costs are close enough to the requested difficulty level
+   */
+  function validCosts(cost: number): boolean {
     return (
       rateCostsPercentage(cost) < RELATIVE_DRIFT ||
       rateCostsAbsolute(cost) < ABSOLUTE_DRIFT
@@ -181,21 +181,21 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
   while (!isFinished(bestSudoku, bestCost)) {
     iterations++;
     let numberOfNumbers = 0;
-    for (let row of bestSudoku) {
-      for (let col of row) {
+    for (const row of bestSudoku) {
+      for (const col of row) {
         if (col) {
           numberOfNumbers++;
         }
       }
     }
 
-    let newSudoku = [].concat(
+    const newSudoku = [].concat(
       bestSudoku.map(row => {
         return [].concat(row);
       }),
     );
     newSudoku[_.random(0, 8)][_.random(0, 8)] = getRandomSudokuNumber();
-    let newCost = costFunction(newSudoku);
+    const newCost = costFunction(newSudoku);
 
     // hillclimbing
     if (
