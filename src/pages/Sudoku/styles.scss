@@ -58,3 +58,31 @@
         background-color: $color__dark-blue;
     }
 }
+
+/* SUDOKU SELECT */
+
+.ss_sudoku-menu {
+  background-color: rgba(255, 255, 255, 0.8);
+  position: absolute;
+  z-index: 9999;
+  top: -16px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  overflow-y: auto;
+  align-items: baseline;
+  top: 0;
+}
+
+.ss_sudoku-menu-list {
+  padding: 0;
+  margin: 0;
+  max-width: 600px;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+

@@ -4,9 +4,14 @@
 */
 
 @import './lib/basscss.css';
+@import './variables.scss';
 
 * {
     box-sizing: border-box;
+}
+
+body {
+  background-color: $color__dark-blue;
 }
 
 @font-face {

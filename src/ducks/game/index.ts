@@ -51,8 +51,12 @@ const gameState: GameState = {
   sudokus,
 };
 
-export function getTime(startTime: number, offsetTime: number, stopTime: number) {
-  const now = +(new Date());
+export function getTime(
+  startTime: number,
+  offsetTime: number,
+  stopTime: number,
+) {
+  const now = +new Date();
   if (startTime === 0) {
     return 0;
   }
@@ -62,7 +66,10 @@ export function getTime(startTime: number, offsetTime: number, stopTime: number)
   return Math.floor(now - startTime - offsetTime);
 }
 
-export default function gameReducer(state: GameState = gameState, action): GameState {
+export default function gameReducer(
+  state: GameState = gameState,
+  action,
+): GameState {
   switch (action.type) {
     case NEW_GAME:
       return {
@@ -73,17 +80,17 @@ export default function gameReducer(state: GameState = gameState, action): GameS
     case PAUSE_GAME:
       return {
         ...state,
-        stopTime: +(new Date()),
+        stopTime: +new Date(),
         running: false,
       };
     case CONTINUE_GAME:
       let offsetTime = state.offsetTime;
       let startTime = state.startTime;
       if (state.startTime === 0) {
-        startTime = +(new Date());
+        startTime = +new Date();
       }
       if (state.stopTime > 0) {
-        offsetTime = state.offsetTime + (+(new Date()) - state.stopTime);
+        offsetTime = state.offsetTime + (+new Date() - state.stopTime);
       }
       return {
         ...state,

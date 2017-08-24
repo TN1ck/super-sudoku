@@ -351,13 +351,16 @@ export const CellComponent = connect<
 |   y > 6   | y > 6     |   y > 6   |
 |-----------------------------------|
 */
+function orderCellsIntoSquares(sudoku: Cell[]) {
+  return _.groupBy(sudoku, cell => {
+    return `${Math.floor(cell.y / 3)}-${Math.floor(cell.x / 3)}`;
+  });
+}
 
 export const GridComponent: React.StatelessComponent<{
   grid: Cell[];
 }> = function _Grid(props) {
-  const threeTimesThreeContainer = _.groupBy(props.grid, cell => {
-    return `${Math.floor(cell.y / 3)}-${Math.floor(cell.x / 3)}`;
-  });
+  const threeTimesThreeContainer = orderCellsIntoSquares(props.grid);
   const keys = _.sortBy(_.keys(threeTimesThreeContainer), k => k);
   return (
     <div className={'ss_grid-container'}>
@@ -372,6 +375,116 @@ export const GridComponent: React.StatelessComponent<{
               const k = `${cell.y}-${cell.x}`;
               return <CellComponent key={k} cell={cell} />;
             })}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+function SmallGridLineX({height, width, top}) {
+  return (
+    <div
+      style={{
+        height,
+        width,
+        background: '#AAA',
+        position: 'absolute',
+        left: 0,
+        top,
+      }}
+    />
+  );
+}
+
+function SmallGridLineY({height, width, left}) {
+  return (
+    <div
+      style={{
+        width,
+        height,
+        background: '#AAA',
+        position: 'absolute',
+        top: 0,
+        left,
+      }}
+    />
+  );
+}
+
+export const SmallSudokuComponent: React.StatelessComponent<{
+  sudoku: Cell[];
+  id: number;
+  onClick: () => any;
+}> = function _SmallSudokuComponent({sudoku, id, onClick}) {
+  const height = 150;
+  const width = 150;
+  const fontSize = 8;
+
+  const xSection = height / 9;
+  const ySection = width / 9;
+  const fontXOffset = xSection / 2 - 2;
+  const fontYOffset = ySection / 2 - 4;
+
+  return (
+    <div
+      onClick={onClick}
+      className={'ss_small-sudoku'}
+      style={{
+        height,
+        width,
+        fontSize,
+        lineHeight: fontSize + 'px',
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: 'blue',
+          position: 'absolute',
+          height: '20px',
+          zIndex: 2,
+          width: '20px',
+          top: 0,
+          left: 0,
+        }}
+      >
+        {id}
+      </div>
+      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
+        const makeBold = i % 3 === 0;
+        const lineWidth = makeBold ? 2 : 1;
+        return (
+          <SmallGridLineX
+            key={i}
+            height={lineWidth}
+            width={width}
+            top={i * height / 9 - lineWidth / 2}
+          />
+        );
+      })}
+      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
+        const makeBold = i % 3 === 0;
+        const lineWidth = makeBold ? 2 : 1;
+        return (
+          <SmallGridLineY
+            key={i}
+            height={height}
+            width={lineWidth}
+            left={i * height / 9 - lineWidth / 2}
+          />
+        );
+      })}
+      {sudoku.map((c, i) => {
+        return (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              left: xSection * c.x + fontXOffset,
+              top: ySection * c.y + fontYOffset,
+            }}
+          >
+            {c.number}
           </div>
         );
       })}

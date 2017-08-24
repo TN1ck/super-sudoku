@@ -12,8 +12,10 @@ import {
   getTime,
 } from 'src/ducks/game';
 import {DIFFICULTY} from 'src/engine/utility';
-import {Cell} from 'src/ducks/sudoku/model';
-import {GridComponent} from 'src/components/Sudoku';
+
+import {Cell, parseSudoku} from 'src/ducks/sudoku/model';
+import {GridComponent, SmallSudokuComponent} from 'src/components/Sudoku';
+
 import SUDOKUS from 'src/sudokus';
 
 import * as Grid from 'src/components/Grid';
@@ -98,6 +100,32 @@ function GameMenuItem(props) {
     </li>
   );
 }
+
+const SelectSudoku: React.StatelessComponent<{
+  sudokus: Array<{value: string; id: number}>;
+  newGame: (sudokuId, sudoku) => any;
+}> = function({sudokus, newGame}) {
+  const items = sudokus.map(({value, id}) => {
+    const parsedSudoku = parseSudoku(value);
+    const onClick = () => newGame(id, value);
+    console.log(id);
+    return (
+      <SmallSudokuComponent
+        key={id}
+        id={id}
+        onClick={onClick}
+        sudoku={parsedSudoku}
+      />
+    );
+  });
+  return (
+    <div className={'ss_sudoku-menu'} key="el">
+      <div className={'ss_sudoku-menu-list'}>
+        {items}
+      </div>
+    </div>
+  );
+};
 
 const GameMenu = connect(
   function(state) {
@@ -215,25 +243,21 @@ const GameMenu = connect(
         });
       }
 
-      if (this.state.menuState === 'CHOOSE_GAME') {
+      let actualMenu;
+
+      if (this.state.menuState !== 'CHOOSE_GAME') {
+        actualMenu = (
+          <div className={'ss_game-menu'} key="el">
+            <ul className={'ss_game-menu-list'}>
+              {items}
+            </ul>
+          </div>
+        );
+      } else {
         const sudokus = SUDOKUS[this.state.difficulty];
-        items = sudokus.map((sudoku, i) => {
-          const onClick = () => this.newGame(i, sudoku);
-          return (
-            <GameMenuItem key={i} onClick={onClick}>
-              {i}
-            </GameMenuItem>
-          );
-        });
+        actualMenu = <SelectSudoku newGame={this.newGame} sudokus={sudokus} />;
       }
 
-      const actualMenu = (
-        <div className={'ss_game-menu'} key="el">
-          <ul className={'ss_game-menu-list'}>
-            {items}
-          </ul>
-        </div>
-      );
       const inner = running ? [] : [actualMenu];
 
       return (

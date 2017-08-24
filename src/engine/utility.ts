@@ -122,9 +122,7 @@ export function simpleSudokuToComplexSudoku(grid: SimpleSudoku): ComplexSudoku {
   );
 }
 
-export function complexSudokuToSimpleSudoku(
-  sudoku: ComplexSudoku,
-): number[][] {
+export function complexSudokuToSimpleSudoku(sudoku: ComplexSudoku): number[][] {
   const simple = [[], [], [], [], [], [], [], [], []];
   sudoku.forEach(cell => {
     simple[cell.y][cell.x] = cell.number;
