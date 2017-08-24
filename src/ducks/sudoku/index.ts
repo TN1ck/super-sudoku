@@ -122,7 +122,6 @@ export default function sudokuReducer(
 
   switch (action.type) {
     case SET_SUDOKU:
-      console.log(action.sudoku, 'test');
       return {...state, grid: action.sudoku};
   }
 

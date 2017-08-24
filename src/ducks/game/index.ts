@@ -99,6 +99,10 @@ export default function gameReducer(
         offsetTime,
         stopTime: 0,
       };
+    case RESET_GAME:
+      return {
+        ...gameState,
+      };
     default:
       return state;
   }

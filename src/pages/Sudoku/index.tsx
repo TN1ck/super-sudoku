@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
 import {connect} from 'react-redux';
 import {SudokuState, setSudoku} from 'src/ducks/sudoku';
@@ -101,20 +100,32 @@ function GameMenuItem(props) {
   );
 }
 
+const parseListOfSudokus = (sudokus: Array<{value: string, id: number}>) => {
+  return sudokus.map(({value, id}) => {
+    return {sudoku: parseSudoku(value), id, value};
+  });
+};
+
+const PARSED_SUDOKUS = {
+ [DIFFICULTY.EASY]: parseListOfSudokus(SUDOKUS[DIFFICULTY.EASY]),
+ [DIFFICULTY.MEDIUM]: parseListOfSudokus(SUDOKUS[DIFFICULTY.MEDIUM]),
+ [DIFFICULTY.HARD]: parseListOfSudokus(SUDOKUS[DIFFICULTY.HARD]),
+ [DIFFICULTY.EVIL]: parseListOfSudokus(SUDOKUS[DIFFICULTY.EVIL]),
+};
+
 const SelectSudoku: React.StatelessComponent<{
-  sudokus: Array<{value: string; id: number}>;
-  newGame: (sudokuId, sudoku) => any;
-}> = function({sudokus, newGame}) {
-  const items = sudokus.map(({value, id}) => {
-    const parsedSudoku = parseSudoku(value);
+  newGame: any;
+  difficulty: DIFFICULTY;
+}> = function({newGame, difficulty}) {
+  const sudokus = PARSED_SUDOKUS[difficulty];
+  const items = sudokus.map(({sudoku, id, value}) => {
     const onClick = () => newGame(id, value);
-    console.log(id);
     return (
       <SmallSudokuComponent
         key={id}
         id={id}
         onClick={onClick}
-        sudoku={parsedSudoku}
+        sudoku={sudoku}
       />
     );
   });
@@ -254,24 +265,14 @@ const GameMenu = connect(
           </div>
         );
       } else {
-        const sudokus = SUDOKUS[this.state.difficulty];
-        actualMenu = <SelectSudoku newGame={this.newGame} sudokus={sudokus} />;
+        actualMenu = <SelectSudoku newGame={this.newGame}  difficulty={this.state.difficulty}/>;
       }
 
       const inner = running ? [] : [actualMenu];
 
       return (
         <div>
-          <ReactCSSTransitionGroup
-            component="div"
-            transitionName="opacity"
-            transitionEnterTimeout={500}
-            transitionLeaveTimeout={300}
-            transitionAppear
-            transitionAppearTimeout={500}
-          >
-            {inner}
-          </ReactCSSTransitionGroup>
+          {inner}
         </div>
       );
     }

@@ -412,82 +412,85 @@ function SmallGridLineY({height, width, left}) {
   );
 }
 
-export const SmallSudokuComponent: React.StatelessComponent<{
+export class SmallSudokuComponent extends React.PureComponent<{
   sudoku: Cell[];
   id: number;
   onClick: () => any;
-}> = function _SmallSudokuComponent({sudoku, id, onClick}) {
-  const height = 150;
-  const width = 150;
-  const fontSize = 8;
+}> {
+  render() {
+    const {sudoku, id, onClick} = this.props;
+    const height = 150;
+    const width = 150;
+    const fontSize = 8;
 
-  const xSection = height / 9;
-  const ySection = width / 9;
-  const fontXOffset = xSection / 2 - 2;
-  const fontYOffset = ySection / 2 - 4;
+    const xSection = height / 9;
+    const ySection = width / 9;
+    const fontXOffset = xSection / 2 - 2;
+    const fontYOffset = ySection / 2 - 4;
 
-  return (
-    <div
-      onClick={onClick}
-      className={'ss_small-sudoku'}
-      style={{
-        height,
-        width,
-        fontSize,
-        lineHeight: fontSize + 'px',
-      }}
-    >
+    return (
       <div
+        onClick={onClick}
+        className={'ss_small-sudoku'}
         style={{
-          backgroundColor: 'blue',
-          position: 'absolute',
-          height: '20px',
-          zIndex: 2,
-          width: '20px',
-          top: 0,
-          left: 0,
+          height,
+          width,
+          fontSize,
+          lineHeight: fontSize + 'px',
         }}
       >
-        {id}
+        <div
+          style={{
+            backgroundColor: 'blue',
+            position: 'absolute',
+            height: '20px',
+            zIndex: 2,
+            width: '20px',
+            top: 0,
+            left: 0,
+          }}
+        >
+          {id}
+        </div>
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
+          const makeBold = i % 3 === 0;
+          const lineWidth = makeBold ? 2 : 1;
+          return (
+            <SmallGridLineX
+              key={i}
+              height={lineWidth}
+              width={width}
+              top={i * height / 9 - lineWidth / 2}
+            />
+          );
+        })}
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
+          const makeBold = i % 3 === 0;
+          const lineWidth = makeBold ? 2 : 1;
+          return (
+            <SmallGridLineY
+              key={i}
+              height={height}
+              width={lineWidth}
+              left={i * height / 9 - lineWidth / 2}
+            />
+          );
+        })}
+        {sudoku.map((c, i) => {
+          return (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                left: xSection * c.x + fontXOffset,
+                top: ySection * c.y + fontYOffset,
+              }}
+            >
+              {c.number}
+            </div>
+          );
+        })}
       </div>
-      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
-        const makeBold = i % 3 === 0;
-        const lineWidth = makeBold ? 2 : 1;
-        return (
-          <SmallGridLineX
-            key={i}
-            height={lineWidth}
-            width={width}
-            top={i * height / 9 - lineWidth / 2}
-          />
-        );
-      })}
-      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
-        const makeBold = i % 3 === 0;
-        const lineWidth = makeBold ? 2 : 1;
-        return (
-          <SmallGridLineY
-            key={i}
-            height={height}
-            width={lineWidth}
-            left={i * height / 9 - lineWidth / 2}
-          />
-        );
-      })}
-      {sudoku.map((c, i) => {
-        return (
-          <div
-            key={i}
-            style={{
-              position: 'absolute',
-              left: xSection * c.x + fontXOffset,
-              top: ySection * c.y + fontYOffset,
-            }}
-          >
-            {c.number}
-          </div>
-        );
-      })}
-    </div>
-  );
-};
+    );
+  }
+}
