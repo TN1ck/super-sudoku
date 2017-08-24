@@ -206,7 +206,7 @@ module.exports = {
     hot: true,
     inline: true,
     stats: {colors: true},
-    port: 8081,
+    port: 8080,
     proxy: {
       '/rest': 'http://localhost:8080'
     }
