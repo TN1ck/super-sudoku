@@ -1,20 +1,20 @@
-@import 'src/styles/variables.css';
+@import 'src/styles/variables.scss';
 
-.cell-container {
+.ss_cell-container {
     position: relative;
     width: 33.333%;
     height: 33.333%;
     border-width: 1px;
     border-style: solid;
-    border-color: var(--color__grey--lighter);
+    border-color: $color__grey--lighter;
 
     &:hover {
-        border-color: var(--color__blue);
+        border-color: $color__blue;
         cursor: pointer;
     }
 }
 
-.cell-container--initial {
+.ss_cell-container--initial {
     font-weight: bold;
     pointer-events: none;
     cursor: default;
@@ -24,7 +24,7 @@
     }
 }
 
-.cell {
+.ss_cell {
     user-select: none;
     position: relative;
     width: 100%;
@@ -36,13 +36,13 @@
 
 }
 
-.cell--active {
+.ss_cell--active {
     z-index: 1001;
     background-color: white;
     pointer-events: none;
 }
 
-.cell-note-container {
+.ss_cell-note-container {
     position: absolute;
     height: 100%;
     width: 100%;
@@ -52,26 +52,26 @@
     justify-content: center;
 }
 
-.cell-number {
+.ss_cell-number {
     z-index: 9;
     font-size: 16px;
 }
 
-.cell-note {
+.ss_cell-note {
     font-size: 12px;
     display: flex;
     justify-content: center;
     align-items: center;
     width: 33.33%;
     height: 33.33%;
-    composes: color-grey--light from 'src/styles/colors.css';
+    color: $color__grey--light;
 
     @media (max-width: 600px) {
         font-size: 10px;
     }
 }
 
-.grid-container {
+.ss_grid-container {
     color: black;
     box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.75);
     background-color: white;
@@ -93,54 +93,54 @@
     }
 }
 
-.grid-3x3 {
-    border: 1px solid var(--color__grey--light);
+.ss_grid-3x3 {
+    border: 1px solid $color__grey--light;
     display: flex;
     flex-wrap: wrap;
     width: 33.333%;
     height: 33.333%;
 }
 
-.menu-circle {
+.ss_menu-circle {
     stroke-width: 50px;
-    stroke: var(--color__blue);
+    stroke: $color__blue;
 
     &:hover {
         stroke-width: 60px;
         cursor: pointer;
-        stroke: var(--color__dark-blue);
+        stroke: $color__dark-blue;
     }
 }
 
-.menu-circle-notes {
+.ss_menu-circle-notes {
     stroke-width: 50px;
-    stroke: var(--color__grey--brighter);
+    stroke: $color__grey--brighter;
 
     &:hover {
         stroke-width: 60px;
         cursor: pointer;
-        stroke: var(--color__black);
+        stroke: $color__black;
     }
 }
 
-.menu-circle-notes-hover {
+.ss_menu-circle-notes-hover {
     stroke-width: 60px;
     cursor: pointer;
-    stroke: var(--color__black);
+    stroke: $color__black;
 }
 
-.menu-circle-hover {
+.ss_menu-circle-hover {
     stroke-width: 60px;
     cursor: pointer;
-    stroke: var(--color__dark-blue);
+    stroke: $color__dark-blue;
 }
 
-.menu-square {
+.ss_menu-square {
     fill: white;
     transform: translate(-50%, -50%);
 }
 
-.menu-circle-container {
+.ss_menu-circle-container {
     z-index: 99;
     left: 50%;
     top: 50%;
@@ -148,16 +148,16 @@
     position: absolute;
 }
 
-.menu-container {
+.ss_menu-container {
     position: relative;
     display: block;
 }
 
-.menu-row {
+.ss_menu-row {
     display: flex;
 }
 
-.menu-item {
+.ss_menu-item {
     user-select: none;
     pointer-events: none;
     height: 100%;

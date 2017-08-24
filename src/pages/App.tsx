@@ -1,13 +1,13 @@
 import * as React from 'react';
 
 import * as Navigation from 'src/components/Navigation';
-import * as styles from './styles.css';
+import './styles.scss';
 
 const App: React.StatelessComponent<{children: React.ReactNode}> = ({
   children,
 }) => {
   return (
-    <div className={styles.appWrapper}>
+    <div className={'ss_app-wrapper'}>
       <Navigation.Wrapper>
         <Navigation.Item to={'/sudoku'}>
           {'Sudoku'}

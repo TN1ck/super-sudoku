@@ -1,46 +1,10 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const StyleLintPlugin = require('stylelint-webpack-plugin');
-const SplitByPathPlugin = require('webpack-split-by-path');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const { CheckerPlugin } = require('awesome-typescript-loader')
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
-const GENERATE_TYPINGS = process.env.GENERATE_TYPINGS === 'TRUE';
-
-
-//
-// POSTCSS
-//
-
-const postcssBasePlugins = [
-    require('postcss-modules-local-by-default'),
-    require('postcss-import')({
-        addDependencyTo: webpack,
-        path: [
-            path.resolve(__dirname),
-            path.join(__dirname, 'src'),
-            path.join(__dirname, 'src/styles')
-        ]
-    }),
-    require('postcss-cssnext'),
-    require('postcss-nested')
-];
-const postcssDevPlugins = [];
-const postcssProdPlugins = [
-    require('cssnano')({
-        safe: true,
-        sourcemap: true,
-        autoprefixer: false
-    })
-];
-
-const postcssPlugins = postcssBasePlugins
-  .concat(process.env.NODE_ENV === 'production' ? postcssProdPlugins : [])
-  .concat(process.env.NODE_ENV === 'development' ? postcssDevPlugins : []);
 
 //
 // LOADERS
@@ -48,297 +12,215 @@ const postcssPlugins = postcssBasePlugins
 
 const loaders = {};
 
-loaders.tslint =  {
-    test: /\.(tsx?)$/,
-    enforce: 'pre',
-    loader: 'tslint-loader',
-    options: { /* Loader options go here */ }
-}
-
-loaders.js = {
-    test: /\.(jsx?)$/,
-    use: [{
-        loader: 'babel-loader',
-        options: {
-            retainLines: true
-        }
-    }],
-    exclude: /node_modules/
+loaders.tslint = {
+  test: /\.(tsx?)$/,
+  enforce: 'pre',
+  loader: 'tslint-loader',
+  options: {
+    configFile: path.resolve('./tslint.json')
+  }
 };
 
 loaders.tsx = {
-    test: /\.(tsx?)$/,
-     use: [{
-        loader: 'awesome-typescript-loader',
-        options: {
-            useBabel: true,
-            useCache: true,
-            babelOptions: {
-                presets: [
-                    [
-                        'es2015', {
-                            modules: false
-                        }
-                    ]
-                ],
-                compact: true,
-                plugins: ["react-hot-loader/babel"],
-                retainLines: true
-            }
-
+  test: /\.(tsx?)$/,
+  use: [
+    {
+      loader: 'awesome-typescript-loader',
+      options: {
+        useBabel: true,
+        // useCache: true,
+        babelOptions: {
+          presets: [
+            [
+              'es2015', {
+                modules: false
+              }
+            ]
+          ],
+          compact: true,
+          plugins: ['react-hot-loader/babel']
         }
-    }],
-    exclude: /node_modules/
+      }
+    }
+  ],
+  exclude: /node_modules/
 };
+
+const extractSass = new ExtractTextPlugin({
+  filename: 'style.css',
+  allChunks: true,
+  disable: !IS_PRODUCTION
+});
 
 loaders.css = {
-    test: /\.css$/,
-    use: ExtractTextPlugin.extract({
-        fallback: 'style-loader',
-        use: [
-            {
-                loader: 'typings-for-css-modules-loader',
-                options: {
-                    modules: true,
-                    namedExport: true,
-                    camelCase: true
-                }
-            },
-            {
-                loader: 'postcss-loader',
-                options: {
-                    plugins: postcssPlugins,
-                    importLoaders: 1,
-                    name: '[name]'
-                }
-            }
-        ]
-    }),
-    exclude: /(node_modules|\.global\.css)/
+  test: /\.css$/,
+  use: ExtractTextPlugin.extract({
+    fallback: 'style-loader',
+    use: 'css-loader'
+  }),
 };
 
-loaders.globalcss = {
-    test: /\.global.css$/,
-    use: ExtractTextPlugin.extract({
-        fallback: 'style-loader',
-        use: [
-            {
-                loader: 'css-loader',
-                options: {
-                    localIdentName: '[local]'
-                }
-            },
-            {
-                loader: 'postcss-loader',
-                options: {
-                    plugins: postcssPlugins,
-                    importLoaders: 1
-                }
-            }
-        ]
-    }),
-    exclude: /node_modules/
+loaders.scss = {
+  test: /\.scss$/,
+  use: extractSass.extract({
+    use: [{
+      loader: "css-loader"
+    }, {
+      loader: "sass-loader"
+    }],
+    // use style-loader in development
+    fallback: "style-loader"
+  })
 };
 
 loaders.ttfeot = {
-    test: /\.(ttf|eot)$/i,
-    use: [{
-        loader: 'file-loader',
-        options: {
-            hash: 'sha512',
-            digest: 'hex',
-            name: 'fonts/[name].[ext]?[hash]'
-        }
-    }]
+  test: /\.(ttf|eot)$/i,
+  use: [{
+    loader: 'file-loader',
+    options: {
+      hash: 'sha512',
+      digest: 'hex',
+      name: 'fonts/[name].[ext]?[hash]'
+    }
+  }]
 };
 
 loaders.woff = {
-    test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-    use: [{
-        loader: 'url-loader',
-        options: {
-            limit: 10000,
-            minetype: 'application/font-woff',
-            name: 'fonts/[name].[ext]?[hash]'
-        }
-    }]
+  test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+  use: [{
+    loader: 'url-loader',
+    options: {
+      limit: 10000,
+      minetype: 'application/font-woff',
+      name: 'fonts/[name].[ext]?[hash]'
+    }
+  }]
 };
 
 loaders.image = {
-    test: /\.(jpe?g|png|gif)$/i,
-    use: [{
-        loader: 'file-loader',
-        options: {
-            hash: 'sha512',
-            digest: 'hex',
-            name: 'images/[name]-[hash].[ext]'
-        }
-    }]
+  test: /\.(jpe?g|png|gif)$/i,
+  use: [{
+    loader: 'file-loader',
+    options: {
+      hash: 'sha512',
+      digest: 'hex',
+      name: 'images/[name]-[hash].[ext]'
+    }
+  }]
 };
 
 //
 // PLUGINS
 //
 
-const sourceMap = process.env.TEST || process.env.NODE_ENV !== 'production'
-  ? [new webpack.SourceMapDevToolPlugin({ filename: null, test: /\.tsx?$/ })]
+const sourceMap = (process.env.TEST || !IS_PRODUCTION)
+  ? [new webpack.SourceMapDevToolPlugin({filename: null, test: /\.tsx?$/})]
   : [];
 
 const basePlugins = [
-    new webpack.DefinePlugin({
-        'process.env': {
-            __DEV__: process.env.NODE_ENV !== 'production',
-            NODE_ENV: JSON.stringify(process.env.NODE_ENV),
-            BACKEND_URL: JSON.stringify(process.env.BACKEND_URL)
-        }
-    }),
-    new HtmlWebpackPlugin({
-        template: './src/index.html',
-        inject: 'body'
-    }),
-    new webpack.NoEmitOnErrorsPlugin(),
-    new CopyWebpackPlugin([
-        { from: 'src/assets', to: 'assets' }
-    ]),
-    new ExtractTextPlugin({
-        filename: 'style.css',
-        allChunks: true
-    })
+  new webpack.DefinePlugin({
+    'process.env': {
+      __DEV__: process.env.NODE_ENV !== 'production',
+      APP_URL_BACKEND: JSON.stringify(process.env.APP_URL_BACKEND || 'http://localhost:8080'),
+      NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+    }
+  }),
+  new HtmlWebpackPlugin({
+    template: './src/index.html',
+    inject: 'body'
+  }),
+  new webpack.NoEmitOnErrorsPlugin(),
+  new CopyWebpackPlugin([
+    {from: './src/assets', to: 'assets'}
+  ]),
+  extractSass
 ].concat(sourceMap);
 
 const devPlugins = [
-    new StyleLintPlugin({
-        configFile: './.stylelintrc',
-        files: ['src/**/*.css'],
-        failOnError: false
-    }),
-    // caused some problems with the typechecking
-    // new CheckerPlugin(),
-    new webpack.HotModuleReplacementPlugin()
+  new webpack.HotModuleReplacementPlugin()
 ];
 
 const prodPlugins = [
-     new webpack.LoaderOptionsPlugin({
-        minimize: true,
-        debug: false
-    }),
-    new UglifyJSPlugin()
+  new webpack.optimize.UglifyJsPlugin({
+    sourceMap: true,
+    compress: {
+      screw_ie8: true,
+      warnings: false
+    }
+  }),
+  new webpack.LoaderOptionsPlugin({
+    minimize: true,
+    debug: false
+  })
 ];
 
 const plugins = basePlugins
-  .concat(process.env.NODE_ENV === 'production' ? prodPlugins : [])
-  .concat(process.env.NODE_ENV !== 'production' ? devPlugins : []);
+  .concat(IS_PRODUCTION ? prodPlugins : devPlugins);
 
 //
 // ENTRY
 //
 
 const applicationEntries = IS_PRODUCTION ? ['./src/index'] : [
-    'react-hot-loader/patch',
-    'webpack-dev-server/client?http://0.0.0.0:8080',
-    'webpack/hot/only-dev-server',
-    './src/index'
+  'react-hot-loader/patch',
+  './src/index'
 ];
 
-// while typed css is pretty cool, Typescript has a problem when we generate them on the fly while we try to
-// the typed definitions.
-// Here we just generate the css (and with it the types) so in the real build task, they are already there
-// This is not perfect, but it works reliable
-if (GENERATE_TYPINGS) {
-    console.log('Generate Typings');
-    module.exports = {
-        entry: applicationEntries,
+let devtool = 'inline-source-map';
 
-        output: {
-            path: path.join(__dirname, 'dist'),
-            filename: '[name].[hash].js',
-            publicPath: '/',
-            sourceMapFilename: '[name].[hash].js.map',
-            chunkFilename: '[id].chunk.js'
-        },
-
-        devtool: 'eval',
-
-        resolve: {
-            modules: [
-                path.resolve('./'),
-                'node_modules',
-            ],
-            extensions: [
-                '.tsx',
-                '.ts',
-                '.js',
-                '.json',
-                '.css'
-            ]
-        },
-
-        plugins: plugins,
-
-        devServer: {
-            historyApiFallback: { index: '/' }
-        },
-
-        module: {
-            // we have to use all the loaders, because the javascript imports the css
-            rules: [
-                loaders.tsx,
-                loaders.tslint,
-                loaders.image,
-                loaders.globalcss,
-                loaders.css,
-                loaders.ttfeot,
-                loaders.woff
-            ]
-        }
-    };
-    return;
+if (IS_PRODUCTION) {
+  devtool = 'source-map';
 }
 
 module.exports = {
-    entry: applicationEntries,
+  entry: applicationEntries,
 
-    output: {
-        path: path.join(__dirname, 'dist'),
-        filename: '[name].[hash].js',
-        publicPath: '/',
-        sourceMapFilename: '[name].[hash].js.map',
-        chunkFilename: '[id].chunk.js'
-    },
+  output: {
+    path: path.join(__dirname, 'dist'),
+    filename: '[name].[hash].js',
+    publicPath: '/',
+    sourceMapFilename: '[name].[hash].js.map',
+    chunkFilename: '[id].chunk.js'
+  },
 
-    devtool: IS_PRODUCTION ?
-      'source-map' :
-      'inline-source-map',
+  devtool: devtool,
 
-    resolve: {
-        modules: [
-            path.resolve('./'),
-            'node_modules'
-        ],
-        extensions: [
-            '.tsx',
-            '.ts',
-            '.js',
-            '.json',
-            '.css'
-        ]
-    },
+  resolve: {
+    modules: [
+      path.resolve('./'),
+      'node_modules'
+    ],
+    extensions: [
+      '.tsx',
+      '.ts',
+      '.js',
+      '.json',
+      '.scss',
+    ]
+  },
 
-    plugins: plugins,
+  plugins: plugins,
 
-    devServer: {
-        historyApiFallback: { index: '/' }
-    },
-
-    module: {
-        rules: [
-            loaders.tsx,
-            loaders.tslint,
-            loaders.image,
-            loaders.globalcss,
-            loaders.css,
-            loaders.ttfeot,
-            loaders.woff
-        ]
+  devServer: {
+    historyApiFallback: true,
+    hot: true,
+    inline: true,
+    stats: {colors: true},
+    port: 8081,
+    proxy: {
+      '/rest': 'http://localhost:8080'
     }
+  },
+
+  module: {
+    rules: [
+      loaders.scss,
+      loaders.css,
+      loaders.tsx,
+      loaders.tslint,
+      loaders.image,
+      loaders.ttfeot,
+      loaders.woff
+    ]
+  }
 };

@@ -3,9 +3,7 @@
     exactly like you normally use css.
 */
 
-@import './lib/basscss';
-@import './colors';
-@import './animations';
+@import './lib/basscss.css';
 
 * {
     box-sizing: border-box;

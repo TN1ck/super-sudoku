@@ -12,7 +12,7 @@ import {Cell} from 'src/ducks/sudoku/model';
 import {SUDOKU_NUMBERS} from 'src/engine/utility';
 import * as _ from 'lodash';
 // import * as colors from 'src/utility/colors';
-import * as styles from './styles.css';
+import './styles.scss';
 
 const TAU = Math.PI * 2;
 
@@ -53,10 +53,10 @@ const MenuCircle: React.StatelessComponent<{
         cy={radius * 2}
         fill="none"
         className={classNames({
-          [styles.menuCircle]: !notesMode,
-          [styles.menuCircleHover]: !notesMode && isActive,
-          [styles.menuCircleNotes]: notesMode,
-          [styles.menuCircleNotesHover]: notesMode && isActive,
+          'ss_menu-circle': !notesMode,
+          'ss_menu-circle-hover': !notesMode && isActive,
+          'ss_menu-circle-notes': notesMode,
+          'ss_menu-circle-notes-hover': notesMode && isActive,
         })}
         onClick={onClick}
         style={{
@@ -124,14 +124,14 @@ class Menu extends React.Component<
 
     return (
       <div
-        className={styles.menuContainer}
+        className={'ss_menu-container'}
         style={{
           left: containerLeft,
           top: containerTop,
         }}
       >
         <svg
-          className={styles.menuCircleContainer}
+          className={'ss_menu-circle-container'}
           style={{
             height: circleRadius * 4,
             width: circleRadius * 4,
@@ -151,7 +151,7 @@ class Menu extends React.Component<
             }}
             fill="none"
             className={
-              this.props.notesMode ? styles.menuCircleNotes : styles.menuCircle
+              this.props.notesMode ? 'ss_menu-circle-notes' : 'ss_menu-circle'
             }
           />
           {SUDOKU_NUMBERS.map((number, i) => {
@@ -281,23 +281,23 @@ class CellComponentBasic extends React.Component<
     const notes = [...cell.notes.values()];
     return (
       <div
-        className={classNames(styles.cellContainer, {
-          [styles.cellContainerInitial]: cell.initial,
+        className={classNames('ss_cell-container', {
+          'ss_cell-container-initial': cell.initial,
         })}
         onClick={this.toggleMenu}
       >
         <div
-          className={classNames(styles.cell, {
-            [styles.cellActive]: cell.showMenu,
+          className={classNames('ss_cell', {
+            'ss_cell-active': cell.showMenu,
           })}
         >
-          <div className={styles.cellNumber}>
+          <div className={'ss_cell-number'}>
             {this.props.cell.number}
           </div>
-          <div className={styles.cellNoteContainer}>
+          <div className={'ss_cell-note-container'}>
             {notes.sort().map(n => {
               return (
-                <div className={styles['cell-note']}>
+                <div className={'ss_cell-note'}>
                   {n}
                 </div>
               );
@@ -360,14 +360,14 @@ export const GridComponent: React.StatelessComponent<{
   });
   const keys = _.sortBy(_.keys(threeTimesThreeContainer), k => k);
   return (
-    <div className={styles.gridContainer}>
+    <div className={'ss_grid-container'}>
       {keys.map(key => {
         const container = threeTimesThreeContainer[key];
         const sorted = _.sortBy(container, c => {
           return `${c.y}-${c.x}`;
         });
         return (
-          <div key={key} className={styles.grid3X3}>
+          <div key={key} className={'ss_grid-3x3'}>
             {sorted.map(cell => {
               const k = `${cell.y}-${cell.x}`;
               return <CellComponent key={k} cell={cell} />;

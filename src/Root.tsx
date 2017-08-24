@@ -8,7 +8,7 @@ import Sudoku from 'src/pages/Sudoku';
 
 // import it here to activate hot-reloading for css
 // (see index.tsx and search for module.hot)
-import './styles/index.global.css';
+import 'src/styles/index.css';
 
 const Root: React.StatelessComponent<{
   children?: React.ReactNode;

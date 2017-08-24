@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-// import * as classNames from 'classnames';
 
 import {connect} from 'react-redux';
 import {SudokuState, setSudoku} from 'src/ducks/sudoku';
@@ -17,66 +16,18 @@ import {Cell} from 'src/ducks/sudoku/model';
 import {GridComponent} from 'src/components/Sudoku';
 import SUDOKUS from 'src/sudokus';
 
-// import {
-//     solveGridGenerator
-// } from 'src/engine/solverNaive';
-
 import * as Grid from 'src/components/Grid';
-import * as styles from './styles.css';
+import './styles.scss';
 
 const Sudoku: React.StatelessComponent<{
   grid: Cell[];
 }> = function _Sudoku(props) {
   return (
-    <div className={styles.sudokuContainer}>
+    <div className={'ss_sudoku-container'}>
       <GridComponent grid={props.grid} />
     </div>
   );
 };
-
-// class SudokuStateComponent extends React.Component<{
-//     sudoku: SudokuState
-// }, {
-//     grid: Array<Cell>,
-
-// }> {
-//     iterator: any;
-//     constructor (props) {
-//         super(props);
-//         this.state = {
-//             grid: this.props.sudoku.grid
-//         };
-//     }
-//     componentDidMount () {
-//         // this.solve();
-//     }
-//     solve () {
-//         const grids = [this.props.sudoku.grid];
-//         this.iterator = solveGridGenerator(grids);
-//         this.setState({
-//             grid: this.props.sudoku.grid
-//         });
-//         this.nextStep();
-//     }
-//     nextStep () {
-//         const current = this.iterator.next();
-//         if (!current.done) {
-//             this.setState({
-//                 grid: current.value
-//             });
-//             setTimeout(this.nextStep.bind(this), 0);
-//         }
-
-//     }
-//     render () {
-//         const grid = this.props.sudoku.grid;
-//         return (
-//             <Sudoku
-//                 grid={grid}
-//             />
-//         )
-//     }
-// }
 
 const ConnectedSudoku = connect(
   function(state) {
@@ -134,7 +85,7 @@ class GameTimer extends React.Component<{
 
 function PauseButton({pauseGame}) {
   return (
-    <div onClick={pauseGame} className={styles.pauseButton}>
+    <div onClick={pauseGame} className={'ss_pause-button'}>
       {'Pause'}
     </div>
   );
@@ -142,7 +93,7 @@ function PauseButton({pauseGame}) {
 
 function GameMenuItem(props) {
   return (
-    <li className={styles.gameMenuListItem} onClick={props.onClick}>
+    <li className={'ss_game-menu-list-item'} onClick={props.onClick}>
       {props.children}
     </li>
   );
@@ -277,8 +228,8 @@ const GameMenu = connect(
       }
 
       const actualMenu = (
-        <div className={styles.gameMenu} key="el">
-          <ul className={styles.gameMenuList}>
+        <div className={'ss_game-menu'} key="el">
+          <ul className={'ss_game-menu-list'}>
             {items}
           </ul>
         </div>
@@ -316,12 +267,12 @@ class Game extends React.Component<
   render() {
     const {game, pauseGame} = this.props;
     return (
-      <div className={styles.game}>
+      <div className={'ss_game'}>
         <GameMenu />
         <Grid.Container>
           <Grid.Row>
             <Grid.Col xs={12}>
-              <div className={styles.gameContainer}>
+              <div className={'ss_game-container'}>
                 <GameTimer
                   startTime={game.startTime}
                   stopTime={game.stopTime}
