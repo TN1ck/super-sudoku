@@ -440,15 +440,7 @@ export class SmallSudokuComponent extends React.PureComponent<{
         }}
       >
         <div
-          style={{
-            backgroundColor: 'blue',
-            position: 'absolute',
-            height: '20px',
-            zIndex: 2,
-            width: '20px',
-            top: 0,
-            left: 0,
-          }}
+          className='ss_small-sudoku-title'
         >
           {id}
         </div>

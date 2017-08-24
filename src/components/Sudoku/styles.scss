@@ -173,4 +173,27 @@
   position: relative;
   background-color: white;
   margin: 10px;
+  cursor: default;
+
+  &:hover {
+    box-shadow:
+      1px 1px 1px 1px $color__blue,
+      -1px 1px 1px 1px $color__blue,
+      1px -1px 1px 1px $color__blue;
+  }
+}
+
+.ss_small-sudoku-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba($color__blue, 0.8);
+  color: $color__white;
+  font-size: 14px;
+  position: absolute;
+  height: 34px;
+  z-index: 2;
+  width: 34px;
+  top: 0;
+  left: 0;
 }
