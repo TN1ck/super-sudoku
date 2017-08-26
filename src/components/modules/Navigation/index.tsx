@@ -9,6 +9,7 @@ export function Item(props) {
     <NavLink
       activeStyle={{color: 'white', fontWeight: 'bold'}}
       className={'ss_navigation-item'}
+      exact
       to={props.to}
     >
       {props.children}

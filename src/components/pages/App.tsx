@@ -9,6 +9,9 @@ const App: React.StatelessComponent<{children: React.ReactNode}> = ({
   return (
     <div style={{height: '100%'}}>
       <Navigation.Wrapper>
+        <Navigation.Item to={'/'}>
+          {'Home'}
+        </Navigation.Item>
         <Navigation.Item to={'/sudoku'}>
           {'Sudoku'}
         </Navigation.Item>
