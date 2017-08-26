@@ -293,27 +293,27 @@ class Game extends React.Component<
   render() {
     const {game, pauseGame} = this.props;
     return (
-      <Section paddingBottom={4}>
+      <Section paddingBottom={4} paddingTop={4}>
         <Grid.Grid>
           <Grid.Row>
-            <Grid.Col xs={12}>
-              <h1 className="ss_game-headline">
+            <Grid.Col md={4} xs={12}>
+              <h1 className="ss_header">
                 {`Sudoku ${game.currentlySelectedDifficulty || ''}`}
               </h1>
             </Grid.Col>
+            <Grid.Col md={8} xs={12}>
+              <GameMenu />
+              <div className={'ss_game-container'}>
+                <GameTimer
+                  startTime={game.startTime}
+                  stopTime={game.stopTime}
+                  offsetTime={game.offsetTime}
+                />
+                <PauseButton pauseGame={pauseGame} />
+                <ConnectedSudoku />
+              </div>
+            </Grid.Col>
           </Grid.Row>
-        </Grid.Grid>
-        <GameMenu />
-        <Grid.Grid>
-          <div className={'ss_game-container'}>
-            <GameTimer
-              startTime={game.startTime}
-              stopTime={game.stopTime}
-              offsetTime={game.offsetTime}
-            />
-            <PauseButton pauseGame={pauseGame} />
-            <ConnectedSudoku />
-          </div>
         </Grid.Grid>
       </Section>
     );
