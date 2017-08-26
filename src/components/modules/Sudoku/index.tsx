@@ -272,8 +272,10 @@ class CellComponentBasic extends React.Component<
     });
   }
   toggleMenu() {
-    this.props.showMenu(this.props.cell);
-    this.exitNotesMode();
+    if (!this.props.cell.initial) {
+      this.props.showMenu(this.props.cell);
+      this.exitNotesMode();
+    }
   }
   render() {
     const cell = this.props.cell;

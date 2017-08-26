@@ -51,7 +51,7 @@ export function parseSudoku(sudoku: string): Cell[] {
           number,
           new Set([]),
           new Set([]),
-          !(number === undefined),
+          number !== undefined,
         );
       });
     }),
