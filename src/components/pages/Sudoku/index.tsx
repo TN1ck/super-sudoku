@@ -293,7 +293,7 @@ class Game extends React.Component<
   render() {
     const {game, pauseGame} = this.props;
     return (
-      <Section paddingTop={4} paddingBottom={4}>
+      <Section paddingBottom={4}>
         <Grid.Grid>
           <Grid.Row>
             <Grid.Col xs={12}>

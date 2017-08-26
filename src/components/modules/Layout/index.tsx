@@ -4,9 +4,16 @@ import {COLORS, AvailableColors, MARGINS} from 'src/utils/constants';
 
 import './Layout.scss';
 
-export const Card: React.StatelessComponent = ({children}) => {
+export const Card: React.StatelessComponent<{
+  children: React.ReactNode;
+  elevation?: number;
+}> = ({children, elevation}) => {
+  const className = classNames(
+    `${elevation ? `ss_elevation-${elevation}` : ''}`,
+    'ss_card',
+  );
   return (
-    <div className="ss_card">
+    <div className={className}>
       {children}
     </div>
   );
@@ -15,7 +22,8 @@ export const Card: React.StatelessComponent = ({children}) => {
 export const Divider: React.StatelessComponent<{
   negativeMargin?: number;
 }> = ({negativeMargin}) => {
-  const className = classNames('ss_divider', {
+  const className = classNames(
+    'ss_divider', {
     'ss_divider--n1': negativeMargin === 1,
     'ss_divider--n2': negativeMargin === 2,
     'ss_divider--n3': negativeMargin === 3,

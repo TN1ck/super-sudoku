@@ -9,6 +9,7 @@
   height: $layout__footer-height;
   display: flex;
   align-items: center;
+  z-index: $zindex__footer;
 }
 
 .ss_footer-logo {

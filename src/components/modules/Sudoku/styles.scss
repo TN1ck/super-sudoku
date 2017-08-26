@@ -1,5 +1,11 @@
 @import 'src/styles/variables.scss';
 
+$zindex__cell-active: 8;
+$zindex__circle-container: 7;
+$zindex__menu-item: 6;
+$zindex__cell-number: 5;
+$zindex__small-sudoku-title: 4;
+
 .ss_cell-container {
     position: relative;
     width: 33.333%;
@@ -37,7 +43,7 @@
 }
 
 .ss_cell--active {
-    z-index: 1001;
+    z-index: $zindex__cell-active;
     background-color: white;
     pointer-events: none;
 }
@@ -53,7 +59,7 @@
 }
 
 .ss_cell-number {
-    z-index: 9;
+    z-index: $zindex__cell-number;
     font-size: 16px;
 }
 
@@ -141,7 +147,7 @@
 }
 
 .ss_menu-circle-container {
-    z-index: 99;
+    z-index: $zindex__circle-container;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -166,7 +172,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 10;
+    z-index: $zindex__menu-item;
 }
 
 .ss_small-sudoku {
@@ -192,7 +198,7 @@
   font-size: 14px;
   position: absolute;
   height: 34px;
-  z-index: 2;
+  z-index: $zindex__small-sudoku-title;
   width: 34px;
   top: 0;
   left: 0;

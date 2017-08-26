@@ -16,9 +16,12 @@ html {
 
 body {
   background-color: $color__dark-blue;
+  position: relative;
   min-height: 100%;
   padding-bottom: $layout__footer-height;
-  background-image: url(https://www.transparenttextures.com/patterns/dotnoise-light-grey.png);
+  background-image: url('/src/assets/images/dotnoise-light-grey.png');
+  margin: 0;
+  font-family: 'Noto Sans', Helvetica Neue, Helvetica, Arial, sans-serif;
 }
 
 @font-face {
@@ -71,14 +74,4 @@ body {
     font-family: 'Noto Sans', Helvetica Neue, Helvetica, Arial, sans-serif;
     font-style: normal;
     font-weight: 700;
-}
-
-body {
-    margin: 0;
-    font-family: 'Noto Sans', Helvetica Neue, Helvetica, Arial, sans-serif;
-    height: 100%;
-}
-
-html {
-    height: 100%;
 }

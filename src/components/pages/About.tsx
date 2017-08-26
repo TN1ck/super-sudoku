@@ -7,7 +7,7 @@ const Home: React.StatelessComponent<{}> = function() {
   return (
     <Section paddingBottom={4} paddingTop={4}>
       <Grid.Grid fullHeight>
-        <Card>
+        <Card elevation={4}>
           <Grid.Row>
             <Grid.Col xs={12}>
               <h1>

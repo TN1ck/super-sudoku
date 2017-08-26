@@ -35,7 +35,7 @@
 .ss_game-menu {
     background-color: rgba(255, 255, 255, 0.8);
     position: absolute;
-    z-index: 9999;
+    z-index: $zindex__game-menu;
     padding-top: 150px;
     top: 0;
     bottom: 0;
