@@ -6,7 +6,7 @@
 }
 
 .ss_game {
-    // position: relative;
+    background-color: $color__dark-blue-two;
 }
 
 .ss_game-container {
@@ -23,6 +23,11 @@
     }
 }
 
+.ss_game-headline {
+  color: white;
+  text-align: center;
+}
+
 .ss_pause-button {
     float: right;
 }
@@ -31,13 +36,17 @@
     background-color: rgba(255, 255, 255, 0.8);
     position: absolute;
     z-index: 9999;
-    top: -16px;
+    padding-top: 150px;
+    top: 0;
     bottom: 0;
     left: 0;
     right: 0;
     display: flex;
-    align-items: center;
     justify-content: space-around;
+
+    &--sudoku-list {
+      overflow-y: auto;
+    }
 }
 
 .ss_game-menu-list {
@@ -60,21 +69,6 @@
 }
 
 /* SUDOKU SELECT */
-
-.ss_sudoku-menu {
-  background-color: rgba(255, 255, 255, 0.8);
-  position: absolute;
-  z-index: 9999;
-  top: -16px;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-around;
-  overflow-y: auto;
-  align-items: baseline;
-  top: 0;
-}
 
 .ss_sudoku-menu-list {
   padding: 0;

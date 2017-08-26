@@ -11,7 +11,6 @@ import {
 import {Cell} from 'src/ducks/sudoku/model';
 import {SUDOKU_NUMBERS} from 'src/engine/utility';
 import * as _ from 'lodash';
-// import * as colors from 'src/utility/colors';
 import './styles.scss';
 
 const TAU = Math.PI * 2;

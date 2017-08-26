@@ -13,20 +13,19 @@ import {
 import {DIFFICULTY} from 'src/engine/utility';
 
 import {Cell, parseSudoku} from 'src/ducks/sudoku/model';
-import {GridComponent, SmallSudokuComponent} from 'src/components/Sudoku';
+import {GridComponent, SmallSudokuComponent} from 'src/components/modules/Sudoku';
+import {Section} from 'src/components/modules/Layout';
 
 import SUDOKUS from 'src/sudokus';
 
-import * as Grid from 'src/components/Grid';
+import * as Grid from 'src/components/modules/Grid';
 import './styles.scss';
 
 const Sudoku: React.StatelessComponent<{
   grid: Cell[];
 }> = function _Sudoku(props) {
   return (
-    <div className={'ss_sudoku-container'}>
-      <GridComponent grid={props.grid} />
-    </div>
+    <GridComponent grid={props.grid} />
   );
 };
 
@@ -130,7 +129,7 @@ const SelectSudoku: React.StatelessComponent<{
     );
   });
   return (
-    <div className={'ss_sudoku-menu'} key="el">
+    <div className={'ss_game-menu ss_game-menu--sudokus'} key="el">
       <div className={'ss_sudoku-menu-list'}>
         {items}
       </div>
@@ -265,7 +264,9 @@ const GameMenu = connect(
           </div>
         );
       } else {
-        actualMenu = <SelectSudoku newGame={this.newGame}  difficulty={this.state.difficulty}/>;
+        actualMenu = (
+          <SelectSudoku newGame={this.newGame}  difficulty={this.state.difficulty}/>
+        );
       }
 
       const inner = running ? [] : [actualMenu];
@@ -292,28 +293,29 @@ class Game extends React.Component<
   render() {
     const {game, pauseGame} = this.props;
     return (
-      <div className={'ss_game'}>
+      <Section paddingTop={4} paddingBottom={4}>
+        <Grid.Grid>
+          <Grid.Row>
+            <Grid.Col xs={12}>
+              <h1 className="ss_game-headline">
+                {`Sudoku ${game.currentlySelectedDifficulty || ''}`}
+              </h1>
+            </Grid.Col>
+          </Grid.Row>
+        </Grid.Grid>
         <GameMenu />
-        <Grid.Container>
-          <Grid.Row>
-            <Grid.Col xs={12}>
-              <div className={'ss_game-container'}>
-                <GameTimer
-                  startTime={game.startTime}
-                  stopTime={game.stopTime}
-                  offsetTime={game.offsetTime}
-                />
-                <PauseButton pauseGame={pauseGame} />
-              </div>
-            </Grid.Col>
-          </Grid.Row>
-          <Grid.Row>
-            <Grid.Col xs={12}>
-              <ConnectedSudoku />
-            </Grid.Col>
-          </Grid.Row>
-        </Grid.Container>
-      </div>
+        <Grid.Grid>
+          <div className={'ss_game-container'}>
+            <GameTimer
+              startTime={game.startTime}
+              stopTime={game.stopTime}
+              offsetTime={game.offsetTime}
+            />
+            <PauseButton pauseGame={pauseGame} />
+            <ConnectedSudoku />
+          </div>
+        </Grid.Grid>
+      </Section>
     );
   }
 }

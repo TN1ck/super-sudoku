@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as Grid from '../Grid';
+import * as Grid from 'src/components/modules/Grid';
 import {NavLink} from 'react-router-dom';
 
 import './styles.scss';
@@ -18,14 +18,14 @@ export function Item(props) {
 
 export function Wrapper(props) {
   return (
-    <div className={'ss_navigation-wrapper'}>
-      <Grid.Container>
+    <div className={'ss_navigation-wrapper ss_elevation-1'}>
+      <Grid.Grid>
         <Grid.Row>
           <Grid.Col xs={12}>
             {props.children}
           </Grid.Col>
         </Grid.Row>
-      </Grid.Container>
+      </Grid.Grid>
     </div>
   );
 }

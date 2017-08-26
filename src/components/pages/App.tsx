@@ -1,12 +1,13 @@
 import * as React from 'react';
 
-import * as Navigation from 'src/components/Navigation';
+import * as Navigation from 'src/components/modules/Navigation';
+import Footer from 'src/components/modules/Footer';
 
 const App: React.StatelessComponent<{children: React.ReactNode}> = ({
   children,
 }) => {
   return (
-    <div>
+    <div style={{height: '100%'}}>
       <Navigation.Wrapper>
         <Navigation.Item to={'/sudoku'}>
           {'Sudoku'}
@@ -15,7 +16,10 @@ const App: React.StatelessComponent<{children: React.ReactNode}> = ({
           {'About'}
         </Navigation.Item>
       </Navigation.Wrapper>
-      {children}
+      <div style={{height: 'calc(100% - 44px)'}}>
+        {children}
+      </div>
+      <Footer />
     </div>
   );
 };

@@ -2,9 +2,9 @@ import * as React from 'react';
 
 import {Route, Switch} from 'react-router-dom';
 
-import App from 'src/pages/App';
-import About from 'src/pages/About';
-import Sudoku from 'src/pages/Sudoku';
+import App from 'src/components/pages/App';
+import About from 'src/components/pages/About';
+import Sudoku from 'src/components/pages/Sudoku';
 
 // import it here to activate hot-reloading for css
 // (see index.tsx and search for module.hot)

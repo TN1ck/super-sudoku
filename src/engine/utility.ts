@@ -15,10 +15,10 @@ square = _y * 3 + _x;
 */
 
 export enum DIFFICULTY {
-  EASY,
-  MEDIUM,
-  HARD,
-  EVIL,
+  EASY = "easy",
+  MEDIUM = "medium",
+  HARD = "hard",
+  EVIL = "evil",
 }
 
 export interface SimpleCell {

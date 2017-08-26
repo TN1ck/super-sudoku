@@ -10,8 +10,15 @@
     box-sizing: border-box;
 }
 
+html {
+  height: 100%;
+}
+
 body {
   background-color: $color__dark-blue;
+  min-height: 100%;
+  padding-bottom: $layout__footer-height;
+  background-image: url(https://www.transparenttextures.com/patterns/dotnoise-light-grey.png);
 }
 
 @font-face {
