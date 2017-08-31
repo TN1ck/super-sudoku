@@ -435,9 +435,8 @@ export class SmallSudokuComponent extends React.PureComponent<{
       <div>
          <div
           style={{
-            background: `rgba(0, 0, 0, ${darken ? 0.5 : 0})`,
-            transition: 'background 300ms ease-out',
-            margin: 10,
+            background: `rgba(255, 255, 255, ${darken ? 0.5 : 0})`,
+            transition: 'background 500ms ease-out',
             top: 0,
             left: 0,
             height,

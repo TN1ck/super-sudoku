@@ -154,7 +154,7 @@ const SelectSudoku: React.StatelessComponent<{
       zIndex = middle * 2 + 1;
     }
 
-    const offset = isActive ? 0 : (isLeft ? -60 : 60);
+    const offset = isActive ? 0 : (isLeft ? -70 : 70);
     console.log(offset);
     return {
       sudoku,
@@ -180,10 +180,13 @@ const SelectSudoku: React.StatelessComponent<{
     return (
       <div
         key={id}
+        className={`ss_elevation-${elevation}`}
         style={{
           position: 'absolute',
           ...style,
-          transition: 'transform 300ms ease-out',
+          transitionProperty: 'transform, opacity, box-shadow',
+          transitionDuration: '500ms',
+          transitionTimingFunction: 'ease-out',
         }}
       >
         <SmallSudokuComponent
@@ -191,7 +194,6 @@ const SelectSudoku: React.StatelessComponent<{
           id={id}
           onClick={onClick}
           sudoku={sudokuCells}
-          elevation={elevation}
         />
       </div>
     );
