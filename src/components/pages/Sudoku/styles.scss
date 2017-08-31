@@ -12,14 +12,16 @@
 .ss_game-container {
     color: white;
     margin: auto;
-    width: 550px;
+    width: 550px + $margin__2 * 2;
+    padding: $margin__2;
+    position: relative;
 
     @media (max-width: 600px) {
         width: calc(100vw - 2rem);
     }
 
     @media (min-width: 601px) and (max-width: 800px) {
-        width: 450px;
+        width: 450px + $margin__2 * 2;
     }
 }
 

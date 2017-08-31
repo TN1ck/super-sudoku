@@ -1,8 +1,10 @@
 import * as React from 'react';
+import * as _ from 'lodash';
 
 import {connect} from 'react-redux';
 import {SudokuState, setSudoku} from 'src/ducks/sudoku';
 import {
+  changeIndex,
   pauseGame,
   continueGame,
   resetGame,
@@ -115,23 +117,100 @@ const PARSED_SUDOKUS = {
 const SelectSudoku: React.StatelessComponent<{
   newGame: any;
   difficulty: DIFFICULTY;
-}> = function({newGame, difficulty}) {
+  sudokuIndex: number;
+  changeIndex: typeof changeIndex;
+}> = function({newGame, difficulty, sudokuIndex, changeIndex}) {
+
+  const SUDOKU_SHOW = 8;
   const sudokus = PARSED_SUDOKUS[difficulty];
-  const items = sudokus.map(({sudoku, id, value}) => {
-    const onClick = () => newGame(id, value);
+
+  const _sudokusToShow = [];
+
+  for (const i of _.range(1, SUDOKU_SHOW)) {
+    const currentIndex = sudokuIndex - i;
+    _sudokusToShow.push(sudokus[(currentIndex + sudokus.length) % sudokus.length]);
+  }
+  _sudokusToShow.reverse();
+  _sudokusToShow.push(sudokus[sudokuIndex]);
+  for (const i of _.range(1, SUDOKU_SHOW)) {
+    const currentIndex = sudokuIndex + i;
+    _sudokusToShow.push(sudokus[(currentIndex) % sudokus.length]);
+  }
+
+  const step = 100 / (SUDOKU_SHOW - 1);
+  const startStep = -100;
+
+  const sudokusToShow = _sudokusToShow.map((sudoku, i) => {
+    const middle = _sudokusToShow.length / 2;
+    // const isMiddle = i === sudokuIndex;
+    const isLeft = i < middle;
+    const isRight = i > middle;
+    const isActive = sudokuIndex === sudoku.id;
+    let zIndex = 0;
+    if (isRight) {
+      zIndex = -i;
+    }
+    if (isActive) {
+      zIndex = middle * 2 + 1;
+    }
+
+    const offset = isActive ? 0 : (isLeft ? -60 : 60);
+    console.log(offset);
+    return {
+      sudoku,
+      elevation: isActive ? 4 : 1,
+      style: {
+        opacity: 1 - Math.abs(startStep + i * step) / 100,
+        transform: `translate(${(startStep + i * step) + offset}%, 0) ${isActive ? 'scale(1.1)' : `perspective(600px) rotateY(${isLeft ? '' : '-'}60deg)`}`,
+        zIndex,
+      },
+    };
+  });
+
+  const items = sudokusToShow.map(({sudoku, style, elevation}) => {
+    const {sudoku: sudokuCells, id, value} = sudoku;
+    const isCenter = id === sudokuIndex;
+    const onClick = () => {
+      if (isCenter) {
+        newGame(id, value);
+      } else {
+        changeIndex(id);
+      }
+    };
     return (
-      <SmallSudokuComponent
+      <div
         key={id}
-        id={id}
-        onClick={onClick}
-        sudoku={sudoku}
-      />
+        style={{
+          position: 'absolute',
+          ...style,
+          transition: 'transform 300ms ease-out',
+        }}
+      >
+        <SmallSudokuComponent
+          darken={!isCenter}
+          id={id}
+          onClick={onClick}
+          sudoku={sudokuCells}
+          elevation={elevation}
+        />
+      </div>
     );
   });
+
   return (
     <div className={'ss_game-menu ss_game-menu--sudokus'} key="el">
-      <div className={'ss_sudoku-menu-list'}>
-        {items}
+      {items}
+      <div style={{position: 'absolute', top: 300}}>
+        <button onClick={() => {
+          changeIndex((sudokuIndex - 1 + sudokus.length) % sudokus.length);
+        }}>
+          {'left'}
+        </button>
+        <button onClick={() => {
+          changeIndex((sudokuIndex + 1) % sudokus.length);
+        }}>
+          {'right'}
+        </button>
       </div>
     </div>
   );
@@ -142,27 +221,27 @@ const GameMenu = connect(
     return {
       running: state.game.running,
       hasGame: state.game.currentlySelectedSudokuId !== undefined,
+      sudokuIndex: state.game.sudokuIndex,
     };
   },
-  function(dispatch) {
-    return {
-      continueGame: () => dispatch(continueGame()),
-      resetGame: () => dispatch(resetGame()),
-      newGame: (difficulty, sudokuId) =>
-        dispatch(newGame(difficulty, sudokuId)),
-      setSudoku: (difficulty, sudoku) =>
-        dispatch(setSudoku(difficulty, sudoku)),
-    };
+  {
+    continueGame,
+    resetGame,
+    newGame,
+    setSudoku,
+    changeIndex,
   },
 )(
   class GameMenu extends React.Component<
     {
-      continueGame: () => any;
-      resetGame: () => any;
-      newGame: (difficulty, sudokuId) => any;
-      setSudoku: (difficulty, sudoku) => any;
+      continueGame: typeof continueGame;
+      resetGame: typeof resetGame;
+      newGame: typeof newGame;
+      setSudoku: typeof setSudoku;
+      changeIndex: typeof changeIndex,
       running: boolean;
       hasGame: boolean;
+      sudokuIndex: number;
     },
     {
       menuState: string;
@@ -265,7 +344,12 @@ const GameMenu = connect(
         );
       } else {
         actualMenu = (
-          <SelectSudoku newGame={this.newGame}  difficulty={this.state.difficulty}/>
+          <SelectSudoku
+            newGame={this.newGame}
+            difficulty={this.state.difficulty}
+            changeIndex={this.props.changeIndex}
+            sudokuIndex={this.props.sudokuIndex}
+          />
         );
       }
 
@@ -297,13 +381,13 @@ class Game extends React.Component<
         <Grid.Grid>
           <Grid.Row>
             <Grid.Col md={4} xs={12}>
-              <h1 className="ss_header">
+              <h1 className="ss_header ss_header--margin">
                 {`Sudoku ${game.currentlySelectedDifficulty || ''}`}
               </h1>
             </Grid.Col>
             <Grid.Col md={8} xs={12}>
-              <GameMenu />
               <div className={'ss_game-container'}>
+                <GameMenu />
                 <GameTimer
                   startTime={game.startTime}
                   stopTime={game.stopTime}

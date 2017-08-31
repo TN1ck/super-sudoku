@@ -4,6 +4,7 @@ const NEW_GAME = 'game/NEW_GAME';
 const RESET_GAME = 'game/RESET_GAME';
 const PAUSE_GAME = 'game/PAUSE_GAME';
 const CONTINUE_GAME = 'game/CONTINUE_GAME';
+const CHANGE_INDEX = 'game/CHANGE_INDEX';
 
 export function newGame(difficulty, sudokuId) {
   return {
@@ -31,6 +32,13 @@ export function continueGame() {
   };
 }
 
+export function changeIndex(index) {
+  return {
+    type: CHANGE_INDEX,
+    index,
+  };
+}
+
 export interface GameState {
   startTime: number;
   offsetTime: number;
@@ -39,6 +47,8 @@ export interface GameState {
   currentlySelectedDifficulty: string;
   currentlySelectedSudokuId: string;
   sudokus: typeof sudokus;
+  // menu stuff
+  sudokuIndex: number;
 }
 
 const gameState: GameState = {
@@ -49,6 +59,8 @@ const gameState: GameState = {
   currentlySelectedDifficulty: undefined,
   currentlySelectedSudokuId: undefined,
   sudokus,
+  // menu stuff
+  sudokuIndex: 0,
 };
 
 export function getTime(
@@ -103,6 +115,11 @@ export default function gameReducer(
       return {
         ...gameState,
       };
+    case CHANGE_INDEX:
+      return {
+        ...gameState,
+        sudokuIndex: action.index,
+      }
     default:
       return state;
   }
