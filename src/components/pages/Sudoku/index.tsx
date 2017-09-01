@@ -183,6 +183,8 @@ const SelectSudoku: React.StatelessComponent<{
         className={`ss_elevation-${elevation}`}
         style={{
           position: 'absolute',
+          top: 0,
+          left: 0,
           ...style,
           transitionProperty: 'transform, opacity, box-shadow',
           transitionDuration: '500ms',
@@ -201,14 +203,26 @@ const SelectSudoku: React.StatelessComponent<{
 
   return (
     <div className={'ss_game-menu ss_game-menu--sudokus'} key="el">
-      {items}
+      <h3 className='ss_game-menu-difficulty'>
+        {difficulty}
+      </h3>
+      <div style={{
+        position: 'absolute',
+        top: 110,
+        left: 159,
+        right: 0,
+      }}>
+        {items}
+      </div>
       <div style={{position: 'absolute', top: 300}}>
-        <button onClick={() => {
+        <button className="ss_game-menu-button"
+          onClick={() => {
           changeIndex((sudokuIndex - 1 + sudokus.length) % sudokus.length);
         }}>
           {'left'}
         </button>
-        <button onClick={() => {
+        <button className="ss_game-menu-button"
+          onClick={() => {
           changeIndex((sudokuIndex + 1) % sudokus.length);
         }}>
           {'right'}

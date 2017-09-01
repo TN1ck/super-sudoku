@@ -82,3 +82,26 @@
   flex-wrap: wrap;
 }
 
+.ss_game-menu-difficulty {
+  position: absolute;
+  top: 0;
+  background: $color__blue;
+  color: white;
+  padding: $margin__2;
+  text-transform: uppercase;
+}
+
+.ss_game-menu-button {
+  background: $color__blue;
+  padding: $margin__2;
+  font-size: 14px;
+  text-transform: capitalize;
+  color: white;
+  border: none;
+  margin: $margin__1;
+  width: 60px;
+
+  &:hover {
+    background: $color__dark-blue;
+  }
+}
