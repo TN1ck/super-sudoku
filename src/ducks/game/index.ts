@@ -1,3 +1,4 @@
+import { DIFFICULTY } from 'src/engine/utility';
 import sudokus from 'src/sudokus';
 
 const NEW_GAME = 'game/NEW_GAME';
@@ -5,6 +6,8 @@ const RESET_GAME = 'game/RESET_GAME';
 const PAUSE_GAME = 'game/PAUSE_GAME';
 const CONTINUE_GAME = 'game/CONTINUE_GAME';
 const CHANGE_INDEX = 'game/CHANGE_INDEX';
+const SET_MENU = 'game/SET_MENU';
+const SET_DIFFICULTY = 'game/SET_DIFFICULTY';
 
 export function newGame(difficulty, sudokuId) {
   return {
@@ -39,6 +42,20 @@ export function changeIndex(index) {
   };
 }
 
+export function setMenu(menu) {
+  return {
+    type: SET_MENU,
+    menu,
+  };
+}
+
+export function setDifficulty(difficulty) {
+  return {
+    type: SET_DIFFICULTY,
+    difficulty,
+  };
+}
+
 export interface GameState {
   startTime: number;
   offsetTime: number;
@@ -49,6 +66,8 @@ export interface GameState {
   sudokus: typeof sudokus;
   // menu stuff
   sudokuIndex: number;
+  menu: string;
+  difficulty: DIFFICULTY;
 }
 
 const gameState: GameState = {
@@ -61,6 +80,8 @@ const gameState: GameState = {
   sudokus,
   // menu stuff
   sudokuIndex: 0,
+  menu: 'INITIAL',
+  difficulty: undefined,
 };
 
 export function getTime(
@@ -117,9 +138,19 @@ export default function gameReducer(
       };
     case CHANGE_INDEX:
       return {
-        ...gameState,
+        ...state,
         sudokuIndex: action.index,
-      }
+      };
+    case SET_DIFFICULTY:
+      return {
+        ...state,
+        difficulty: action.difficulty,
+      };
+    case SET_MENU:
+      return {
+        ...state,
+        menu: action.menu,
+      };
     default:
       return state;
   }

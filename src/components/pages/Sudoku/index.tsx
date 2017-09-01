@@ -11,6 +11,8 @@ import {
   newGame,
   GameState,
   getTime,
+  setMenu,
+  setDifficulty,
 } from 'src/ducks/game';
 import {DIFFICULTY} from 'src/engine/utility';
 
@@ -155,13 +157,13 @@ const SelectSudoku: React.StatelessComponent<{
     }
 
     const offset = isActive ? 0 : (isLeft ? -70 : 70);
-    console.log(offset);
+
     return {
       sudoku,
       elevation: isActive ? 4 : 1,
       style: {
         opacity: 1 - Math.abs(startStep + i * step) / 100,
-        transform: `translate(${(startStep + i * step) + offset}%, 0) ${isActive ? 'scale(1.1)' : `perspective(600px) rotateY(${isLeft ? '' : '-'}60deg)`}`,
+        transform: `translate(${(startStep + i * step) + offset - 50}%, 0) ${isActive ? 'scale(1.1)' : `perspective(600px) rotateY(${isLeft ? '' : '-'}60deg)`}`,
         zIndex,
       },
     };
@@ -184,7 +186,7 @@ const SelectSudoku: React.StatelessComponent<{
         style={{
           position: 'absolute',
           top: 0,
-          left: 0,
+          left: '50%',
           ...style,
           transitionProperty: 'transform, opacity, box-shadow',
           transitionDuration: '500ms',
@@ -209,7 +211,7 @@ const SelectSudoku: React.StatelessComponent<{
       <div style={{
         position: 'absolute',
         top: 110,
-        left: 159,
+        left: 0,
         right: 0,
       }}>
         {items}
@@ -238,6 +240,8 @@ const GameMenu = connect(
       running: state.game.running,
       hasGame: state.game.currentlySelectedSudokuId !== undefined,
       sudokuIndex: state.game.sudokuIndex,
+      menuState: state.game.menu,
+      difficulty: state.game.difficulty,
     };
   },
   {
@@ -246,6 +250,8 @@ const GameMenu = connect(
     newGame,
     setSudoku,
     changeIndex,
+    setMenu,
+    setDifficulty,
   },
 )(
   class GameMenu extends React.Component<
@@ -255,50 +261,40 @@ const GameMenu = connect(
       newGame: typeof newGame;
       setSudoku: typeof setSudoku;
       changeIndex: typeof changeIndex,
+      setMenu: typeof setMenu;
+      setDifficulty: typeof setDifficulty;
       running: boolean;
       hasGame: boolean;
       sudokuIndex: number;
-    },
-    {
       menuState: string;
       difficulty: DIFFICULTY;
     }
   > {
     constructor(props) {
       super(props);
-      this.state = {
-        menuState: 'INITIAL',
-        difficulty: undefined,
-      };
       this.chooseDifficulty = this.chooseDifficulty.bind(this);
       this.setDifficulty = this.setDifficulty.bind(this);
       this.newGame = this.newGame.bind(this);
     }
     chooseDifficulty() {
-      this.setState({
-        menuState: 'SET_DIFFICULTY',
-      });
+      this.props.setMenu('SET_DIFFICULTY');
     }
     setDifficulty(difficulty) {
-      this.setState({
-        difficulty,
-        menuState: 'CHOOSE_GAME',
-      });
+      this.props.setDifficulty(difficulty);
+      this.props.setMenu('CHOOSE_GAME');
     }
     newGame(sudokuId, sudoku) {
-      this.props.setSudoku(this.state.difficulty, sudoku);
-      this.props.newGame(this.state.difficulty, sudokuId);
+      this.props.setSudoku(this.props.difficulty, sudoku);
+      this.props.newGame(this.props.difficulty, sudokuId);
       this.props.continueGame();
-      this.setState({
-        menuState: 'INITIAL',
-      });
+      this.props.setMenu('INITIAL');
     }
     render() {
       const {continueGame, resetGame, running, hasGame} = this.props;
 
       let items = [];
 
-      if (this.state.menuState === 'INITIAL') {
+      if (this.props.menuState === 'INITIAL') {
         if (hasGame) {
           items.push(
             <GameMenuItem onClick={continueGame} key="continue">
@@ -319,7 +315,7 @@ const GameMenu = connect(
         }
       }
 
-      if (this.state.menuState === 'SET_DIFFICULTY') {
+      if (this.props.menuState === 'SET_DIFFICULTY') {
         const difficulties = [
           {
             label: 'Easy',
@@ -350,7 +346,7 @@ const GameMenu = connect(
 
       let actualMenu;
 
-      if (this.state.menuState !== 'CHOOSE_GAME') {
+      if (this.props.menuState !== 'CHOOSE_GAME') {
         actualMenu = (
           <div className={'ss_game-menu'} key="el">
             <ul className={'ss_game-menu-list'}>
@@ -362,7 +358,7 @@ const GameMenu = connect(
         actualMenu = (
           <SelectSudoku
             newGame={this.newGame}
-            difficulty={this.state.difficulty}
+            difficulty={this.props.difficulty}
             changeIndex={this.props.changeIndex}
             sudokuIndex={this.props.sudokuIndex}
           />
