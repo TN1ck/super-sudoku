@@ -218,6 +218,11 @@ class SudokuComponentNew extends React.PureComponent<{
     const height = size;
     const width = size;
     const fontSize = 14;
+    const fontSizeNotes = 11;
+    const notePadding = 4;
+
+    const fontSizeNotesXOffset = fontSizeNotes * 0.3;
+    const fontSizeNotesYOffset = fontSizeNotes * 0.2;
 
     const xSection = height / 9;
     const ySection = width / 9;
@@ -289,7 +294,7 @@ class SudokuComponentNew extends React.PureComponent<{
               this.props.showMenu(c);
             };
             return (
-              <div>
+              <div key={i}>
                 <div
                   style={{
                     position: 'absolute',
@@ -302,7 +307,6 @@ class SudokuComponentNew extends React.PureComponent<{
                   onClick={onClick}
                 />
                 <div
-                  key={i}
                   style={{
                     position: 'absolute',
                     left: xSection * c.x + fontXOffset,
@@ -312,6 +316,50 @@ class SudokuComponentNew extends React.PureComponent<{
                   }}
                 >
                   {c.number}
+                </div>
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: xSection * c.x,
+                    top: ySection * c.y,
+                    fontWeight: c.initial ? 'bold' : 'normal',
+                    pointerEvents: 'none',
+                    padding: notePadding,
+                    width: xSection,
+                    height: ySection,
+                  }}
+                >
+                  {[...c.notes.values()].map(n => {
+                      console.log(n);
+                      const positions = [
+                        {x: 0, y: 0},
+                        {x: 0, y: 0},
+                        {x: 1, y: 0},
+                        {x: 2, y: 0},
+                        {x: 0, y: 1},
+                        {x: 1, y: 1},
+                        {x: 2, y: 1},
+                        {x: 0, y: 2},
+                        {x: 1, y: 2},
+                        {x: 2, y: 2},
+                      ];
+                      const {x, y} = positions[n];
+                      const noteWidth = xSection - notePadding * 2;
+                      const noteHeight = ySection - notePadding * 2;
+                      return (
+                        <div
+                          key={n}
+                          style={{
+                            fontSize: fontSizeNotes,
+                            position: 'absolute',
+                            left: (noteWidth / 3) * x + fontSizeNotesXOffset + notePadding,
+                            top: (noteHeight / 3) * y + fontSizeNotesYOffset + notePadding,
+                          }}
+                        >
+                          {n}
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
             );
