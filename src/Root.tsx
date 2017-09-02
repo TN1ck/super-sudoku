@@ -5,7 +5,7 @@ import {Route, Switch} from 'react-router-dom';
 import App from 'src/components/pages/App';
 import About from 'src/components/pages/About';
 import Home from 'src/components/pages/Home';
-import Sudoku from 'src/components/pages/Sudoku';
+import Game from 'src/components/pages/Game';
 
 // import it here to activate hot-reloading for css
 // (see index.tsx and search for module.hot)
@@ -21,7 +21,7 @@ const Root: React.StatelessComponent<{
           <Switch>
             <Route exact path="/" component={Home} />
             <Route exact path="/about" component={About} />
-            <Route exact path="/sudoku" component={Sudoku} />
+            <Route exact path="/sudoku" component={Game} />
           </Switch>
         </App>
       </Route>
