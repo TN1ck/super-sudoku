@@ -147,6 +147,7 @@ const GameMenu = connect(
       } else {
         actualMenu = (
           <SelectSudoku
+            key='select-sudoku'
             newGame={this.newGame}
             difficulty={this.props.difficulty}
             changeIndex={this.props.changeIndex}

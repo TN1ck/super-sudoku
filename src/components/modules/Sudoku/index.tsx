@@ -3,238 +3,12 @@ import * as classNames from 'classnames';
 import {connect} from 'react-redux';
 import {
   showMenu,
-  setNumber,
-  clearNumber,
-  setNote,
-  clearNote,
 } from 'src/ducks/sudoku';
 import {Cell} from 'src/ducks/sudoku/model';
-import {SUDOKU_NUMBERS} from 'src/engine/utility';
 import * as _ from 'lodash';
 import './styles.scss';
 
-const TAU = Math.PI * 2;
-
-//
-// Menu
-//
-
-const MenuCircle: React.StatelessComponent<{
-  radius: number;
-  notesMode?: boolean;
-  isActive?: boolean;
-  onClick: (any) => void;
-  minRad: number;
-  maxRad: number;
-  children?: React.ReactChild;
-}> = function MenuCircle({
-  radius,
-  notesMode,
-  isActive,
-  onClick,
-  minRad,
-  maxRad,
-  children,
-}) {
-  const yOffset = 7;
-  const textRadius = radius + 8;
-  const circumCircle = TAU * radius;
-  const step = Math.abs(maxRad - minRad);
-  const center = radius * 2;
-  const x = textRadius * Math.cos(minRad + step * 0.5) + center;
-  const y = textRadius * Math.sin(minRad + step * 0.5) + center + yOffset;
-
-  return (
-    <g>
-      <circle
-        r={radius}
-        cx={radius * 2}
-        cy={radius * 2}
-        fill="none"
-        className={classNames({
-          'ss_menu-circle': !notesMode,
-          'ss_menu-circle-hover': !notesMode && isActive,
-          'ss_menu-circle-notes': notesMode,
-          'ss_menu-circle-notes-hover': notesMode && isActive,
-        })}
-        onClick={onClick}
-        style={{
-          strokeDashoffset: -(minRad / TAU * circumCircle),
-          strokeDasharray: `${step / TAU * circumCircle} ${circumCircle}`,
-        }}
-      />
-      <text
-        x={x}
-        y={y}
-        style={{
-          fill: 'white',
-          textAnchor: 'middle',
-          zIndex: 100,
-          pointerEvents: 'none',
-        }}
-      >
-        {children}
-      </text>
-    </g>
-  );
-};
-
-class Menu extends React.Component<
-  {
-    cell: Cell;
-    setNumber: (cell, number) => any;
-    setNote: (cell, number) => any;
-    clearNote: (cell, number) => any;
-    showMenu: (cell) => any;
-    clearNumber: (cell) => any;
-    enterNotesMode: () => any;
-    exitNotesMode: () => any;
-    notesMode: boolean;
-  },
-  {}
-> {
-  render() {
-    const cell = this.props.cell;
-    const circleRadius = 45;
-
-    // TODO: use these only dymanically on small screens
-    const minRad = 0;
-    const maxRad = TAU;
-
-    const containerLeft = '0%';
-    const containerTop = '-50%';
-
-    // if (cell.x === 0) {
-    //     minRad = (TAU / 4) * -1;
-    //     maxRad = (TAU / 4) * 1;
-    //     containerLeft = '-50%';
-    // }
-
-    // if (cell.x === 8) {
-    //     minRad = (TAU / 4) * 1;
-    //     maxRad = (TAU / 4) * 3;
-    //     containerLeft = '50%';
-    // }
-
-    const usedRad = Math.abs(maxRad - minRad);
-    const circumCircle = TAU * circleRadius;
-    const radPerStep = usedRad / (SUDOKU_NUMBERS.length + 1);
-    // const step = (radPerStep / TAU);
-
-    return (
-      <div
-        className={'ss_menu-container'}
-        style={{
-          left: containerLeft,
-          top: containerTop,
-        }}
-      >
-        <svg
-          className={'ss_menu-circle-container'}
-          style={{
-            height: circleRadius * 4,
-            width: circleRadius * 4,
-            transform: `translate(-50%, -50%) rotate(${minRad}rad)`,
-          }}
-        >
-          <circle
-            r={circleRadius}
-            cx={circleRadius * 2}
-            cy={circleRadius * 2}
-            style={{
-              pointerEvents: 'none',
-              strokeDashoffset: 0,
-              strokeDasharray: `${usedRad /
-                TAU *
-                circumCircle} ${circumCircle}`,
-            }}
-            fill="none"
-            className={
-              this.props.notesMode ? 'ss_menu-circle-notes' : 'ss_menu-circle'
-            }
-          />
-          {SUDOKU_NUMBERS.map((number, i) => {
-            const currentMinRad = minRad + radPerStep * (i + 1);
-            const currentMaxRad = currentMinRad + radPerStep;
-            let isActive = number === cell.number;
-            if (this.props.notesMode) {
-              isActive = cell.notes.has(number);
-            }
-            return (
-              <MenuCircle
-                radius={circleRadius}
-                notesMode={this.props.notesMode}
-                isActive={isActive}
-                minRad={currentMinRad}
-                maxRad={currentMaxRad}
-                onClick={e => {
-                  if (this.props.notesMode) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }
-                  if (isActive) {
-                    if (this.props.notesMode) {
-                      this.props.clearNote(cell, number);
-                    } else {
-                      this.props.clearNumber(cell);
-                    }
-                    return;
-                  }
-                  if (this.props.notesMode) {
-                    this.props.setNote(cell, number);
-                  } else {
-                    this.props.setNumber(cell, number);
-                  }
-                }}
-              >
-                {number}
-              </MenuCircle>
-            );
-          })}
-          <MenuCircle
-            radius={circleRadius}
-            notesMode={this.props.notesMode}
-            minRad={minRad}
-            maxRad={minRad + radPerStep}
-            onClick={e => {
-              if (!this.props.notesMode) {
-                this.props.enterNotesMode();
-                e.preventDefault();
-                e.stopPropagation();
-              }
-            }}
-          >
-            {'N'}
-          </MenuCircle>
-        </svg>
-      </div>
-    );
-  }
-}
-
-export const MenuComponent = connect<
-  {},
-  {},
-  {
-    cell: Cell;
-    notesMode: boolean;
-    enterNotesMode: () => any;
-    exitNotesMode: () => any;
-  }
->(
-  function() {
-    return {};
-  },
-  function(dispatch) {
-    return {
-      showMenu: cell => dispatch(showMenu(cell)),
-      setNumber: (cell, number) => dispatch(setNumber(cell, number)),
-      setNote: (cell, number) => dispatch(setNote(cell, number)),
-      clearNote: (cell, number) => dispatch(clearNote(cell, number)),
-      clearNumber: cell => dispatch(clearNumber(cell)),
-    };
-  },
-)(Menu);
+import MenuComponent from './SudokuMenu';
 
 //
 // Cell
@@ -382,6 +156,221 @@ export const GridComponent: React.StatelessComponent<{
     </div>
   );
 };
+
+//
+//
+//
+
+class SudokuComponentNew extends React.PureComponent<{
+  sudoku: Cell[];
+  showMenu?: typeof showMenu;
+}, {
+  height: number;
+  width: number;
+  notesMode: boolean;
+}> {
+  _isMounted: boolean = false;
+  element: HTMLElement;
+  constructor(props) {
+    super(props);
+    this.state = {
+      height: 0,
+      width: 0,
+      notesMode: false,
+    };
+    this.setRef = this.setRef.bind(this);
+    this.enterNotesMode = this.enterNotesMode.bind(this);
+    this.exitNotesMode = this.exitNotesMode.bind(this);
+  }
+  componentDidMount() {
+    this._isMounted = true;
+  }
+
+  setRef(el: HTMLElement) {
+    this.element = el;
+    if (el) {
+      const height = el.clientHeight;
+      const width = el.clientWidth;
+      this.setState({
+        height,
+        width,
+      });
+    }
+  }
+
+  enterNotesMode() {
+    this.setState({
+      notesMode: true,
+    });
+  }
+  exitNotesMode() {
+    this.setState({
+      notesMode: false,
+    });
+  }
+  toggleMenu() {
+    return;
+  }
+
+  render() {
+    const {sudoku} = this.props;
+    const size = Math.min(this.state.height, this.state.width);
+    const height = size;
+    const width = size;
+    const fontSize = 14;
+
+    const xSection = height / 9;
+    const ySection = width / 9;
+    const fontXOffset = xSection / 2 - fontSize * 0.3;
+    const fontYOffset = ySection / 2 - fontSize * 0.5;
+
+    const activeCell = sudoku.find(c => {
+      return c.showMenu;
+    });
+    const selectionPosition = {
+      x: activeCell && activeCell.x || 0,
+      y: activeCell && activeCell.y || 0,
+    };
+
+    const showMarker = false;
+
+    return (
+      <div
+        ref={this.setRef}
+        style={{height: '100%', position: 'absolute', width: '100%'}}>
+         <div
+          style={{
+            transition: 'background 500ms ease-out',
+            top: 0,
+            left: 0,
+            height,
+            width,
+            position: 'absolute',
+            pointerEvents: 'none',
+            zIndex: 6,
+          }}
+        />
+        <div
+          className={`ss_small-sudoku`}
+          style={{
+            height,
+            width,
+            fontSize,
+            lineHeight: fontSize + 'px',
+          }}
+        >
+          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
+            const makeBold = i % 3 === 0;
+            const lineWidth = makeBold ? 2 : 1;
+            return (
+              <SmallGridLineX
+                key={i}
+                height={lineWidth}
+                width={width}
+                top={i * height / 9 - lineWidth / 2}
+              />
+            );
+          })}
+          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
+            const makeBold = i % 3 === 0;
+            const lineWidth = makeBold ? 2 : 1;
+            return (
+              <SmallGridLineY
+                key={i}
+                height={height}
+                width={lineWidth}
+                left={i * height / 9 - lineWidth / 2}
+              />
+            );
+          })}
+          {sudoku.map((c, i) => {
+            const onClick = () => {
+              this.exitNotesMode();
+              this.props.showMenu(c);
+            };
+            return (
+              <div>
+                <div
+                  style={{
+                    position: 'absolute',
+                    height: ySection,
+                    width: xSection,
+                    left: xSection * c.x,
+                    top: ySection * c.y,
+                    zIndex: c.showMenu ? 8 : 0,
+                  }}
+                  onClick={onClick}
+                />
+                <div
+                  key={i}
+                  style={{
+                    position: 'absolute',
+                    left: xSection * c.x + fontXOffset,
+                    top: ySection * c.y + fontYOffset,
+                    fontWeight: c.initial ? 'bold' : 'normal',
+                    pointerEvents: 'none',
+                  }}
+                >
+                  {c.number}
+                </div>
+              </div>
+            );
+          })}
+         {showMarker
+            ? <div
+                style={{
+                  position: 'absolute',
+                  transition: 'transform 150ms ease-out',
+                  top: 0,
+                  left: 0,
+                  transform: `translate(${xSection * selectionPosition.x}px, ${ySection * selectionPosition.y}px)`,
+                  height: ySection,
+                  width: xSection,
+                  borderWidth: 2,
+                  borderStyle: 'solid',
+                  borderColor: 'blue',
+                }}
+              />
+            : null
+          }
+          <div
+            style={{
+              position: 'absolute',
+              top: ySection * selectionPosition.y,
+              left: xSection * selectionPosition.x,
+              height: ySection,
+              width: xSection,
+            }}
+          >
+            {activeCell
+              ? <div
+                  style={{
+                    position: 'relative',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                >
+                  <MenuComponent
+                    enterNotesMode={this.enterNotesMode}
+                    exitNotesMode={this.exitNotesMode}
+                    notesMode={this.state.notesMode}
+                    cell={activeCell}
+                  />
+                </div>
+              : null}
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+export const SudokuComponentNewConnected = connect(null, {showMenu})(SudokuComponentNew);
+
+//
+// Small Sudoku
+//
 
 function SmallGridLineX({height, width, top}) {
   return (

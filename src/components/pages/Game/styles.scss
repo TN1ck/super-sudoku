@@ -12,8 +12,7 @@
 .ss_game-container {
     color: white;
     margin: auto;
-    width: 550px + $margin__2 * 2;
-    padding: $margin__2;
+    width: 550px;
     position: relative;
 
     @media (max-width: 600px) {
@@ -21,7 +20,7 @@
     }
 
     @media (min-width: 601px) and (max-width: 800px) {
-        width: 450px + $margin__2 * 2;
+        width: 450px;
     }
 }
 

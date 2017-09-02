@@ -11,7 +11,7 @@ import {
 } from 'src/ducks/game';
 
 import {Cell} from 'src/ducks/sudoku/model';
-import {GridComponent} from 'src/components/modules/Sudoku';
+import {SudokuComponentNewConnected} from 'src/components/modules/Sudoku';
 import {Section} from 'src/components/modules/Layout';
 
 import GameTimer from './GameTimer';
@@ -22,9 +22,9 @@ import './styles.scss';
 
 const Sudoku: React.StatelessComponent<{
   grid: Cell[];
-}> = function _Sudoku(props) {
+}> = ({grid}) => {
   return (
-    <GridComponent grid={props.grid} />
+    <SudokuComponentNewConnected sudoku={grid} />
   );
 };
 
@@ -78,7 +78,9 @@ class Game extends React.Component<
                   offsetTime={game.offsetTime}
                 />
                 <PauseButton pauseGame={pauseGame} />
-                <ConnectedSudoku />
+                <div className={'ss_grid-container'}>
+                  <ConnectedSudoku />
+                </div>
               </div>
             </Grid.Col>
           </Grid.Row>
