@@ -410,24 +410,28 @@ class SudokuComponentNew extends React.PureComponent<{
           {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
             const makeBold = i % 3 === 0;
             const lineWidth = makeBold ? 2 : 1;
+            const background = makeBold ? '#AAAAAA' : '#EEEEEE';
             return (
               <SmallGridLineX
                 key={i}
                 height={lineWidth}
                 width={width}
                 top={i * height / 9 - lineWidth / 2}
+                background={background}
               />
             );
           })}
           {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
             const makeBold = i % 3 === 0;
             const lineWidth = makeBold ? 2 : 1;
+            const background = makeBold ? '#AAAAAA' : '#EEEEEE';
             return (
               <SmallGridLineY
                 key={i}
                 height={height}
                 width={lineWidth}
                 left={i * height / 9 - lineWidth / 2}
+                background={background}
               />
             );
           })}
@@ -554,13 +558,13 @@ export const SudokuComponentNewConnected = connect(null, {showMenu})(SudokuCompo
 // Small Sudoku
 //
 
-function SmallGridLineX({height, width, top}) {
+function SmallGridLineX({height, width, top, background}) {
   return (
     <div
       style={{
         height,
         width,
-        background: '#AAA',
+        background,
         position: 'absolute',
         left: 0,
         top,
@@ -569,13 +573,13 @@ function SmallGridLineX({height, width, top}) {
   );
 }
 
-function SmallGridLineY({height, width, left}) {
+function SmallGridLineY({height, width, left, background}) {
   return (
     <div
       style={{
         width,
         height,
-        background: '#AAA',
+        background,
         position: 'absolute',
         top: 0,
         left,
@@ -635,24 +639,28 @@ export class SmallSudokuComponent extends React.PureComponent<{
           {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
             const makeBold = i % 3 === 0;
             const lineWidth = makeBold ? 2 : 1;
+            const background = makeBold ? '#AAAAAA' : '#EEEEEE';
             return (
               <SmallGridLineX
                 key={i}
                 height={lineWidth}
                 width={width}
                 top={i * height / 9 - lineWidth / 2}
+                background={background}
               />
             );
           })}
           {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
             const makeBold = i % 3 === 0;
             const lineWidth = makeBold ? 2 : 1;
+            const background = makeBold ? '#AAAAAA' : '#EEEEEE';
             return (
               <SmallGridLineY
                 key={i}
                 height={height}
                 width={lineWidth}
                 left={i * height / 9 - lineWidth / 2}
+                background={background}
               />
             );
           })}
