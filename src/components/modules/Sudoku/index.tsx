@@ -222,13 +222,11 @@ class SudokuComponentNew extends React.PureComponent<{
     const fontSizeNotes = 11;
     const notePadding = 4;
 
-    const fontSizeNotesXOffset = fontSizeNotes * 0.3;
-    const fontSizeNotesYOffset = fontSizeNotes * 0.2;
-
     const xSection = height / 9;
     const ySection = width / 9;
-    const fontXOffset = xSection / 2 - fontSize * 0.3;
-    const fontYOffset = ySection / 2 - fontSize * 0.5;
+
+    const fontXOffset = xSection / 2;
+    const fontYOffset = ySection / 2;
 
     const activeCell = sudoku.find(c => {
       return c.showMenu;
@@ -261,53 +259,12 @@ class SudokuComponentNew extends React.PureComponent<{
           const noteWidth = xSection - notePadding * 2;
           const noteHeight = ySection - notePadding * 2;
           return {
-            x: (noteWidth / 3) * x + fontSizeNotesXOffset + notePadding,
-            y: (noteHeight / 3) * y + fontSizeNotesYOffset + notePadding,
+            x: (noteWidth / 3) * (x + 0.5) + notePadding,
+            y: (noteHeight / 3) * (y + 0.5) + notePadding ,
           };
         }),
       };
     });
-
-    // function checkRow(grid: typeof sudoku, cell: Cell): ComplexSudoku {
-    //   const currentRow = grid.filter(c => c.x === cell.x);
-    //   const currentRowNumbers = currentRow.filter(c => c.number);
-    //   return currentRowNumbers;
-    // }
-
-    // function checkColumn(grid: ComplexSudoku, cell: SimpleCell): ComplexSudoku {
-    //   const currentColumn = grid.filter(c => c.y === cell.y);
-    //   const currentColumnNumbers = currentColumn.filter(c => c.number);
-    //   return currentColumnNumbers;
-    // }
-
-    // function checkSquare(grid: ComplexSudoku, cell: SimpleCell): ComplexSudoku {
-    //   const squares: ComplexSudoku[] = _.values(
-    //     _.groupBy(grid, (c: SimpleCell) => {
-    //       return `${Math.floor(c.x / 3)}-${Math.floor(c.y / 3)}`;
-    //     }),
-    //   );
-
-    //   const currentSquare = squares.filter(square => {
-    //     return square.indexOf(cell) !== -1;
-    //   })[0];
-    //   const currentSquareNumbers = currentSquare.filter(c => c.number);
-    //   return currentSquareNumbers;
-    // }
-
-    // export function checkCellForDuplicates(
-    //   grid: ComplexSudoku,
-    //   cell: SimpleCell,
-    // ): ComplexSudoku {
-    //   const row = duplicates(checkRow(grid, cell));
-    //   const column = duplicates(checkColumn(grid, cell));
-    //   const square = duplicates(checkSquare(grid, cell));
-    //   const uniques = _.uniqBy(row.concat(column).concat(square), function(
-    //     c: SimpleCell,
-    //   ) {
-    //     return `${c.x}-${c.y}`;
-    //   });
-    //   return uniques;
-    // }
 
     const paths = [
       // {
@@ -398,9 +355,11 @@ class SudokuComponentNew extends React.PureComponent<{
             const path = d3Path.path();
 
             path.moveTo(from.x, from.y);
+            path.lineTo(from.x, startToFrame.y);
             path.lineTo(startToFrame.x, startToFrame.y);
             path.lineTo(startToFrame.x, frameToEnd.y);
             path.lineTo(frameToEnd.x, frameToEnd.y);
+            path.lineTo(to.x, frameToEnd.y);
             path.lineTo(to.x, to.y);
 
             const d = path.toString();
@@ -483,6 +442,8 @@ class SudokuComponentNew extends React.PureComponent<{
                     top: position.cell.y,
                     fontWeight: c.initial ? 'bold' : 'normal',
                     pointerEvents: 'none',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 2,
                   }}
                 >
                   {c.number}
@@ -508,6 +469,7 @@ class SudokuComponentNew extends React.PureComponent<{
                           position: 'absolute',
                           left: notePosition.x,
                           top: notePosition.y,
+                          transform: 'translate(-50%, -50%)',
                         }}
                       >
                         {n}
