@@ -356,18 +356,24 @@ class SudokuComponentNew extends React.PureComponent<{
 
             path.moveTo(from.x, from.y);
             path.lineTo(from.x, startToFrame.y);
-            path.lineTo(startToFrame.x, startToFrame.y);
-            path.lineTo(startToFrame.x, frameToEnd.y);
-            path.lineTo(frameToEnd.x, frameToEnd.y);
+            if (from.x !== to.x && Math.abs(from.y - to.y) !== 1) {
+              path.lineTo(startToFrame.x, startToFrame.y);
+              path.lineTo(startToFrame.x, frameToEnd.y);
+              path.lineTo(frameToEnd.x, frameToEnd.y);
+            }
             path.lineTo(to.x, frameToEnd.y);
             path.lineTo(to.x, to.y);
 
             const d = path.toString();
             return (
-              <path
-                stroke="red" strokeWidth="2" fill="none"
-                d={d}
-              />
+              <g>
+                <path
+                  stroke="red" strokeWidth="2" fill="none"
+                  d={d}
+                />
+                <circle r={fontSize} cx={from.x} cy={from.y} stroke='red' strokeWidth="2" fill="white"/>
+                <circle r={fontSize} cx={to.x} cy={to.y} stroke='red' strokeWidth="2" fill="white" />
+              </g>
             );
           })}
         </svg>
