@@ -6,6 +6,9 @@ import {
   showMenu,
 } from 'src/ducks/sudoku';
 import {Cell} from 'src/ducks/sudoku/model';
+
+import {COLORS} from 'src/utils/colors';
+
 import * as _ from 'lodash';
 import './styles.scss';
 
@@ -241,6 +244,7 @@ class SudokuComponentNew extends React.PureComponent<{
         cell: {
           x: xSection * c.x + fontXOffset,
           y: ySection * c.y + fontYOffset,
+          cell: c,
         },
         notes: [...c.notes.values()].map(n => {
           const positions = [
@@ -260,13 +264,23 @@ class SudokuComponentNew extends React.PureComponent<{
           const noteHeight = ySection - notePadding * 2;
           return {
             x: (noteWidth / 3) * (x + 0.5) + notePadding,
-            y: (noteHeight / 3) * (y + 0.5) + notePadding ,
+            y: (noteHeight / 3) * (y + 0.5) + notePadding,
+            cell: c,
+            note: n,
           };
         }),
       };
     });
 
-    const paths = [
+    const paths: Array<{
+      from: {
+        x: number; y: number; cell: Cell;
+      };
+      to: {
+        x: number; y: number; cell: Cell;
+      };
+      index: number;
+    }> = [
       // {
       //   from: {x: 10, y: 10},
       //   to: {x: 300, y: 300},
@@ -341,12 +355,6 @@ class SudokuComponentNew extends React.PureComponent<{
         >
           {paths.map(({from, to}) => {
 
-            if (from.index > to.index)  {
-              const temp = from;
-              from = to;
-              to = temp;
-            }
-
             const {
               from: startToFrame,
               to: frameToEnd,
@@ -365,14 +373,15 @@ class SudokuComponentNew extends React.PureComponent<{
             path.lineTo(to.x, to.y);
 
             const d = path.toString();
+            const color = COLORS[from.cell.number];
             return (
               <g>
                 <path
-                  stroke="red" strokeWidth="2" fill="none"
+                  stroke={color} strokeWidth="2" fill="none"
                   d={d}
                 />
-                <circle r={fontSize} cx={from.x} cy={from.y} stroke='red' strokeWidth="2" fill="white"/>
-                <circle r={fontSize} cx={to.x} cy={to.y} stroke='red' strokeWidth="2" fill="white" />
+                <circle r={fontSize} cx={from.x} cy={from.y} stroke={color} strokeWidth="2" fill="white"/>
+                <circle r={fontSize} cx={to.x} cy={to.y} stroke={color} strokeWidth="2" fill="white" />
               </g>
             );
           })}
@@ -424,8 +433,10 @@ class SudokuComponentNew extends React.PureComponent<{
           })}
           {sudoku.map((c, i) => {
             const onClick = () => {
-              this.exitNotesMode();
-              this.props.showMenu(c);
+              if (!c.initial) {
+                this.exitNotesMode();
+                this.props.showMenu(c);
+              }
             };
             const position = setNumbersPositions[i];
             return (
