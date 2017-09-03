@@ -35,7 +35,7 @@ function checkSquare(grid: ComplexSudoku, cell: SimpleCell): ComplexSudoku {
   return currentSquareNumbers;
 }
 
-function checkCellForDuplicates(
+export function checkCellForDuplicates(
   grid: ComplexSudoku,
   cell: SimpleCell,
 ): ComplexSudoku {

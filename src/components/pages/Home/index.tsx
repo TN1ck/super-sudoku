@@ -10,8 +10,8 @@ const Home: React.StatelessComponent<{}> = function() {
   return (
     <Section paddingBottom={4} paddingTop={4}>
       <Grid.Grid fullHeight>
-          <Grid.Row>
-            <Grid.Col xs={12}>
+          <Grid.Row center='xs' start='sm'>
+            <Grid.Col xs='auto' sm={12}>
               <h1 className="ss_header">
                 {'SUPER'}
                 <br/>

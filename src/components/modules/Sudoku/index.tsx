@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
+import * as d3Path from 'd3-path';
 import {connect} from 'react-redux';
 import {
   showMenu,
@@ -237,13 +238,181 @@ class SudokuComponentNew extends React.PureComponent<{
       y: activeCell && activeCell.y || 0,
     };
 
+    const setNumbersPositions = sudoku.map(c => {
+      return {
+        cell: {
+          x: xSection * c.x + fontXOffset,
+          y: ySection * c.y + fontYOffset,
+        },
+        notes: [...c.notes.values()].map(n => {
+          const positions = [
+            {x: 0, y: 0},
+            {x: 0, y: 0},
+            {x: 1, y: 0},
+            {x: 2, y: 0},
+            {x: 0, y: 1},
+            {x: 1, y: 1},
+            {x: 2, y: 1},
+            {x: 0, y: 2},
+            {x: 1, y: 2},
+            {x: 2, y: 2},
+          ];
+          const {x, y} = positions[n];
+          const noteWidth = xSection - notePadding * 2;
+          const noteHeight = ySection - notePadding * 2;
+          return {
+            x: (noteWidth / 3) * x + fontSizeNotesXOffset + notePadding,
+            y: (noteHeight / 3) * y + fontSizeNotesYOffset + notePadding,
+          };
+        }),
+      };
+    });
+
+    // function checkRow(grid: typeof sudoku, cell: Cell): ComplexSudoku {
+    //   const currentRow = grid.filter(c => c.x === cell.x);
+    //   const currentRowNumbers = currentRow.filter(c => c.number);
+    //   return currentRowNumbers;
+    // }
+
+    // function checkColumn(grid: ComplexSudoku, cell: SimpleCell): ComplexSudoku {
+    //   const currentColumn = grid.filter(c => c.y === cell.y);
+    //   const currentColumnNumbers = currentColumn.filter(c => c.number);
+    //   return currentColumnNumbers;
+    // }
+
+    // function checkSquare(grid: ComplexSudoku, cell: SimpleCell): ComplexSudoku {
+    //   const squares: ComplexSudoku[] = _.values(
+    //     _.groupBy(grid, (c: SimpleCell) => {
+    //       return `${Math.floor(c.x / 3)}-${Math.floor(c.y / 3)}`;
+    //     }),
+    //   );
+
+    //   const currentSquare = squares.filter(square => {
+    //     return square.indexOf(cell) !== -1;
+    //   })[0];
+    //   const currentSquareNumbers = currentSquare.filter(c => c.number);
+    //   return currentSquareNumbers;
+    // }
+
+    // export function checkCellForDuplicates(
+    //   grid: ComplexSudoku,
+    //   cell: SimpleCell,
+    // ): ComplexSudoku {
+    //   const row = duplicates(checkRow(grid, cell));
+    //   const column = duplicates(checkColumn(grid, cell));
+    //   const square = duplicates(checkSquare(grid, cell));
+    //   const uniques = _.uniqBy(row.concat(column).concat(square), function(
+    //     c: SimpleCell,
+    //   ) {
+    //     return `${c.x}-${c.y}`;
+    //   });
+    //   return uniques;
+    // }
+
+    const paths = [
+      // {
+      //   from: {x: 10, y: 10},
+      //   to: {x: 300, y: 300},
+      // },
+    ];
+
+    const sudokuWithIndex = sudoku.map((c, i) => ({...c, index: i}));
+
+    sudokuWithIndex.forEach((cell, i) => {
+      const position = setNumbersPositions[i];
+      const rowCells = sudokuWithIndex.filter(c => c.x === cell.x);
+      const columnCells = sudokuWithIndex.filter(c => c.y === cell.y);
+      const squares = _.values(
+        _.groupBy(sudokuWithIndex, (c) => {
+          return `${Math.floor(c.x / 3)}-${Math.floor(c.y / 3)}`;
+        }),
+      );
+      const squareCells = squares.filter(square => {
+        return square.indexOf(cell) !== -1;
+      })[0];
+
+      const all = rowCells
+        .concat(columnCells)
+        .concat(squareCells)
+        .filter(c => c.index !== cell.index)
+        .filter(c => c.number !== undefined);
+
+      all.forEach(c => {
+        const targetPosition = setNumbersPositions[c.index];
+        if (c.number === cell.number && c.index !== cell.index) {
+          paths.push({from: position.cell, to: targetPosition.cell, index: c.index});
+        }
+      });
+    });
+
     const showMarker = false;
+
+    const getNextInterSection = (x, y) => {
+      const nextIntersectionX = xSection * Math.floor(x / xSection);
+      const nextIntersectionY = ySection * Math.floor(y / ySection);
+      return {x: nextIntersectionX, y: nextIntersectionY};
+    };
+
+    const getFromTo = (from, to) => {
+      const startToFrame = getNextInterSection(from.x, from.y);
+      const frameToEnd = getNextInterSection(to.x, to.y);
+      return {
+        from: {
+          x: startToFrame.x + (from.x < to.x ? xSection : 0),
+          y: startToFrame.y + (from.y < to.y ? ySection : 0),
+        },
+        to: {
+          x: frameToEnd.x + (from.x > to.x ? xSection : 0),
+          y: frameToEnd.y + (from.y > to.y ? ySection : 0),
+        },
+      };
+    };
 
     return (
       <div
         ref={this.setRef}
         style={{height: '100%', position: 'absolute', width: '100%'}}>
-         <div
+        <svg
+          width={width}
+          height={height}
+          style={{
+            position: 'absolute',
+            zIndex: 1,
+            overflow: 'visible',
+            pointerEvents: 'none',
+          }}
+        >
+          {paths.map(({from, to}) => {
+
+            if (from.index > to.index)  {
+              const temp = from;
+              from = to;
+              to = temp;
+            }
+
+            const {
+              from: startToFrame,
+              to: frameToEnd,
+            } = getFromTo(from, to);
+
+            const path = d3Path.path();
+
+            path.moveTo(from.x, from.y);
+            path.lineTo(startToFrame.x, startToFrame.y);
+            path.lineTo(startToFrame.x, frameToEnd.y);
+            path.lineTo(frameToEnd.x, frameToEnd.y);
+            path.lineTo(to.x, to.y);
+
+            const d = path.toString();
+            return (
+              <path
+                stroke="red" strokeWidth="2" fill="none"
+                d={d}
+              />
+            );
+          })}
+        </svg>
+        <div
           style={{
             transition: 'background 500ms ease-out',
             top: 0,
@@ -293,6 +462,7 @@ class SudokuComponentNew extends React.PureComponent<{
               this.exitNotesMode();
               this.props.showMenu(c);
             };
+            const position = setNumbersPositions[i];
             return (
               <div key={i}>
                 <div
@@ -309,8 +479,8 @@ class SudokuComponentNew extends React.PureComponent<{
                 <div
                   style={{
                     position: 'absolute',
-                    left: xSection * c.x + fontXOffset,
-                    top: ySection * c.y + fontYOffset,
+                    left: position.cell.x,
+                    top: position.cell.y,
                     fontWeight: c.initial ? 'bold' : 'normal',
                     pointerEvents: 'none',
                   }}
@@ -324,42 +494,26 @@ class SudokuComponentNew extends React.PureComponent<{
                     top: ySection * c.y,
                     fontWeight: c.initial ? 'bold' : 'normal',
                     pointerEvents: 'none',
-                    padding: notePadding,
                     width: xSection,
                     height: ySection,
                   }}
                 >
-                  {[...c.notes.values()].map(n => {
-                      console.log(n);
-                      const positions = [
-                        {x: 0, y: 0},
-                        {x: 0, y: 0},
-                        {x: 1, y: 0},
-                        {x: 2, y: 0},
-                        {x: 0, y: 1},
-                        {x: 1, y: 1},
-                        {x: 2, y: 1},
-                        {x: 0, y: 2},
-                        {x: 1, y: 2},
-                        {x: 2, y: 2},
-                      ];
-                      const {x, y} = positions[n];
-                      const noteWidth = xSection - notePadding * 2;
-                      const noteHeight = ySection - notePadding * 2;
-                      return (
-                        <div
-                          key={n}
-                          style={{
-                            fontSize: fontSizeNotes,
-                            position: 'absolute',
-                            left: (noteWidth / 3) * x + fontSizeNotesXOffset + notePadding,
-                            top: (noteHeight / 3) * y + fontSizeNotesYOffset + notePadding,
-                          }}
-                        >
-                          {n}
-                        </div>
-                      );
-                    })}
+                  {[...c.notes.values()].map((n, noteIndex) => {
+                    const notePosition = position.notes[noteIndex];
+                    return (
+                      <div
+                        key={n}
+                        style={{
+                          fontSize: fontSizeNotes,
+                          position: 'absolute',
+                          left: notePosition.x,
+                          top: notePosition.y,
+                        }}
+                      >
+                        {n}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );
@@ -397,6 +551,7 @@ class SudokuComponentNew extends React.PureComponent<{
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
+                    opacity: 0.75,
                   }}
                 >
                   <MenuComponent

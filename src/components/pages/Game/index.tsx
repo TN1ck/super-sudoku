@@ -63,14 +63,14 @@ class Game extends React.Component<
     return (
       <Section paddingBottom={4} paddingTop={4}>
         <Grid.Grid>
-          <Grid.Row>
-            <Grid.Col md={4} xs={12}>
+          <Grid.Row center='xs' start='md'>
+            <Grid.Col xs='auto' md={4}>
               <h1 className="ss_header ss_header--margin">
                 {`Sudoku ${game.currentlySelectedDifficulty || ''}`}
               </h1>
             </Grid.Col>
             <Grid.Col md={8} xs={12}>
-              <div className={'ss_game-container'}>
+              <div className={'ss_game-container'} style={{textAlign: 'left'}}>
                 <GameMenu />
                 <GameTimer
                   startTime={game.startTime}
