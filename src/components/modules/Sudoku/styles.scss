@@ -196,3 +196,13 @@ $zindex__small-sudoku-title: 4;
   top: 0;
   left: 0;
 }
+
+//
+//
+//
+
+.ss_sudoku-grid-cell {
+  &:hover {
+    border: 1px solid $color__blue;
+  }
+}

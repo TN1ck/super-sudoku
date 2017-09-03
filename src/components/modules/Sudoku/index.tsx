@@ -446,6 +446,7 @@ class SudokuComponentNew extends React.PureComponent<{
             return (
               <div key={i}>
                 <div
+                  className='ss_sudoku-grid-cell'
                   style={{
                     position: 'absolute',
                     height: ySection,
