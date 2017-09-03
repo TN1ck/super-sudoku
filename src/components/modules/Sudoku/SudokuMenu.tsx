@@ -124,6 +124,7 @@ class Menu extends React.Component<
           width: circleRadius * 4,
           transform: `translate(-50%, -50%) rotate(${minRad}rad)`,
         }}
+        onClick={() => this.props.showMenu(cell)}
       >
         <circle
           r={circleRadius}

@@ -452,7 +452,7 @@ class SudokuComponentNew extends React.PureComponent<{
                     width: xSection,
                     left: xSection * c.x,
                     top: ySection * c.y,
-                    zIndex: c.showMenu ? 8 : 0,
+                    zIndex: 0,
                   }}
                   onClick={onClick}
                 />
@@ -535,6 +535,7 @@ class SudokuComponentNew extends React.PureComponent<{
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
                     opacity: 0.75,
+                    zIndex: 3,
                   }}
                 >
                   <MenuComponent
