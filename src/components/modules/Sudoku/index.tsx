@@ -313,6 +313,11 @@ class SudokuComponentNew extends React.PureComponent<{
         if (c.number === cell.number && c.index !== cell.index) {
           paths.push({from: position.cell, to: targetPosition.cell, index: c.index});
         }
+        c.notes.forEach((n, i) => {
+          if (cell.number === n || cell.notes.has(n)) {
+            paths.push({from: position.cell, to: targetPosition.notes[i], index: c.index});
+          }
+        });
       });
     });
 
