@@ -1,33 +1,16 @@
-import 'whatwg-fetch';
 import 'babel-polyfill';
-import {AppContainer} from 'react-hot-loader';
 
-import {Provider} from 'react-redux';
-import {BrowserRouter} from 'react-router-dom';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import * as ReactDom from 'react-dom';
 import Root from './Root';
 
-import configureStore from 'src/store/configureStore';
-const store = configureStore({});
+// Render your app
+if (typeof document !== "undefined") {
+  const renderMethod = module.hot ? ReactDom.render : ReactDom.hydrate || ReactDom.render;
+  const render = (Comp: any) => {
+    renderMethod(<Comp />, document.getElementById("root"));
+  };
 
-function renderApp(RootComponent) {
-  ReactDOM.render(
-    <AppContainer>
-      <Provider store={store}>
-        <BrowserRouter>
-          <RootComponent />
-        </BrowserRouter>
-      </Provider>
-    </AppContainer>,
-    document.getElementById('root'),
-  );
-}
-
-renderApp(Root);
-
-if (module.hot) {
-  module.hot.accept('./Root.tsx', () => {
-    renderApp(require('./Root.tsx').default);
-  });
+  // Render!
+  render(Root);
 }

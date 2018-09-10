@@ -3,6 +3,7 @@ import { ServerStyleSheet } from 'styled-components'
 import path from "path";
 import fs from "fs";
 import showdown from "showdown";
+import ExtractTextPlugin from "extract-text-webpack-plugin";
 
 const converter = new showdown.Converter();
 
@@ -111,7 +112,6 @@ export default {
       } : {
       test: /\.scss/,
       use: ExtractTextPlugin.extract({
-        fallback: 'style-loader',
         use: [
           {
             loader: 'css-loader',
@@ -128,7 +128,7 @@ export default {
     config.module.rules = [
       {
         oneOf: [
-          defaultLoaders.cssLoader,
+          // defaultLoaders.cssLoader,
           scssLoader,
           {
             test: /\.(js|jsx|ts|tsx)$/,
@@ -149,6 +149,10 @@ export default {
         ],
       },
     ];
+
+    config.plugins.push(
+      new ExtractTextPlugin("styles.css"),
+    );
 
     return config;
   },

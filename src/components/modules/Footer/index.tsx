@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Link} from 'react-router-dom';
+import { Link } from 'react-static';
 import Grid from 'src/components/modules/Grid';
 
 import './Footer.scss';
