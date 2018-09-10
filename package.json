@@ -87,8 +87,6 @@
     "react-dom": "16.5.0",
     "react-hot-loader": "4.3.6",
     "react-redux": "5.0.7",
-    "react-router": "4.3.1",
-    "react-router-dom": "^4.1.2",
     "redux": "4.0.0",
     "redux-logger": "3.0.6",
     "redux-thunk": "2.3.0",

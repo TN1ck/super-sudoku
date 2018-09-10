@@ -4,3 +4,4 @@ dist
 .vscode
 typings
 node_modules
+tmp
