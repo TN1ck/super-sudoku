@@ -1,6 +1,8 @@
 import * as React from 'react';
 
-import {Route, Switch} from 'react-router-dom';
+import { Router } from "react-static";
+import Routes from "react-static-routes";
+import { hot } from "react-hot-loader";
 
 import App from 'src/components/pages/App';
 import About from 'src/components/pages/About';
@@ -15,18 +17,12 @@ const Root: React.StatelessComponent<{
   children?: React.ReactNode;
 }> = function _Root() {
   return (
-    <Switch>
-      <Route path="/">
-        <App>
-          <Switch>
-            <Route exact path="/" component={Home} />
-            <Route exact path="/about" component={About} />
-            <Route exact path="/sudoku" component={Game} />
-          </Switch>
-        </App>
-      </Route>
-    </Switch>
+    <Router>
+      <App>
+        <Routes />
+      </App>
+    </Router>
   );
 };
 
-export default Root;
+export default hot(module)(Root);

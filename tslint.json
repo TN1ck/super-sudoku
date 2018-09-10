@@ -1,13 +1,16 @@
 {
   "extends": [
     "tslint:latest",
-    "tslint-react"
+    "tslint-react",
+    "tslint-immutable",
+    "tslint-eslint-rules"
   ],
   "rules": {
     "quotemark": [
       "single",
       "avoid-escape"
     ],
+    "trailing-comma": [false, {"multiline": "ignore", "singleline": "ignore"}],
     "no-var-requires": false,
     "arrow-parens": false,
     "only-arrow-functions": [
@@ -33,16 +36,27 @@
     ],
     "ordered-imports": [false],
     "object-literal-sort-keys": false,
+    "max-classes-per-file": [
+      5
+    ],
     "no-console": [
       false
     ],
+    "variable-name": [
+      true,
+      "check-format",
+      "allow-leading-underscore",
+      "allow-pascal-case"
+    ],
     "no-shadowed-variable": false,
-    "variable-name": ["allow-leading-underscore"],
-    "max-classes-per-file": [true, 5],
     "jsx-boolean-value": false,
     "jsx-no-lambda": false,
     "jsx-no-multiline-js": false,
     "jsx-wrap-multiline": false,
-    "jsx-alignment": false
+    "jsx-alignment": false,
+    "no-consecutive-blank-lines": [true, 2],
+    "no-submodule-imports": false,
+    "no-implicit-dependencies": false
+
   }
 }

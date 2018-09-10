@@ -1,33 +1,44 @@
 {
-  "compileOnSave": false,
   "buildOnSave": false,
+  "compileOnSave": false,
   "compilerOptions": {
+    "lib": [
+      "dom",
+      "es2017"
+    ],
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "allowJs": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "baseUrl": "./",
-    "paths" : {
-      "src/*": ["./src/*"]
+    "removeComments": false,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "outDir": "dist/",
+    "baseUrl": ".",
+    "paths": {
+      "src/*": [
+        "./src/*"
+      ]
     },
-    "module": "commonjs",
     "target": "es6",
-    "jsx": "react",
+    "module": "esnext",
+    "jsx": "preserve",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "noImplicitAny": false,
-    "removeComments": false,
-    "sourceMap": false,
-    "inlineSourceMap": true,
-    "noEmitHelpers": true
+    "inlineSourceMap": false
   },
   "awesomeTypescriptLoaderOptions": {
-    "useBabel": true,
-    "useWebpackText": true,
-    "forkChecker": true,
-    "useCache": true,
-    "emitRequireType": false
+    "errorsAsWarnings": true
   },
   "exclude": [
-    "node_modules",
-    "dist"
+    "dist/**/*",
+    "public/**/*",
+    "node_modules"
   ]
 }
