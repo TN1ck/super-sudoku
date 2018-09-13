@@ -7,7 +7,7 @@ import ExtractTextPlugin from "extract-text-webpack-plugin";
 
 const converter = new showdown.Converter();
 
-const URL = "https://nostalgic-hamilton-de6409.netlify.com";
+const URL = "https://practical-bartik-1e6a2d.netlify.com";
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 function getPrivacyHtml() {
