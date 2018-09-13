@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as classNames from 'classnames';
+import classNames from 'classnames';
 import {COLORS, AvailableColors, MARGINS} from 'src/utils/constants';
 
 import './Layout.scss';

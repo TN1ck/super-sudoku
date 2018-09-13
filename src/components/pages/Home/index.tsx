@@ -6,7 +6,7 @@ import {Section} from 'src/components/modules/Layout';
 
 import './Home.scss';
 
-const Home: React.StatelessComponent<{}> = function() {
+const Home: React.StatelessComponent = () => {
   return (
     <Section paddingBottom={4} paddingTop={4}>
       <Grid.Grid fullHeight>

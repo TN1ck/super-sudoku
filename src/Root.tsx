@@ -28,8 +28,8 @@ const Root: React.StatelessComponent<{
             <Routes />
           </App>
         </Router>
-    </Provider>
-  </AppContainer>
+      </Provider>
+    </AppContainer>
   );
 };
 

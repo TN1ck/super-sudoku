@@ -1,8 +1,10 @@
 import 'babel-polyfill';
 
-import * as React from 'react';
+import React from 'react';
 import * as ReactDom from 'react-dom';
 import Root from './Root';
+
+export default Root;
 
 // Render your app
 if (typeof document !== "undefined") {

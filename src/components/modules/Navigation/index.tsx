@@ -1,19 +1,19 @@
 import * as React from 'react';
 import * as Grid from 'src/components/modules/Grid';
-import {NavLink} from 'react-router-dom';
+import {Link} from 'react-static';
 
 import './styles.scss';
 
 export function Item(props) {
   return (
-    <NavLink
+    <Link
       activeStyle={{color: 'white', fontWeight: 'bold'}}
       className={'ss_navigation-item'}
       exact
       to={props.to}
     >
       {props.children}
-    </NavLink>
+    </Link>
   );
 }
 

@@ -30,27 +30,21 @@ export default {
     return [
       {
         path: "/",
-        component: "src/components/pages/Home",
+        component: 'src/components/pages/Home'
       },
       {
         path: "/about",
-        component: "src/components/pages/About",
+        component: 'src/components/pages/About'
       },
       {
         path: "/sudoku",
-        component: "src/components/pages/Game",
+        component: 'src/components/pages/Game'
       },
       {
         path: "404",
-        component: "src/components/pages/404",
+        component: 'src/components/pages/404'
       },
     ];
-  },
-  renderToHtml: (render, Comp, meta) => {
-    const sheet = new ServerStyleSheet();
-    const html = render(sheet.collectStyles(<Comp />));
-    meta.styleTags = sheet.getStyleElement();
-    return html;
   },
   Document: ({ Html, Head, Body, children, siteData, renderMeta }) => (
     <Html lang="en-US">

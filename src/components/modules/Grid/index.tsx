@@ -1,7 +1,7 @@
 // Adapted from https://github.com/LIQIDTechnology/liqid-react-components
 
 import * as React from 'react';
-import * as classNames from 'classnames';
+import classNames from 'classnames';
 
 import './Grid.scss';
 
