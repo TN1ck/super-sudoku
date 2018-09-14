@@ -18,7 +18,7 @@
  *
  */
 
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
 import * as solverAC3 from './solverAC3';
 import * as solverOptimized from './solverOptimized';
 import {
@@ -51,7 +51,7 @@ function costFunction(sudoku: SimpleSudoku): number {
 }
 
 function getRandomSudokuNumber(): number {
-  return _.random(10) > 8 ? _.random(1, 9) : undefined;
+  return lodash.random(10) > 8 ? lodash.random(1, 9) : undefined;
 }
 
 export function checkForUniqueness(sudoku: SimpleSudoku): boolean {
@@ -90,9 +90,9 @@ export function checkForUniqueness(sudoku: SimpleSudoku): boolean {
 }
 
 function enhanceUniqueness(sudoku: SimpleSudoku): SimpleSudoku {
-  const randomRows = _.shuffle(SUDOKU_COORDINATES);
+  const randomRows = lodash.shuffle(SUDOKU_COORDINATES);
   for (const row of randomRows) {
-    const randomColumns = _.shuffle(SUDOKU_COORDINATES);
+    const randomColumns = lodash.shuffle(SUDOKU_COORDINATES);
     for (const col of randomColumns) {
       const num = sudoku[row][col];
       if (num === undefined) {
@@ -165,7 +165,6 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
 
   let bestSudoku = randomSudoku;
   let bestCost = costFunction(bestSudoku);
-  let iterations = 0;
 
   function isFinished(sudoku, cost) {
     if (!validCosts(cost)) {
@@ -178,23 +177,25 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
     return true;
   }
 
+  // let iterations = 0;
   while (!isFinished(bestSudoku, bestCost)) {
-    iterations++;
-    let numberOfNumbers = 0;
-    for (const row of bestSudoku) {
-      for (const col of row) {
-        if (col) {
-          numberOfNumbers++;
-        }
-      }
-    }
+
+    // iterations++;
+    // let numberOfNumbers = 0;
+    // for (const row of bestSudoku) {
+    //   for (const col of row) {
+    //     if (col) {
+    //       numberOfNumbers++;
+    //     }
+    //   }
+    // }
 
     const newSudoku = [].concat(
       bestSudoku.map(row => {
         return [].concat(row);
       }),
     );
-    newSudoku[_.random(0, 8)][_.random(0, 8)] = getRandomSudokuNumber();
+    newSudoku[lodash.random(0, 8)][lodash.random(0, 8)] = getRandomSudokuNumber();
     const newCost = costFunction(newSudoku);
 
     // hillclimbing

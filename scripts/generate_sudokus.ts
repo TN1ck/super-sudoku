@@ -1,11 +1,11 @@
-import * as fs from 'fs';
-import * as program from 'commander';
-import * as generate from '../src/engine/generate';
-import {
+const fs = require('fs');
+const program = require('commander');
+const generate = require('../src/engine/generate');
+const {
     SimpleSudoku,
     printSimpleSudoku,
     DIFFICULTY,
-} from '../src/engine/utility';
+} = require('../src/engine/utility');
 
 program
     .version('0.0.1')
@@ -25,10 +25,10 @@ const mapping = {
     evil: DIFFICULTY.EVIL,
 };
 
-const difficulty = (program as any).difficulty;
+const difficulty = program.difficulty;
 const sudokuDifficulty = mapping[difficulty];
 
-function writeSudoku(sudoku: SimpleSudoku) {
+function writeSudoku(sudoku) {
     const printedSudoku = printSimpleSudoku(sudoku);
     console.log('write sudoku\n', printedSudoku);
     fs.appendFile('sudokus.txt', printedSudoku + '\n\n', (err) => {
@@ -38,7 +38,7 @@ function writeSudoku(sudoku: SimpleSudoku) {
     });
 }
 
-const number = (program as any).number;
+const number = program.number;
 console.log(`Generate ${number} sudokus with difficulty ` + difficulty);
 new Array(number).fill(0).forEach((_, i) => {
     console.log('Generate sudoku ' + (i + 1));
