@@ -3,6 +3,14 @@ import * as React from 'react';
 import {
   getTime,
 } from 'src/ducks/game';
+import styled from 'styled-components';
+
+const GameTimerContainer = styled.div`
+position: absolute;
+  color: black;
+  font-size: 20px;
+  top: 7px;
+`;
 
 export default class GameTimer extends React.Component<{
   startTime: number;
@@ -39,9 +47,9 @@ export default class GameTimer extends React.Component<{
     const timerString = minuteString + ':' + secondString;
 
     return (
-      <span>
+      <GameTimerContainer>
         {timerString}
-      </span>
+      </GameTimerContainer>
     );
   }
 }

@@ -46,6 +46,12 @@ export default {
       },
     ];
   },
+  renderToHtml: (render, Comp, meta) => {
+    const sheet = new ServerStyleSheet();
+    const html = render(sheet.collectStyles(<Comp />));
+    meta.styleTags = sheet.getStyleElement();
+    return html;
+  },
   Document: ({ Html, Head, Body, children, siteData, renderMeta }) => (
     <Html lang="en-US">
       <Head>
@@ -91,39 +97,10 @@ export default {
       src: path.join(__dirname, 'src'),
     };
 
-    const scssLoader = stage === 'dev' ? {
-        test: /\.scss/,
-        use: [
-          'style-loader',
-          {
-            loader: 'css-loader',
-            options: {
-              importLoaders: 1,
-            },
-          },
-          'sass-loader',
-        ],
-      } : {
-      test: /\.scss/,
-      use: ExtractTextPlugin.extract({
-        use: [
-          {
-            loader: 'css-loader',
-            options: {
-              minimize: true,
-              importLoaders: 1,
-            },
-          },
-          'sass-loader',
-        ],
-      }),
-    };
-
     config.module.rules = [
       {
         oneOf: [
           // defaultLoaders.cssLoader,
-          scssLoader,
           {
             test: /\.(js|jsx|ts|tsx)$/,
             exclude: defaultLoaders.jsLoader.exclude, // as std jsLoader exclude

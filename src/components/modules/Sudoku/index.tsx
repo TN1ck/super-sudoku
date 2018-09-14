@@ -1,5 +1,4 @@
 import * as React from 'react';
-import classNames from 'classnames';
 import * as d3Path from 'd3-path';
 import {connect} from 'react-redux';
 import {
@@ -10,9 +9,122 @@ import {Cell} from 'src/ducks/sudoku/model';
 import {COLORS} from 'src/utils/colors';
 
 import * as _ from 'lodash';
-import './styles.scss';
 
 import MenuComponent from './SudokuMenu';
+import styled, {css} from 'styled-components';
+import THEME from 'src/theme';
+import { withProps } from 'src/utils';
+
+const SudokuSmallTitle = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: ${THEME.colors.primary};
+  border-bottom-right-radius: ${THEME.borderRadius}px;
+  color: white;
+  font-size: 14px;
+  position: absolute;
+  height: 34px;
+  z-index: 4;
+  width: 34px;
+  top: 0;
+  left: 0;
+`;
+
+const SudokuSmall = styled.div`
+  position: relative;
+  background-color: white;
+  color: black;
+  cursor: default;
+`;
+
+const Grid33 = styled.div`
+  border: 1px solid ${THEME.colors.gray200};
+  display: flex;
+  flex-wrap: wrap;
+  width: 33.333%;
+  height: 33.333%;
+`;
+
+const CellNote = styled.div`
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 33.33%;
+  height: 33.33%;
+  color: ${THEME.colors.gray600};
+
+  @media (max-width: 600px) {
+      font-size: 10px;
+  }
+`;
+
+const CellNoteContainer = styled.div`
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+`;
+
+const CellNumber = styled.div`
+  z-index: 5;
+  font-size: 16px;
+`;
+
+const Cell = withProps<{
+  active: boolean;
+}>()(styled.div)`
+  user-select: none;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.1s ease;
+
+  ${props => props.active && css`
+    z-index: 8;
+    background-color: white;
+    pointer-events: none;
+  `}
+`;
+
+const GridCell = styled.div`
+  &:hover {
+    border: 1px solid ${THEME.colors.primary};
+  }
+`;
+
+const CellContainer = withProps<{
+  initial: boolean;
+}>()(styled.div)`
+  position: relative;
+  width: 33.333%;
+  height: 33.333%;
+  border-width: 1px;
+  border-style: solid;
+  border-color: ${THEME.colors.gray700};
+
+  &:hover {
+      border-color: ${THEME.colors.primary};
+      cursor: pointer;
+  }
+
+  ${props => props.initial && css`
+    font-weight: bold;
+    pointer-events: none;
+    cursor: default;
+
+    &:hover {
+      cursor: default;
+    }
+  `}
+`;
 
 //
 // Cell
@@ -59,30 +171,24 @@ class CellComponentBasic extends React.Component<
     const cell = this.props.cell;
     const notes = [...cell.notes.values()];
     return (
-      <div
-        className={classNames('ss_cell-container', {
-          'ss_cell-container-initial': cell.initial,
-        })}
+      <CellContainer
+        initial={cell.initial}
         onClick={this.toggleMenu}
       >
-        <div
-          className={classNames('ss_cell', {
-            'ss_cell-active': cell.showMenu,
-          })}
-        >
-          <div className={'ss_cell-number'}>
+        <Cell active={cell.showMenu}>
+          <CellNumber>
             {this.props.cell.number}
-          </div>
-          <div className={'ss_cell-note-container'}>
+          </CellNumber>
+          <CellNoteContainer>
             {notes.sort().map(n => {
               return (
-                <div className={'ss_cell-note'}>
+                <CellNote>
                   {n}
-                </div>
+                </CellNote>
               );
             })}
-          </div>
-        </div>
+          </CellNoteContainer>
+        </Cell>
         {this.props.cell.showMenu
           ? <MenuComponent
               enterNotesMode={this.enterNotesMode}
@@ -91,7 +197,7 @@ class CellComponentBasic extends React.Component<
               cell={this.props.cell}
             />
           : null}
-      </div>
+      </CellContainer>
     );
   }
 }
@@ -149,12 +255,12 @@ export const GridComponent: React.StatelessComponent<{
           return `${c.y}-${c.x}`;
         });
         return (
-          <div key={key} className={'ss_grid-3x3'}>
+          <Grid33 key={key}>
             {sorted.map(cell => {
               const k = `${cell.y}-${cell.x}`;
               return <CellComponent key={k} cell={cell} />;
             })}
-          </div>
+          </Grid33>
         );
       })}
     </div>
@@ -403,8 +509,7 @@ class SudokuComponentNew extends React.PureComponent<{
             zIndex: 6,
           }}
         />
-        <div
-          className={`ss_small-sudoku`}
+        <SudokuSmall
           style={{
             height,
             width,
@@ -450,8 +555,7 @@ class SudokuComponentNew extends React.PureComponent<{
             const position = setNumbersPositions[i];
             return (
               <div key={i}>
-                <div
-                  className='ss_sudoku-grid-cell'
+                <GridCell
                   style={{
                     position: 'absolute',
                     height: ySection,
@@ -553,7 +657,7 @@ class SudokuComponentNew extends React.PureComponent<{
                 </div>
               : null}
           </div>
-        </div>
+        </SudokuSmall>
       </div>
     );
   }
@@ -628,9 +732,8 @@ export class SmallSudokuComponent extends React.PureComponent<{
             zIndex: 6,
           }}
         />
-        <div
+        <SudokuSmall
           onClick={onClick}
-          className={`ss_small-sudoku ss_elevation-${elevation}`}
           style={{
             height,
             width,
@@ -638,11 +741,9 @@ export class SmallSudokuComponent extends React.PureComponent<{
             lineHeight: fontSize + 'px',
           }}
         >
-          <div
-            className='ss_small-sudoku-title'
-          >
+          <SudokuSmallTitle>
             {id}
-          </div>
+          </SudokuSmallTitle>
           {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
             const makeBold = i % 3 === 0;
             const lineWidth = makeBold ? 2 : 1;
@@ -685,7 +786,7 @@ export class SmallSudokuComponent extends React.PureComponent<{
               </div>
             );
           })}
-        </div>
+        </SudokuSmall>
       </div>
     );
   }

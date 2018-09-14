@@ -14,13 +14,49 @@ import {DIFFICULTY} from 'src/engine/utility';
 
 import SelectSudoku from './GameSelectSudoku';
 
-import './styles.scss';
+import THEME from 'src/theme';
+import styled from 'styled-components';
+
+export const GameMenuContainer = styled.div`
+  background-color: rgba(255, 255, 255, 0.8);
+  position: absolute;
+  z-index: 20;
+  padding-top: 90px;
+  border-radius: ${THEME.borderRadius}px;
+  top: -${THEME.spacer.x3}px;
+  bottom: -${THEME.spacer.x3}px;
+  left: -${THEME.spacer.x3}px;
+  right: -${THEME.spacer.x3}px;
+  display: flex;
+  justify-content: space-around;
+`;
+
+const GameMenuList = styled.ul`
+  padding: 0;
+  margin: 0;
+`;
+
+const GameMenuListItem = styled.li`
+  color: white;
+  background-color: ${THEME.colors.primary};
+  list-style-type: none;
+  margin: 0;
+  margin-bottom: ${THEME.spacer.x2}px;
+  padding: ${THEME.spacer.x2}px;
+  border-radius: ${THEME.borderRadius}px;
+  box-shadow: ${THEME.boxShadow};
+
+  &:hover {
+      cursor: pointer;
+      background-color: $color__dark-blue;
+  }
+`;
 
 function GameMenuItem(props) {
   return (
-    <li className={'ss_game-menu-list-item'} onClick={props.onClick}>
+    <GameMenuListItem onClick={props.onClick}>
       {props.children}
-    </li>
+    </GameMenuListItem>
   );
 }
 
@@ -43,8 +79,7 @@ const GameMenu = connect(
     setMenu,
     setDifficulty,
   },
-)(
-  class GameMenu extends React.Component<
+)(class GameMenu extends React.Component<
     {
       continueGame: typeof continueGame;
       resetGame: typeof resetGame;
@@ -138,11 +173,11 @@ const GameMenu = connect(
 
       if (this.props.menuState !== 'CHOOSE_GAME') {
         actualMenu = (
-          <div className={'ss_game-menu'} key="el">
-            <ul className={'ss_game-menu-list'}>
+          <GameMenuContainer key="el">
+            <GameMenuList>
               {items}
-            </ul>
-          </div>
+            </GameMenuList>
+          </GameMenuContainer>
         );
       } else {
         actualMenu = (

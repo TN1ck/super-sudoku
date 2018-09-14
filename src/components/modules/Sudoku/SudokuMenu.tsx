@@ -10,6 +10,54 @@ import {
 } from 'src/ducks/sudoku';
 import {Cell} from 'src/ducks/sudoku/model';
 import {SUDOKU_NUMBERS} from 'src/engine/utility';
+import styled, { css } from 'styled-components';
+import THEME from 'src/theme';
+import { withProps } from 'src/utils';
+
+const MenuCircleContainer = styled.svg`
+  z-index: 7;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  position: absolute;
+`;
+
+const MenuCircleComponent = withProps<{
+  notesMode: boolean;
+  isActive: boolean;
+}>()(styled.circle)`
+  stroke-width: 50px;
+  stroke: ${THEME.colors.primary};
+
+  &:hover {
+      stroke-width: 60px;
+      cursor: pointer;
+      stroke: ${THEME.colors.primary};
+  }
+
+  ${props => props.notesMode && css`
+    stroke-width: 50px;
+    stroke: black;
+
+    &:hover {
+        stroke-width: 60px;
+        cursor: pointer;
+        stroke: black;
+    }
+  `}
+  ${props => props.notesMode && props.isActive && css`
+    stroke-width: 60px;
+    cursor: pointer;
+    stroke: black;
+  `}
+
+  ${props => !props.notesMode && props.isActive && css`
+    stroke-width: 60px;
+    cursor: pointer;
+    stroke: ${THEME.colors.primary};
+  `}
+
+`;
 
 const TAU = Math.PI * 2;
 
@@ -44,17 +92,13 @@ const MenuCircle: React.StatelessComponent<{
 
   return (
     <g>
-      <circle
+      <MenuCircleComponent
+        notesMode={notesMode}
+        isActive={isActive}
         r={radius}
         cx={radius * 2}
         cy={radius * 2}
         fill="none"
-        className={classNames({
-          'ss_menu-circle': !notesMode,
-          'ss_menu-circle-hover': !notesMode && isActive,
-          'ss_menu-circle-notes': notesMode,
-          'ss_menu-circle-notes-hover': notesMode && isActive,
-        })}
         onClick={onClick}
         style={{
           strokeDashoffset: -(minRad / TAU * circumCircle),
@@ -117,8 +161,7 @@ class Menu extends React.Component<
     // const step = (radPerStep / TAU);
 
     return (
-      <svg
-        className={'ss_menu-circle-container'}
+      <MenuCircleContainer
         style={{
           height: circleRadius * 4,
           width: circleRadius * 4,
@@ -195,7 +238,7 @@ class Menu extends React.Component<
         >
           {'N'}
         </MenuCircle>
-      </svg>
+      </MenuCircleContainer>
     );
   }
 }

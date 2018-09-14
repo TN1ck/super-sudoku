@@ -10,6 +10,20 @@ import {SmallSudokuComponent} from 'src/components/modules/Sudoku';
 import {parseSudoku} from 'src/ducks/sudoku/model';
 
 import SUDOKUS from 'src/sudokus';
+import { GameMenuContainer } from 'src/components/pages/Game/GameMenu';
+import Button from 'src/components/modules/Button';
+import THEME from 'src/theme';
+import styled from 'styled-components';
+
+const GameDifficultyHeader = styled.h3`
+  position: absolute;
+  top: 0;
+  background: ${THEME.colors.primary};
+  color: white;
+  padding: ${THEME.spacer.x2}px;
+  text-transform: uppercase;
+  border-radius: ${THEME.borderRadius}px;
+`;
 
 const parseListOfSudokus = (sudokus: Array<{value: string, id: number}>) => {
   return sudokus.map(({value, id}) => {
@@ -117,10 +131,10 @@ const SelectSudoku: React.StatelessComponent<{
   });
 
   return (
-    <div className={'ss_game-menu ss_game-menu--sudokus'} key="el">
-      <h3 className='ss_game-menu-difficulty'>
+    <GameMenuContainer key="el">
+      <GameDifficultyHeader>
         {difficulty}
-      </h3>
+      </GameDifficultyHeader>
       <div style={{
         position: 'absolute',
         top: 110,
@@ -130,20 +144,24 @@ const SelectSudoku: React.StatelessComponent<{
         {items}
       </div>
       <div style={{position: 'absolute', top: 300}}>
-        <button className="ss_game-menu-button"
+        <Button
           onClick={() => {
-          changeIndex((sudokuIndex - 1 + sudokus.length) % sudokus.length);
-        }}>
+            changeIndex((sudokuIndex - 1 + sudokus.length) % sudokus.length);
+          }}
+          style={{
+            marginRight: THEME.spacer.x2,
+          }}
+        >
           {'Previous'}
-        </button>
-        <button className="ss_game-menu-button"
+        </Button>
+        <Button
           onClick={() => {
           changeIndex((sudokuIndex + 1) % sudokus.length);
         }}>
           {'Next'}
-        </button>
+        </Button>
       </div>
-    </div>
+    </GameMenuContainer>
   );
 };
 

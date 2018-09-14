@@ -1,31 +1,46 @@
 import * as React from 'react';
 import { Link } from 'react-static';
 
-import * as Grid from 'src/components/modules/Grid';
-import {Section} from 'src/components/modules/Layout';
+import { Container } from 'src/components/modules/Layout';
+import Button from 'src/components/modules/Button';
+import THEME from 'src/theme';
+import styled from 'styled-components';
+import { Card, CardBody } from 'src/components/modules/Card';
 
-import './Home.scss';
+const HomeMain = styled.div`
+  h1 {
+    font-size: ${THEME.sizes.header}px;
+    line-height: 0.8em;
+    margin-top: 0;
+  }
+`;
+
+const Center = styled.div`
+  text-align: center;
+`;
 
 const Home: React.StatelessComponent = () => {
   return (
-    <Section paddingBottom={4} paddingTop={4}>
-      <Grid.Grid fullHeight>
-          <Grid.Row center='xs' start='sm'>
-            <Grid.Col xs='auto' sm={12}>
-              <h1 className="ss_header">
+    <Container>
+      <HomeMain>
+        <Card>
+          <CardBody>
+            <Center>
+              <h1>
                 {'SUPER'}
                 <br/>
-                {'SUDOKU'}
+                {'SUDOKU!'}
               </h1>
               <Link to='/sudoku'>
-                <button className={'ss_play'}>
+                <Button>
                   {'Play Sudoku!'}
-                </button>
+                </Button>
               </Link>
-            </Grid.Col>
-          </Grid.Row>
-      </Grid.Grid>
-    </Section>
+            </Center>
+          </CardBody>
+        </Card>
+      </HomeMain>
+    </Container>
   );
 };
 

@@ -1,47 +1,16 @@
 import * as React from 'react';
-import { Link } from 'react-static';
-import Grid from 'src/components/modules/Grid';
+import styled from 'styled-components';
+import THEME from 'src/theme';
 
-import './Footer.scss';
+const Footer = styled.footer`
+  padding: ${THEME.spacer.x3}px;
+  color: white;
+`;
 
-const FOOTER_LINKS = [
-  {
-    name: 'Challenge',
-    link: '/challenge',
-  },
-  {
-    name: 'About',
-    link: '/about',
-  },
-  {
-    name: 'Login',
-    link: '/login',
-  },
-];
-
-const Footer: React.StatelessComponent<{}> = () => {
+export default () => {
   return (
-    <footer className="ss_footer">
-      <Grid.Grid>
-        <Grid.Row middle="xs" between="xs">
-          <Grid.Col>
-            <div className="ss_footer-logo">
-              <img src='' />
-            </div>
-          </Grid.Col>
-          <Grid.Col>
-            {FOOTER_LINKS.map(({name, link}) => {
-              return (
-                <Link to={link} key={name} className="ss_footer-btn">
-                  {name}
-                </Link>
-              );
-            })}
-          </Grid.Col>
-        </Grid.Row>
-      </Grid.Grid>
-    </footer>
+    <Footer>
+      {'Made with <3 in Berlin'}
+    </Footer>
   );
 };
-
-export default Footer;

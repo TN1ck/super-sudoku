@@ -12,13 +12,14 @@ import {
 
 import {Cell} from 'src/ducks/sudoku/model';
 import {SudokuComponentNewConnected} from 'src/components/modules/Sudoku';
-import {Section} from 'src/components/modules/Layout';
 
 import GameTimer from './GameTimer';
 import GameMenu from './GameMenu';
 
-import * as Grid from 'src/components/modules/Grid';
-import './styles.scss';
+import { Container } from 'src/components/modules/Layout';
+import Button from 'src/components/modules/Button';
+import styled from 'styled-components';
+import THEME from 'src/theme';
 
 const Sudoku: React.StatelessComponent<{
   grid: Cell[];
@@ -42,11 +43,56 @@ const ConnectedSudoku = connect(
 
 function PauseButton({pauseGame}) {
   return (
-    <div onClick={pauseGame} className={'ss_pause-button'}>
+    <Button
+      onClick={pauseGame}
+      style={{
+        float: 'right',
+        marginBottom: THEME.spacer.x2,
+      }}
+    >
       {'Pause'}
-    </div>
+    </Button>
   );
 }
+
+const GameContainer = styled.div`
+  color: white;
+  margin: auto;
+  width: 550px;
+  position: relative;
+
+  @media (max-width: 600px) {
+      width: calc(100vw - 2rem);
+  }
+
+  @media (min-width: 601px) and (max-width: 800px) {
+      width: 450px;
+  }
+`;
+
+
+const GridContainer = styled.div`
+  color: black;
+  box-shadow: ${THEME.boxShadow};
+  background-color: white;
+  width: 550px;
+  height: 550px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  flex-grow: 0;
+  display: flex;
+
+  @media (max-width: 600px) {
+      width: calc(100vw - 2rem);
+      height: calc(100vw - 2rem);
+  }
+
+  @media (min-width: 601px) and (max-width: 800px) {
+      width: 450px;
+      height: 450px;
+  }
+`;
+
 
 class Game extends React.Component<
   {
@@ -61,31 +107,20 @@ class Game extends React.Component<
   render() {
     const {game, pauseGame} = this.props;
     return (
-      <Section paddingBottom={4} paddingTop={4}>
-        <Grid.Grid>
-          <Grid.Row center='xs' start='md'>
-            <Grid.Col xs='auto' md={4}>
-              <h1 className="ss_header ss_header--margin">
-                {`Sudoku ${game.currentlySelectedDifficulty || ''}`}
-              </h1>
-            </Grid.Col>
-            <Grid.Col md={8} xs={12}>
-              <div className={'ss_game-container'} style={{textAlign: 'left'}}>
-                <GameMenu />
-                <GameTimer
-                  startTime={game.startTime}
-                  stopTime={game.stopTime}
-                  offsetTime={game.offsetTime}
-                />
-                <PauseButton pauseGame={pauseGame} />
-                <div className={'ss_grid-container'}>
-                  <ConnectedSudoku />
-                </div>
-              </div>
-            </Grid.Col>
-          </Grid.Row>
-        </Grid.Grid>
-      </Section>
+      <Container>
+        <GameContainer>
+          <GameMenu />
+          <GameTimer
+            startTime={game.startTime}
+            stopTime={game.stopTime}
+            offsetTime={game.offsetTime}
+          />
+          <PauseButton pauseGame={pauseGame} />
+          <GridContainer>
+            <ConnectedSudoku />
+          </GridContainer>
+        </GameContainer>
+      </Container>
     );
   }
 }
