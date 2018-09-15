@@ -48,7 +48,6 @@
     "commander": "2.18.0",
     "copy-webpack-plugin": "4.5.2",
     "css-loader": "1.0.0",
-    "d3-path": "^1.0.5",
     "eslint": "5.5.0",
     "extract-text-webpack-plugin": "3.0.2",
     "file-loader": "2.0.0",

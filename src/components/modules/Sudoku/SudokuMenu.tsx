@@ -193,6 +193,7 @@ class Menu extends React.Component<
           }
           return (
             <MenuCircle
+              key={i}
               radius={circleRadius}
               notesMode={this.props.notesMode}
               isActive={isActive}

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as d3Path from 'd3-path';
 import {connect} from 'react-redux';
 import {
   showMenu,
@@ -12,6 +11,7 @@ import * as _ from 'lodash';
 
 import MenuComponent from './SudokuMenu';
 import { CellInner, CellNumber, CellNoteContainer, CellNote, CellContainer, Grid33, SudokuSmall, SmallGridLineX, GridCell, SmallGridLineY, GridCellNumber } from 'src/components/modules/Sudoku/modules';
+import { squareIndex } from 'src/engine/utility';
 
 //
 // Cell
@@ -320,8 +320,6 @@ class SudokuComponentNew extends React.PureComponent<{
       });
     });
 
-    const showMarker = false;
-
     const getNextInterSection = (x, y) => {
       const nextIntersectionX = xSection * Math.floor(x / xSection);
       const nextIntersectionY = ySection * Math.floor(y / ySection);
@@ -343,6 +341,12 @@ class SudokuComponentNew extends React.PureComponent<{
       };
     };
 
+    const uniquePaths = _.uniqBy(paths, p => {
+      const fromCell = p.from.cell;
+      const toCell = p.to.cell;
+      return [`${fromCell.x}-${fromCell.y}`, `${toCell.x}-${toCell.y}`].sort().join('-');
+    });
+
     return (
       <div
         ref={this.setRef}
@@ -357,32 +361,20 @@ class SudokuComponentNew extends React.PureComponent<{
             pointerEvents: 'none',
           }}
         >
-          {paths.map(({from, to}) => {
+          {uniquePaths.map(({from, to}, i) => {
 
-            const {
-              from: startToFrame,
-              to: frameToEnd,
-            } = getFromTo(from, to);
+            const path = `
+              M ${from.x} ${from.y}
+              L ${from.x} ${to.y}
+              L ${to.x} ${to.y}
+            `;
 
-            const path = d3Path.path();
-
-            path.moveTo(from.x, from.y);
-            path.lineTo(from.x, startToFrame.y);
-            if (from.x !== to.x && Math.abs(from.y - to.y) !== 1) {
-              path.lineTo(startToFrame.x, startToFrame.y);
-              path.lineTo(startToFrame.x, frameToEnd.y);
-              path.lineTo(frameToEnd.x, frameToEnd.y);
-            }
-            path.lineTo(to.x, frameToEnd.y);
-            path.lineTo(to.x, to.y);
-
-            const d = path.toString();
             const color = COLORS[from.cell.number];
             return (
-              <g>
+              <g key={i}>
                 <path
                   stroke={color} strokeWidth="2" fill="none"
-                  d={d}
+                  d={path}
                 />
                 <circle r={fontSize} cx={from.x} cy={from.y} stroke={color} strokeWidth="2" fill="white"/>
                 <circle r={fontSize} cx={to.x} cy={to.y} stroke={color} strokeWidth="2" fill="white" />
@@ -498,34 +490,18 @@ class SudokuComponentNew extends React.PureComponent<{
               </div>
             );
           })}
-         {showMarker
-            ? <div
+          {
+            activeCell ? (
+              <div
                 style={{
                   position: 'absolute',
-                  transition: 'transform 150ms ease-out',
-                  top: 0,
-                  left: 0,
-                  transform: `translate(${xSection * selectionPosition.x}px, ${ySection * selectionPosition.y}px)`,
+                  top: ySection * selectionPosition.y,
+                  left: xSection * selectionPosition.x,
                   height: ySection,
                   width: xSection,
-                  borderWidth: 2,
-                  borderStyle: 'solid',
-                  borderColor: 'blue',
                 }}
-              />
-            : null
-          }
-          <div
-            style={{
-              position: 'absolute',
-              top: ySection * selectionPosition.y,
-              left: xSection * selectionPosition.x,
-              height: ySection,
-              width: xSection,
-            }}
-          >
-            {activeCell
-              ? <div
+              >
+                <div
                   style={{
                     position: 'relative',
                     top: '50%',
@@ -542,8 +518,9 @@ class SudokuComponentNew extends React.PureComponent<{
                     cell={activeCell}
                   />
                 </div>
-              : null}
-          </div>
+              </div>
+            ) : null
+          }
         </SudokuSmall>
       </div>
     );
