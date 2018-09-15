@@ -11,120 +11,7 @@ import {COLORS} from 'src/utils/colors';
 import * as _ from 'lodash';
 
 import MenuComponent from './SudokuMenu';
-import styled, {css} from 'styled-components';
-import THEME from 'src/theme';
-import { withProps } from 'src/utils';
-
-const SudokuSmallTitle = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: ${THEME.colors.primary};
-  border-bottom-right-radius: ${THEME.borderRadius}px;
-  color: white;
-  font-size: 14px;
-  position: absolute;
-  height: 34px;
-  z-index: 4;
-  width: 34px;
-  top: 0;
-  left: 0;
-`;
-
-const SudokuSmall = styled.div`
-  position: relative;
-  background-color: white;
-  color: black;
-  cursor: default;
-`;
-
-const Grid33 = styled.div`
-  border: 1px solid ${THEME.colors.gray200};
-  display: flex;
-  flex-wrap: wrap;
-  width: 33.333%;
-  height: 33.333%;
-`;
-
-const CellNote = styled.div`
-  font-size: 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 33.33%;
-  height: 33.33%;
-  color: ${THEME.colors.gray600};
-
-  @media (max-width: 600px) {
-      font-size: 10px;
-  }
-`;
-
-const CellNoteContainer = styled.div`
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-`;
-
-const CellNumber = styled.div`
-  z-index: 5;
-  font-size: 16px;
-`;
-
-const Cell = withProps<{
-  active: boolean;
-}>()(styled.div)`
-  user-select: none;
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.1s ease;
-
-  ${props => props.active && css`
-    z-index: 8;
-    background-color: white;
-    pointer-events: none;
-  `}
-`;
-
-const GridCell = styled.div`
-  &:hover {
-    border: 1px solid ${THEME.colors.primary};
-  }
-`;
-
-const CellContainer = withProps<{
-  initial: boolean;
-}>()(styled.div)`
-  position: relative;
-  width: 33.333%;
-  height: 33.333%;
-  border-width: 1px;
-  border-style: solid;
-  border-color: ${THEME.colors.gray700};
-
-  &:hover {
-      border-color: ${THEME.colors.primary};
-      cursor: pointer;
-  }
-
-  ${props => props.initial && css`
-    font-weight: bold;
-    pointer-events: none;
-    cursor: default;
-
-    &:hover {
-      cursor: default;
-    }
-  `}
-`;
+import { CellInner, CellNumber, CellNoteContainer, CellNote, CellContainer, Grid33, SudokuSmall, SmallGridLineX, GridCell, SmallGridLineY, GridCellNumber } from 'src/components/modules/Sudoku/modules';
 
 //
 // Cell
@@ -175,7 +62,7 @@ class CellComponentBasic extends React.Component<
         initial={cell.initial}
         onClick={this.toggleMenu}
       >
-        <Cell active={cell.showMenu}>
+        <CellInner active={cell.showMenu}>
           <CellNumber>
             {this.props.cell.number}
           </CellNumber>
@@ -188,7 +75,7 @@ class CellComponentBasic extends React.Component<
               );
             })}
           </CellNoteContainer>
-        </Cell>
+        </CellInner>
         {this.props.cell.showMenu
           ? <MenuComponent
               enterNotesMode={this.enterNotesMode}
@@ -291,6 +178,7 @@ class SudokuComponentNew extends React.PureComponent<{
     this.setRef = this.setRef.bind(this);
     this.enterNotesMode = this.enterNotesMode.bind(this);
     this.exitNotesMode = this.exitNotesMode.bind(this);
+    this.setDimensions = this.setDimensions.bind(this);
   }
   componentDidMount() {
     this._isMounted = true;
@@ -298,9 +186,14 @@ class SudokuComponentNew extends React.PureComponent<{
 
   setRef(el: HTMLElement) {
     this.element = el;
-    if (el) {
-      const height = el.clientHeight;
-      const width = el.clientWidth;
+    this.setDimensions();
+    window.addEventListener('resize', this.setDimensions)
+  }
+
+  setDimensions() {
+    if (this.element) {
+      const height = this.element.clientHeight;
+      const width = this.element.clientWidth;
       this.setState({
         height,
         width,
@@ -566,19 +459,13 @@ class SudokuComponentNew extends React.PureComponent<{
                   }}
                   onClick={onClick}
                 />
-                <div
-                  style={{
-                    position: 'absolute',
-                    left: position.cell.x,
-                    top: position.cell.y,
-                    fontWeight: c.initial ? 'bold' : 'normal',
-                    pointerEvents: 'none',
-                    transform: 'translate(-50%, -50%)',
-                    zIndex: 2,
-                  }}
+                <GridCellNumber
+                  left={position.cell.x}
+                  top={position.cell.y}
+                  initial={c.initial}
                 >
                   {c.number}
-                </div>
+                </GridCellNumber>
                 <div
                   style={{
                     position: 'absolute',
@@ -664,130 +551,3 @@ class SudokuComponentNew extends React.PureComponent<{
 }
 
 export const SudokuComponentNewConnected = connect(null, {showMenu})(SudokuComponentNew);
-
-//
-// Small Sudoku
-//
-
-function SmallGridLineX({height, width, top, background}) {
-  return (
-    <div
-      style={{
-        height,
-        width,
-        background,
-        position: 'absolute',
-        left: 0,
-        top,
-      }}
-    />
-  );
-}
-
-function SmallGridLineY({height, width, left, background}) {
-  return (
-    <div
-      style={{
-        width,
-        height,
-        background,
-        position: 'absolute',
-        top: 0,
-        left,
-      }}
-    />
-  );
-}
-
-export class SmallSudokuComponent extends React.PureComponent<{
-  sudoku: Cell[];
-  id: number;
-  darken?: boolean;
-  elevation?: number;
-  onClick: () => any;
-}> {
-  render() {
-    const {sudoku, id, onClick, darken, elevation} = this.props;
-    const height = 150;
-    const width = 150;
-    const fontSize = 8;
-
-    const xSection = height / 9;
-    const ySection = width / 9;
-    const fontXOffset = xSection / 2 - 2;
-    const fontYOffset = ySection / 2 - 4;
-
-    return (
-      <div>
-         <div
-          style={{
-            background: `rgba(255, 255, 255, ${darken ? 0.5 : 0})`,
-            transition: 'background 500ms ease-out',
-            top: 0,
-            left: 0,
-            height,
-            width,
-            position: 'absolute',
-            pointerEvents: 'none',
-            zIndex: 6,
-          }}
-        />
-        <SudokuSmall
-          onClick={onClick}
-          style={{
-            height,
-            width,
-            fontSize,
-            lineHeight: fontSize + 'px',
-          }}
-        >
-          <SudokuSmallTitle>
-            {id}
-          </SudokuSmallTitle>
-          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
-            const makeBold = i % 3 === 0;
-            const lineWidth = makeBold ? 2 : 1;
-            const background = makeBold ? '#AAAAAA' : '#EEEEEE';
-            return (
-              <SmallGridLineX
-                key={i}
-                height={lineWidth}
-                width={width}
-                top={i * height / 9 - lineWidth / 2}
-                background={background}
-              />
-            );
-          })}
-          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
-            const makeBold = i % 3 === 0;
-            const lineWidth = makeBold ? 2 : 1;
-            const background = makeBold ? '#AAAAAA' : '#EEEEEE';
-            return (
-              <SmallGridLineY
-                key={i}
-                height={height}
-                width={lineWidth}
-                left={i * height / 9 - lineWidth / 2}
-                background={background}
-              />
-            );
-          })}
-          {sudoku.map((c, i) => {
-            return (
-              <div
-                key={i}
-                style={{
-                  position: 'absolute',
-                  left: xSection * c.x + fontXOffset,
-                  top: ySection * c.y + fontYOffset,
-                }}
-              >
-                {c.number}
-              </div>
-            );
-          })}
-        </SudokuSmall>
-      </div>
-    );
-  }
-}

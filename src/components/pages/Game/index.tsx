@@ -60,6 +60,8 @@ const GameContainer = styled.div`
   margin: auto;
   width: 550px;
   position: relative;
+  margin-top: ${THEME.spacer.x3}px;
+  margin-bottom: ${THEME.spacer.x3 + 20}px;
 
   @media (max-width: 600px) {
       width: calc(100vw - 2rem);

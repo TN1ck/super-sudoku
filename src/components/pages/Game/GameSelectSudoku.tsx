@@ -6,7 +6,6 @@ import {
 } from 'src/ducks/game';
 import {DIFFICULTY} from 'src/engine/utility';
 
-import {SmallSudokuComponent} from 'src/components/modules/Sudoku';
 import {parseSudoku} from 'src/ducks/sudoku/model';
 
 import SUDOKUS from 'src/sudokus';
@@ -14,6 +13,7 @@ import { GameMenuContainer } from 'src/components/pages/Game/GameMenu';
 import Button from 'src/components/modules/Button';
 import THEME from 'src/theme';
 import styled from 'styled-components';
+import SmallSudokuComponent from 'src/components/modules/Sudoku/SmallSudoku';
 
 const GameDifficultyHeader = styled.h3`
   position: absolute;
