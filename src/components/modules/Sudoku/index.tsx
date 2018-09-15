@@ -11,7 +11,183 @@ import * as _ from 'lodash';
 
 import MenuComponent from './SudokuMenu';
 import { CellInner, CellNumber, CellNoteContainer, CellNote, CellContainer, Grid33, SudokuSmall, SmallGridLineX, GridCell, SmallGridLineY, GridCellNumber } from 'src/components/modules/Sudoku/modules';
-import { squareIndex } from 'src/engine/utility';
+
+interface CellIndexed extends Cell {
+  index: number;
+}
+
+interface PositionedCell {
+  cell: Cell;
+  x: number;
+  y: number;
+}
+
+interface NoteCell {
+  x: number;
+  y: number;
+  cell: Cell;
+  note: number;
+}
+
+interface PositionedNoteCell {
+  cell: PositionedCell;
+  notes: NoteCell[];
+}
+
+interface ConflictingCell {
+  cell: CellIndexed,
+  conflicting: CellIndexed[];
+}
+
+interface ConflictingPath {
+  from: PositionedNoteCell;
+  to: PositionedNoteCell;
+  index: number;
+}
+
+const fontSize = 14;
+const fontSizeNotes = 11;
+const notePadding = 4;
+
+class SudokuState {
+
+  width: number;
+  height: number;
+
+  get xSection() {
+    const xSection = this.height / 9;
+    return xSection;
+  }
+
+  get ySection() {
+    const ySection = this.width / 9;
+    return ySection;
+  }
+
+  getNextInterSection(x, y) {
+    const nextIntersectionX = this.xSection * Math.floor(x / this.xSection);
+    const nextIntersectionY = this.ySection * Math.floor(y / this.ySection);
+    return {x: nextIntersectionX, y: nextIntersectionY};
+  }
+
+  getFromTo(from, to) {
+    const startToFrame = this.getNextInterSection(from.x, from.y);
+    const frameToEnd = this.getNextInterSection(to.x, to.y);
+    return {
+      from: {
+        x: startToFrame.x + (from.x < to.x ? this.xSection : 0),
+        y: startToFrame.y + (from.y < to.y ? this.ySection : 0),
+      },
+      to: {
+        x: frameToEnd.x + (from.x > to.x ? this.xSection : 0),
+        y: frameToEnd.y + (from.y > to.y ? this.ySection : 0),
+      },
+    };
+  }
+
+  uniquePaths(paths: ConflictingPath[]) {
+    return _.uniqBy(paths, p => {
+      const fromCell = p.from;
+      const toCell = p.to;
+      return [`${fromCell.cell.x}-${fromCell.cell.y}`, `${toCell.cell.x}-${toCell.cell.y}`].sort().join('-');
+    });
+  }
+
+  positionedCells(sudoku: Cell[]): PositionedNoteCell[] {
+
+    const fontXOffset = this.xSection / 2;
+    const fontYOffset = this.ySection / 2;
+
+
+    return sudoku.map(c => {
+      const positionedCell: PositionedCell = {
+        x: this.xSection * c.x + fontXOffset,
+        y: this.ySection * c.y + fontYOffset,
+        cell: c,
+      };
+
+      const noteCells: NoteCell[] = [...c.notes.values()].map(n => {
+        const positions = [
+          {x: 0, y: 0},
+          {x: 0, y: 0},
+          {x: 1, y: 0},
+          {x: 2, y: 0},
+          {x: 0, y: 1},
+          {x: 1, y: 1},
+          {x: 2, y: 1},
+          {x: 0, y: 2},
+          {x: 1, y: 2},
+          {x: 2, y: 2},
+        ];
+        const {x, y} = positions[n];
+        const noteWidth = this.xSection - notePadding * 2;
+        const noteHeight = this.ySection - notePadding * 2;
+        return {
+          x: (noteWidth / 3) * (x + 0.5) + notePadding,
+          y: (noteHeight / 3) * (y + 0.5) + notePadding,
+          cell: c,
+          note: n,
+        };
+      });
+
+      return {
+        cell: positionedCell,
+        notes: noteCells,
+      };
+    });
+  }
+
+  conflictingFields(sudoku: Cell[]): ConflictingCell[] {
+    const sudokuWithIndex: CellIndexed[] = sudoku.map((c, i) => ({...c, index: i}));
+
+    return sudokuWithIndex.map((cell, i) => {
+      const rowCells = sudokuWithIndex.filter(c => c.x === cell.x);
+      const columnCells = sudokuWithIndex.filter(c => c.y === cell.y);
+      const squares = _.values(
+        _.groupBy(sudokuWithIndex, (c) => {
+          return `${Math.floor(c.x / 3)}-${Math.floor(c.y / 3)}`;
+        }),
+      );
+      const squareCells = squares.filter(square => {
+        return square.indexOf(cell) !== -1;
+      })[0];
+
+      const all = rowCells
+        .concat(columnCells)
+        .concat(squareCells)
+        .filter(c => c.index !== cell.index)
+        .filter(c => c.number !== undefined);
+
+      return {
+        cell,
+        conflicting: all,
+      }
+    });
+  }
+
+  getPathsFromConflicting(
+    conflictingCell: ConflictingCell,
+    positionedCells: PositionedNoteCell[],
+    ): ConflictingPath[] {
+      const {conflicting, cell} = conflictingCell;
+      const paths = [];
+      conflicting.forEach(c => {
+        const targetPosition = positionedCells[c.index];
+        const fromPosition = positionedCells[cell.index];
+        if (c.number === cell.number && c.index !== cell.index) {
+          const path: ConflictingPath = {
+            from: fromPosition,
+            to: targetPosition,
+            index: c.index
+          };
+          console.log(path);
+          paths.push(path);
+        }
+      });
+
+      return paths;
+  }
+}
 
 //
 // Cell
@@ -220,15 +396,9 @@ class SudokuComponentNew extends React.PureComponent<{
     const size = Math.min(this.state.height, this.state.width);
     const height = size;
     const width = size;
-    const fontSize = 14;
-    const fontSizeNotes = 11;
-    const notePadding = 4;
 
     const xSection = height / 9;
     const ySection = width / 9;
-
-    const fontXOffset = xSection / 2;
-    const fontYOffset = ySection / 2;
 
     const activeCell = sudoku.find(c => {
       return c.showMenu;
@@ -238,114 +408,18 @@ class SudokuComponentNew extends React.PureComponent<{
       y: activeCell && activeCell.y || 0,
     };
 
-    const setNumbersPositions = sudoku.map(c => {
-      return {
-        cell: {
-          x: xSection * c.x + fontXOffset,
-          y: ySection * c.y + fontYOffset,
-          cell: c,
-        },
-        notes: [...c.notes.values()].map(n => {
-          const positions = [
-            {x: 0, y: 0},
-            {x: 0, y: 0},
-            {x: 1, y: 0},
-            {x: 2, y: 0},
-            {x: 0, y: 1},
-            {x: 1, y: 1},
-            {x: 2, y: 1},
-            {x: 0, y: 2},
-            {x: 1, y: 2},
-            {x: 2, y: 2},
-          ];
-          const {x, y} = positions[n];
-          const noteWidth = xSection - notePadding * 2;
-          const noteHeight = ySection - notePadding * 2;
-          return {
-            x: (noteWidth / 3) * (x + 0.5) + notePadding,
-            y: (noteHeight / 3) * (y + 0.5) + notePadding,
-            cell: c,
-            note: n,
-          };
-        }),
-      };
-    });
 
-    const paths: Array<{
-      from: {
-        x: number; y: number; cell: Cell;
-      };
-      to: {
-        x: number; y: number; cell: Cell;
-      };
-      index: number;
-    }> = [
-      // {
-      //   from: {x: 10, y: 10},
-      //   to: {x: 300, y: 300},
-      // },
-    ];
+    const state = new SudokuState();
+    state.width = width;
+    state.height = height;
+    const positionedCells = state.positionedCells(sudoku);
+    const conflicting = state.conflictingFields(sudoku);
+    const uniquePaths = _.flatten(conflicting.map(c => {
+      const paths = state.getPathsFromConflicting(c, positionedCells);
+      const uniquePaths = state.uniquePaths(paths);
+      return uniquePaths;
+    }));
 
-    const sudokuWithIndex = sudoku.map((c, i) => ({...c, index: i}));
-
-    sudokuWithIndex.forEach((cell, i) => {
-      const position = setNumbersPositions[i];
-      const rowCells = sudokuWithIndex.filter(c => c.x === cell.x);
-      const columnCells = sudokuWithIndex.filter(c => c.y === cell.y);
-      const squares = _.values(
-        _.groupBy(sudokuWithIndex, (c) => {
-          return `${Math.floor(c.x / 3)}-${Math.floor(c.y / 3)}`;
-        }),
-      );
-      const squareCells = squares.filter(square => {
-        return square.indexOf(cell) !== -1;
-      })[0];
-
-      const all = rowCells
-        .concat(columnCells)
-        .concat(squareCells)
-        .filter(c => c.index !== cell.index)
-        .filter(c => c.number !== undefined);
-
-      all.forEach(c => {
-        const targetPosition = setNumbersPositions[c.index];
-        if (c.number === cell.number && c.index !== cell.index) {
-          paths.push({from: position.cell, to: targetPosition.cell, index: c.index});
-        }
-        c.notes.forEach((n, i) => {
-          if (cell.number === n || cell.notes.has(n)) {
-            paths.push({from: position.cell, to: targetPosition.notes[i], index: c.index});
-          }
-        });
-      });
-    });
-
-    const getNextInterSection = (x, y) => {
-      const nextIntersectionX = xSection * Math.floor(x / xSection);
-      const nextIntersectionY = ySection * Math.floor(y / ySection);
-      return {x: nextIntersectionX, y: nextIntersectionY};
-    };
-
-    const getFromTo = (from, to) => {
-      const startToFrame = getNextInterSection(from.x, from.y);
-      const frameToEnd = getNextInterSection(to.x, to.y);
-      return {
-        from: {
-          x: startToFrame.x + (from.x < to.x ? xSection : 0),
-          y: startToFrame.y + (from.y < to.y ? ySection : 0),
-        },
-        to: {
-          x: frameToEnd.x + (from.x > to.x ? xSection : 0),
-          y: frameToEnd.y + (from.y > to.y ? ySection : 0),
-        },
-      };
-    };
-
-    const uniquePaths = _.uniqBy(paths, p => {
-      const fromCell = p.from.cell;
-      const toCell = p.to.cell;
-      return [`${fromCell.x}-${fromCell.y}`, `${toCell.x}-${toCell.y}`].sort().join('-');
-    });
 
     return (
       <div
@@ -361,8 +435,9 @@ class SudokuComponentNew extends React.PureComponent<{
             pointerEvents: 'none',
           }}
         >
-          {uniquePaths.map(({from, to}, i) => {
-
+          {uniquePaths.map((c, i) => {
+            const from = c.from.cell;
+            const to = c.to.cell;
             const path = `
               M ${from.x} ${from.y}
               L ${from.x} ${to.y}
@@ -437,7 +512,7 @@ class SudokuComponentNew extends React.PureComponent<{
                 this.props.showMenu(c);
               }
             };
-            const position = setNumbersPositions[i];
+            const position = positionedCells[i];
             return (
               <div key={i}>
                 <GridCell
