@@ -58,6 +58,15 @@ const MenuCircleComponent = withProps<{
 
 `;
 
+export const MenuWrapper = styled.div`
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.75;
+  z-index: 3;
+`;
+
 const TAU = Math.PI * 2;
 
 //
