@@ -128,7 +128,7 @@ export default class SudokuState {
   conflictingFields(sudoku: Cell[]): ConflictingCell[] {
     const sudokuWithIndex: CellIndexed[] = sudoku.map((c, i) => ({...c, index: i}));
 
-    return sudokuWithIndex.map((cell, i) => {
+    return sudokuWithIndex.map((cell) => {
       const rowCells = sudokuWithIndex.filter(c => c.x === cell.x);
       const columnCells = sudokuWithIndex.filter(c => c.y === cell.y);
       const squares = _.values(
