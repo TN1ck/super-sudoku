@@ -168,7 +168,6 @@ export default class SudokuState {
             to: targetPosition,
             index: c.index
           };
-          console.log(path);
           paths.push(path);
         }
       });

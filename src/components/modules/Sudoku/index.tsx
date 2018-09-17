@@ -2,168 +2,36 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import {
   showMenu,
-} from 'src/ducks/sudoku';
+} from 'src/ducks/game';
 import {Cell} from 'src/ducks/sudoku/model';
 
 import * as _ from 'lodash';
 
 import MenuComponent, { MenuWrapper } from './SudokuMenu';
-import { CellInner, CellNumber, CellNoteContainer, CellNote, CellContainer, Grid33, SudokuSmall, SmallGridLineX, GridCell, SmallGridLineY, GridCellNumber } from 'src/components/modules/Sudoku/modules';
+import {SudokuSmall, SmallGridLineX, GridCell, SmallGridLineY, GridCellNumber } from 'src/components/modules/Sudoku/modules';
 import SudokuState from 'src/components/modules/Sudoku/state';
 import SudokuPaths from 'src/components/modules/Sudoku/SudokuPaths';
+import { RootState } from 'src/ducks';
 
 const fontSize = 14;
 const fontSizeNotes = 11;
 
-//
-// Cell
-//
-
-class CellComponentBasic extends React.Component<
-  {
-    cell: Cell;
-    showMenu: (cell) => any;
-  },
-  {
-    notesMode: boolean;
-  }
-> {
-  constructor(props) {
-    super(props);
-    this.state = {
-      notesMode: false,
-    };
-    this.toggleMenu = this.toggleMenu.bind(this);
-    this.enterNotesMode = this.enterNotesMode.bind(this);
-    this.exitNotesMode = this.exitNotesMode.bind(this);
-  }
-  shouldComponentUpdate(props, state) {
-    return props.cell !== this.props.cell || this.state !== state;
-  }
-  enterNotesMode() {
-    this.setState({
-      notesMode: true,
-    });
-  }
-  exitNotesMode() {
-    this.setState({
-      notesMode: false,
-    });
-  }
-  toggleMenu() {
-    if (!this.props.cell.initial) {
-      this.props.showMenu(this.props.cell);
-      this.exitNotesMode();
-    }
-  }
-  render() {
-    const cell = this.props.cell;
-    const notes = [...cell.notes.values()];
-    return (
-      <CellContainer
-        initial={cell.initial}
-        onClick={this.toggleMenu}
-      >
-        <CellInner active={cell.showMenu}>
-          <CellNumber>
-            {this.props.cell.number}
-          </CellNumber>
-          <CellNoteContainer>
-            {notes.sort().map(n => {
-              return (
-                <CellNote>
-                  {n}
-                </CellNote>
-              );
-            })}
-          </CellNoteContainer>
-        </CellInner>
-        {this.props.cell.showMenu
-          ? <MenuComponent
-              enterNotesMode={this.enterNotesMode}
-              exitNotesMode={this.exitNotesMode}
-              notesMode={this.state.notesMode}
-              cell={this.props.cell}
-            />
-          : null}
-      </CellContainer>
-    );
-  }
+interface SudokuComponentNewStateProps {
+  showMenuForCell: Cell;
 }
 
-export const CellComponent = connect<
-  {},
-  {},
-  {
-    cell: Cell;
-  }
->(
-  function() {
-    return {};
-  },
-  function(dispatch) {
-    return {
-      showMenu: cell => dispatch(showMenu(cell)),
-    };
-  },
-)(CellComponentBasic);
-
-//
-// Grid
-//
-
-/*
-    _x = 1       _x = 2     _x = 3
-.-----------------------------------|
-|   x < 3   | 3 < x < 6 |   x > 6   |  _y = 1
-|   y < 3   | y < 3     |   y < 3   |
-|-----------------------------------|
-|   x < 3   | 3 < x < 6 |   x > 6   |  _y = 2
-| 3 < y < 6 | 3 < y < 6 | 3 < y < 6 |
-.-----------------------------------|
-|   x < 3   | 3 < x < 6 |   x > 6   |  _y = 3
-|   y > 6   | y > 6     |   y > 6   |
-|-----------------------------------|
-*/
-function orderCellsIntoSquares(sudoku: Cell[]) {
-  return _.groupBy(sudoku, cell => {
-    return `${Math.floor(cell.y / 3)}-${Math.floor(cell.x / 3)}`;
-  });
+interface SudokuComponentNewDispatchProps {
+  showMenu: typeof showMenu;
 }
 
-export const GridComponent: React.StatelessComponent<{
-  grid: Cell[];
-}> = function _Grid(props) {
-  const threeTimesThreeContainer = orderCellsIntoSquares(props.grid);
-  const keys = _.sortBy(_.keys(threeTimesThreeContainer), k => k);
-  return (
-    <div className={'ss_grid-container'}>
-      {keys.map(key => {
-        const container = threeTimesThreeContainer[key];
-        const sorted = _.sortBy(container, c => {
-          return `${c.y}-${c.x}`;
-        });
-        return (
-          <Grid33 key={key}>
-            {sorted.map(cell => {
-              const k = `${cell.y}-${cell.x}`;
-              return <CellComponent key={k} cell={cell} />;
-            })}
-          </Grid33>
-        );
-      })}
-    </div>
-  );
-};
-
-//
-//
-//
-
-class SudokuComponentNew extends React.PureComponent<{
+interface SudokuComponentNewOwnProps {
   sudoku: Cell[];
-  showMenu?: typeof showMenu;
-}, {
+}
+
+class SudokuComponentNew extends React.PureComponent<
+  SudokuComponentNewDispatchProps & SudokuComponentNewStateProps &
+  SudokuComponentNewOwnProps
+, {
   height: number;
   width: number;
   notesMode: boolean;
@@ -184,6 +52,11 @@ class SudokuComponentNew extends React.PureComponent<{
   }
   componentDidMount() {
     this._isMounted = true;
+    window.addEventListener('click', () => {
+      if (this.props.showMenuForCell !== null) {
+        this.props.showMenu(null);
+      }
+    })
   }
 
   setRef(el: HTMLElement) {
@@ -226,9 +99,7 @@ class SudokuComponentNew extends React.PureComponent<{
     const xSection = height / 9;
     const ySection = width / 9;
 
-    const activeCell = sudoku.find(c => {
-      return c.showMenu;
-    });
+    const activeCell = this.props.showMenuForCell;
     const selectionPosition = {
       x: activeCell && activeCell.x || 0,
       y: activeCell && activeCell.y || 0,
@@ -306,10 +177,12 @@ class SudokuComponentNew extends React.PureComponent<{
             );
           })}
           {sudoku.map((c, i) => {
-            const onClick = () => {
+            const onClick = (e) => {
               if (!c.initial) {
                 this.exitNotesMode();
                 this.props.showMenu(c);
+                e.preventDefault();
+                e.stopPropagation();
               }
             };
             const position = positionedCells[i];
@@ -393,4 +266,15 @@ class SudokuComponentNew extends React.PureComponent<{
   }
 }
 
-export const SudokuComponentNewConnected = connect(null, {showMenu})(SudokuComponentNew);
+export const SudokuComponentNewConnected = connect<
+  SudokuComponentNewStateProps,
+  SudokuComponentNewDispatchProps,
+  SudokuComponentNewOwnProps
+>(
+  (state: RootState) => {
+    return {
+      showMenuForCell: state.game.showMenu,
+    };
+  },
+  {showMenu}
+)(SudokuComponentNew);

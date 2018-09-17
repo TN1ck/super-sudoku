@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {
-  showMenu,
   setNumber,
   clearNumber,
   setNote,
@@ -12,6 +11,7 @@ import {SUDOKU_NUMBERS} from 'src/engine/utility';
 import styled, { css } from 'styled-components';
 import THEME from 'src/theme';
 import { withProps } from 'src/utils';
+import { showMenu } from 'src/ducks/game';
 
 const MenuCircleContainer = styled.svg`
   z-index: 7;
@@ -129,22 +129,30 @@ const MenuCircle: React.StatelessComponent<{
   );
 };
 
+interface MenuOwnProps {
+  cell: Cell;
+  notesMode: boolean;
+  enterNotesMode: () => void;
+  exitNotesMode: () => void;
+}
+
+interface MenuDispatchProps {
+  setNumber: typeof setNumber;
+  setNote: typeof setNote;
+  clearNote: typeof clearNote;
+  showMenu: typeof showMenu;
+  clearNumber: typeof clearNumber;
+}
+
 class Menu extends React.Component<
-  {
-    cell: Cell;
-    setNumber: (cell, number) => any;
-    setNote: (cell, number) => any;
-    clearNote: (cell, number) => any;
-    showMenu: (cell) => any;
-    clearNumber: (cell) => any;
-    enterNotesMode: () => any;
-    exitNotesMode: () => any;
-    notesMode: boolean;
-  },
+  MenuOwnProps & MenuDispatchProps,
   {}
 > {
   render() {
     const cell = this.props.cell;
+    if (cell === null) {
+      return null;
+    }
     const circleRadius = 45;
 
     // TODO: use these only dymanically on small screens
@@ -175,7 +183,7 @@ class Menu extends React.Component<
           width: circleRadius * 4,
           transform: `translate(-50%, -50%) rotate(${minRad}rad)`,
         }}
-        onClick={() => this.props.showMenu(cell)}
+        onClick={() => this.props.showMenu(null)}
       >
         <circle
           r={circleRadius}
@@ -253,27 +261,18 @@ class Menu extends React.Component<
 }
 
 const MenuComponent = connect<
-  {},
-  {},
-  {
-    cell: Cell;
-    notesMode: boolean;
-    enterNotesMode: () => any;
-    exitNotesMode: () => any;
-  }
+  null,
+  MenuDispatchProps,
+  MenuOwnProps
 >(
-  function() {
-    return {};
-  },
-  function(dispatch) {
-    return {
-      showMenu: cell => dispatch(showMenu(cell)),
-      setNumber: (cell, number) => dispatch(setNumber(cell, number)),
-      setNote: (cell, number) => dispatch(setNote(cell, number)),
-      clearNote: (cell, number) => dispatch(clearNote(cell, number)),
-      clearNumber: cell => dispatch(clearNumber(cell)),
-    };
-  },
+  null,
+  {
+    showMenu,
+    setNumber,
+    setNote,
+    clearNote,
+    clearNumber,
+  }
 )(Menu);
 
 export default MenuComponent;

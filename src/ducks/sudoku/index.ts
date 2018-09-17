@@ -2,7 +2,6 @@
 // Constants
 //
 
-const SHOW_MENU = 'sudoku/SHOW_MENU';
 const SET_SUDOKU = 'sudoku/SET_SUDOKU';
 const SET_NOTE = 'sudoku/SET_NOTE';
 const CLEAR_NOTE = 'sudoku/CLEAR_NOTE';
@@ -74,13 +73,6 @@ export function getHint(cell: Cell): CellAction {
   };
 }
 
-export function showMenu(cell: Cell): CellAction {
-  return {
-    type: SHOW_MENU,
-    cell,
-  };
-}
-
 export function setSudoku(difficulty: DIFFICULTY, sudoku: string) {
   return {
     difficulty,
@@ -107,7 +99,6 @@ export default function sudokuReducer(
 ) {
   if (
     ![
-      SHOW_MENU,
       SET_NOTE,
       SET_SUDOKU,
       CLEAR_NOTE,
@@ -131,11 +122,6 @@ export default function sudokuReducer(
     const id = `${cell.x}-${cell.y}`;
     const actionCellId = `${actionCell.x}-${actionCell.y}`;
     switch (action.type) {
-      case SHOW_MENU:
-        if (cell.showMenu || id === actionCellId) {
-          return {...cell, showMenu: !cell.showMenu};
-        }
-        return cell;
       case SET_NOTE:
         if (id === actionCellId) {
           return {...cell, notes: cell.notes.add(action.note)};

@@ -1,5 +1,6 @@
 import { DIFFICULTY } from 'src/engine/utility';
 import sudokus from 'src/sudokus';
+import { Cell } from 'src/ducks/sudoku/model';
 
 const NEW_GAME = 'game/NEW_GAME';
 const RESET_GAME = 'game/RESET_GAME';
@@ -8,6 +9,7 @@ const CONTINUE_GAME = 'game/CONTINUE_GAME';
 const CHANGE_INDEX = 'game/CHANGE_INDEX';
 const SET_MENU = 'game/SET_MENU';
 const SET_DIFFICULTY = 'game/SET_DIFFICULTY';
+const SHOW_MENU = 'game/SHOW_MENU';
 
 export function newGame(difficulty, sudokuId) {
   return {
@@ -42,6 +44,13 @@ export function changeIndex(index) {
   };
 }
 
+export function showMenu(cell) {
+  return {
+    type: SHOW_MENU,
+    cell,
+  }
+}
+
 export function setMenu(menu) {
   return {
     type: SET_MENU,
@@ -68,6 +77,7 @@ export interface GameState {
   sudokuIndex: number;
   menu: string;
   difficulty: DIFFICULTY;
+  showMenu: Cell;
 }
 
 const gameState: GameState = {
@@ -82,6 +92,7 @@ const gameState: GameState = {
   sudokuIndex: 0,
   menu: 'INITIAL',
   difficulty: undefined,
+  showMenu: null
 };
 
 export function getTime(
@@ -151,6 +162,11 @@ export default function gameReducer(
         ...state,
         menu: action.menu,
       };
+    case SHOW_MENU:
+      return {
+        ...state,
+        showMenu: action.cell,
+      }
     default:
       return state;
   }

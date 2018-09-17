@@ -3,7 +3,6 @@ import {SimpleCell} from 'src/engine/utility';
 export interface Cell extends SimpleCell {
   initial: boolean;
   notes: Set<number>;
-  showMenu: boolean; // show the menu for this cell
   allowed: Set<number>;
 }
 
@@ -21,7 +20,6 @@ export function createCell(
     number,
     notes,
     allowed,
-    showMenu: false,
     initial,
   };
 }
