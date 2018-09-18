@@ -9,6 +9,7 @@ import {
   newGame,
   setMenu,
   setDifficulty,
+  MenuState,
 } from 'src/ducks/game';
 import {DIFFICULTY} from 'src/engine/utility';
 
@@ -16,6 +17,7 @@ import SelectSudoku from './GameSelectSudoku';
 
 import THEME from 'src/theme';
 import styled from 'styled-components';
+import { RootState } from 'src/ducks';
 
 export const GameMenuContainer = styled.div`
   background-color: rgba(255, 255, 255, 0.8);
@@ -61,7 +63,7 @@ function GameMenuItem(props) {
 }
 
 const GameMenu = connect(
-  function(state) {
+  function(state: RootState) {
     return {
       running: state.game.running,
       hasGame: state.game.currentlySelectedSudokuId !== undefined,
@@ -102,24 +104,24 @@ const GameMenu = connect(
       this.newGame = this.newGame.bind(this);
     }
     chooseDifficulty() {
-      this.props.setMenu('SET_DIFFICULTY');
+      this.props.setMenu(MenuState.setDifficulty);
     }
     setDifficulty(difficulty) {
       this.props.setDifficulty(difficulty);
-      this.props.setMenu('CHOOSE_GAME');
+      this.props.setMenu(MenuState.chooseGame);
     }
     newGame(sudokuId, sudoku) {
       this.props.setSudoku(this.props.difficulty, sudoku);
       this.props.newGame(this.props.difficulty, sudokuId);
       this.props.continueGame();
-      this.props.setMenu('INITIAL');
+      this.props.setMenu(MenuState.initial);
     }
     render() {
       const {continueGame, resetGame, running, hasGame} = this.props;
 
       let items = [];
 
-      if (this.props.menuState === 'INITIAL') {
+      if (this.props.menuState === MenuState.initial) {
         if (hasGame) {
           items.push(
             <GameMenuItem onClick={continueGame} key="continue">
@@ -140,7 +142,7 @@ const GameMenu = connect(
         }
       }
 
-      if (this.props.menuState === 'SET_DIFFICULTY') {
+      if (this.props.menuState === MenuState.setDifficulty) {
         const difficulties = [
           {
             label: 'Easy',
@@ -171,7 +173,7 @@ const GameMenu = connect(
 
       let actualMenu;
 
-      if (this.props.menuState !== 'CHOOSE_GAME') {
+      if (this.props.menuState !== MenuState.chooseGame) {
         actualMenu = (
           <GameMenuContainer key="el">
             <GameMenuList>
@@ -184,6 +186,7 @@ const GameMenu = connect(
           <SelectSudoku
             key='select-sudoku'
             newGame={this.newGame}
+            setDifficulty={() => this.props.setMenu(MenuState.setDifficulty)}
             difficulty={this.props.difficulty}
             changeIndex={this.props.changeIndex}
             sudokuIndex={this.props.sudokuIndex}

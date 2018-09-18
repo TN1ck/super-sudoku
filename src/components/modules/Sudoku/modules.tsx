@@ -150,6 +150,7 @@ export const GridCellNumber = withProps<{
   left: ${props => props.left}px;
   top: ${props => props.top}px;
   color: ${THEME.colors.primary};
+  font-size: 16px;
   font-weight: bold;
   ${props => props.initial && css`
     color: black;

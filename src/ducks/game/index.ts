@@ -2,6 +2,12 @@ import { DIFFICULTY } from 'src/engine/utility';
 import sudokus from 'src/sudokus';
 import { Cell } from 'src/ducks/sudoku/model';
 
+export enum MenuState {
+  initial = "INITIAL",
+  setDifficulty = "SET_DIFFICULTY",
+  chooseGame = "CHOOSE_GAME",
+}
+
 const NEW_GAME = 'game/NEW_GAME';
 const RESET_GAME = 'game/RESET_GAME';
 const PAUSE_GAME = 'game/PAUSE_GAME';
@@ -75,7 +81,7 @@ export interface GameState {
   sudokus: typeof sudokus;
   // menu stuff
   sudokuIndex: number;
-  menu: string;
+  menu: MenuState;
   difficulty: DIFFICULTY;
   showMenu: Cell;
 }
@@ -90,7 +96,7 @@ const gameState: GameState = {
   sudokus,
   // menu stuff
   sudokuIndex: 0,
-  menu: 'INITIAL',
+  menu: MenuState.initial,
   difficulty: undefined,
   showMenu: null
 };

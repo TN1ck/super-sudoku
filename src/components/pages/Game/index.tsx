@@ -1,7 +1,6 @@
 import * as React from 'react';
 
 import {connect} from 'react-redux';
-import {SudokuState} from 'src/ducks/sudoku';
 import {
   pauseGame,
   continueGame,
@@ -10,8 +9,7 @@ import {
   GameState,
 } from 'src/ducks/game';
 
-import {Cell} from 'src/ducks/sudoku/model';
-import {SudokuComponentNewConnected} from 'src/components/modules/Sudoku';
+import {SudokuConnected} from 'src/components/modules/Sudoku';
 
 import GameTimer from './GameTimer';
 import GameMenu from './GameMenu';
@@ -20,26 +18,7 @@ import { Container } from 'src/components/modules/Layout';
 import Button from 'src/components/modules/Button';
 import styled from 'styled-components';
 import THEME from 'src/theme';
-
-const Sudoku: React.StatelessComponent<{
-  grid: Cell[];
-}> = ({grid}) => {
-  return (
-    <SudokuComponentNewConnected sudoku={grid} />
-  );
-};
-
-const ConnectedSudoku = connect(
-  function(state) {
-    return {
-      sudoku: state.sudoku as SudokuState,
-      grid: (state.sudoku as SudokuState).grid,
-    };
-  },
-  function() {
-    return {};
-  },
-)(Sudoku);
+import { RootState } from 'src/ducks';
 
 function PauseButton({pauseGame}) {
   return (
@@ -72,7 +51,6 @@ const GameContainer = styled.div`
   }
 `;
 
-
 const GridContainer = styled.div`
   color: black;
   box-shadow: ${THEME.boxShadow};
@@ -94,7 +72,6 @@ const GridContainer = styled.div`
       height: 450px;
   }
 `;
-
 
 class Game extends React.Component<
   {
@@ -119,7 +96,7 @@ class Game extends React.Component<
           />
           <PauseButton pauseGame={pauseGame} />
           <GridContainer>
-            <ConnectedSudoku />
+            <SudokuConnected />
           </GridContainer>
         </GameContainer>
       </Container>
@@ -128,7 +105,7 @@ class Game extends React.Component<
 }
 
 export default connect(
-  function(state) {
+  (state: RootState) => {
     return {
       game: state.game,
     };

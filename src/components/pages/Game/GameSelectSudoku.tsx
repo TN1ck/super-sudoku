@@ -25,6 +25,23 @@ const GameDifficultyHeader = styled.h3`
   border-radius: ${THEME.borderRadius}px;
 `;
 
+const GameSelectDifferent = styled.button`
+  background: none;
+  display: block;
+  border: none;
+  color: #656565;
+  position: absolute;
+  top: 70px;
+  &:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  &:focus {
+    outline: none;
+  }
+`;
+
 const parseListOfSudokus = (sudokus: Array<{value: string, id: number}>) => {
   return sudokus.map(({value, id}) => {
     return {sudoku: parseSudoku(value), id, value};
@@ -39,11 +56,12 @@ const PARSED_SUDOKUS = {
  };
 
 const SelectSudoku: React.StatelessComponent<{
-  newGame: any;
+  newGame: (difficulty, sudokuId) => void;
+  setDifficulty: () => void;
   difficulty: DIFFICULTY;
   sudokuIndex: number;
   changeIndex: typeof changeIndex;
-}> = function({newGame, difficulty, sudokuIndex, changeIndex}) {
+}> = function({newGame, setDifficulty, difficulty, sudokuIndex, changeIndex}) {
 
   const SUDOKU_SHOW = 8;
   const sudokus = PARSED_SUDOKUS[difficulty];
@@ -135,15 +153,20 @@ const SelectSudoku: React.StatelessComponent<{
       <GameDifficultyHeader>
         {difficulty}
       </GameDifficultyHeader>
+      <GameSelectDifferent
+        onClick={setDifficulty}
+      >
+        {'Select different difficulty'}
+      </GameSelectDifferent>
       <div style={{
         position: 'absolute',
-        top: 110,
+        top: 150,
         left: 0,
         right: 0,
       }}>
         {items}
       </div>
-      <div style={{position: 'absolute', top: 300}}>
+      <div style={{position: 'absolute', top: 340}}>
         <Button
           onClick={() => {
             changeIndex((sudokuIndex - 1 + sudokus.length) % sudokus.length);

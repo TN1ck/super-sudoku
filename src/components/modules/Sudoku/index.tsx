@@ -16,21 +16,21 @@ import { RootState } from 'src/ducks';
 const fontSize = 14;
 const fontSizeNotes = 11;
 
-interface SudokuComponentNewStateProps {
+interface SudokuComponentStateProps {
   showMenuForCell: Cell;
-}
-
-interface SudokuComponentNewDispatchProps {
-  showMenu: typeof showMenu;
-}
-
-interface SudokuComponentNewOwnProps {
   sudoku: Cell[];
 }
 
-class SudokuComponentNew extends React.PureComponent<
-  SudokuComponentNewDispatchProps & SudokuComponentNewStateProps &
-  SudokuComponentNewOwnProps
+interface SudokuComponentDispatchProps {
+  showMenu: typeof showMenu;
+}
+
+interface SudokuComponentOwnProps {
+}
+
+class SudokuComponent extends React.PureComponent<
+  SudokuComponentDispatchProps & SudokuComponentStateProps &
+  SudokuComponentOwnProps
 , {
   height: number;
   width: number;
@@ -266,15 +266,16 @@ class SudokuComponentNew extends React.PureComponent<
   }
 }
 
-export const SudokuComponentNewConnected = connect<
-  SudokuComponentNewStateProps,
-  SudokuComponentNewDispatchProps,
-  SudokuComponentNewOwnProps
+export const SudokuConnected = connect<
+  SudokuComponentStateProps,
+  SudokuComponentDispatchProps,
+  SudokuComponentOwnProps
 >(
   (state: RootState) => {
     return {
       showMenuForCell: state.game.showMenu,
+      sudoku: state.sudoku.grid,
     };
   },
   {showMenu}
-)(SudokuComponentNew);
+)(SudokuComponent);
