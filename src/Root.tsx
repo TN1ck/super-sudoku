@@ -22,6 +22,7 @@ injectGlobal`
     font-family: ${THEME.fontFamily};
     background: ${THEME.colors.gray700};
     font-size: ${THEME.fontSize.base}px;
+    overflow-x: hidden;
   }
   html, body, #root {
     height: 100%;
