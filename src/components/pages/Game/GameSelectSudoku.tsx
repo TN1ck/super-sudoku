@@ -12,35 +12,7 @@ import SUDOKUS from 'src/sudokus';
 import { GameMenuContainer } from 'src/components/pages/Game/GameMenu';
 import Button from 'src/components/modules/Button';
 import THEME from 'src/theme';
-import styled from 'styled-components';
 import SmallSudokuComponent from 'src/components/modules/Sudoku/SmallSudoku';
-
-const GameDifficultyHeader = styled.h3`
-  position: absolute;
-  top: 0;
-  background: ${THEME.colors.primary};
-  color: white;
-  padding: ${THEME.spacer.x2}px;
-  text-transform: uppercase;
-  border-radius: ${THEME.borderRadius}px;
-`;
-
-const GameSelectDifferent = styled.button`
-  background: none;
-  display: block;
-  border: none;
-  color: #656565;
-  position: absolute;
-  top: 70px;
-  &:hover {
-    cursor: pointer;
-    text-decoration: underline;
-  }
-
-  &:focus {
-    outline: none;
-  }
-`;
 
 const parseListOfSudokus = (sudokus: Array<{value: string, id: number}>) => {
   return sudokus.map(({value, id}) => {
@@ -149,24 +121,24 @@ const SelectSudoku: React.StatelessComponent<{
   });
 
   return (
-    <GameMenuContainer key="el">
-      <GameDifficultyHeader>
-        {difficulty}
-      </GameDifficultyHeader>
-      <GameSelectDifferent
-        onClick={setDifficulty}
-      >
-        {'Select different difficulty'}
-      </GameSelectDifferent>
+    <div>
       <div style={{
         position: 'absolute',
-        top: 150,
+        top: 170,
         left: 0,
         right: 0,
       }}>
         {items}
       </div>
-      <div style={{position: 'absolute', top: 340}}>
+      <div style={{
+          position: 'absolute',
+          top: 360,
+          left: 0,
+          right: 0,
+          justifyContent: 'center',
+          display: 'flex',
+        }}
+      >
         <Button
           onClick={() => {
             changeIndex((sudokuIndex - 1 + sudokus.length) % sudokus.length);
@@ -184,7 +156,7 @@ const SelectSudoku: React.StatelessComponent<{
           {'Next'}
         </Button>
       </div>
-    </GameMenuContainer>
+    </div>
   );
 };
 

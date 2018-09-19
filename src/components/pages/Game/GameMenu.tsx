@@ -18,6 +18,7 @@ import SelectSudoku from './GameSelectSudoku';
 import THEME from 'src/theme';
 import styled from 'styled-components';
 import { RootState } from 'src/ducks';
+import Button from 'src/components/modules/Button';
 
 export const GameMenuContainer = styled.div`
   background-color: rgba(255, 255, 255, 0.8);
@@ -54,11 +55,91 @@ const GameMenuListItem = styled.li`
   }
 `;
 
-function GameMenuItem(props) {
+const GameMenuRunning = ({
+  continueGame,
+  chooseDifficulty
+}) => {
   return (
-    <GameMenuListItem onClick={props.onClick}>
-      {props.children}
-    </GameMenuListItem>
+    <GameMenuContainer>
+      <GameMenuList>
+        <GameMenuListItem onClick={continueGame} key="continue">
+          {'Continue'}
+        </GameMenuListItem>
+        <GameMenuListItem onClick={chooseDifficulty} key="reset-game">
+          {'New Game'}
+        </GameMenuListItem>
+      </GameMenuList>
+    </GameMenuContainer>
+  );
+}
+
+const GameMenuInitial = ({newGame}) => (
+  <GameMenuContainer>
+    <GameMenuList>
+      <GameMenuListItem onClick={newGame} key="reset-game">
+          {'New Game'}
+      </GameMenuListItem>
+    </GameMenuList>
+  </GameMenuContainer>
+);
+
+const GameMenuSelection = ({
+  setDifficulty,
+  newGame,
+  changeIndex,
+  sudokuIndex,
+  setMenu,
+  difficulty,
+}) => {
+  const currentDifficulty = difficulty;
+  const difficulties = [
+    {
+      label: 'Easy',
+      difficulty: DIFFICULTY.EASY,
+    },
+    {
+      label: 'Medium',
+      difficulty: DIFFICULTY.MEDIUM,
+    },
+    {
+      label: 'Hard',
+      difficulty: DIFFICULTY.HARD,
+    },
+    {
+      label: 'Evil',
+      difficulty: DIFFICULTY.EVIL,
+    },
+  ];
+  return (
+    <GameMenuContainer>
+      <div style={{display: 'flex', justifyContent: "center", width: '100%', height: '40px'}}>
+        {difficulties.map(({label, difficulty}, i) => {
+          const onClick = () => setDifficulty(difficulty);
+          const active = difficulty === currentDifficulty;
+          console.log('active', active);
+          return (
+            <Button
+              style={{
+                marginLeft: i === 0 ? 0 : THEME.spacer.x2,
+              }}
+              onClick={onClick}
+              key={difficulty}
+              active={active}
+            >
+              {label}
+            </Button>
+          );
+        })}
+      </div>
+      <SelectSudoku
+        key='select-sudoku'
+        newGame={newGame}
+        setDifficulty={() => setMenu(MenuState.setDifficulty)}
+        difficulty={currentDifficulty}
+        changeIndex={changeIndex}
+        sudokuIndex={sudokuIndex}
+      />
+    </GameMenuContainer>
   );
 }
 
@@ -117,90 +198,52 @@ const GameMenu = connect(
       this.props.setMenu(MenuState.initial);
     }
     render() {
-      const {continueGame, resetGame, running, hasGame} = this.props;
+      const {
+        continueGame,
+        setDifficulty,
+        running,
+        hasGame,
+        setMenu,
+        difficulty,
+        changeIndex,
+        sudokuIndex,
+      } = this.props;
 
-      let items = [];
-
-      if (this.props.menuState === MenuState.initial) {
-        if (hasGame) {
-          items.push(
-            <GameMenuItem onClick={continueGame} key="continue">
-              {'Continue'}
-            </GameMenuItem>,
-          );
-          items.push(
-            <GameMenuItem onClick={resetGame} key="reset-game">
-              {'Reset Game'}
-            </GameMenuItem>,
-          );
-        } else {
-          items.push(
-            <GameMenuItem key="new-game" onClick={this.chooseDifficulty}>
-              {'New Game'}
-            </GameMenuItem>,
-          );
-        }
+      if (running) {
+        return null;
       }
 
-      if (this.props.menuState === MenuState.setDifficulty) {
-        const difficulties = [
-          {
-            label: 'Easy',
-            difficulty: DIFFICULTY.EASY,
-          },
-          {
-            label: 'Medium',
-            difficulty: DIFFICULTY.MEDIUM,
-          },
-          {
-            label: 'Hard',
-            difficulty: DIFFICULTY.HARD,
-          },
-          {
-            label: 'Evil',
-            difficulty: DIFFICULTY.EVIL,
-          },
-        ];
-        items = difficulties.map(({label, difficulty}) => {
-          const onClick = () => this.setDifficulty(difficulty);
+      switch (this.props.menuState) {
+        case MenuState.setDifficulty:
+        case MenuState.chooseGame: {
           return (
-            <GameMenuItem onClick={onClick} key={difficulty}>
-              {label}
-            </GameMenuItem>
-          );
-        });
+            <GameMenuSelection
+              setDifficulty={setDifficulty}
+              setMenu={setMenu}
+              difficulty={difficulty}
+              newGame={this.newGame}
+              changeIndex={changeIndex}
+              sudokuIndex={sudokuIndex}
+            />
+          )
+        }
+        case MenuState.initial: {
+          if (hasGame) {
+            return (
+              <GameMenuRunning
+                continueGame={continueGame}
+                chooseDifficulty={this.chooseDifficulty}
+              />
+            )
+          }
+          return (
+            <GameMenuInitial
+              newGame={() => this.props.setMenu(MenuState.chooseGame)}
+            />
+          )
+        }
+
       }
-
-      let actualMenu;
-
-      if (this.props.menuState !== MenuState.chooseGame) {
-        actualMenu = (
-          <GameMenuContainer key="el">
-            <GameMenuList>
-              {items}
-            </GameMenuList>
-          </GameMenuContainer>
-        );
-      } else {
-        actualMenu = (
-          <SelectSudoku
-            key='select-sudoku'
-            newGame={this.newGame}
-            setDifficulty={() => this.props.setMenu(MenuState.setDifficulty)}
-            difficulty={this.props.difficulty}
-            changeIndex={this.props.changeIndex}
-            sudokuIndex={this.props.sudokuIndex}
-          />
-        );
-      }
-
-      const inner = running ? [] : [actualMenu];
-
-      return (
-        <div>
-          {inner}
-        </div>
-      );
     }
   },
 );

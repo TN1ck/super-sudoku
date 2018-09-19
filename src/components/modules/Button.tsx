@@ -1,8 +1,11 @@
 
 import THEME from "src/theme";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { withProps } from "src/utils";
 
-const Button = styled.button`
+const Button = withProps<{
+  active?: boolean;
+}>()(styled.button)`
   border-radius: ${THEME.borderRadius}px;
   background: ${THEME.colors.primary};
   color: ${THEME.colors.white};
@@ -14,6 +17,14 @@ const Button = styled.button`
     cursor: pointer;
     filter: brightness(110%);
   }
+
+  &:focus {
+    outline: none;
+  }
+
+  ${props => props.active && css`
+    filter: brightness(110%);
+  `}
 `;
 
 export default Button;

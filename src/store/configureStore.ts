@@ -6,7 +6,7 @@ import {createLogger} from 'redux-logger';
 const logger = createLogger({collapsed: true});
 
 const middleware = [thunkMiddleWare].concat(
-  process.env.__DEV__ ? [logger as any] : [],
+  [logger as any],
 );
 
 const enhancer = compose(applyMiddleware(...middleware));

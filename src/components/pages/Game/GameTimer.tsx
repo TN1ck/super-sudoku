@@ -7,7 +7,7 @@ import styled from 'styled-components';
 
 const GameTimerContainer = styled.div`
 position: absolute;
-  color: black;
+  color: #AAAAAA;
   font-size: 20px;
   top: 7px;
 `;

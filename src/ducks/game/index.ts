@@ -97,7 +97,7 @@ const gameState: GameState = {
   // menu stuff
   sudokuIndex: 0,
   menu: MenuState.initial,
-  difficulty: undefined,
+  difficulty: DIFFICULTY.EASY,
   showMenu: null
 };
 
