@@ -19,6 +19,7 @@ const MenuCircleContainer = styled.svg`
   top: 50%;
   transform: translate(-50%, -50%);
   position: absolute;
+  user-select: none;
 `;
 
 const MenuCircleComponent = withProps<{
