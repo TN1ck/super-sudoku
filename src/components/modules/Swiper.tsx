@@ -8,6 +8,7 @@ interface Coordinate {
 export class TouchProvider extends React.Component<{
   onTouchMove?: (c: Coordinate) => void;
   onTouchEnd?: (c: Coordinate) => void;
+  style?: any;
 }, {
   offset: Coordinate;
   initialPosition: Coordinate;
@@ -66,6 +67,7 @@ export class TouchProvider extends React.Component<{
       <div
         style={{
           touchAction: "manipulation",
+          ...this.props.style,
         }}
         onTouchStart={this.onTouchStart}
         onTouchEnd={this.onTouchEnd}

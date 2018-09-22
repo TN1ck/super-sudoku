@@ -188,6 +188,14 @@ class SelectSudoku extends React.Component<{
       <TouchProvider
         onTouchMove={this.onTouchMove}
         onTouchEnd={this.onTouchEnd}
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          right: 0,
+          overflowX: 'hidden',
+        }}
       >
         <div style={{
           position: 'absolute',
