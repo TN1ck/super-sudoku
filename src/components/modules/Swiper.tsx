@@ -29,6 +29,7 @@ export class TouchProvider extends React.Component<{
     this.onTouchEnd =  this.onTouchEnd.bind(this);
   }
   onTouchStart(e: React.TouchEvent<HTMLDivElement>) {
+    e.preventDefault();
     if (e.touches.length !== 1) {
       return;
     }
@@ -41,6 +42,7 @@ export class TouchProvider extends React.Component<{
     });
   }
   onTouchMove(e: React.TouchEvent<HTMLDivElement>) {
+    e.preventDefault();
     if (e.touches.length !== 1) {
       return;
     }
@@ -56,13 +58,14 @@ export class TouchProvider extends React.Component<{
     this.props.onTouchMove && this.props.onTouchMove(this.state.offset);
   }
   onTouchEnd(e: React.TouchEvent<HTMLDivElement>) {
+    e.preventDefault();
     this.props.onTouchEnd && this.props.onTouchEnd(this.state.offset);
   }
   render() {
     return (
       <div
         style={{
-          touchAction: "manipulate",
+          touchAction: "manipulation",
         }}
         onTouchStart={this.onTouchStart}
         onTouchEnd={this.onTouchEnd}

@@ -51,6 +51,7 @@ const MainArea = styled.div`
 
 const FooterArea = styled.div`
   grid-area: footer;
+  margin-top: ${THEME.spacer.x4}px;
   background: ${THEME.colors.gray200};
 `;
 
