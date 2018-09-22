@@ -194,7 +194,7 @@ class SelectSudoku extends React.Component<{
           top: 0,
           bottom: 0,
           right: 0,
-          overflowX: 'hidden',
+          overflow: 'hidden',
         }}
       >
         <div style={{

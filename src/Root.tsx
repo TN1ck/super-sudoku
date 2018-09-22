@@ -38,6 +38,7 @@ injectGlobal`
     position: fixed;
     overflow: hidden;
     height: 100%;
+    touch-action: manipulation;
   }
 `;
 

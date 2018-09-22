@@ -20,7 +20,7 @@ export default class SmallSudokuComponent extends React.PureComponent<{
     const fontYOffset = ySection / 2 - 4;
 
     return (
-      <div style={{pointerEvents: 'none'}}>
+      <div style={{pointerEvents: 'none', userSelect: 'none'}}>
          <div
           style={{
             background: `rgba(255, 255, 255, ${darken ? 0.5 : 0})`,

@@ -29,8 +29,18 @@ export class TouchProvider extends React.Component<{
     this.onTouchMove =  this.onTouchMove.bind(this);
     this.onTouchEnd =  this.onTouchEnd.bind(this);
   }
+  componentDidMount() {
+    document.addEventListener('touchstart', this.onTouchStart as any);
+    document.addEventListener('touchmove', this.onTouchMove as any);
+    document.addEventListener('touchend', this.onTouchEnd as any);
+  }
+  componentWillUnmount() {
+    document.removeEventListener('tocuhstart', this.onTouchStart as any);
+    document.removeEventListener('touchmove', this.onTouchMove as any);
+    document.removeEventListener('touchend', this.onTouchEnd as any);
+  }
   onTouchStart(e: React.TouchEvent<HTMLDivElement>) {
-    e.preventDefault();
+    // e.preventDefault();
     if (e.touches.length !== 1) {
       return;
     }
@@ -59,23 +69,11 @@ export class TouchProvider extends React.Component<{
     this.props.onTouchMove && this.props.onTouchMove(this.state.offset);
   }
   onTouchEnd(e: React.TouchEvent<HTMLDivElement>) {
-    e.preventDefault();
+    // e.preventDefault();
     this.props.onTouchEnd && this.props.onTouchEnd(this.state.offset);
   }
   render() {
-    return (
-      <div
-        style={{
-          touchAction: "manipulation",
-          ...this.props.style,
-        }}
-        onTouchStart={this.onTouchStart}
-        onTouchEnd={this.onTouchEnd}
-        onTouchMove={this.onTouchMove}
-      >
-        {this.props.children}
-      </div>
-    )
+    return this.props.children;
   }
 
 }
