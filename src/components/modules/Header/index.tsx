@@ -34,12 +34,7 @@ export default () => {
       <HeaderLinks>
         <HeaderLink>
           <Link to={'/'}>
-            {'Home'}
-          </Link>
-        </HeaderLink>
-        <HeaderLink>
-          <Link to={'/sudoku'}>
-            {'Sudoku'}
+            {'Play'}
           </Link>
         </HeaderLink>
         <HeaderLink>

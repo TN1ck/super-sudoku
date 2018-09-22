@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as _ from 'lodash';
+import styled, { css } from 'styled-components';
 
 import {
   changeIndex,
@@ -12,6 +13,43 @@ import SUDOKUS from 'src/sudokus';
 import Button from 'src/components/modules/Button';
 import THEME from 'src/theme';
 import SmallSudokuComponent from 'src/components/modules/Sudoku/SmallSudoku';
+import { withProps } from 'src/utils';
+
+const SelectContainer = withProps<{
+  active: boolean;
+}>()(styled.div)`
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transition-property: transform, opacity, box-shadow;
+  transition-duration: 500ms;
+  transition-timing-function: ease-out;
+
+  &:before {
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+    content: "Play!";
+    background: ${THEME.colors.primary};
+    padding: ${THEME.spacer.x2}px;
+    border-radius: ${THEME.borderRadius}px;
+    display: block;
+    position: absolute;
+    z-index: 999;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: ${THEME.boxShadow};
+  }
+
+  ${props => props.active && css`
+    &:hover {
+      cursor: pointer;
+      &:before {
+        opacity: 1;
+      }
+    }
+  `}
+`;
 
 const parseListOfSudokus = (sudokus: Array<{value: string, id: number}>) => {
   return sudokus.map(({value, id}) => {
@@ -75,7 +113,7 @@ const SelectSudoku: React.StatelessComponent<{
 
     return {
       sudoku,
-      elevation: isActive ? 4 : 1,
+      active: isActive,
       style: {
         opacity: 1 - Math.abs(startStep + i * step) / 100,
         transform: `${translate} ${scale} ${perspective} ${rotate}`,
@@ -84,7 +122,7 @@ const SelectSudoku: React.StatelessComponent<{
     };
   });
 
-  const items = sudokusToShow.map(({sudoku, style, elevation}) => {
+  const items = sudokusToShow.map(({sudoku, style, active}) => {
     const {sudoku: sudokuCells, id, value} = sudoku;
     const isCenter = id === sudokuIndex;
     const onClick = () => {
@@ -95,26 +133,18 @@ const SelectSudoku: React.StatelessComponent<{
       }
     };
     return (
-      <div
+      <SelectContainer
+        active={active}
         key={id}
-        className={`ss_elevation-${elevation}`}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: '50%',
-          ...style,
-          transitionProperty: 'transform, opacity, box-shadow',
-          transitionDuration: '500ms',
-          transitionTimingFunction: 'ease-out',
-        }}
+        style={style}
+        onClick={onClick}
       >
         <SmallSudokuComponent
           darken={!isCenter}
-          id={id}
-          onClick={onClick}
+          id={id + 1}
           sudoku={sudokuCells}
         />
-      </div>
+      </SelectContainer>
     );
   });
 

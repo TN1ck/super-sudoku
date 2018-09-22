@@ -7,10 +7,9 @@ export default class SmallSudokuComponent extends React.PureComponent<{
   id: number;
   darken?: boolean;
   elevation?: number;
-  onClick: () => any;
 }> {
   render() {
-    const {sudoku, id, onClick, darken} = this.props;
+    const {sudoku, id, darken} = this.props;
     const height = 150;
     const width = 150;
     const fontSize = 8;
@@ -21,7 +20,7 @@ export default class SmallSudokuComponent extends React.PureComponent<{
     const fontYOffset = ySection / 2 - 4;
 
     return (
-      <div>
+      <div style={{pointerEvents: 'none'}}>
          <div
           style={{
             background: `rgba(255, 255, 255, ${darken ? 0.5 : 0})`,
@@ -31,12 +30,10 @@ export default class SmallSudokuComponent extends React.PureComponent<{
             height,
             width,
             position: 'absolute',
-            pointerEvents: 'none',
             zIndex: 6,
           }}
         />
         <SudokuSmall
-          onClick={onClick}
           style={{
             height,
             width,

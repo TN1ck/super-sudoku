@@ -30,15 +30,11 @@ export default {
     return [
       {
         path: "/",
-        component: 'src/components/pages/Home'
+        component: 'src/components/pages/Game'
       },
       {
         path: "/about",
         component: 'src/components/pages/About'
-      },
-      {
-        path: "/sudoku",
-        component: 'src/components/pages/Game'
       },
       {
         path: "404",

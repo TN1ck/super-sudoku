@@ -13,6 +13,7 @@ const Button = withProps<{
   padding: ${THEME.spacer.x2}px;
   box-shadow: ${THEME.boxShadow};
   border: none;
+  transition: transform 0.3s ease-out;
   &:hover {
     cursor: pointer;
     filter: brightness(110%);
@@ -24,6 +25,7 @@ const Button = withProps<{
 
   ${props => props.active && css`
     filter: brightness(110%);
+    transform: scale(1.1);
   `}
 `;
 
