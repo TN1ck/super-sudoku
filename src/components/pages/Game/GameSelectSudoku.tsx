@@ -14,6 +14,7 @@ import Button from 'src/components/modules/Button';
 import THEME from 'src/theme';
 import SmallSudokuComponent from 'src/components/modules/Sudoku/SmallSudoku';
 import { withProps } from 'src/utils';
+import { TouchProvider } from 'src/components/modules/Swiper';
 
 const SelectContainer = withProps<{
   active: boolean;
@@ -64,128 +65,172 @@ const PARSED_SUDOKUS = {
   [DIFFICULTY.EVIL]: parseListOfSudokus(SUDOKUS[DIFFICULTY.EVIL]),
  };
 
-const SelectSudoku: React.StatelessComponent<{
+class SelectSudoku extends React.Component<{
   newGame: (difficulty, sudokuId) => void;
   difficulty: DIFFICULTY;
   sudokuIndex: number;
   changeIndex: typeof changeIndex;
-}> = function({newGame, difficulty, sudokuIndex, changeIndex}) {
-
-  const SUDOKU_SHOW = 8;
-  const sudokus = PARSED_SUDOKUS[difficulty];
-
-  const _sudokusToShow = [];
-
-  for (const i of _.range(1, SUDOKU_SHOW)) {
-    const currentIndex = sudokuIndex - i;
-    _sudokusToShow.push(sudokus[(currentIndex + sudokus.length) % sudokus.length]);
-  }
-  _sudokusToShow.reverse();
-  _sudokusToShow.push(sudokus[sudokuIndex]);
-  for (const i of _.range(1, SUDOKU_SHOW)) {
-    const currentIndex = sudokuIndex + i;
-    _sudokusToShow.push(sudokus[(currentIndex) % sudokus.length]);
-  }
-
-  const step = 100 / (SUDOKU_SHOW - 1);
-  const startStep = -100;
-
-  const sudokusToShow = _sudokusToShow.map((sudoku, i) => {
-    const middle = _sudokusToShow.length / 2;
-    // const isMiddle = i === sudokuIndex;
-    const isLeft = i < middle;
-    const isRight = i > middle;
-    const isActive = sudokuIndex === sudoku.id;
-    let zIndex = 0;
-    if (isRight) {
-      zIndex = -i;
-    }
-    if (isActive) {
-      zIndex = middle * 2 + 1;
-    }
-
-    const offset = isActive ? 0 : (isLeft ? -70 : 70);
-
-    const translate = `translate(${(startStep + i * step) + offset - 50}%, 0)`;
-    const scale = isActive ? 'scale(1.1)' : '';
-    const perspective = isActive ? '' : 'perspective(600px)';
-    const rotate = isActive ? '' : `rotateY(${isLeft ? '' : '-'}60deg)`;
-
-    return {
-      sudoku,
-      active: isActive,
-      style: {
-        opacity: 1 - Math.abs(startStep + i * step) / 100,
-        transform: `${translate} ${scale} ${perspective} ${rotate}`,
-        zIndex,
-      },
+}, {
+  xOffset: number;
+}> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      xOffset: 0,
     };
-  });
+    this.onTouchMove = this.onTouchMove.bind(this);
+    this.onTouchEnd = this.onTouchEnd.bind(this);
+    this.getNewIndex = this.getNewIndex.bind(this);
+  }
+  onTouchMove({x}) {
+    this.setState({
+      xOffset: x,
+    })
+  }
+  getNewIndex(xOffset: number) {
+    const sudokus = PARSED_SUDOKUS[this.props.difficulty];
+    const len = sudokus.length;
+    const offset = Math.round(xOffset / 60);
+    const newIndex = this.props.sudokuIndex - offset;
+    const safeIndex = newIndex < 0 ? (len + newIndex) : (newIndex >= len ? (newIndex - len) : newIndex);
+    return safeIndex;
+  }
+  onTouchEnd() {
+    this.props.changeIndex(this.getNewIndex(this.state.xOffset));
+    this.setState({
+      xOffset: 0,
+    });
+  }
+  render() {
+    let {newGame, difficulty, sudokuIndex, changeIndex} = this.props;
+    const SUDOKU_SHOW = 8;
+    const sudokus = PARSED_SUDOKUS[difficulty];
 
-  const items = sudokusToShow.map(({sudoku, style, active}) => {
-    const {sudoku: sudokuCells, id, value} = sudoku;
-    const isCenter = id === sudokuIndex;
-    const onClick = () => {
-      if (isCenter) {
-        newGame(id, value);
-      } else {
-        changeIndex(id);
+    const _sudokusToShow = [];
+
+    const newSudokuIndex = this.getNewIndex(this.state.xOffset);
+
+    for (const i of _.range(1, SUDOKU_SHOW)) {
+      const currentIndex = newSudokuIndex - i;
+      _sudokusToShow.push(sudokus[(currentIndex + sudokus.length) % sudokus.length]);
+    }
+    _sudokusToShow.reverse();
+    _sudokusToShow.push(sudokus[newSudokuIndex]);
+    for (const i of _.range(1, SUDOKU_SHOW)) {
+      const currentIndex = newSudokuIndex + i;
+      _sudokusToShow.push(sudokus[(currentIndex) % sudokus.length]);
+    }
+
+    const step = 100 / (SUDOKU_SHOW - 1);
+    const startStep = -100;
+
+    const sudokusToShow = _sudokusToShow.map((sudoku, i) => {
+
+
+      const middle = _sudokusToShow.length / 2;
+      // const isMiddle = i === newSudokuIndex;
+      const isLeft = i < middle;
+      const isRight = i > middle;
+      const isActive = newSudokuIndex === sudoku.id;
+      let zIndex = 0;
+      if (isRight) {
+        zIndex = -i;
       }
-    };
-    return (
-      <SelectContainer
-        active={active}
-        key={id}
-        style={style}
-        onClick={onClick}
-      >
-        <SmallSudokuComponent
-          darken={!isCenter}
-          id={id + 1}
-          sudoku={sudokuCells}
-        />
-      </SelectContainer>
-    );
-  });
+      if (isActive) {
+        zIndex = middle * 2 + 1;
+      }
 
-  return (
-    <div>
-      <div style={{
-        position: 'absolute',
-        top: 170,
-        left: 0,
-        right: 0,
-      }}>
-        {items}
-      </div>
-      <div style={{
+      const offset = isActive ? 0 : (isLeft ? -70 : 70);
+
+      const translate = `translate(${(startStep + i * step) + offset - 50}%, 0)`;
+      const scale = isActive ? 'scale(1.1)' : '';
+      const perspective = isActive ? '' : 'perspective(600px)';
+      const rotate = isActive ? '' : `rotateY(${isLeft ? '' : '-'}60deg)`;
+
+      return {
+        sudoku,
+        active: isActive,
+        style: {
+          opacity: 1 - Math.abs(startStep + i * step) / 100,
+          transform: `${translate} ${scale} ${perspective} ${rotate}`,
+          zIndex,
+        },
+      };
+    });
+
+    const items = sudokusToShow.map(({sudoku, style, active}) => {
+      const {sudoku: sudokuCells, id, value} = sudoku;
+      const isCenter = id === sudokuIndex;
+      const onClick = () => {
+        if (isCenter) {
+          newGame(id, value);
+        } else {
+          changeIndex(id);
+        }
+      };
+      return (
+        <SelectContainer
+          key={id}
+          active={active}
+          style={style}
+          onClick={onClick}
+        >
+          <SmallSudokuComponent
+            darken={!isCenter}
+            id={id + 1}
+            sudoku={sudokuCells}
+          />
+        </SelectContainer>
+      );
+    });
+
+    return (
+      <TouchProvider
+        onTouchMove={this.onTouchMove}
+        onTouchEnd={this.onTouchEnd}
+      >
+        <div style={{
           position: 'absolute',
-          top: 360,
+          top: 170,
           left: 0,
           right: 0,
-          justifyContent: 'center',
-          display: 'flex',
-        }}
-      >
-        <Button
-          onClick={() => {
-            changeIndex((sudokuIndex - 1 + sudokus.length) % sudokus.length);
-          }}
-          style={{
-            marginRight: THEME.spacer.x2,
+        }}>
+          {items}
+        </div>
+        <div style={{
+            position: 'absolute',
+            top: 360,
+            left: 0,
+            right: 0,
+            justifyContent: 'center',
+            display: 'flex',
           }}
         >
-          {'Previous'}
-        </Button>
-        <Button
-          onClick={() => {
-          changeIndex((sudokuIndex + 1) % sudokus.length);
-        }}>
-          {'Next'}
-        </Button>
-      </div>
-    </div>
-  );
+          <Button
+            onClick={() => {
+              changeIndex((sudokuIndex - 1 + sudokus.length) % sudokus.length);
+            }}
+            style={{
+              marginRight: THEME.spacer.x2,
+              padding: `${THEME.spacer.x2}px ${THEME.spacer.x3}px`,
+            }}
+          >
+            {'<'}
+          </Button>
+          <Button
+            onClick={() => {
+              changeIndex((sudokuIndex + 1) % sudokus.length);
+            }}
+            style={{
+              padding: `${THEME.spacer.x2}px ${THEME.spacer.x3}px`,
+            }}
+          >
+            {'>'}
+          </Button>
+        </div>
+      </TouchProvider>
+    );
+  }
 };
 
 export default SelectSudoku;

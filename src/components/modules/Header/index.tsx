@@ -16,14 +16,21 @@ const HeaderLinks = styled.ul`
 
 const HeaderLink = styled.li`
   float: left;
-  margin-right: ${THEME.spacer.x2}px;
   a {
+    position: relative;
     color: ${THEME.colors.gray100};
     text-transform: uppercase;
-    font-weight: bold;
     text-decoration: none;
+
     &:visited {
       color: ${THEME.colors.gray100};
+    }
+    padding: ${THEME.spacer.x1}px ${THEME.spacer.x2}px;
+    border-radius: ${THEME.borderRadius}px;
+
+    &.active {
+      color: white;
+      background-color: ${THEME.colors.gray200};
     }
   }
 `;
@@ -33,7 +40,7 @@ export default () => {
     <Header>
       <HeaderLinks>
         <HeaderLink>
-          <Link to={'/'}>
+          <Link exact to={'/'}>
             {'Play'}
           </Link>
         </HeaderLink>
