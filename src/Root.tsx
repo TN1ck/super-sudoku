@@ -23,10 +23,21 @@ injectGlobal`
     background: ${THEME.colors.gray700};
     font-size: ${THEME.fontSize.base}px;
     overflow-x: hidden;
+    overflow-y: scroll;
+    height: 100vh;
+    width: 100vw;
+    -webkit-overflow-scrolling: touch;
+
   }
   html, body, #root {
     height: 100%;
+  }
+
+  html {
     line-height: ${THEME.lineHeight}em;
+    position: fixed;
+    overflow: hidden;
+    height: 100%;
   }
 `;
 
