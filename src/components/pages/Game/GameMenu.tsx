@@ -57,7 +57,7 @@ const GameMenuListItem = styled.li`
 
 const GameMenuRunning = ({
   continueGame,
-  chooseDifficulty
+  chooseGame
 }) => {
   return (
     <GameMenuContainer>
@@ -65,7 +65,7 @@ const GameMenuRunning = ({
         <GameMenuListItem onClick={continueGame} key="continue">
           {'Continue'}
         </GameMenuListItem>
-        <GameMenuListItem onClick={chooseDifficulty} key="reset-game">
+        <GameMenuListItem onClick={chooseGame} key="reset-game">
           {'New Game'}
         </GameMenuListItem>
       </GameMenuList>
@@ -73,22 +73,11 @@ const GameMenuRunning = ({
   );
 }
 
-const GameMenuInitial = ({newGame}) => (
-  <GameMenuContainer>
-    <GameMenuList>
-      <GameMenuListItem onClick={newGame} key="reset-game">
-          {'New Game'}
-      </GameMenuListItem>
-    </GameMenuList>
-  </GameMenuContainer>
-);
-
 const GameMenuSelection = ({
   setDifficulty,
   newGame,
   changeIndex,
   sudokuIndex,
-  setMenu,
   difficulty,
 }) => {
   const currentDifficulty = difficulty;
@@ -116,7 +105,6 @@ const GameMenuSelection = ({
         {difficulties.map(({label, difficulty}, i) => {
           const onClick = () => setDifficulty(difficulty);
           const active = difficulty === currentDifficulty;
-          console.log('active', active);
           return (
             <Button
               style={{
@@ -134,7 +122,6 @@ const GameMenuSelection = ({
       <SelectSudoku
         key='select-sudoku'
         newGame={newGame}
-        setDifficulty={() => setMenu(MenuState.setDifficulty)}
         difficulty={currentDifficulty}
         changeIndex={changeIndex}
         sudokuIndex={sudokuIndex}
@@ -180,22 +167,13 @@ const GameMenu = connect(
   > {
     constructor(props) {
       super(props);
-      this.chooseDifficulty = this.chooseDifficulty.bind(this);
-      this.setDifficulty = this.setDifficulty.bind(this);
       this.newGame = this.newGame.bind(this);
-    }
-    chooseDifficulty() {
-      this.props.setMenu(MenuState.setDifficulty);
-    }
-    setDifficulty(difficulty) {
-      this.props.setDifficulty(difficulty);
-      this.props.setMenu(MenuState.chooseGame);
     }
     newGame(sudokuId, sudoku) {
       this.props.setSudoku(this.props.difficulty, sudoku);
       this.props.newGame(this.props.difficulty, sudokuId);
       this.props.continueGame();
-      this.props.setMenu(MenuState.initial);
+      this.props.setMenu(MenuState.running);
     }
     render() {
       const {
@@ -203,7 +181,6 @@ const GameMenu = connect(
         setDifficulty,
         running,
         hasGame,
-        setMenu,
         difficulty,
         changeIndex,
         sudokuIndex,
@@ -214,12 +191,10 @@ const GameMenu = connect(
       }
 
       switch (this.props.menuState) {
-        case MenuState.setDifficulty:
         case MenuState.chooseGame: {
           return (
             <GameMenuSelection
               setDifficulty={setDifficulty}
-              setMenu={setMenu}
               difficulty={difficulty}
               newGame={this.newGame}
               changeIndex={changeIndex}
@@ -227,20 +202,15 @@ const GameMenu = connect(
             />
           )
         }
-        case MenuState.initial: {
+        case MenuState.running: {
           if (hasGame) {
             return (
               <GameMenuRunning
                 continueGame={continueGame}
-                chooseDifficulty={this.chooseDifficulty}
+                chooseGame={() => this.props.setMenu(MenuState.chooseGame)}
               />
             )
           }
-          return (
-            <GameMenuInitial
-              newGame={() => this.props.setMenu(MenuState.chooseGame)}
-            />
-          )
         }
 
       }

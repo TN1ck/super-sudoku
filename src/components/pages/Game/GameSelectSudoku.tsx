@@ -9,7 +9,6 @@ import {DIFFICULTY} from 'src/engine/utility';
 import {parseSudoku} from 'src/ducks/sudoku/model';
 
 import SUDOKUS from 'src/sudokus';
-import { GameMenuContainer } from 'src/components/pages/Game/GameMenu';
 import Button from 'src/components/modules/Button';
 import THEME from 'src/theme';
 import SmallSudokuComponent from 'src/components/modules/Sudoku/SmallSudoku';
@@ -29,11 +28,10 @@ const PARSED_SUDOKUS = {
 
 const SelectSudoku: React.StatelessComponent<{
   newGame: (difficulty, sudokuId) => void;
-  setDifficulty: () => void;
   difficulty: DIFFICULTY;
   sudokuIndex: number;
   changeIndex: typeof changeIndex;
-}> = function({newGame, setDifficulty, difficulty, sudokuIndex, changeIndex}) {
+}> = function({newGame, difficulty, sudokuIndex, changeIndex}) {
 
   const SUDOKU_SHOW = 8;
   const sudokus = PARSED_SUDOKUS[difficulty];

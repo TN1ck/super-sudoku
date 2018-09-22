@@ -3,8 +3,7 @@ import sudokus from 'src/sudokus';
 import { Cell } from 'src/ducks/sudoku/model';
 
 export enum MenuState {
-  initial = "INITIAL",
-  setDifficulty = "SET_DIFFICULTY",
+  running = "RUNNING",
   chooseGame = "CHOOSE_GAME",
 }
 
@@ -96,7 +95,7 @@ const gameState: GameState = {
   sudokus,
   // menu stuff
   sudokuIndex: 0,
-  menu: MenuState.initial,
+  menu: MenuState.chooseGame,
   difficulty: DIFFICULTY.EASY,
   showMenu: null
 };
