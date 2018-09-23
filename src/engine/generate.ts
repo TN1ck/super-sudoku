@@ -43,11 +43,10 @@ const DIFFICULTY_MAPPING = {
  * if not solveable - return infinity
  */
 function costFunction(sudoku: SimpleSudoku): number {
-  const resultFast = solverAC3.solve(sudoku);
-  if (resultFast.iterations === Infinity) {
-    return resultFast.iterations;
-  }
   const result = solverAC3.solve(sudoku);
+  if (result.iterations < Infinity) {
+    return checkForUniqueness(sudoku) ? result.iterations : Infinity;
+  }
   return result.iterations;
 }
 
@@ -181,29 +180,27 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
   }
 
   while (!isFinished(bestSudoku, bestCost)) {
-    const newSudoku = [].concat(
-      bestSudoku.map(row => {
-        return [].concat(row);
-      }),
-    );
-    newSudoku[lodash.random(0, 8)][lodash.random(0, 8)] = getRandomSudokuNumber();
+    // clone the bestSudoku
+    const newSudoku = [...bestSudoku.map(r => [...r])];
+
+    // make the sudoku and apply the cost function
+    const randomX = lodash.random(0, 8);
+    const randomY = lodash.random(0, 8);
+    newSudoku[randomX][randomY] = getRandomSudokuNumber();
     const newCost = costFunction(newSudoku);
 
-    // hillclimbing
+    // if the current sudoku is not solveable or the
+    // the costs are higher that from the new, we set the new one as the new best one
+    // this is the hill climbing part
     if (
       rateCostsAbsolute(bestCost) === Infinity ||
       rateCostsAbsolute(newCost) < rateCostsAbsolute(bestCost)
     ) {
-      bestSudoku = newSudoku;
-      bestCost = newCost;
+      // using the enhanceuniqueness makes sure we come faster to a solution
+      bestSudoku = checkForUniqueness(newSudoku) ? newSudoku : enhanceUniqueness(newSudoku);;
+      bestCost = newCost
     }
 
-    if (validCosts(bestCost)) {
-      if (!checkForUniqueness(bestSudoku)) {
-        bestSudoku = enhanceUniqueness(bestSudoku);
-        bestCost = costFunction(bestSudoku);
-      }
-    }
   }
   console.log(`Needed ${bestCost} to generate this sudoku. Goal was ${iterationGoal}.`);
   return bestSudoku;
