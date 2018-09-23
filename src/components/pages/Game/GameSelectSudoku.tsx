@@ -5,7 +5,7 @@ import styled, { css } from 'styled-components';
 import {
   changeIndex,
 } from 'src/ducks/game';
-import {DIFFICULTY, parseListOfSudokus} from 'src/engine/utility';
+import {DIFFICULTY, ParsedComplexSudoku, parseListOfSudokusComplex} from 'src/engine/utility';
 
 import SUDOKUS from 'src/sudokus';
 import Button from 'src/components/modules/Button';
@@ -51,10 +51,10 @@ const SelectContainer = withProps<{
 `;
 
 const PARSED_SUDOKUS = {
-  [DIFFICULTY.EASY]: parseListOfSudokus(SUDOKUS[DIFFICULTY.EASY]),
-  [DIFFICULTY.MEDIUM]: parseListOfSudokus(SUDOKUS[DIFFICULTY.MEDIUM]),
-  [DIFFICULTY.HARD]: parseListOfSudokus(SUDOKUS[DIFFICULTY.HARD]),
-  [DIFFICULTY.EVIL]: parseListOfSudokus(SUDOKUS[DIFFICULTY.EVIL]),
+  [DIFFICULTY.EASY]: parseListOfSudokusComplex(SUDOKUS[DIFFICULTY.EASY]),
+  [DIFFICULTY.MEDIUM]: parseListOfSudokusComplex(SUDOKUS[DIFFICULTY.MEDIUM]),
+  [DIFFICULTY.HARD]: parseListOfSudokusComplex(SUDOKUS[DIFFICULTY.HARD]),
+  [DIFFICULTY.EVIL]: parseListOfSudokusComplex(SUDOKUS[DIFFICULTY.EVIL]),
  };
 
 class SelectSudoku extends React.Component<{
@@ -98,7 +98,7 @@ class SelectSudoku extends React.Component<{
     const SUDOKU_SHOW = 8;
     const sudokus = PARSED_SUDOKUS[difficulty];
 
-    const _sudokusToShow = [];
+    const _sudokusToShow: ParsedComplexSudoku[] = [];
 
     const newSudokuIndex = this.getNewIndex(this.state.xOffset);
 

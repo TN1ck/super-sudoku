@@ -1,9 +1,9 @@
 import React from 'react';
 import { SudokuSmall, SudokuSmallTitle, SmallGridLineY, SmallGridLineX } from 'src/components/modules/Sudoku/modules';
-import {Cell} from 'src/ducks/sudoku/model';
+import { SimpleCell } from 'src/engine/utility';
 
 export default class SmallSudokuComponent extends React.PureComponent<{
-  sudoku: Cell[];
+  sudoku: SimpleCell[];
   id: number;
   darken?: boolean;
   elevation?: number;

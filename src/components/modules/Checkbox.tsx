@@ -36,8 +36,8 @@ const StyledCheckboxSquare = withProps<{
     display: block;
     content: ${props => props.checked ? "'L'" : "''"};
     position: absolute;
-    top: -4px;
-    left: 5px;
+    top: -3px;
+    left: 7px;
     font-size: 17px;
     transform: scaleY(-1) rotate(-221deg);
   }
