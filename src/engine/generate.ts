@@ -43,7 +43,7 @@ const DIFFICULTY_MAPPING = {
  * if not solveable - return infinity
  */
 function costFunction(sudoku: SimpleSudoku): number {
-  const resultFast = solverOptimized.solve(sudoku);
+  const resultFast = solverAC3.solve(sudoku);
   if (resultFast.iterations === Infinity) {
     return resultFast.iterations;
   }
@@ -122,7 +122,7 @@ function enhanceUniqueness(sudoku: SimpleSudoku): SimpleSudoku {
   return sudoku;
 }
 
-const RELATIVE_DRIFT = 10;
+const RELATIVE_DRIFT = 20;
 // this is mostly needed for the esay difficulty, because the iterations needed there
 // are too low that the relative drift would do anything
 const ABSOLUTE_DRIFT = 5;
@@ -180,8 +180,6 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
 
   // let iterations = 0;
   while (!isFinished(bestSudoku, bestCost)) {
-
-    console.log(bestCost);
 
     // iterations++;
     // let numberOfNumbers = 0;
