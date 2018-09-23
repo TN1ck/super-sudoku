@@ -34,7 +34,7 @@ const MenuCircleComponent = withProps<{
   &:hover {
       stroke-width: 60px;
       cursor: pointer;
-      opacity: 0.9;
+      fill-opacity: 0.9;
   }
 
   ${props => props.notesMode && css`
@@ -44,7 +44,7 @@ const MenuCircleComponent = withProps<{
   ${props => props.isActive && css`
     stroke-width: 60px;
     cursor: pointer;
-    opacity: 0.9;
+    fill-opacity: 0.9;
   `}
 
 `;
@@ -57,7 +57,7 @@ export const MenuWrapper = styled.div`
   z-index: 3;
 
   @media (max-width: 600px) {
-    transform: scale(0.7) translate(-50%, -50%);
+    transform: translate(-50%, -50%) scale(0.7);
   }
 `;
 

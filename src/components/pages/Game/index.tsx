@@ -34,23 +34,33 @@ function PauseButton({pauseGame}) {
   );
 }
 
+const MAX_WIDTH = 550;
+
 const GameContainer = styled.div`
   display: flex;
   justify-content: center;
+
   color: white;
   position: relative;
   margin-top: ${THEME.spacer.x3}px;
   margin-bottom: ${THEME.spacer.x3 + 20}px;
-  margin-left: ${-THEME.spacer.x2 + THEME.spacer.x4}px;
-  margin-right: ${-THEME.spacer.x2 + THEME.spacer.x4}px;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: ${MAX_WIDTH}px;
+
+  @media (max-width: 600px) {
+    max-width: auto;
+    margin-left: ${-THEME.spacer.x2 + THEME.spacer.x4}px;
+    margin-right: ${-THEME.spacer.x2 + THEME.spacer.x4}px;
+  }
 `;
 
 const GridContainer = styled.div`
   color: black;
   box-shadow: ${THEME.boxShadow};
   background-color: white;
-  width: 550px;
-  height: 550px;
+  width: ${MAX_WIDTH}px;
+  height: ${MAX_WIDTH}px;
   flex-wrap: wrap;
   flex-shrink: 0;
   flex-grow: 0;
@@ -59,11 +69,6 @@ const GridContainer = styled.div`
   @media (max-width: 600px) {
       width: calc(100vw - ${THEME.spacer.x5}px);
       height: calc(100vw - ${THEME.spacer.x5}px);
-  }
-
-  @media (min-width: 601px) and (max-width: 800px) {
-      width: 450px;
-      height: 450px;
   }
 `;
 
@@ -83,13 +88,15 @@ class Game extends React.Component<
       <Container>
         <GameContainer>
           <div>
-            <GameMenu />
-            <GameTimer
-              startTime={game.startTime}
-              stopTime={game.stopTime}
-              offsetTime={game.offsetTime}
-            />
-            <PauseButton pauseGame={pauseGame} />
+            <div>
+              <GameMenu />
+              <GameTimer
+                startTime={game.startTime}
+                stopTime={game.stopTime}
+                offsetTime={game.offsetTime}
+              />
+              <PauseButton pauseGame={pauseGame} />
+            </div>
             <GridContainer>
               <SudokuConnected />
             </GridContainer>

@@ -112,6 +112,8 @@ export const CellInner = withProps<{
 export const GridCell = styled.div`
   &:hover {
     border: 1px solid ${THEME.colors.primary};
+    margin-left: -1px;
+    margin-top: -1px;
   }
 `;
 
