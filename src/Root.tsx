@@ -27,6 +27,8 @@ injectGlobal`
     height: 100vh;
     width: 100vw;
     -webkit-overflow-scrolling: touch;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
 
   }
   html, body, #root {
