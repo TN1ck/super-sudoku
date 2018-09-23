@@ -33,6 +33,10 @@ export default {
         component: 'src/components/pages/Game'
       },
       {
+        path: "/playground",
+        component: "src/components/pages/Playground"
+      },
+      {
         path: "/about",
         component: 'src/components/pages/About'
       },

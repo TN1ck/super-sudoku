@@ -5,9 +5,7 @@ import styled, { css } from 'styled-components';
 import {
   changeIndex,
 } from 'src/ducks/game';
-import {DIFFICULTY} from 'src/engine/utility';
-
-import {parseSudoku} from 'src/ducks/sudoku/model';
+import {DIFFICULTY, parseListOfSudokus} from 'src/engine/utility';
 
 import SUDOKUS from 'src/sudokus';
 import Button from 'src/components/modules/Button';
@@ -51,12 +49,6 @@ const SelectContainer = withProps<{
     }
   `}
 `;
-
-const parseListOfSudokus = (sudokus: Array<{value: string, id: number}>) => {
-  return sudokus.map(({value, id}) => {
-    return {sudoku: parseSudoku(value), id, value};
-  });
-};
 
 const PARSED_SUDOKUS = {
   [DIFFICULTY.EASY]: parseListOfSudokus(SUDOKUS[DIFFICULTY.EASY]),

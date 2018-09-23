@@ -33,6 +33,7 @@ const DIFFICULTY_MAPPING = {
   [DIFFICULTY.MEDIUM]: 29.2093,
   [DIFFICULTY.HARD]: 98.2093,
   [DIFFICULTY.EVIL]: 527.4318,
+  // [DIFFICULTY.EVIL]: 1500,
 };
 
 /**
@@ -143,7 +144,7 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
    * returns the absolute difference to the iteration goal
    */
   function rateCostsAbsolute(cost: number): number {
-    return cost - iterationGoal;
+    return Math.abs(cost - iterationGoal);
   }
 
   /**
@@ -179,6 +180,8 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
 
   // let iterations = 0;
   while (!isFinished(bestSudoku, bestCost)) {
+
+    console.log(bestCost);
 
     // iterations++;
     // let numberOfNumbers = 0;
@@ -216,7 +219,7 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
       }
     }
   }
-
+  console.log(`Needed ${bestCost} to generate this sudoku. Goal was ${iterationGoal}.`);
   return bestSudoku;
 }
 

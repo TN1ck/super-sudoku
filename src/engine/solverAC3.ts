@@ -28,7 +28,7 @@ function removeValuesFromDomain(
   return [domain1, change];
 }
 
-function toSimpeSudoku(grid: DomainSudoku): SimpleSudoku {
+function toSimpleSudoku(grid: DomainSudoku): SimpleSudoku {
   return grid.map(row => {
     return row.map(cells => {
       return cells.length === 1 ? cells[0] : undefined;
@@ -71,7 +71,7 @@ export function _solveGridAC3(
   if (iterations > 2000) {
     // console.log('COMPUTATION TIME OUT', iterations);
     return {
-      sudoku: toSimpeSudoku(grid),
+      sudoku: toSimpleSudoku(grid),
       iterations: Infinity,
     };
   }
@@ -81,7 +81,7 @@ export function _solveGridAC3(
   // add row column constraints
   for (let y = 0; y < 9; y++) {
     const row = rows[y];
-    for (let x = 0; x < 8; ) {
+    for (let x = 0; x < 9; ) {
       let domain1 = row[x];
       let change = false;
       // I tried to be clever and tried not to compare cells twice
@@ -184,7 +184,7 @@ export function _solveGridAC3(
   }
 
   return {
-    sudoku: toSimpeSudoku(grid),
+    sudoku: toSimpleSudoku(grid),
     iterations,
   };
 }

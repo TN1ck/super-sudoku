@@ -178,3 +178,9 @@ export function printComplexSudoku(grid: ComplexSudoku) {
     })
     .join('\n');
 }
+
+export const parseListOfSudokus = (sudokus: Array<{value: string, id: number}>) => {
+  return sudokus.map(({value, id}) => {
+    return {sudoku: parseSudoku(value), id, value};
+  });
+};
