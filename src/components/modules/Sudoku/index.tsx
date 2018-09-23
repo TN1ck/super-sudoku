@@ -7,7 +7,7 @@ import {Cell} from 'src/ducks/sudoku/model';
 
 import * as _ from 'lodash';
 
-import MenuComponent, { MenuWrapper } from './SudokuMenu';
+import SudokuMenu, { MenuWrapper } from './SudokuMenu';
 import {SudokuSmall, SmallGridLineX, GridCell, SmallGridLineY, GridCellNumber } from 'src/components/modules/Sudoku/modules';
 import SudokuState from 'src/components/modules/Sudoku/state';
 import SudokuPaths from 'src/components/modules/Sudoku/SudokuPaths';
@@ -99,7 +99,8 @@ class SudokuComponent extends React.PureComponent<
     const xSection = height / 9;
     const ySection = width / 9;
 
-    const activeCell = this.props.showMenuForCell;
+    const activeCell = this.props.showMenuForCell &&
+      sudoku.find(c => c.x === this.props.showMenuForCell.x && c.y === this.props.showMenuForCell.y);
     const selectionPosition = {
       x: activeCell && activeCell.x || 0,
       y: activeCell && activeCell.y || 0,
@@ -116,7 +117,6 @@ class SudokuComponent extends React.PureComponent<
       const uniquePaths = state.uniquePaths(paths);
       return uniquePaths;
     }));
-
 
     return (
       <div
@@ -250,7 +250,7 @@ class SudokuComponent extends React.PureComponent<
                 }}
               >
                 <MenuWrapper>
-                  <MenuComponent
+                  <SudokuMenu
                     enterNotesMode={this.enterNotesMode}
                     exitNotesMode={this.exitNotesMode}
                     notesMode={this.state.notesMode}

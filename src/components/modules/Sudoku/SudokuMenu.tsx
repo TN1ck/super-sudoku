@@ -20,6 +20,7 @@ const MenuCircleContainer = styled.svg`
   transform: translate(-50%, -50%);
   position: absolute;
   user-select: none;
+  -webkit-touch-callout: none;
 `;
 
 const MenuCircleComponent = withProps<{
@@ -28,33 +29,22 @@ const MenuCircleComponent = withProps<{
 }>()(styled.circle)`
   stroke-width: 50px;
   stroke: ${THEME.colors.primary};
+  opacity: 0.75;
 
   &:hover {
       stroke-width: 60px;
       cursor: pointer;
-      stroke: ${THEME.colors.primary};
+      opacity: 0.9;
   }
 
   ${props => props.notesMode && css`
-    stroke-width: 50px;
-    stroke: black;
-
-    &:hover {
-        stroke-width: 60px;
-        cursor: pointer;
-        stroke: black;
-    }
-  `}
-  ${props => props.notesMode && props.isActive && css`
-    stroke-width: 60px;
-    cursor: pointer;
     stroke: black;
   `}
 
-  ${props => !props.notesMode && props.isActive && css`
+  ${props => props.isActive && css`
     stroke-width: 60px;
     cursor: pointer;
-    stroke: ${THEME.colors.primary};
+    opacity: 0.9;
   `}
 
 `;
@@ -64,7 +54,6 @@ export const MenuWrapper = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  opacity: 0.75;
   z-index: 3;
 `;
 
@@ -206,9 +195,11 @@ class Menu extends React.Component<
           const currentMinRad = minRad + radPerStep * (i + 1);
           const currentMaxRad = currentMinRad + radPerStep;
           let isActive = number === cell.number;
+
           if (this.props.notesMode) {
             isActive = cell.notes.has(number);
           }
+
           return (
             <MenuCircle
               key={i}

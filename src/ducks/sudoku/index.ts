@@ -124,13 +124,13 @@ export default function sudokuReducer(
     switch (action.type) {
       case SET_NOTE:
         if (id === actionCellId) {
-          return {...cell, notes: cell.notes.add(action.note)};
+          return {...cell, notes: new Set(cell.notes.add(action.note))};
         }
         return cell;
       case CLEAR_NOTE:
         if (id === actionCellId) {
           cell.notes.delete(action.note);
-          return {...cell, notes: cell.notes};
+          return {...cell, notes: new Set(cell.notes)};
         }
         return cell;
       case SET_NUMBER:
