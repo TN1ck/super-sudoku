@@ -1,4 +1,4 @@
-import fs from 'fs';
+import * as fs from 'fs';
 import * as program from 'commander';
 import * as generate from '../src/engine/generate';
 import * as solverAC3 from '../src/engine/solverAC3';
@@ -29,7 +29,7 @@ const difficulty = program.difficulty;
 const sudokuDifficulty = mapping[difficulty];
 
 function writeSudoku(sudoku) {
-  const iterations = solverAC3.solve(sudoku);
+  const iterations = solverAC3.solve(sudoku).iterations;
   const printedSudoku = printSimpleSudoku(sudoku);
   console.log(`write sudoku with difficulty ${iterations}\n`, printedSudoku);
   const stringToAppend = `${iterations}
