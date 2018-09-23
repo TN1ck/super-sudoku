@@ -27,7 +27,7 @@
       ]
     },
     "target": "es6",
-    "module": "commonjs",
+    "module": "esnext",
     "jsx": "preserve",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
