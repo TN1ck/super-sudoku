@@ -50,6 +50,10 @@ function costFunction(sudoku: SimpleSudoku): number {
   return result.iterations;
 }
 
+function costFunctionSimple(sudoku: SimpleSudoku): number {
+  return solverAC3.solve(sudoku).iterations;
+}
+
 function getRandomSudokuNumber(): number {
   return lodash.random(10) > 8 ? lodash.random(1, 9) : undefined;
 }
@@ -121,6 +125,14 @@ function enhanceUniqueness(sudoku: SimpleSudoku): SimpleSudoku {
   return sudoku;
 }
 
+function generateCoordinateList(sudoku: SimpleSudoku) {
+  const coordinates = sudoku.map((row, i) => {
+    return row.map((n, c) => n !== undefined ? [i, c] : undefined);
+  });
+  const coordinatesWithNumbers = lodash.flatten(coordinates).filter(c => c !== undefined);
+  return coordinatesWithNumbers;
+}
+
 const RELATIVE_DRIFT = 20;
 // this is mostly needed for the esay difficulty, because the iterations needed there
 // are too low that the relative drift would do anything
@@ -165,6 +177,7 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
 
   let bestSudoku = randomSudoku;
   let bestCost = costFunction(bestSudoku);
+  let coordinateList = [];
 
   /**
    * Check if sudoku is unique and has valid costs
@@ -184,21 +197,45 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
     const newSudoku = [...bestSudoku.map(r => [...r])];
 
     // make the sudoku and apply the cost function
-    const randomX = lodash.random(0, 8);
-    const randomY = lodash.random(0, 8);
-    newSudoku[randomX][randomY] = getRandomSudokuNumber();
-    const newCost = costFunction(newSudoku);
+    if (bestCost > iterationGoal) {
+      const randomX = lodash.random(0, 8);
+      const randomY = lodash.random(0, 8);
+      newSudoku[randomX][randomY] = getRandomSudokuNumber();
+    } else {
+      // we can be a bit more specific to speed up the generation
+      if (coordinateList.length === 0) {
+        console.log('we tried everything with this version, it is at maximum difficulty');
+        console.log(`Needed ${bestCost} to generate this sudoku. Goal was ${iterationGoal}.`);
+        return bestSudoku;
+      }
+      const sample = lodash.sample(coordinateList);
+      coordinateList = coordinateList.filter(d => d !== sample);
+      const [x, y] = sample;
+      // console.log(`set ${x}/${y} to undefined`);
+      newSudoku[x][y] = undefined;
+    }
 
     // if the current sudoku is not solveable or the
     // the costs are higher that from the new, we set the new one as the new best one
     // this is the hill climbing part
-    if (
-      rateCostsAbsolute(bestCost) === Infinity ||
-      rateCostsAbsolute(newCost) < rateCostsAbsolute(bestCost)
-    ) {
-      // using the enhanceuniqueness makes sure we come faster to a solution
-      bestSudoku = checkForUniqueness(newSudoku) ? newSudoku : enhanceUniqueness(newSudoku);;
-      bestCost = newCost
+    if (bestCost === Infinity) {
+      const newCostSimple = costFunctionSimple(newSudoku);
+      const isNewUnique = newCostSimple < Infinity && checkForUniqueness(newSudoku);
+      if (newCostSimple < Infinity && !isNewUnique) {
+        bestSudoku = enhanceUniqueness(newSudoku);
+        bestCost = costFunction(bestSudoku);
+      } else {
+        bestSudoku = newSudoku;
+        bestCost = isNewUnique ? newCostSimple : Infinity;
+      }
+      coordinateList = generateCoordinateList(newSudoku);
+    } else {
+      const newCost = costFunction(newSudoku);
+      if (rateCostsAbsolute(newCost) < rateCostsAbsolute(bestCost)) {
+        bestSudoku = newSudoku;
+        bestCost = newCost;
+        coordinateList = generateCoordinateList(newSudoku);
+      }
     }
 
   }
