@@ -10,6 +10,7 @@ import {
   setMenu,
   setDifficulty,
   MenuState,
+  toggleShowHints,
 } from 'src/ducks/game';
 import {DIFFICULTY} from 'src/engine/utility';
 
@@ -19,6 +20,7 @@ import THEME from 'src/theme';
 import styled from 'styled-components';
 import { RootState } from 'src/ducks';
 import Button from 'src/components/modules/Button';
+import Checkbox from 'src/components/modules/Checkbox';
 
 export const GameMenuContainer = styled.div`
   background-color: rgba(255, 255, 255, 0.8);
@@ -57,11 +59,16 @@ const GameMenuListItem = styled.li`
 
 const GameMenuRunning = ({
   continueGame,
-  chooseGame
+  chooseGame,
+  toggleShowHints,
+  showHints,
 }) => {
   return (
     <GameMenuContainer>
       <GameMenuList>
+        <Checkbox id='hints' checked={showHints} onChange={toggleShowHints}>
+          {'Show all hints'}
+        </Checkbox>>
         <GameMenuListItem onClick={continueGame} key="continue">
           {'Continue'}
         </GameMenuListItem>
@@ -138,6 +145,7 @@ const GameMenu = connect(
       sudokuIndex: state.game.sudokuIndex,
       menuState: state.game.menu,
       difficulty: state.game.difficulty,
+      showHints: state.game.showHints,
     };
   },
   {
@@ -148,6 +156,7 @@ const GameMenu = connect(
     changeIndex,
     setMenu,
     setDifficulty,
+    toggleShowHints,
   },
 )(class GameMenu extends React.Component<
     {
@@ -158,6 +167,8 @@ const GameMenu = connect(
       changeIndex: typeof changeIndex,
       setMenu: typeof setMenu;
       setDifficulty: typeof setDifficulty;
+      toggleShowHints: typeof toggleShowHints;
+      showHints: boolean;
       running: boolean;
       hasGame: boolean;
       sudokuIndex: number;
@@ -184,6 +195,8 @@ const GameMenu = connect(
         difficulty,
         changeIndex,
         sudokuIndex,
+        toggleShowHints,
+        showHints,
       } = this.props;
 
       if (running) {
@@ -208,6 +221,8 @@ const GameMenu = connect(
               <GameMenuRunning
                 continueGame={continueGame}
                 chooseGame={() => this.props.setMenu(MenuState.chooseGame)}
+                toggleShowHints={toggleShowHints}
+                showHints={showHints}
               />
             )
           }

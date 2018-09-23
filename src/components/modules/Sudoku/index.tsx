@@ -19,6 +19,7 @@ const fontSize = 14;
 interface SudokuComponentStateProps {
   showMenuForCell: Cell;
   sudoku: Cell[];
+  showHints: boolean;
 }
 
 interface SudokuComponentDispatchProps {
@@ -91,7 +92,7 @@ class SudokuComponent extends React.PureComponent<
   }
 
   render() {
-    const {sudoku} = this.props;
+    const {sudoku, showHints} = this.props;
     const size = Math.min(this.state.height, this.state.width);
     const height = size;
     const width = size;
@@ -186,6 +187,10 @@ class SudokuComponent extends React.PureComponent<
               }
             };
             const position = positionedCells[i];
+            const conflicted = conflicting[i];
+
+            const notes = showHints ? conflicted.possibilities : [...c.notes.values()];
+
             return (
               <div key={i}>
                 <GridCell
@@ -200,8 +205,8 @@ class SudokuComponent extends React.PureComponent<
                   onClick={onClick}
                 />
                 <GridCellNumber
-                  left={position.cell.x}
-                  top={position.cell.y}
+                  left={position.x}
+                  top={position.y}
                   initial={c.initial}
                 >
                   {c.number}
@@ -215,8 +220,8 @@ class SudokuComponent extends React.PureComponent<
                     height: ySection,
                   }}
                 >
-                  {[...c.notes.values()].map((n, noteIndex) => {
-                    const notePosition = position.notes[noteIndex];
+                  {(c.initial || c.number) ? null : notes.map((n) => {
+                    const notePosition = state.getNotePosition(n);
                     return (
                       <CellNote
                         key={n}
@@ -269,6 +274,7 @@ export const SudokuConnected = connect<
   (state: RootState) => {
     return {
       showMenuForCell: state.game.showMenu,
+      showHints: state.game.showHints,
       sudoku: state.sudoku.grid,
     };
   },

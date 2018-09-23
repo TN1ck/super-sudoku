@@ -15,6 +15,7 @@ const CHANGE_INDEX = 'game/CHANGE_INDEX';
 const SET_MENU = 'game/SET_MENU';
 const SET_DIFFICULTY = 'game/SET_DIFFICULTY';
 const SHOW_MENU = 'game/SHOW_MENU';
+const TOGGLE_SHOW_HINTS = 'game/TOGGLE_SHOW_HINTS';
 
 export function newGame(difficulty, sudokuId) {
   return {
@@ -70,6 +71,12 @@ export function setDifficulty(difficulty) {
   };
 }
 
+export function toggleShowHints() {
+  return {
+    type: TOGGLE_SHOW_HINTS,
+  };
+}
+
 export interface GameState {
   startTime: number;
   offsetTime: number;
@@ -83,6 +90,7 @@ export interface GameState {
   menu: MenuState;
   difficulty: DIFFICULTY;
   showMenu: Cell;
+  showHints: boolean;
 }
 
 const gameState: GameState = {
@@ -97,7 +105,8 @@ const gameState: GameState = {
   sudokuIndex: 0,
   menu: MenuState.chooseGame,
   difficulty: DIFFICULTY.EASY,
-  showMenu: null
+  showMenu: null,
+  showHints: false,
 };
 
 export function getTime(
@@ -120,6 +129,12 @@ export default function gameReducer(
   action,
 ): GameState {
   switch (action.type) {
+    case TOGGLE_SHOW_HINTS: {
+      return {
+        ...state,
+        showHints: !state.showHints,
+      };
+    }
     case NEW_GAME:
       return {
         ...state,

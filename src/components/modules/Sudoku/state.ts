@@ -1,6 +1,7 @@
 import {Cell} from 'src/ducks/sudoku/model';
 
 import * as _ from 'lodash';
+import { SUDOKU_NUMBERS } from 'src/engine/utility';
 
 export interface CellIndexed extends Cell {
   index: number;
@@ -15,23 +16,18 @@ export interface PositionedCell {
 export interface NoteCell {
   x: number;
   y: number;
-  cell: Cell;
   note: number;
-}
-
-export interface PositionedNoteCell {
-  cell: PositionedCell;
-  notes: NoteCell[];
 }
 
 export interface ConflictingCell {
   cell: CellIndexed,
   conflicting: CellIndexed[];
+  possibilities: number[];
 }
 
 export interface ConflictingPath {
-  from: PositionedNoteCell;
-  to: PositionedNoteCell;
+  from: PositionedCell;
+  to: PositionedCell;
   index: number;
 }
 
@@ -82,13 +78,38 @@ export default class SudokuState {
     });
   }
 
-  positionedCells(sudoku: Cell[]): PositionedNoteCell[] {
+  getNotePosition(n: number) {
+    const positions = [
+      {x: 0, y: 0},
+      {x: 0, y: 0},
+      {x: 1, y: 0},
+      {x: 2, y: 0},
+      {x: 0, y: 1},
+      {x: 1, y: 1},
+      {x: 2, y: 1},
+      {x: 0, y: 2},
+      {x: 1, y: 2},
+      {x: 2, y: 2},
+    ];
+    // TODO
+    const padding = window.innerWidth < 450 ? notePaddingSmall : notePadding;
+    const noteWidth = this.xSection - padding * 2;
+    const noteHeight = this.ySection - padding * 2;
+
+    const {x, y} = positions[n];
+
+    return {
+      x: (noteWidth / 3) * (x + 0.5) + padding,
+      y: (noteHeight / 3) * (y + 0.5) + padding,
+      note: n,
+    };
+
+  }
+
+  positionedCells(sudoku: Cell[]): PositionedCell[] {
 
     const fontXOffset = this.xSection / 2;
     const fontYOffset = this.ySection / 2;
-
-    // TODO
-    const padding = window.innerWidth < 450 ? notePaddingSmall : notePadding;
 
     return sudoku.map(c => {
       const positionedCell: PositionedCell = {
@@ -97,34 +118,7 @@ export default class SudokuState {
         cell: c,
       };
 
-      const noteCells: NoteCell[] = [...c.notes.values()].map(n => {
-        const positions = [
-          {x: 0, y: 0},
-          {x: 0, y: 0},
-          {x: 1, y: 0},
-          {x: 2, y: 0},
-          {x: 0, y: 1},
-          {x: 1, y: 1},
-          {x: 2, y: 1},
-          {x: 0, y: 2},
-          {x: 1, y: 2},
-          {x: 2, y: 2},
-        ];
-        const {x, y} = positions[n];
-        const noteWidth = this.xSection - padding * 2;
-        const noteHeight = this.ySection - padding * 2;
-        return {
-          x: (noteWidth / 3) * (x + 0.5) + padding,
-          y: (noteHeight / 3) * (y + 0.5) + padding,
-          cell: c,
-          note: n,
-        };
-      });
-
-      return {
-        cell: positionedCell,
-        notes: noteCells,
-      };
+      return positionedCell;
     });
   }
 
@@ -134,7 +128,7 @@ export default class SudokuState {
     return sudokuWithIndex.map((cell) => {
       const rowCells = sudokuWithIndex.filter(c => c.x === cell.x);
       const columnCells = sudokuWithIndex.filter(c => c.y === cell.y);
-      const squares = _.values(
+      const squares = Object.values(
         _.groupBy(sudokuWithIndex, (c) => {
           return `${Math.floor(c.x / 3)}-${Math.floor(c.y / 3)}`;
         }),
@@ -149,16 +143,22 @@ export default class SudokuState {
         .filter(c => c.index !== cell.index)
         .filter(c => c.number !== undefined);
 
+      const otherNumbers = _.uniq(all.map(c => c.number));
+      const possibilities = SUDOKU_NUMBERS.filter(
+        n => !otherNumbers.includes(n)
+      );
+
       return {
         cell,
         conflicting: all,
+        possibilities,
       }
     });
   }
 
   getPathsFromConflicting(
     conflictingCell: ConflictingCell,
-    positionedCells: PositionedNoteCell[],
+    positionedCells: PositionedCell[],
     ): ConflictingPath[] {
       const {conflicting, cell} = conflictingCell;
       const paths = [];

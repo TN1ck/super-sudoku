@@ -1,46 +1,86 @@
-import styled from 'styled-components';
+import React from 'react';
+import styled from "styled-components";
+import THEME from "src/theme";
+import { withProps } from "src/utils";
 
-const Checkbox = styled.input`
+
+const StyledCheckbox = styled.input`
+  margin-top: ${THEME.spacer.x2}px;
   position: relative;
-  top: -0.375rem;
-  margin: 0 1rem 0 0;
-  cursor: pointer;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  margin-right: ${THEME.spacer.x3 + THEME.spacer.x1}px;
+  display: inline-block;
 
-  &:before {
-    -webkit-transition: all 0.3s ease-in-out;
-    -moz-transition: all 0.3s ease-in-out;
-    transition: all 0.3s ease-in-out;
-    content: "";
-    position: absolute;
-    left: 0;
-    z-index: 1;
-    width: 1rem;
-    height: 1rem;
-    border: 2px solid #f2f2f2;
-
-    &:checked {
-      -webkit-transform: rotate(-45deg);
-      -moz-transform: rotate(-45deg);
-      -ms-transform: rotate(-45deg);
-      -o-transform: rotate(-45deg);
-      transform: rotate(-45deg);
-      height: .5rem;
-      border-color: #009688;
-      border-top-style: none;
-      border-right-style: none;
-    }
+  &:hover {
+    cursor: pointer;
   }
 
-  :after {
-    content: "";
+`;
+
+const StyledCheckboxSquare = withProps<{
+  checked: boolean;
+}>()(styled.div)`
+  border-radius: ${THEME.borderRadius}px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border: 1px solid ${THEME.colors.primary};
+
+  &:after {
+    color: black;
+    display: block;
+    content: ${props => props.checked ? "'L'" : "''"};
     position: absolute;
-    top: -0.125rem;
-    left: 0;
-    width: 1.1rem;
-    height: 1.1rem;
-    background: #fff;
+    top: -4px;
+    left: 5px;
+    font-size: 17px;
+    transform: scaleY(-1) rotate(-221deg);
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+
+`;
+
+const StyledLabel = styled.label`
+  color: black;
+  &:hover {
     cursor: pointer;
   }
 `;
+
+const StyledCheckboxContainer = styled.div`
+  position: relative;
+`;
+
+const Checkbox: React.StatelessComponent<{
+  id: string;
+  checked: boolean;
+  onChange: () => any;
+}> = ({id, onChange, checked, children}) => {
+  return (
+    <StyledCheckboxContainer>
+      <StyledCheckbox
+        type="checkbox"
+        id={id}
+        checked={checked}
+        onChange={onChange}
+      />
+      <StyledCheckboxSquare
+        checked={checked}
+        onClick={onChange}
+      />
+      <StyledLabel htmlFor={id}>
+        {children}
+      </StyledLabel>
+    </StyledCheckboxContainer>
+  );
+};
 
 export default Checkbox;

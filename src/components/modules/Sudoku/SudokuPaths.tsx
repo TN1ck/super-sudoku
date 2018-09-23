@@ -25,8 +25,8 @@ const SudokuPaths: React.StatelessComponent<{
       }}
     >
       {paths.map((c, i) => {
-        const from = c.from.cell;
-        const to = c.to.cell;
+        const from = c.from;
+        const to = c.to;
         const path = `
           M ${from.x} ${from.y}
           L ${from.x} ${to.y}
