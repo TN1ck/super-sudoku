@@ -20,7 +20,7 @@
 
 import * as lodash from 'lodash';
 import * as solverAC3 from './solverAC3';
-import * as solverOptimized from './solverOptimized';
+
 import {
   SUDOKU_NUMBERS,
   SUDOKU_COORDINATES,
@@ -74,7 +74,7 @@ export function checkForUniqueness(sudoku: SimpleSudoku): boolean {
             });
           });
 
-          const result = solverOptimized.solve(newSudoku);
+          const result = solverAC3.solve(newSudoku);
           if (result.iterations !== Infinity) {
             timesSolved++;
           }
@@ -108,7 +108,7 @@ function enhanceUniqueness(sudoku: SimpleSudoku): SimpleSudoku {
             });
           });
 
-          const result = solverOptimized.solve(newSudoku);
+          const result = solverAC3.solve(newSudoku);
           if (result.iterations !== Infinity) {
             timesSolved++;
             if (timesSolved > 1) {
@@ -167,30 +167,20 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
   let bestSudoku = randomSudoku;
   let bestCost = costFunction(bestSudoku);
 
+  /**
+   * Check if sudoku is unique and has valid costs
+   */
   function isFinished(sudoku, cost) {
     if (!validCosts(cost)) {
       return false;
     }
     if (!checkForUniqueness(sudoku)) {
-      // console.log('Not unique!');
       return false;
     }
     return true;
   }
 
-  // let iterations = 0;
   while (!isFinished(bestSudoku, bestCost)) {
-
-    // iterations++;
-    // let numberOfNumbers = 0;
-    // for (const row of bestSudoku) {
-    //   for (const col of row) {
-    //     if (col) {
-    //       numberOfNumbers++;
-    //     }
-    //   }
-    // }
-
     const newSudoku = [].concat(
       bestSudoku.map(row => {
         return [].concat(row);
@@ -208,12 +198,10 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
       bestCost = newCost;
     }
 
-    // console.log(bestCost, newCost, validCosts(bestCost));
-
     if (validCosts(bestCost)) {
       if (!checkForUniqueness(bestSudoku)) {
         bestSudoku = enhanceUniqueness(bestSudoku);
-        // console.log('cost before/after', bestCost, costFunction(bestSudoku));
+        bestCost = costFunction(bestSudoku);
       }
     }
   }
