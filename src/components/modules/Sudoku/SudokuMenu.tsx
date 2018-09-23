@@ -55,6 +55,10 @@ export const MenuWrapper = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 3;
+
+  @media (max-width: 600px) {
+    transform: scale(0.7) translate(-50%, -50%);
+  }
 `;
 
 const TAU = Math.PI * 2;
