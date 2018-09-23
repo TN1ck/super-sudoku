@@ -117,6 +117,11 @@ export default {
             ],
           },
           defaultLoaders.fileLoader,
+          {
+            test: /\.(json)$/,
+            include: path.join(__dirname, 'src/assets'),
+            use: 'file-loader',
+          }
         ],
       },
     ];
