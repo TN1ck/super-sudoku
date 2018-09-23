@@ -63,26 +63,21 @@ export const Grid33 = styled.div`
 
 export const CellNote = styled.div`
   font-size: 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 33.33%;
-  height: 33.33%;
-  color: ${THEME.colors.gray600};
+  color: ${THEME.colors.gray200};
+  position: absolute;
+  transform: translate(-50%, -50%);
 
   @media (max-width: 600px) {
       font-size: 10px;
+  }
+  @media (max-width: 450px) {
+    font-size: 8px;
   }
 `;
 
 export const CellNoteContainer = styled.div`
   position: absolute;
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
+  pointer-events: none;
 `;
 
 export const CellNumber = styled.div`

@@ -36,6 +36,7 @@ export interface ConflictingPath {
 }
 
 const notePadding = 4;
+const notePaddingSmall = 2;
 
 export default class SudokuState {
 
@@ -86,6 +87,8 @@ export default class SudokuState {
     const fontXOffset = this.xSection / 2;
     const fontYOffset = this.ySection / 2;
 
+    // TODO
+    const padding = window.innerWidth < 450 ? notePaddingSmall : notePadding;
 
     return sudoku.map(c => {
       const positionedCell: PositionedCell = {
@@ -108,11 +111,11 @@ export default class SudokuState {
           {x: 2, y: 2},
         ];
         const {x, y} = positions[n];
-        const noteWidth = this.xSection - notePadding * 2;
-        const noteHeight = this.ySection - notePadding * 2;
+        const noteWidth = this.xSection - padding * 2;
+        const noteHeight = this.ySection - padding * 2;
         return {
-          x: (noteWidth / 3) * (x + 0.5) + notePadding,
-          y: (noteHeight / 3) * (y + 0.5) + notePadding,
+          x: (noteWidth / 3) * (x + 0.5) + padding,
+          y: (noteHeight / 3) * (y + 0.5) + padding,
           cell: c,
           note: n,
         };

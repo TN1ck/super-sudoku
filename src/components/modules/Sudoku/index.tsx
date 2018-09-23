@@ -8,13 +8,13 @@ import {Cell} from 'src/ducks/sudoku/model';
 import * as _ from 'lodash';
 
 import SudokuMenu, { MenuWrapper } from './SudokuMenu';
-import {SudokuSmall, SmallGridLineX, GridCell, SmallGridLineY, GridCellNumber } from 'src/components/modules/Sudoku/modules';
+import {SudokuSmall, SmallGridLineX, GridCell, SmallGridLineY, GridCellNumber, CellNote, CellNoteContainer } from 'src/components/modules/Sudoku/modules';
 import SudokuState from 'src/components/modules/Sudoku/state';
 import SudokuPaths from 'src/components/modules/Sudoku/SudokuPaths';
 import { RootState } from 'src/ducks';
 
 const fontSize = 14;
-const fontSizeNotes = 11;
+// const fontSizeNotes = 11;
 
 interface SudokuComponentStateProps {
   showMenuForCell: Cell;
@@ -206,13 +206,11 @@ class SudokuComponent extends React.PureComponent<
                 >
                   {c.number}
                 </GridCellNumber>
-                <div
+                <CellNoteContainer
                   style={{
-                    position: 'absolute',
                     left: xSection * c.x,
                     top: ySection * c.y,
                     fontWeight: c.initial ? 'bold' : 'normal',
-                    pointerEvents: 'none',
                     width: xSection,
                     height: ySection,
                   }}
@@ -220,21 +218,18 @@ class SudokuComponent extends React.PureComponent<
                   {[...c.notes.values()].map((n, noteIndex) => {
                     const notePosition = position.notes[noteIndex];
                     return (
-                      <div
+                      <CellNote
                         key={n}
                         style={{
-                          fontSize: fontSizeNotes,
-                          position: 'absolute',
                           left: notePosition.x,
                           top: notePosition.y,
-                          transform: 'translate(-50%, -50%)',
                         }}
                       >
                         {n}
-                      </div>
+                      </CellNote>
                     );
                   })}
-                </div>
+                </CellNoteContainer>
               </div>
             );
           })}
