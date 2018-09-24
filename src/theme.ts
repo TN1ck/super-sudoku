@@ -1,15 +1,16 @@
 const THEME = {
   colors: {
-    primary: '#F09A7A',
-    secondary: 'orange',
-    gray700: '#EEEEEE',
-    gray600: '#CCCCCC',
-    gray500: '#AAAAAA',
-    gray400: '#888888',
-    gray300: '#666666',
-    gray200: '#444444',
-    gray100: '#222222',
-    white: '#FFFFFF',
+    primary: "#F09A7A",
+    cellHighlight: "rgba(240, 54, 22, 0.2)",
+    secondary: "orange",
+    gray700: "#EEEEEE",
+    gray600: "#CCCCCC",
+    gray500: "#AAAAAA",
+    gray400: "#888888",
+    gray300: "#666666",
+    gray200: "#444444",
+    gray100: "#222222",
+    white: "#FFFFFF"
   },
   fontFamily: `'Source Sans Pro', sans-serif`,
   spacer: {
@@ -19,17 +20,17 @@ const THEME = {
     x4: 40,
     x5: 80,
     x6: 160,
-    x7: 320,
+    x7: 320
   },
   fontSize: {
     base: 16,
-    h1: 48,
+    h1: 48
   },
-  boxShadow: '0 0.5rem 1rem rgba(0,0,0,0.15)',
+  boxShadow: "0 0.5rem 1rem rgba(0,0,0,0.15)",
   borderRadius: 4,
   lineHeight: 1.5,
   sizes: {
-    header: 60,
+    header: 60
   }
 };
 

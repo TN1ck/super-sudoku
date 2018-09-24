@@ -1,6 +1,6 @@
-import styled, {css} from "styled-components";
-import THEME from 'src/theme';
-import { withProps } from 'src/utils';
+import styled, { css } from "styled-components";
+import THEME from "src/theme";
+import { withProps } from "src/utils";
 
 export const SudokuSmallTitle = styled.div`
   display: flex;
@@ -68,7 +68,7 @@ export const CellNote = styled.div`
   transform: translate(-50%, -50%);
 
   @media (max-width: 600px) {
-      font-size: 10px;
+    font-size: 10px;
   }
   @media (max-width: 450px) {
     font-size: 8px;
@@ -97,23 +97,34 @@ export const CellInner = withProps<{
   justify-content: center;
   transition: background-color 0.1s ease;
 
-  ${props => props.active && css`
-    z-index: 8;
-    background-color: white;
-    pointer-events: none;
-  `}
+  ${props =>
+    props.active &&
+    css`
+      z-index: 8;
+      background-color: white;
+      pointer-events: none;
+    `}
 `;
 
-export const GridCell = styled.div`
+export const GridCell = withProps<{
+  highlight: boolean;
+}>()(styled.div)`
   &:hover {
     border: 1px solid ${THEME.colors.primary};
     margin-left: -1px;
     margin-top: -1px;
   }
+
+  ${props =>
+    props.highlight &&
+    css`
+      background: ${THEME.colors.cellHighlight};
+    `}
 `;
 
 export const CellContainer = withProps<{
   initial: boolean;
+  highlight: boolean;
 }>()(styled.div)`
   position: relative;
   width: 33.333%;
@@ -127,15 +138,17 @@ export const CellContainer = withProps<{
       cursor: pointer;
   }
 
-  ${props => props.initial && css`
-    font-weight: bold;
-    pointer-events: none;
-    cursor: default;
-
-    &:hover {
+  ${props =>
+    props.initial &&
+    css`
+      font-weight: bold;
+      pointer-events: none;
       cursor: default;
-    }
-  `}
+
+      &:hover {
+        cursor: default;
+      }
+    `}
 `;
 
 export const GridCellNumber = withProps<{
@@ -149,9 +162,11 @@ export const GridCellNumber = withProps<{
   color: ${THEME.colors.primary};
   font-size: 16px;
   font-weight: bold;
-  ${props => props.initial && css`
-    color: black;
-  `}
+  ${props =>
+    props.initial &&
+    css`
+      color: black;
+    `}
   pointer-events: none;
   transform: translate(-50%, -50%);
   z-index: 2;
