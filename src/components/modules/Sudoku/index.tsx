@@ -16,7 +16,6 @@ import {
   CellNoteContainer
 } from "src/components/modules/Sudoku/modules";
 import SudokuState from "src/components/modules/Sudoku/state";
-import SudokuPaths from "src/components/modules/Sudoku/SudokuPaths";
 import { RootState } from "src/ducks";
 
 const fontSize = 14;
@@ -145,12 +144,6 @@ class SudokuComponent extends React.PureComponent<
         ref={this.setRef}
         style={{ height: "100%", position: "absolute", width: "100%" }}
       >
-        {/* <SudokuPaths
-          paths={uniquePaths}
-          fontSize={fontSize}
-          width={width}
-          height={height}
-        /> */}
         <div
           style={{
             transition: "background 500ms ease-out",
@@ -160,136 +153,137 @@ class SudokuComponent extends React.PureComponent<
             width,
             position: "absolute",
             pointerEvents: "none",
-            zIndex: 6
-          }}
-        />
-        <SudokuSmall
-          style={{
-            height,
-            width,
+            zIndex: 6,
             fontSize,
             lineHeight: fontSize + "px"
           }}
-        >
-          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
-            const makeBold = i % 3 === 0;
-            const lineWidth = makeBold ? 2 : 1;
-            const background = makeBold ? "#AAAAAA" : "#EEEEEE";
-            return (
-              <SmallGridLineX
-                key={i}
-                height={lineWidth}
-                width={width}
-                top={(i * height) / 9 - lineWidth / 2}
-                background={background}
+        />
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
+          const hide = [0, 9].includes(i);
+          if (hide) {
+            return null;
+          }
+          const makeBold = [3, 6].includes(i);
+          const lineWidth = makeBold ? 2 : 1;
+          const background = makeBold ? "#AAAAAA" : "#EEEEEE";
+          return (
+            <SmallGridLineX
+              key={i}
+              height={lineWidth}
+              width={width}
+              top={(i * height) / 9 - lineWidth / 2}
+              background={background}
+            />
+          );
+        })}
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
+          const hide = [0, 9].includes(i);
+          if (hide) {
+            return null;
+          }
+          const makeBold = [3, 6].includes(i);
+          const lineWidth = makeBold ? 2 : 1;
+          const background = makeBold ? "#AAAAAA" : "#EEEEEE";
+          return (
+            <SmallGridLineY
+              key={i}
+              height={height}
+              width={lineWidth}
+              left={(i * height) / 9 - lineWidth / 2}
+              background={background}
+            />
+          );
+        })}
+        {sudoku.map((c, i) => {
+          const onClick = e => {
+            if (!c.initial) {
+              this.exitNotesMode();
+              this.props.showMenu(c);
+              e.preventDefault();
+              e.stopPropagation();
+            }
+          };
+          const position = positionedCells[i];
+          const conflicted = conflicting[i];
+
+          const notes = showHints
+            ? conflicted.possibilities
+            : [...c.notes.values()];
+
+          const inConflictPath = pathCells.find(d => {
+            return d.x === c.x && d.y === c.y;
+          });
+
+          return (
+            <div key={i}>
+              <GridCell
+                highlight={inConflictPath}
+                style={{
+                  position: "absolute",
+                  height: ySection,
+                  width: xSection,
+                  left: xSection * c.x,
+                  top: ySection * c.y,
+                  zIndex: 0
+                }}
+                onClick={onClick}
               />
-            );
-          })}
-          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
-            const makeBold = i % 3 === 0;
-            const lineWidth = makeBold ? 2 : 1;
-            const background = makeBold ? "#AAAAAA" : "#EEEEEE";
-            return (
-              <SmallGridLineY
-                key={i}
-                height={height}
-                width={lineWidth}
-                left={(i * height) / 9 - lineWidth / 2}
-                background={background}
-              />
-            );
-          })}
-          {sudoku.map((c, i) => {
-            const onClick = e => {
-              if (!c.initial) {
-                this.exitNotesMode();
-                this.props.showMenu(c);
-                e.preventDefault();
-                e.stopPropagation();
-              }
-            };
-            const position = positionedCells[i];
-            const conflicted = conflicting[i];
-
-            const notes = showHints
-              ? conflicted.possibilities
-              : [...c.notes.values()];
-
-            const inConflictPath = pathCells.find(d => {
-              return d.x === c.x && d.y === c.y;
-            });
-
-            return (
-              <div key={i}>
-                <GridCell
-                  highlight={inConflictPath}
-                  style={{
-                    position: "absolute",
-                    height: ySection,
-                    width: xSection,
-                    left: xSection * c.x,
-                    top: ySection * c.y,
-                    zIndex: 0
-                  }}
-                  onClick={onClick}
-                />
-                <GridCellNumber
-                  left={position.x}
-                  top={position.y}
-                  initial={c.initial}
-                >
-                  {c.number}
-                </GridCellNumber>
-                <CellNoteContainer
-                  style={{
-                    left: xSection * c.x,
-                    top: ySection * c.y,
-                    fontWeight: c.initial ? "bold" : "normal",
-                    width: xSection,
-                    height: ySection
-                  }}
-                >
-                  {c.initial || c.number
-                    ? null
-                    : notes.map(n => {
-                        const notePosition = state.getNotePosition(n);
-                        return (
-                          <CellNote
-                            key={n}
-                            style={{
-                              left: notePosition.x,
-                              top: notePosition.y
-                            }}
-                          >
-                            {n}
-                          </CellNote>
-                        );
-                      })}
-                </CellNoteContainer>
-              </div>
-            );
-          })}
-          {activeCell ? (
-            <div
-              style={{
-                position: "absolute",
-                top: ySection * selectionPosition.y,
-                left: xSection * selectionPosition.x,
-                height: ySection,
-                width: xSection
-              }}
-            >
-              <MenuWrapper>
-                <SudokuMenu
-                  enterNotesMode={this.enterNotesMode}
-                  exitNotesMode={this.exitNotesMode}
-                  notesMode={this.state.notesMode}
-                  cell={activeCell}
-                />
-              </MenuWrapper>
+              <GridCellNumber
+                left={position.x}
+                top={position.y}
+                initial={c.initial}
+              >
+                {c.number}
+              </GridCellNumber>
+              <CellNoteContainer
+                style={{
+                  left: xSection * c.x,
+                  top: ySection * c.y,
+                  fontWeight: c.initial ? "bold" : "normal",
+                  width: xSection,
+                  height: ySection
+                }}
+              >
+                {c.initial || c.number
+                  ? null
+                  : notes.map(n => {
+                      const notePosition = state.getNotePosition(n);
+                      return (
+                        <CellNote
+                          key={n}
+                          style={{
+                            left: notePosition.x,
+                            top: notePosition.y
+                          }}
+                        >
+                          {n}
+                        </CellNote>
+                      );
+                    })}
+              </CellNoteContainer>
             </div>
-          ) : null}
-        </SudokuSmall>
+          );
+        })}
+        {activeCell ? (
+          <div
+            style={{
+              position: "absolute",
+              top: ySection * selectionPosition.y,
+              left: xSection * selectionPosition.x,
+              height: ySection,
+              width: xSection
+            }}
+          >
+            <MenuWrapper>
+              <SudokuMenu
+                enterNotesMode={this.enterNotesMode}
+                exitNotesMode={this.exitNotesMode}
+                notesMode={this.state.notesMode}
+                cell={activeCell}
+              />
+            </MenuWrapper>
+          </div>
+        ) : null}
       </div>
     );
   }

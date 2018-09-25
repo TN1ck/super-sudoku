@@ -109,16 +109,16 @@ export const CellInner = withProps<{
 export const GridCell = withProps<{
   highlight: boolean;
 }>()(styled.div)`
+  background-color: transparent;
+  transition: background-color 0.3s ease;
   &:hover {
     border: 1px solid ${THEME.colors.primary};
-    margin-left: -1px;
-    margin-top: -1px;
   }
 
   ${props =>
     props.highlight &&
     css`
-      background: ${THEME.colors.cellHighlight};
+      background-color: ${THEME.colors.cellHighlight};
     `}
 `;
 

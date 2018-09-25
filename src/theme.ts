@@ -12,6 +12,12 @@ const THEME = {
     gray100: "#222222",
     white: "#FFFFFF"
   },
+  menuColors: {
+    normal: "#F09A7A",
+    alternate: "#ED8963",
+    noteNormal: "#84caf3",
+    noteAlternate: "#76B5DA"
+  },
   fontFamily: `'Source Sans Pro', sans-serif`,
   spacer: {
     x1: 5,
@@ -27,7 +33,7 @@ const THEME = {
     h1: 48
   },
   boxShadow: "0 0.5rem 1rem rgba(0,0,0,0.15)",
-  borderRadius: 4,
+  borderRadius: 6,
   lineHeight: 1.5,
   sizes: {
     header: 60

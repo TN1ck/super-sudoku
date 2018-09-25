@@ -1,35 +1,35 @@
-import * as React from 'react';
+import * as React from "react";
 
-import {connect} from 'react-redux';
+import { connect } from "react-redux";
 import {
   pauseGame,
   continueGame,
   resetGame,
   newGame,
-  GameState,
-} from 'src/ducks/game';
+  GameState
+} from "src/ducks/game";
 
-import {SudokuConnected} from 'src/components/modules/Sudoku';
+import { SudokuConnected } from "src/components/modules/Sudoku";
 
-import GameTimer from './GameTimer';
-import GameMenu from './GameMenu';
+import GameTimer from "./GameTimer";
+import GameMenu from "./GameMenu";
 
-import { Container } from 'src/components/modules/Layout';
-import Button from 'src/components/modules/Button';
-import styled from 'styled-components';
-import THEME from 'src/theme';
-import { RootState } from 'src/ducks';
+import { Container } from "src/components/modules/Layout";
+import Button from "src/components/modules/Button";
+import styled from "styled-components";
+import THEME from "src/theme";
+import { RootState } from "src/ducks";
 
-function PauseButton({pauseGame}) {
+function PauseButton({ pauseGame }) {
   return (
     <Button
       onClick={pauseGame}
       style={{
-        float: 'right',
-        marginBottom: THEME.spacer.x2,
+        float: "right",
+        marginBottom: THEME.spacer.x2
       }}
     >
-      {'Pause'}
+      {"Pause"}
     </Button>
   );
 }
@@ -59,6 +59,7 @@ const GridContainer = styled.div`
   color: black;
   box-shadow: ${THEME.boxShadow};
   background-color: white;
+  border-radius: ${THEME.borderRadius}px;
   width: ${MAX_WIDTH}px;
   height: ${MAX_WIDTH}px;
   flex-wrap: wrap;
@@ -67,8 +68,8 @@ const GridContainer = styled.div`
   display: flex;
 
   @media (max-width: 600px) {
-      width: calc(100vw - ${THEME.spacer.x5}px);
-      height: calc(100vw - ${THEME.spacer.x5}px);
+    width: calc(100vw - ${THEME.spacer.x5}px);
+    height: calc(100vw - ${THEME.spacer.x5}px);
   }
 `;
 
@@ -83,7 +84,7 @@ class Game extends React.Component<
   {}
 > {
   render() {
-    const {game, pauseGame} = this.props;
+    const { game, pauseGame } = this.props;
     return (
       <Container>
         <GameContainer>
@@ -110,12 +111,12 @@ class Game extends React.Component<
 export default connect(
   (state: RootState) => {
     return {
-      game: state.game,
+      game: state.game
     };
   },
   {
     continueGame,
     pauseGame,
-    resetGame,
-  },
+    resetGame
+  }
 )(Game);
