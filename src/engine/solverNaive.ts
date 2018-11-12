@@ -1,5 +1,5 @@
-import * as _ from 'lodash';
-import {SUDOKU_NUMBERS, SimpleCell, ComplexSudoku} from './utility';
+import * as _ from "lodash";
+import {SUDOKU_NUMBERS, SimpleCell, ComplexSudoku} from "./utility";
 
 function duplicates(array: ComplexSudoku): ComplexSudoku {
   const grouped = _.groupBy(array, c => String(c.number));
@@ -35,16 +35,11 @@ function checkSquare(grid: ComplexSudoku, cell: SimpleCell): ComplexSudoku {
   return currentSquareNumbers;
 }
 
-export function checkCellForDuplicates(
-  grid: ComplexSudoku,
-  cell: SimpleCell,
-): ComplexSudoku {
+export function checkCellForDuplicates(grid: ComplexSudoku, cell: SimpleCell): ComplexSudoku {
   const row = duplicates(checkRow(grid, cell));
   const column = duplicates(checkColumn(grid, cell));
   const square = duplicates(checkSquare(grid, cell));
-  const uniques = _.uniqBy(row.concat(column).concat(square), function(
-    c: SimpleCell,
-  ) {
+  const uniques = _.uniqBy(row.concat(column).concat(square), function(c: SimpleCell) {
     return `${c.x}-${c.y}`;
   });
   return uniques;
@@ -72,10 +67,7 @@ function getMinimumRemainingValue(grid: ComplexSudoku) {
       cells: uniqCells,
     };
   });
-  const sortedRemainingValues = _.sortBy(
-    remainingValues,
-    ({cells}) => -cells.length,
-  );
+  const sortedRemainingValues = _.sortBy(remainingValues, ({cells}) => -cells.length);
   const emptyCell = sortedRemainingValues[0].cell;
   return emptyCell;
 }
@@ -83,9 +75,7 @@ function getMinimumRemainingValue(grid: ComplexSudoku) {
 /**
  * Only used for the UI, to show how it's solved
  */
-export function* solveGridGenerator(
-  stack: ComplexSudoku[] = [],
-): Iterable<ComplexSudoku> {
+export function* solveGridGenerator(stack: ComplexSudoku[] = []): Iterable<ComplexSudoku> {
   const [grid, ...rest] = stack;
 
   const _everyFieldIsFilledWithANumber = everyFieldIsFilledWithANumber(grid);
@@ -106,9 +96,7 @@ export function* solveGridGenerator(
       const newGrids = newCells
         .map((c: SimpleCell): ComplexSudoku => {
           // remove the cell from the grid and use the new one
-          const newGrid = grid.filter(
-            cc => `${c.x}-${c.y}` !== `${cc.x}-${cc.y}`,
-          );
+          const newGrid = grid.filter(cc => `${c.x}-${c.y}` !== `${cc.x}-${cc.y}`);
           newGrid.push(c);
           return newGrid;
         })

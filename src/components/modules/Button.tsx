@@ -1,7 +1,6 @@
-
 import THEME from "src/theme";
-import styled, { css } from "styled-components";
-import { withProps } from "src/utils";
+import styled, {css} from "styled-components";
+import {withProps} from "src/utils";
 
 const Button = withProps<{
   active?: boolean;
@@ -23,10 +22,12 @@ const Button = withProps<{
     outline: none;
   }
 
-  ${props => props.active && css`
-    filter: brightness(110%);
-    transform: scale(1.1);
-  `}
+  ${props =>
+    props.active &&
+    css`
+      filter: brightness(110%);
+      transform: scale(1.1);
+    `}
 `;
 
 export default Button;

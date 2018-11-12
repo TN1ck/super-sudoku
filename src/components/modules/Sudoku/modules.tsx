@@ -1,6 +1,6 @@
-import styled, { css } from "styled-components";
+import styled, {css} from "styled-components";
 import THEME from "src/theme";
-import { withProps } from "src/utils";
+import {withProps} from "src/utils";
 
 export const SudokuSmallTitle = styled.div`
   display: flex;

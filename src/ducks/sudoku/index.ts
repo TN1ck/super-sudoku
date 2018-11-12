@@ -2,17 +2,17 @@
 // Constants
 //
 
-const SET_SUDOKU = 'sudoku/SET_SUDOKU';
-const SET_NOTE = 'sudoku/SET_NOTE';
-const CLEAR_NOTE = 'sudoku/CLEAR_NOTE';
-const SET_NUMBER = 'sudoku/SET_NUMBER';
-const CLEAR_NUMBER = 'sudoku/CLEAR_NUMBER';
-const GET_HINT = 'sudoku/GET_HINT';
-const SELECT_NUMBER_FOR_EDIT = 'sudoku/SELECT_NUMBER_FOR_EDIT';
+const SET_SUDOKU = "sudoku/SET_SUDOKU";
+const SET_NOTE = "sudoku/SET_NOTE";
+const CLEAR_NOTE = "sudoku/CLEAR_NOTE";
+const SET_NUMBER = "sudoku/SET_NUMBER";
+const CLEAR_NUMBER = "sudoku/CLEAR_NUMBER";
+const GET_HINT = "sudoku/GET_HINT";
+const SELECT_NUMBER_FOR_EDIT = "sudoku/SELECT_NUMBER_FOR_EDIT";
 
-import {DIFFICULTY} from 'src/engine/utility';
+import {DIFFICULTY} from "src/engine/utility";
 
-import {Cell, parseSudoku, solvableSudoku1} from './model';
+import {Cell, parseSudoku, solvableSudoku1} from "./model";
 
 //
 // Actions
@@ -83,30 +83,19 @@ export function setSudoku(difficulty: DIFFICULTY, sudoku: string) {
 
 export interface SudokuState {
   grid: Cell[];
-  selectedNumber: number | undefined;
 }
 
 const initialGrid = parseSudoku(solvableSudoku1);
 
 const initialState: SudokuState = {
   grid: initialGrid,
-  selectedNumber: undefined,
 };
 
-export default function sudokuReducer(
-  state: SudokuState = initialState,
-  action,
-) {
+export default function sudokuReducer(state: SudokuState = initialState, action) {
   if (
-    ![
-      SET_NOTE,
-      SET_SUDOKU,
-      CLEAR_NOTE,
-      SET_NUMBER,
-      CLEAR_NUMBER,
-      GET_HINT,
-      SELECT_NUMBER_FOR_EDIT,
-    ].find(d => d === action.type)
+    ![SET_NOTE, SET_SUDOKU, CLEAR_NOTE, SET_NUMBER, CLEAR_NUMBER, GET_HINT, SELECT_NUMBER_FOR_EDIT].find(
+      d => d === action.type,
+    )
   ) {
     return state;
   }

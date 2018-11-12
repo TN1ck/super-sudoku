@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import * as _ from "lodash";
 /*
     _x = 0       _x = 1     _x = 2
 .-----0-----------1----------2------|
@@ -35,40 +35,40 @@ export const SUDOKU_COORDINATES = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 export const SUDOKU_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export const solvableSudoku1 = [
-  '_1____674',
-  '_897_____',
-  '__2_638__',
-  '_28___76_',
-  '___1__43_',
-  '__692__18',
-  '_6_235___',
-  '2__4_81_6',
-  '57_______',
-].join('\n');
+  "_1____674",
+  "_897_____",
+  "__2_638__",
+  "_28___76_",
+  "___1__43_",
+  "__692__18",
+  "_6_235___",
+  "2__4_81_6",
+  "57_______",
+].join("\n");
 
 export const solvedSudoku1 = [
-  '315892674',
-  '689741325',
-  '742563891',
-  '128354769',
-  '957186432',
-  '436927518',
-  '861235947',
-  '293478156',
-  '574619283',
-].join('\n');
+  "315892674",
+  "689741325",
+  "742563891",
+  "128354769",
+  "957186432",
+  "436927518",
+  "861235947",
+  "293478156",
+  "574619283",
+].join("\n");
 
 export const solvableSudoku2 = [
-  '34567892_',
-  '68914_57_',
-  '71__3_68_',
-  '27__86_3_',
-  '8_47___9_',
-  '_6___58__',
-  '__78__1__',
-  '__8____5_',
-  '_________',
-].join('\n');
+  "34567892_",
+  "68914_57_",
+  "71__3_68_",
+  "27__86_3_",
+  "8_47___9_",
+  "_6___58__",
+  "__78__1__",
+  "__8____5_",
+  "_________",
+].join("\n");
 
 // SQUARE TABLE
 export const SQUARE_TABLE = (function() {
@@ -83,9 +83,7 @@ export const SQUARE_TABLE = (function() {
     return Math.floor(y / 3) * 3 + Math.floor(x / 3);
   });
   // we sort them, so we can use an optimization
-  const squares = _.sortBy(_.keys(grouped), k => k).map(k =>
-    _.sortBy(grouped[k], ([x, y]) => `${y}-${x}`),
-  );
+  const squares = _.sortBy(_.keys(grouped), k => k).map(k => _.sortBy(grouped[k], ([x, y]) => `${y}-${x}`));
   return squares;
 })();
 
@@ -96,9 +94,9 @@ export function squareIndex(x, y) {
 export function printSimpleSudoku(grid: SimpleSudoku) {
   return grid
     .map(row => {
-      return row.map(c => (c === undefined ? '_' : '' + c)).join('');
+      return row.map(c => (c === undefined ? "_" : "" + c)).join("");
     })
-    .join('\n');
+    .join("\n");
 }
 
 export function duplicates(array: number[]): number {
@@ -133,30 +131,26 @@ export function complexSudokuToSimpleSudoku(sudoku: ComplexSudoku): number[][] {
 export function parseSudoku(sudoku: string): SimpleSudoku {
   // check if the input-data is correct
   const inputDataIsCorrectDomain = [...sudoku].every(char => {
-    return (
-      ['\n', '_'].concat(SUDOKU_NUMBERS.map(n => String(n))).indexOf(char) >= 0
-    );
+    return ["\n", "_"].concat(SUDOKU_NUMBERS.map(n => String(n))).indexOf(char) >= 0;
   });
 
   if (!inputDataIsCorrectDomain) {
-    throw new Error(
-      'The input data is incorrect, only _, \n and 1...9 allowed',
-    );
+    throw new Error("The input data is incorrect, only _, \n and 1...9 allowed");
   }
 
-  const lines = sudoku.split('\n');
+  const lines = sudoku.split("\n");
 
   if (lines.length !== 9) {
-    throw new Error('Wrong number of lines! Only 9 allowed');
+    throw new Error("Wrong number of lines! Only 9 allowed");
   }
 
   return lines.map(line => {
-    const characters = line.split('');
+    const characters = line.split("");
     if (characters.length !== 9) {
-      throw new Error('Wrong number of characters in line! Only 9 allowed');
+      throw new Error("Wrong number of characters in line! Only 9 allowed");
     }
     return characters.map(c => {
-      const number = c === '_' ? undefined : Number(c);
+      const number = c === "_" ? undefined : Number(c);
       return number;
     });
   });
@@ -172,11 +166,11 @@ export function printComplexSudoku(grid: ComplexSudoku) {
     .map(([, cells]: [string, ComplexSudoku]) => {
       return _.sortBy(cells, c => c.x)
         .map(c => {
-          return c.number === undefined ? '_' : String(c.number);
+          return c.number === undefined ? "_" : String(c.number);
         })
-        .join('');
+        .join("");
     })
-    .join('\n');
+    .join("\n");
 }
 
 export interface ParsedSudoku {
@@ -191,13 +185,12 @@ export interface ParsedComplexSudoku {
   value: string;
 }
 
-export const parseListOfSudokus = (sudokus: Array<{value: string, id: number}>): ParsedSudoku[] => {
+export const parseListOfSudokus = (sudokus: Array<{value: string; id: number}>): ParsedSudoku[] => {
   return sudokus.map(({value, id}) => {
     return {sudoku: parseSudoku(value), id, value};
   });
 };
 
-export const parseListOfSudokusComplex = (sudokus: Array<{value: string, id: number}>): ParsedComplexSudoku[] => {
-  return parseListOfSudokus(sudokus)
-    .map(s => ({...s, sudoku: simpleSudokuToComplexSudoku(s.sudoku)}));
+export const parseListOfSudokusComplex = (sudokus: Array<{value: string; id: number}>): ParsedComplexSudoku[] => {
+  return parseListOfSudokus(sudokus).map(s => ({...s, sudoku: simpleSudokuToComplexSudoku(s.sudoku)}));
 };

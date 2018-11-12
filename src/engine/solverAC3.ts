@@ -1,16 +1,7 @@
-import * as _ from 'lodash';
-import {
-  SQUARE_TABLE,
-  SUDOKU_NUMBERS,
-  DomainSudoku,
-  SimpleSudoku,
-  squareIndex,
-} from './utility';
+import * as _ from "lodash";
+import {SQUARE_TABLE, SUDOKU_NUMBERS, DomainSudoku, SimpleSudoku, squareIndex} from "./utility";
 
-function removeValuesFromDomain(
-  domain1: number[],
-  domain2: number[],
-): [number[], boolean] {
+function removeValuesFromDomain(domain1: number[], domain2: number[]): [number[], boolean] {
   let change = false;
   // this is an optimizitation:
   // AC3 checks if there is a value in domain1 that
@@ -140,27 +131,18 @@ export function _solveGridAC3(
   });
 
   if (!isFilled) {
-    const possibleRowAndCells = grid.reduce(
-      (current: Array<[number, number]>, row, index) => {
-        const possibleCells = row.reduce(
-          (currentCells: Array<[number, number]>, cells, cellIndex) => {
-            if (cells.length > 1) {
-              return currentCells.concat([[index, cellIndex]]);
-            }
-            return currentCells;
-          },
-          [],
-        );
-        return current.concat(possibleCells);
-      },
-      [],
-    );
-    const sortedPossibleRowAndCells = _.sortBy(
-      possibleRowAndCells,
-      ([rowIndex, cellIndex]) => {
-        return grid[rowIndex][cellIndex].length;
-      },
-    );
+    const possibleRowAndCells = grid.reduce((current: Array<[number, number]>, row, index) => {
+      const possibleCells = row.reduce((currentCells: Array<[number, number]>, cells, cellIndex) => {
+        if (cells.length > 1) {
+          return currentCells.concat([[index, cellIndex]]);
+        }
+        return currentCells;
+      }, []);
+      return current.concat(possibleCells);
+    }, []);
+    const sortedPossibleRowAndCells = _.sortBy(possibleRowAndCells, ([rowIndex, cellIndex]) => {
+      return grid[rowIndex][cellIndex].length;
+    });
     // use a random variable
     // let [rowIndex, cellIndex] = possibleRowAndCells[_.random(0, possibleRowAndCells.length - 1)];
     // minimum remaining value

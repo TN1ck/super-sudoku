@@ -1,6 +1,6 @@
-import * as React from 'react';
-import styled from 'styled-components';
-import THEME from 'src/theme';
+import * as React from "react";
+import styled from "styled-components";
+import THEME from "src/theme";
 
 const Footer = styled.footer`
   padding: ${THEME.spacer.x3}px;
@@ -8,9 +8,5 @@ const Footer = styled.footer`
 `;
 
 export default () => {
-  return (
-    <Footer>
-      {'Made with <3 in Berlin'}
-    </Footer>
-  );
+  return <Footer>{"Made with <3 in Berlin"}</Footer>;
 };

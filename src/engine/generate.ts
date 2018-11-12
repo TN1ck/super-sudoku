@@ -18,15 +18,10 @@
  *
  */
 
-import * as lodash from 'lodash';
-import * as solverAC3 from './solverAC3';
+import * as lodash from "lodash";
+import * as solverAC3 from "./solverAC3";
 
-import {
-  SUDOKU_NUMBERS,
-  SUDOKU_COORDINATES,
-  DIFFICULTY,
-  SimpleSudoku,
-} from './utility';
+import {SUDOKU_NUMBERS, SUDOKU_COORDINATES, DIFFICULTY, SimpleSudoku} from "./utility";
 
 const DIFFICULTY_MAPPING = {
   [DIFFICULTY.EASY]: 6.234,
@@ -127,7 +122,7 @@ function enhanceUniqueness(sudoku: SimpleSudoku): SimpleSudoku {
 
 function generateCoordinateList(sudoku: SimpleSudoku) {
   const coordinates = sudoku.map((row, i) => {
-    return row.map((n, c) => n !== undefined ? [i, c] : undefined);
+    return row.map((n, c) => (n !== undefined ? [i, c] : undefined));
   });
   const coordinatesWithNumbers = lodash.flatten(coordinates).filter(c => c !== undefined);
   return coordinatesWithNumbers;
@@ -162,10 +157,7 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
    * returns if the costs are close enough to the requested difficulty level
    */
   function validCosts(cost: number): boolean {
-    return (
-      rateCostsPercentage(cost) < RELATIVE_DRIFT ||
-      rateCostsAbsolute(cost) < ABSOLUTE_DRIFT
-    );
+    return rateCostsPercentage(cost) < RELATIVE_DRIFT || rateCostsAbsolute(cost) < ABSOLUTE_DRIFT;
   }
 
   // 1. create a random sudoku
@@ -204,7 +196,7 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
     } else {
       // we can be a bit more specific to speed up the generation
       if (coordinateList.length === 0) {
-        console.log('we tried everything with this version, it is at maximum difficulty');
+        console.log("we tried everything with this version, it is at maximum difficulty");
         console.log(`Needed ${bestCost} to generate this sudoku. Goal was ${iterationGoal}.`);
         return bestSudoku;
       }
@@ -237,7 +229,6 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
         coordinateList = generateCoordinateList(newSudoku);
       }
     }
-
   }
   console.log(`Needed ${bestCost} to generate this sudoku. Goal was ${iterationGoal}.`);
   return bestSudoku;

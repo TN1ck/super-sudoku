@@ -1,22 +1,21 @@
 import * as React from "react";
-import { connect } from "react-redux";
-import { showMenu } from "src/ducks/game";
-import { Cell } from "src/ducks/sudoku/model";
+import {connect} from "react-redux";
+import {showMenu} from "src/ducks/game";
+import {Cell} from "src/ducks/sudoku/model";
 
 import * as _ from "lodash";
 
-import SudokuMenu, { MenuWrapper } from "./SudokuMenu";
+import SudokuMenu, {MenuWrapper} from "./SudokuMenu";
 import {
-  SudokuSmall,
   SmallGridLineX,
   GridCell,
   SmallGridLineY,
   GridCellNumber,
   CellNote,
-  CellNoteContainer
+  CellNoteContainer,
 } from "src/components/modules/Sudoku/modules";
-import SudokuState from "src/components/modules/Sudoku/state";
-import { RootState } from "src/ducks";
+import SudokuState from "src/ducks/sudoku/accessor";
+import {RootState} from "src/ducks";
 
 const fontSize = 14;
 // const fontSizeNotes = 11;
@@ -34,9 +33,7 @@ interface SudokuComponentDispatchProps {
 interface SudokuComponentOwnProps {}
 
 class SudokuComponent extends React.PureComponent<
-  SudokuComponentDispatchProps &
-    SudokuComponentStateProps &
-    SudokuComponentOwnProps,
+  SudokuComponentDispatchProps & SudokuComponentStateProps & SudokuComponentOwnProps,
   {
     height: number;
     width: number;
@@ -50,7 +47,7 @@ class SudokuComponent extends React.PureComponent<
     this.state = {
       height: 0,
       width: 0,
-      notesMode: false
+      notesMode: false,
     };
     this.setRef = this.setRef.bind(this);
     this.enterNotesMode = this.enterNotesMode.bind(this);
@@ -78,19 +75,19 @@ class SudokuComponent extends React.PureComponent<
       const width = this.element.clientWidth;
       this.setState({
         height,
-        width
+        width,
       });
     }
   }
 
   enterNotesMode() {
     this.setState({
-      notesMode: true
+      notesMode: true,
     });
   }
   exitNotesMode() {
     this.setState({
-      notesMode: false
+      notesMode: false,
     });
   }
   toggleMenu() {
@@ -98,7 +95,7 @@ class SudokuComponent extends React.PureComponent<
   }
 
   render() {
-    const { sudoku, showHints } = this.props;
+    const {sudoku, showHints} = this.props;
     const size = Math.min(this.state.height, this.state.width);
     const height = size;
     const width = size;
@@ -108,14 +105,10 @@ class SudokuComponent extends React.PureComponent<
 
     const activeCell =
       this.props.showMenuForCell &&
-      sudoku.find(
-        c =>
-          c.x === this.props.showMenuForCell.x &&
-          c.y === this.props.showMenuForCell.y
-      );
+      sudoku.find(c => c.x === this.props.showMenuForCell.x && c.y === this.props.showMenuForCell.y);
     const selectionPosition = {
       x: (activeCell && activeCell.x) || 0,
-      y: (activeCell && activeCell.y) || 0
+      y: (activeCell && activeCell.y) || 0,
     };
 
     const state = new SudokuState();
@@ -127,23 +120,18 @@ class SudokuComponent extends React.PureComponent<
       _.flatten(
         conflicting.map(c => {
           return state.getPathsFromConflicting(c, sudoku);
-        })
-      )
+        }),
+      ),
     );
 
     const pathCells = _.flatten(
       uniquePaths.map(p => {
         return state.getPathBetweenCell(p.from, p.to);
-      })
+      }),
     );
 
-    console.log(pathCells);
-
     return (
-      <div
-        ref={this.setRef}
-        style={{ height: "100%", position: "absolute", width: "100%" }}
-      >
+      <div ref={this.setRef} style={{height: "100%", position: "absolute", width: "100%"}}>
         <div
           style={{
             transition: "background 500ms ease-out",
@@ -155,7 +143,7 @@ class SudokuComponent extends React.PureComponent<
             pointerEvents: "none",
             zIndex: 6,
             fontSize,
-            lineHeight: fontSize + "px"
+            lineHeight: fontSize + "px",
           }}
         />
         {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
@@ -171,7 +159,7 @@ class SudokuComponent extends React.PureComponent<
               key={i}
               height={lineWidth}
               width={width}
-              top={(i * height) / 9 - lineWidth / 2}
+              top={i * height / 9 - lineWidth / 2}
               background={background}
             />
           );
@@ -189,7 +177,7 @@ class SudokuComponent extends React.PureComponent<
               key={i}
               height={height}
               width={lineWidth}
-              left={(i * height) / 9 - lineWidth / 2}
+              left={i * height / 9 - lineWidth / 2}
               background={background}
             />
           );
@@ -206,9 +194,7 @@ class SudokuComponent extends React.PureComponent<
           const position = positionedCells[i];
           const conflicted = conflicting[i];
 
-          const notes = showHints
-            ? conflicted.possibilities
-            : [...c.notes.values()];
+          const notes = showHints ? conflicted.possibilities : [...c.notes.values()];
 
           const inConflictPath = pathCells.find(d => {
             return d.x === c.x && d.y === c.y;
@@ -224,15 +210,11 @@ class SudokuComponent extends React.PureComponent<
                   width: xSection,
                   left: xSection * c.x,
                   top: ySection * c.y,
-                  zIndex: 0
+                  zIndex: 0,
                 }}
                 onClick={onClick}
               />
-              <GridCellNumber
-                left={position.x}
-                top={position.y}
-                initial={c.initial}
-              >
+              <GridCellNumber left={position.x} top={position.y} initial={c.initial}>
                 {c.number}
               </GridCellNumber>
               <CellNoteContainer
@@ -241,7 +223,7 @@ class SudokuComponent extends React.PureComponent<
                   top: ySection * c.y,
                   fontWeight: c.initial ? "bold" : "normal",
                   width: xSection,
-                  height: ySection
+                  height: ySection,
                 }}
               >
                 {c.initial || c.number
@@ -253,7 +235,7 @@ class SudokuComponent extends React.PureComponent<
                           key={n}
                           style={{
                             left: notePosition.x,
-                            top: notePosition.y
+                            top: notePosition.y,
                           }}
                         >
                           {n}
@@ -271,7 +253,7 @@ class SudokuComponent extends React.PureComponent<
               top: ySection * selectionPosition.y,
               left: xSection * selectionPosition.x,
               height: ySection,
-              width: xSection
+              width: xSection,
             }}
           >
             <MenuWrapper>
@@ -298,8 +280,8 @@ export const SudokuConnected = connect<
     return {
       showMenuForCell: state.game.showMenu,
       showHints: state.game.showHints,
-      sudoku: state.sudoku.grid
+      sudoku: state.sudoku.grid,
     };
   },
-  { showMenu }
+  {showMenu},
 )(SudokuComponent);

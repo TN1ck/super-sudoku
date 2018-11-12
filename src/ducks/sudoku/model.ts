@@ -1,4 +1,4 @@
-import {SimpleCell} from 'src/engine/utility';
+import {SimpleCell} from "src/engine/utility";
 
 export interface Cell extends SimpleCell {
   initial: boolean;
@@ -25,32 +25,25 @@ export function createCell(
 }
 
 export const solvableSudoku1 = [
-  '_1____674',
-  '_897_____',
-  '__2_638__',
-  '_28___76_',
-  '___1__43_',
-  '__692__18',
-  '_6_235___',
-  '2__4_81_6',
-  '57_______',
-].join('\n');
+  "_1____674",
+  "_897_____",
+  "__2_638__",
+  "_28___76_",
+  "___1__43_",
+  "__692__18",
+  "_6_235___",
+  "2__4_81_6",
+  "57_______",
+].join("\n");
 
 export function parseSudoku(sudoku: string): Cell[] {
-  const lines = sudoku.split('\n');
+  const lines = sudoku.split("\n");
   return [].concat(
     ...lines.map((line, y) => {
-      const characters = line.split('');
+      const characters = line.split("");
       return characters.map((c, x) => {
-        const number = c === '_' ? undefined : Number(c);
-        return createCell(
-          x,
-          y,
-          number,
-          new Set([]),
-          new Set([]),
-          number !== undefined,
-        );
+        const number = c === "_" ? undefined : Number(c);
+        return createCell(x, y, number, new Set([]), new Set([]), number !== undefined);
       });
     }),
   );

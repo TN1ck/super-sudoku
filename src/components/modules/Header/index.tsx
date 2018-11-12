@@ -1,7 +1,7 @@
-import * as React from 'react';
-import {Link} from 'react-static';
-import styled from 'styled-components';
-import THEME from 'src/theme';
+import * as React from "react";
+import {Link} from "react-static";
+import styled from "styled-components";
+import THEME from "src/theme";
 
 const Header = styled.div`
   padding: ${THEME.spacer.x3}px;
@@ -40,16 +40,14 @@ export default () => {
     <Header>
       <HeaderLinks>
         <HeaderLink>
-          <Link exact to={'/'}>
-            {'Play'}
+          <Link exact to={"/"}>
+            {"Play"}
           </Link>
         </HeaderLink>
         <HeaderLink>
-          <Link to={'/about'}>
-            {'About'}
-          </Link>
+          <Link to={"/about"}>{"About"}</Link>
         </HeaderLink>
       </HeaderLinks>
     </Header>
   );
-}
+};

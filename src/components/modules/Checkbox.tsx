@@ -1,8 +1,7 @@
-import React from 'react';
+import React from "react";
 import styled from "styled-components";
 import THEME from "src/theme";
-import { withProps } from "src/utils";
-
+import {withProps} from "src/utils";
 
 const StyledCheckbox = styled.input`
   margin-top: ${THEME.spacer.x2}px;
@@ -16,7 +15,6 @@ const StyledCheckbox = styled.input`
   &:hover {
     cursor: pointer;
   }
-
 `;
 
 const StyledCheckboxSquare = withProps<{
@@ -34,7 +32,7 @@ const StyledCheckboxSquare = withProps<{
   &:after {
     color: black;
     display: block;
-    content: ${props => props.checked ? "'L'" : "''"};
+    content: ${props => (props.checked ? "'L'" : "''")};
     position: absolute;
     top: -3px;
     left: 7px;
@@ -66,19 +64,9 @@ const Checkbox: React.StatelessComponent<{
 }> = ({id, onChange, checked, children}) => {
   return (
     <StyledCheckboxContainer>
-      <StyledCheckbox
-        type="checkbox"
-        id={id}
-        checked={checked}
-        onChange={onChange}
-      />
-      <StyledCheckboxSquare
-        checked={checked}
-        onClick={onChange}
-      />
-      <StyledLabel htmlFor={id}>
-        {children}
-      </StyledLabel>
+      <StyledCheckbox type="checkbox" id={id} checked={checked} onChange={onChange} />
+      <StyledCheckboxSquare checked={checked} onClick={onChange} />
+      <StyledLabel htmlFor={id}>{children}</StyledLabel>
     </StyledCheckboxContainer>
   );
 };

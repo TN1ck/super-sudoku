@@ -13,9 +13,7 @@
     "test-watch": "jest --watch",
     "test-watchAll": "jest --watchAll",
     "start": "react-static start",
-    "prettier:base": "prettier --parser typescript --single-quote --trailing-comma=\"all\" --no-bracket-spacing",
-    "prettier:check": "npm run prettier:base -- --list-different './src/**/*.ts' './src/**/*.tsx'",
-    "prettier:write": "npm run prettier:base -- --write './src/**/*.ts' './src/**/*.tsx'",
+    "prettier:write": "prettier --write './src/**/*.ts' './src/**/*.tsx'",
     "generate-easy-sudokus": "ts-node --project ./tsconfig.json ./scripts/generate_sudokus.ts -d easy -n 10",
     "generate-evil-sudokus": "ts-node --project ./tsconfig.json ./scripts/generate_sudokus.ts -d evil -n 20"
   },

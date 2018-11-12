@@ -1,21 +1,21 @@
-import { DIFFICULTY } from 'src/engine/utility';
-import sudokus from 'src/sudokus';
-import { Cell } from 'src/ducks/sudoku/model';
+import {DIFFICULTY} from "src/engine/utility";
+import sudokus from "src/sudokus";
+import {Cell} from "src/ducks/sudoku/model";
 
 export enum MenuState {
   running = "RUNNING",
   chooseGame = "CHOOSE_GAME",
 }
 
-const NEW_GAME = 'game/NEW_GAME';
-const RESET_GAME = 'game/RESET_GAME';
-const PAUSE_GAME = 'game/PAUSE_GAME';
-const CONTINUE_GAME = 'game/CONTINUE_GAME';
-const CHANGE_INDEX = 'game/CHANGE_INDEX';
-const SET_MENU = 'game/SET_MENU';
-const SET_DIFFICULTY = 'game/SET_DIFFICULTY';
-const SHOW_MENU = 'game/SHOW_MENU';
-const TOGGLE_SHOW_HINTS = 'game/TOGGLE_SHOW_HINTS';
+const NEW_GAME = "game/NEW_GAME";
+const RESET_GAME = "game/RESET_GAME";
+const PAUSE_GAME = "game/PAUSE_GAME";
+const CONTINUE_GAME = "game/CONTINUE_GAME";
+const CHANGE_INDEX = "game/CHANGE_INDEX";
+const SET_MENU = "game/SET_MENU";
+const SET_DIFFICULTY = "game/SET_DIFFICULTY";
+const SHOW_MENU = "game/SHOW_MENU";
+const TOGGLE_SHOW_HINTS = "game/TOGGLE_SHOW_HINTS";
 
 export function newGame(difficulty, sudokuId) {
   return {
@@ -54,7 +54,7 @@ export function showMenu(cell) {
   return {
     type: SHOW_MENU,
     cell,
-  }
+  };
 }
 
 export function setMenu(menu) {
@@ -109,11 +109,7 @@ const gameState: GameState = {
   showHints: false,
 };
 
-export function getTime(
-  startTime: number,
-  offsetTime: number,
-  stopTime: number,
-) {
+export function getTime(startTime: number, offsetTime: number, stopTime: number) {
   const now = +new Date();
   if (startTime === 0) {
     return 0;
@@ -124,10 +120,7 @@ export function getTime(
   return Math.floor(now - startTime - offsetTime);
 }
 
-export default function gameReducer(
-  state: GameState = gameState,
-  action,
-): GameState {
+export default function gameReducer(state: GameState = gameState, action): GameState {
   switch (action.type) {
     case TOGGLE_SHOW_HINTS: {
       return {
@@ -186,7 +179,7 @@ export default function gameReducer(
       return {
         ...state,
         showMenu: action.cell,
-      }
+      };
     default:
       return state;
   }

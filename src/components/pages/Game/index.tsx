@@ -1,32 +1,26 @@
 import * as React from "react";
 
-import { connect } from "react-redux";
-import {
-  pauseGame,
-  continueGame,
-  resetGame,
-  newGame,
-  GameState
-} from "src/ducks/game";
+import {connect} from "react-redux";
+import {pauseGame, continueGame, resetGame, newGame, GameState} from "src/ducks/game";
 
-import { SudokuConnected } from "src/components/modules/Sudoku";
+import {SudokuConnected} from "src/components/modules/Sudoku";
 
 import GameTimer from "./GameTimer";
 import GameMenu from "./GameMenu";
 
-import { Container } from "src/components/modules/Layout";
+import {Container} from "src/components/modules/Layout";
 import Button from "src/components/modules/Button";
 import styled from "styled-components";
 import THEME from "src/theme";
-import { RootState } from "src/ducks";
+import {RootState} from "src/ducks";
 
-function PauseButton({ pauseGame }) {
+function PauseButton({pauseGame}) {
   return (
     <Button
       onClick={pauseGame}
       style={{
         float: "right",
-        marginBottom: THEME.spacer.x2
+        marginBottom: THEME.spacer.x2,
       }}
     >
       {"Pause"}
@@ -84,18 +78,14 @@ class Game extends React.Component<
   {}
 > {
   render() {
-    const { game, pauseGame } = this.props;
+    const {game, pauseGame} = this.props;
     return (
       <Container>
         <GameContainer>
           <div>
             <div>
               <GameMenu />
-              <GameTimer
-                startTime={game.startTime}
-                stopTime={game.stopTime}
-                offsetTime={game.offsetTime}
-              />
+              <GameTimer startTime={game.startTime} stopTime={game.stopTime} offsetTime={game.offsetTime} />
               <PauseButton pauseGame={pauseGame} />
             </div>
             <GridContainer>
@@ -111,12 +101,12 @@ class Game extends React.Component<
 export default connect(
   (state: RootState) => {
     return {
-      game: state.game
+      game: state.game,
     };
   },
   {
     continueGame,
     pauseGame,
-    resetGame
-  }
+    resetGame,
+  },
 )(Game);

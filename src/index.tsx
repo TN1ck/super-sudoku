@@ -1,8 +1,8 @@
-import 'babel-polyfill';
+import "babel-polyfill";
 
-import React from 'react';
-import * as ReactDom from 'react-dom';
-import Root from './Root';
+import React from "react";
+import * as ReactDom from "react-dom";
+import Root from "./Root";
 
 export default Root;
 

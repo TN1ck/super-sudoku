@@ -1,12 +1,12 @@
 import * as React from "react";
-import { connect } from "react-redux";
-import { setNumber, clearNumber, setNote, clearNote } from "src/ducks/sudoku";
-import { Cell } from "src/ducks/sudoku/model";
-import { SUDOKU_NUMBERS } from "src/engine/utility";
-import styled, { css } from "styled-components";
+import {connect} from "react-redux";
+import {setNumber, clearNumber, setNote, clearNote} from "src/ducks/sudoku";
+import {Cell} from "src/ducks/sudoku/model";
+import {SUDOKU_NUMBERS} from "src/engine/utility";
+import styled, {css} from "styled-components";
 import THEME from "src/theme";
-import { withProps } from "src/utils";
-import { showMenu } from "src/ducks/game";
+import {withProps} from "src/utils";
+import {showMenu} from "src/ducks/game";
 
 const MenuCircleContainer = styled.svg`
   z-index: 7;
@@ -69,16 +69,7 @@ const MenuCircle: React.StatelessComponent<{
   maxRad: number;
   children?: React.ReactChild;
   stroke: string;
-}> = function MenuCircle({
-  radius,
-  notesMode,
-  isActive,
-  onClick,
-  minRad,
-  maxRad,
-  children,
-  stroke
-}) {
+}> = function MenuCircle({radius, notesMode, isActive, onClick, minRad, maxRad, children, stroke}) {
   const yOffset = 7;
   const textRadius = radius + 8;
   const circumCircle = TAU * radius;
@@ -88,8 +79,8 @@ const MenuCircle: React.StatelessComponent<{
   const x = textRadius * Math.cos(minRad + step * 0.5) + center;
   const y = textRadius * Math.sin(minRad + step * 0.5) + center + yOffset;
 
-  const strokeDashoffset = -((minRad / TAU) * circumCircle);
-  const strokeDasharray = `${(step / TAU) * circumCircle} ${circumCircle}`;
+  const strokeDashoffset = -(minRad / TAU * circumCircle);
+  const strokeDasharray = `${step / TAU * circumCircle} ${circumCircle}`;
 
   return (
     <g>
@@ -104,7 +95,7 @@ const MenuCircle: React.StatelessComponent<{
         style={{
           strokeDashoffset,
           strokeDasharray,
-          stroke
+          stroke,
         }}
       />
       <text
@@ -114,7 +105,7 @@ const MenuCircle: React.StatelessComponent<{
           fill: "white",
           textAnchor: "middle",
           zIndex: 100,
-          pointerEvents: "none"
+          pointerEvents: "none",
         }}
       >
         {children}
@@ -159,7 +150,7 @@ class Menu extends React.Component<MenuOwnProps & MenuDispatchProps, {}> {
         style={{
           height: circleRadius * 4,
           width: circleRadius * 4,
-          transform: `translate(-50%, -50%) rotate(${minRad}rad)`
+          transform: `translate(-50%, -50%) rotate(${minRad}rad)`,
         }}
         onClick={() => this.props.showMenu(null)}
       >
@@ -170,12 +161,10 @@ class Menu extends React.Component<MenuOwnProps & MenuDispatchProps, {}> {
           style={{
             pointerEvents: "none",
             strokeDashoffset: 0,
-            strokeDasharray: `${(usedRad / TAU) * circumCircle} ${circumCircle}`
+            strokeDasharray: `${usedRad / TAU * circumCircle} ${circumCircle}`,
           }}
           fill="none"
-          className={
-            this.props.notesMode ? "ss_menu-circle-notes" : "ss_menu-circle"
-          }
+          className={this.props.notesMode ? "ss_menu-circle-notes" : "ss_menu-circle"}
         />
         {SUDOKU_NUMBERS.map((number, i) => {
           const currentMinRad = minRad + radPerStep * (i + 1);
@@ -233,11 +222,7 @@ class Menu extends React.Component<MenuOwnProps & MenuDispatchProps, {}> {
           notesMode={this.props.notesMode}
           minRad={minRad}
           maxRad={minRad + radPerStep}
-          stroke={
-            this.props.notesMode
-              ? THEME.menuColors.alternate
-              : THEME.menuColors.noteAlternate
-          }
+          stroke={this.props.notesMode ? THEME.menuColors.alternate : THEME.menuColors.noteAlternate}
           onClick={e => {
             if (!this.props.notesMode) {
               this.props.enterNotesMode();
@@ -253,15 +238,12 @@ class Menu extends React.Component<MenuOwnProps & MenuDispatchProps, {}> {
   }
 }
 
-const MenuComponent = connect<null, MenuDispatchProps, MenuOwnProps>(
-  null,
-  {
-    showMenu,
-    setNumber,
-    setNote,
-    clearNote,
-    clearNumber
-  }
-)(Menu);
+const MenuComponent = connect<null, MenuDispatchProps, MenuOwnProps>(null, {
+  showMenu,
+  setNumber,
+  setNote,
+  clearNote,
+  clearNumber,
+})(Menu);
 
 export default MenuComponent;

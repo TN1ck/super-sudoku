@@ -1,18 +1,18 @@
 import * as React from "react";
 
-import { Router } from "react-static";
+import {Router} from "react-static";
 import Routes from "react-static-routes";
-import { hot } from "react-hot-loader";
+import {hot} from "react-hot-loader";
 
-import { AppContainer } from "react-hot-loader";
+import {AppContainer} from "react-hot-loader";
 
-import { Provider } from "react-redux";
+import {Provider} from "react-redux";
 
 import configureStore from "src/store/configureStore";
 
 import Header from "src/components/modules/Header";
 import Footer from "src/components/modules/Footer";
-import styled, { injectGlobal } from "styled-components";
+import styled, {injectGlobal} from "styled-components";
 import THEME from "src/theme";
 
 injectGlobal`

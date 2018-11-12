@@ -1,7 +1,7 @@
-import * as React from 'react';
+import * as React from "react";
 
-import {connect} from 'react-redux';
-import {setSudoku} from 'src/ducks/sudoku';
+import {connect} from "react-redux";
+import {setSudoku} from "src/ducks/sudoku";
 import {
   changeIndex,
   continueGame,
@@ -11,16 +11,16 @@ import {
   setDifficulty,
   MenuState,
   toggleShowHints,
-} from 'src/ducks/game';
-import {DIFFICULTY} from 'src/engine/utility';
+} from "src/ducks/game";
+import {DIFFICULTY} from "src/engine/utility";
 
-import SelectSudoku from './GameSelectSudoku';
+import SelectSudoku from "./GameSelectSudoku";
 
-import THEME from 'src/theme';
-import styled from 'styled-components';
-import { RootState } from 'src/ducks';
-import Button from 'src/components/modules/Button';
-import Checkbox from 'src/components/modules/Checkbox';
+import THEME from "src/theme";
+import styled from "styled-components";
+import {RootState} from "src/ducks";
+import Button from "src/components/modules/Button";
+import Checkbox from "src/components/modules/Checkbox";
 
 export const GameMenuContainer = styled.div`
   background-color: rgba(255, 255, 255, 0.8);
@@ -52,63 +52,52 @@ const GameMenuListItem = styled.li`
   box-shadow: ${THEME.boxShadow};
 
   &:hover {
-      cursor: pointer;
-      background-color: $color__dark-blue;
+    cursor: pointer;
+    background-color: $color__dark-blue;
   }
 `;
 
-const GameMenuRunning = ({
-  continueGame,
-  chooseGame,
-  toggleShowHints,
-  showHints,
-}) => {
+const GameMenuRunning = ({continueGame, chooseGame, toggleShowHints, showHints}) => {
   return (
     <GameMenuContainer>
       <GameMenuList>
-        <Checkbox id='hints' checked={showHints} onChange={toggleShowHints}>
-          {'Show all hints'}
+        <Checkbox id="hints" checked={showHints} onChange={toggleShowHints}>
+          {"Show all hints"}
         </Checkbox>>
         <GameMenuListItem onClick={continueGame} key="continue">
-          {'Continue'}
+          {"Continue"}
         </GameMenuListItem>
         <GameMenuListItem onClick={chooseGame} key="reset-game">
-          {'New Game'}
+          {"New Game"}
         </GameMenuListItem>
       </GameMenuList>
     </GameMenuContainer>
   );
-}
+};
 
-const GameMenuSelection = ({
-  setDifficulty,
-  newGame,
-  changeIndex,
-  sudokuIndex,
-  difficulty,
-}) => {
+const GameMenuSelection = ({setDifficulty, newGame, changeIndex, sudokuIndex, difficulty}) => {
   const currentDifficulty = difficulty;
   const difficulties = [
     {
-      label: 'Easy',
+      label: "Easy",
       difficulty: DIFFICULTY.EASY,
     },
     {
-      label: 'Medium',
+      label: "Medium",
       difficulty: DIFFICULTY.MEDIUM,
     },
     {
-      label: 'Hard',
+      label: "Hard",
       difficulty: DIFFICULTY.HARD,
     },
     {
-      label: 'Evil',
+      label: "Evil",
       difficulty: DIFFICULTY.EVIL,
     },
   ];
   return (
     <GameMenuContainer>
-      <div style={{display: 'flex', justifyContent: "center", width: '100%', height: '40px'}}>
+      <div style={{display: "flex", justifyContent: "center", width: "100%", height: "40px"}}>
         {difficulties.map(({label, difficulty}, i) => {
           const onClick = () => setDifficulty(difficulty);
           const active = difficulty === currentDifficulty;
@@ -127,7 +116,7 @@ const GameMenuSelection = ({
         })}
       </div>
       <SelectSudoku
-        key='select-sudoku'
+        key="select-sudoku"
         newGame={newGame}
         difficulty={currentDifficulty}
         changeIndex={changeIndex}
@@ -135,7 +124,7 @@ const GameMenuSelection = ({
       />
     </GameMenuContainer>
   );
-}
+};
 
 const GameMenu = connect(
   function(state: RootState) {
@@ -158,24 +147,23 @@ const GameMenu = connect(
     setDifficulty,
     toggleShowHints,
   },
-)(class GameMenu extends React.Component<
-    {
-      continueGame: typeof continueGame;
-      resetGame: typeof resetGame;
-      newGame: typeof newGame;
-      setSudoku: typeof setSudoku;
-      changeIndex: typeof changeIndex,
-      setMenu: typeof setMenu;
-      setDifficulty: typeof setDifficulty;
-      toggleShowHints: typeof toggleShowHints;
-      showHints: boolean;
-      running: boolean;
-      hasGame: boolean;
-      sudokuIndex: number;
-      menuState: string;
-      difficulty: DIFFICULTY;
-    }
-  > {
+)(
+  class GameMenu extends React.Component<{
+    continueGame: typeof continueGame;
+    resetGame: typeof resetGame;
+    newGame: typeof newGame;
+    setSudoku: typeof setSudoku;
+    changeIndex: typeof changeIndex;
+    setMenu: typeof setMenu;
+    setDifficulty: typeof setDifficulty;
+    toggleShowHints: typeof toggleShowHints;
+    showHints: boolean;
+    running: boolean;
+    hasGame: boolean;
+    sudokuIndex: number;
+    menuState: string;
+    difficulty: DIFFICULTY;
+  }> {
     constructor(props) {
       super(props);
       this.newGame = this.newGame.bind(this);
@@ -213,7 +201,7 @@ const GameMenu = connect(
               changeIndex={changeIndex}
               sudokuIndex={sudokuIndex}
             />
-          )
+          );
         }
         case MenuState.running: {
           if (hasGame) {
@@ -224,10 +212,9 @@ const GameMenu = connect(
                 toggleShowHints={toggleShowHints}
                 showHints={showHints}
               />
-            )
+            );
           }
         }
-
       }
     }
   },

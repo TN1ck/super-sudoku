@@ -1,21 +1,11 @@
-import * as _ from 'lodash';
-import {
-  SUDOKU_NUMBERS,
-  SQUARE_TABLE,
-  squareIndex,
-  SimpleSudoku,
-  duplicates,
-} from './utility';
+import * as _ from "lodash";
+import {SUDOKU_NUMBERS, SQUARE_TABLE, squareIndex, SimpleSudoku, duplicates} from "./utility";
 
 function isFilled(grid: SimpleSudoku): boolean {
   return grid.every(row => row.every(n => n !== undefined));
 }
 
-function isCorrect(
-  rows: SimpleSudoku,
-  columns: SimpleSudoku,
-  squares: SimpleSudoku,
-): boolean {
+function isCorrect(rows: SimpleSudoku, columns: SimpleSudoku, squares: SimpleSudoku): boolean {
   const duplicatesInRow = rows.some(row => {
     return duplicates(row) !== 0;
   });
@@ -98,10 +88,7 @@ function getMinimumRemainingValue(
     }
   }
 
-  const sortedRemainingValues = _.sortBy(
-    numberOfRemainingValuesForEveryCell,
-    c => c.remainingValues.length,
-  );
+  const sortedRemainingValues = _.sortBy(numberOfRemainingValuesForEveryCell, c => c.remainingValues.length);
   return sortedRemainingValues[0];
 }
 
@@ -152,12 +139,7 @@ export function _solveGrid(
     return _solveGrid(rest, iterations);
   }
 
-  const {remainingValues, x, y} = getMinimumRemainingValue(
-    grid,
-    rows,
-    columns,
-    squares,
-  );
+  const {remainingValues, x, y} = getMinimumRemainingValue(grid, rows, columns, squares);
   const newGrids = createNewGrids(grid, x, y, remainingValues);
 
   return _solveGrid(newGrids.concat(rest), iterations);

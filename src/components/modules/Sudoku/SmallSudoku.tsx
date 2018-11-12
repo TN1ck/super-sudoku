@@ -1,6 +1,6 @@
-import React from 'react';
-import { SudokuSmall, SudokuSmallTitle, SmallGridLineY, SmallGridLineX } from 'src/components/modules/Sudoku/modules';
-import { SimpleCell } from 'src/engine/utility';
+import React from "react";
+import {SudokuSmall, SudokuSmallTitle, SmallGridLineY, SmallGridLineX} from "src/components/modules/Sudoku/modules";
+import {SimpleCell} from "src/engine/utility";
 
 export default class SmallSudokuComponent extends React.PureComponent<{
   sudoku: SimpleCell[];
@@ -20,16 +20,16 @@ export default class SmallSudokuComponent extends React.PureComponent<{
     const fontYOffset = ySection / 2 - 4;
 
     return (
-      <div style={{pointerEvents: 'none', userSelect: 'none'}}>
-         <div
+      <div style={{pointerEvents: "none", userSelect: "none"}}>
+        <div
           style={{
             background: `rgba(255, 255, 255, ${darken ? 0.5 : 0})`,
-            transition: 'background 500ms ease-out',
+            transition: "background 500ms ease-out",
             top: 0,
             left: 0,
             height,
             width,
-            position: 'absolute',
+            position: "absolute",
             zIndex: 6,
           }}
         />
@@ -38,16 +38,14 @@ export default class SmallSudokuComponent extends React.PureComponent<{
             height,
             width,
             fontSize,
-            lineHeight: fontSize + 'px',
+            lineHeight: fontSize + "px",
           }}
         >
-          <SudokuSmallTitle>
-            {id}
-          </SudokuSmallTitle>
+          <SudokuSmallTitle>{id}</SudokuSmallTitle>
           {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
             const makeBold = i % 3 === 0;
             const lineWidth = makeBold ? 2 : 1;
-            const background = makeBold ? '#AAAAAA' : '#EEEEEE';
+            const background = makeBold ? "#AAAAAA" : "#EEEEEE";
             return (
               <SmallGridLineX
                 key={i}
@@ -61,7 +59,7 @@ export default class SmallSudokuComponent extends React.PureComponent<{
           {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
             const makeBold = i % 3 === 0;
             const lineWidth = makeBold ? 2 : 1;
-            const background = makeBold ? '#AAAAAA' : '#EEEEEE';
+            const background = makeBold ? "#AAAAAA" : "#EEEEEE";
             return (
               <SmallGridLineY
                 key={i}
@@ -77,7 +75,7 @@ export default class SmallSudokuComponent extends React.PureComponent<{
               <div
                 key={i}
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   left: xSection * c.x + fontXOffset,
                   top: ySection * c.y + fontYOffset,
                 }}

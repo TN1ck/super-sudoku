@@ -1,5 +1,5 @@
-import {DIFFICULTY} from 'src/engine/utility';
-import sudokus from 'src/assets/sudokus.ts';
+import {DIFFICULTY} from "src/engine/utility";
+import sudokus from "src/assets/sudokus.ts";
 
 interface ParsedSudoku {
   iterations: number;
@@ -7,7 +7,7 @@ interface ParsedSudoku {
 }
 
 const parsedSudokus: {
-  [key: string]: ParsedSudoku[]
+  [key: string]: ParsedSudoku[];
 } = sudokus;
 
 function addIds<T>(array: T[]): Array<{id: number; value: T}> {
