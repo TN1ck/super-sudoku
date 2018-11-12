@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import {connect} from "react-redux";
-import {pauseGame, continueGame, resetGame, newGame, GameState} from "src/ducks/game";
+import {pauseGame, continueGame, resetGame, newGame, GameState, wonGame} from "src/ducks/game";
 
 import {SudokuConnected} from "src/components/modules/Sudoku";
 
@@ -13,6 +13,8 @@ import Button from "src/components/modules/Button";
 import styled from "styled-components";
 import THEME from "src/theme";
 import {RootState} from "src/ducks";
+import SudokuState from "src/ducks/sudoku/accessor";
+import {Cell} from "src/ducks/sudoku/model";
 
 function PauseButton({pauseGame}) {
   return (
@@ -67,16 +69,25 @@ const GridContainer = styled.div`
   }
 `;
 
-class Game extends React.Component<
-  {
-    game: GameState;
-    continueGame: typeof continueGame;
-    resetGame: typeof resetGame;
-    pauseGame: typeof pauseGame;
-    newGame: typeof newGame;
-  },
-  {}
-> {
+class Game extends React.Component<{
+  game: GameState;
+  sudoku: Cell[];
+  continueGame: typeof continueGame;
+  resetGame: typeof resetGame;
+  pauseGame: typeof pauseGame;
+  newGame: typeof newGame;
+  wonGame: typeof wonGame;
+}> {
+  componentWillReceiveProps(props) {
+    const state = new SudokuState();
+    const wasSolved = state.isSolved(this.props.sudoku);
+    const isSolved = state.isSolved(props.sudoku);
+    console.log("was", wasSolved, "is", isSolved);
+    if (isSolved && !wasSolved) {
+      this.props.wonGame();
+    }
+  }
+
   render() {
     const {game, pauseGame} = this.props;
     return (
@@ -102,11 +113,13 @@ export default connect(
   (state: RootState) => {
     return {
       game: state.game,
+      sudoku: state.sudoku.grid,
     };
   },
   {
     continueGame,
     pauseGame,
     resetGame,
+    wonGame,
   },
 )(Game);

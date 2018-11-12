@@ -159,7 +159,7 @@ class SudokuComponent extends React.PureComponent<
               key={i}
               height={lineWidth}
               width={width}
-              top={i * height / 9 - lineWidth / 2}
+              top={(i * height) / 9 - lineWidth / 2}
               background={background}
             />
           );
@@ -177,7 +177,7 @@ class SudokuComponent extends React.PureComponent<
               key={i}
               height={height}
               width={lineWidth}
-              left={i * height / 9 - lineWidth / 2}
+              left={(i * height) / 9 - lineWidth / 2}
               background={background}
             />
           );

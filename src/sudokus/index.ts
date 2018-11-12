@@ -19,9 +19,13 @@ function addIds<T>(array: T[]): Array<{id: number; value: T}> {
   });
 }
 
+function sortSudokus(parsed: ParsedSudoku[]): ParsedSudoku[] {
+  return parsed.sort((a, b) => a.iterations - b.iterations);
+}
+
 export default {
-  [DIFFICULTY.EASY]: addIds(parsedSudokus.easy.map(d => d.sudoku)),
-  [DIFFICULTY.MEDIUM]: addIds(parsedSudokus.medium.map(d => d.sudoku)),
-  [DIFFICULTY.HARD]: addIds(parsedSudokus.hard.map(d => d.sudoku)),
-  [DIFFICULTY.EVIL]: addIds(parsedSudokus.evil.map(d => d.sudoku)),
+  [DIFFICULTY.EASY]: addIds(sortSudokus(parsedSudokus.easy).map(d => d.sudoku)),
+  [DIFFICULTY.MEDIUM]: addIds(sortSudokus(parsedSudokus.medium).map(d => d.sudoku)),
+  [DIFFICULTY.HARD]: addIds(sortSudokus(parsedSudokus.hard).map(d => d.sudoku)),
+  [DIFFICULTY.EVIL]: addIds(sortSudokus(parsedSudokus.evil).map(d => d.sudoku)),
 };

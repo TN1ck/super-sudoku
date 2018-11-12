@@ -122,17 +122,16 @@ export default class SudokuState {
     const {x, y} = positions[n];
 
     return {
-      x: noteWidth / 3 * (x + 0.5) + padding,
-      y: noteHeight / 3 * (y + 0.5) + padding,
+      x: (noteWidth / 3) * (x + 0.5) + padding,
+      y: (noteHeight / 3) * (y + 0.5) + padding,
       note: n,
     };
   }
 
   isSolved(sudoku: Cell[]): Boolean {
-    const conflictCells = this.conflictingFields(sudoku);
-    const noConflictCells = conflictCells.filter(c => c.conflicting.length === 0);
-    const noConflicts = conflictCells.length === noConflictCells.length;
-    const allSet = sudoku.filter(c => c.number !== undefined).length === sudoku.length;
+    const noConflicts = this.correct(sudoku);
+    const set = sudoku.filter(c => c.number !== undefined);
+    const allSet = set.length === sudoku.length;
     return allSet && noConflicts;
   }
 
@@ -148,6 +147,29 @@ export default class SudokuState {
 
   positionedCells(sudoku: Cell[]): PositionedCell[] {
     return sudoku.map(this.getCellPosition);
+  }
+
+  correct(sudoku: Cell[]): Boolean {
+    const sudokuFiltered = sudoku.filter(c => c.number !== undefined);
+    const rows = Object.values(
+      _.groupBy(sudokuFiltered, c => {
+        return c.x;
+      }),
+    );
+    const columns = Object.values(
+      _.groupBy(sudokuFiltered, c => {
+        return c.y;
+      }),
+    );
+    const squares = Object.values(
+      _.groupBy(sudokuFiltered, c => {
+        return `${Math.floor(c.x / 3)}-${Math.floor(c.y / 3)}`;
+      }),
+    );
+    const correctRows = rows.every(row => _.uniqBy(row, r => r.number).length === row.length);
+    const correctColumns = columns.every(row => _.uniqBy(row, r => r.number).length === row.length);
+    const correctSquares = squares.every(row => _.uniqBy(row, r => r.number).length === row.length);
+    return correctRows && correctColumns && correctSquares;
   }
 
   conflictingFields(sudoku: Cell[]): ConflictingCell[] {

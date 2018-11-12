@@ -57,16 +57,36 @@ const GameMenuListItem = styled.li`
   }
 `;
 
+const GameWonText = styled.div`
+  color: black;
+  font-size: 32px;
+  padding-bottom: ${THEME.spacer.x3};
+`;
+
 const GameMenuRunning = ({continueGame, chooseGame, toggleShowHints, showHints}) => {
   return (
     <GameMenuContainer>
       <GameMenuList>
         <Checkbox id="hints" checked={showHints} onChange={toggleShowHints}>
           {"Show all hints"}
-        </Checkbox>>
+        </Checkbox>
+        >
         <GameMenuListItem onClick={continueGame} key="continue">
           {"Continue"}
         </GameMenuListItem>
+        <GameMenuListItem onClick={chooseGame} key="reset-game">
+          {"New Game"}
+        </GameMenuListItem>
+      </GameMenuList>
+    </GameMenuContainer>
+  );
+};
+
+const WonGame = ({chooseGame}) => {
+  return (
+    <GameMenuContainer>
+      <GameMenuList>
+        <GameWonText>{"Congratulations, You won!"}</GameWonText>
         <GameMenuListItem onClick={chooseGame} key="reset-game">
           {"New Game"}
         </GameMenuListItem>
@@ -191,6 +211,8 @@ const GameMenu = connect(
         return null;
       }
 
+      const chooseGame = () => this.props.setMenu(MenuState.chooseGame);
+
       switch (this.props.menuState) {
         case MenuState.chooseGame: {
           return (
@@ -208,12 +230,15 @@ const GameMenu = connect(
             return (
               <GameMenuRunning
                 continueGame={continueGame}
-                chooseGame={() => this.props.setMenu(MenuState.chooseGame)}
+                chooseGame={chooseGame}
                 toggleShowHints={toggleShowHints}
                 showHints={showHints}
               />
             );
           }
+        }
+        case MenuState.wonGame: {
+          return <WonGame chooseGame={chooseGame} />;
         }
       }
     }

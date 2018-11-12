@@ -5,12 +5,15 @@ import {Cell} from "src/ducks/sudoku/model";
 export enum MenuState {
   running = "RUNNING",
   chooseGame = "CHOOSE_GAME",
+  wonGame = "WON_GAME",
 }
 
 const NEW_GAME = "game/NEW_GAME";
 const RESET_GAME = "game/RESET_GAME";
 const PAUSE_GAME = "game/PAUSE_GAME";
 const CONTINUE_GAME = "game/CONTINUE_GAME";
+const WON_GAME = "game/WON_GAME";
+
 const CHANGE_INDEX = "game/CHANGE_INDEX";
 const SET_MENU = "game/SET_MENU";
 const SET_DIFFICULTY = "game/SET_DIFFICULTY";
@@ -22,6 +25,12 @@ export function newGame(difficulty, sudokuId) {
     type: NEW_GAME,
     difficulty,
     sudokuId,
+  };
+}
+
+export function wonGame() {
+  return {
+    type: WON_GAME,
   };
 }
 
@@ -91,9 +100,11 @@ export interface GameState {
   difficulty: DIFFICULTY;
   showMenu: Cell;
   showHints: boolean;
+  won: boolean;
 }
 
 const gameState: GameState = {
+  won: false,
   startTime: 0,
   offsetTime: 0,
   stopTime: 0,
@@ -170,6 +181,13 @@ export default function gameReducer(state: GameState = gameState, action): GameS
         ...state,
         difficulty: action.difficulty,
       };
+    case WON_GAME: {
+      return {
+        ...state,
+        running: false,
+        menu: MenuState.wonGame,
+      };
+    }
     case SET_MENU:
       return {
         ...state,
