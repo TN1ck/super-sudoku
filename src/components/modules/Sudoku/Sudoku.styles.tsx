@@ -1,5 +1,21 @@
 import styled, {css} from "styled-components";
 import THEME from "src/theme";
+import {Bounds} from "src/utils/types";
+
+export const SudokuBackground = styled.div`
+  transition: "background 500ms ease-out";
+  top: 0;
+  left: 0;
+  position: "absolute";
+  pointer-events: "none";
+  z-index: 6;
+`;
+
+export const SudokuContainer = styled.div`
+  position: absolute;
+  height: 100%;
+  width: 100%;
+`;
 
 export const SudokuSmallTitle = styled.div`
   display: flex;
@@ -17,21 +33,29 @@ export const SudokuSmallTitle = styled.div`
   left: 0;
 `;
 
-export const SmallGridLineX = styled.div<{
+export const GridLineX = styled.div<{
   top: number;
   height: number;
   width: number;
-  background: string;
+  makeBold: boolean;
 }>`
   position: absolute;
   left: 0;
-  height: ${props => props.height}px;
   width: ${props => props.width}px;
   top: ${props => props.top}px;
-  background: ${props => props.background};
+  transform: translateY(-50%);
+  height: 1px;
+  background: #eeeeee;
+  ${props =>
+    props.makeBold &&
+    css`
+      background: #aaaaaa;
+      height: 2px;
+      z-index: 1;
+    `};
 `;
 
-export const SmallGridLineY = styled.div<{
+export const GridLineY = styled.div<{
   left: number;
   height: number;
   width: number;
@@ -40,9 +64,16 @@ export const SmallGridLineY = styled.div<{
   position: absolute;
   top: 0;
   height: ${props => props.height}px;
-  width: ${props => props.width}px;
   left: ${props => props.left}px;
-  background: ${props => props.background};
+  background: #eeeeee;
+  width: 1px;
+  transform: translateX(-50%);
+  ${props =>
+    props.makeBold &&
+    css`
+      background: #aaaaaa;
+      width: 2px;
+    `};
 `;
 
 export const SudokuSmall = styled.div`
@@ -52,15 +83,12 @@ export const SudokuSmall = styled.div`
   cursor: default;
 `;
 
-export const Grid33 = styled.div`
-  border: 1px solid ${THEME.colors.gray200};
-  display: flex;
-  flex-wrap: wrap;
-  width: 33.333%;
-  height: 33.333%;
-`;
-
-export const CellNote = styled.div`
+export const CellNote = styled.div<{
+  left: number;
+  top: number;
+}>`
+  top: ${props => props.top}px;
+  left: ${props => props.left}px;
   font-size: 12px;
   color: ${THEME.colors.gray200};
   position: absolute;
@@ -74,9 +102,18 @@ export const CellNote = styled.div`
   }
 `;
 
-export const CellNoteContainer = styled.div`
+export const CellNoteContainer = styled.div<{
+  initial: boolean;
+  bounds: Bounds;
+}>`
   position: absolute;
   pointer-events: none;
+  font-weight: ${props => (props.initial ? "bold" : "normal")};
+
+  width: ${props => props.bounds.width}px;
+  height: ${props => props.bounds.height}px;
+  top: ${props => props.bounds.top}px;
+  left: ${props => props.bounds.left}px;
 `;
 
 export const CellNumber = styled.div`
@@ -107,12 +144,20 @@ export const CellInner = styled.div<{
 
 export const GridCell = styled.div<{
   highlight: boolean;
+  bounds: Bounds;
 }>`
+  position: absolute;
+  z-index: 0;
   background-color: transparent;
   transition: background-color 0.3s ease;
   &:hover {
     border: 1px solid ${THEME.colors.primary};
   }
+
+  width: ${props => props.bounds.width}px;
+  height: ${props => props.bounds.height}px;
+  top: ${props => props.bounds.top}px;
+  left: ${props => props.bounds.left}px;
 
   ${props =>
     props.highlight &&

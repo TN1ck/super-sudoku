@@ -1,5 +1,5 @@
 import React from "react";
-import {SudokuSmall, SudokuSmallTitle, SmallGridLineY, SmallGridLineX} from "src/components/modules/Sudoku/modules";
+import {SudokuSmall, SudokuSmallTitle, GridLineY, GridLineX} from "src/components/modules/Sudoku/Sudoku.styles";
 import {SimpleCell} from "src/engine/utility";
 
 export default class SmallSudokuComponent extends React.PureComponent<{
@@ -44,31 +44,11 @@ export default class SmallSudokuComponent extends React.PureComponent<{
           <SudokuSmallTitle>{id}</SudokuSmallTitle>
           {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
             const makeBold = i % 3 === 0;
-            const lineWidth = makeBold ? 2 : 1;
-            const background = makeBold ? "#AAAAAA" : "#EEEEEE";
-            return (
-              <SmallGridLineX
-                key={i}
-                height={lineWidth}
-                width={width}
-                top={i * height / 9 - lineWidth / 2}
-                background={background}
-              />
-            );
+            return <GridLineX key={i} width={width} top={(i * height) / 9} makeBold={makeBold} />;
           })}
           {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
             const makeBold = i % 3 === 0;
-            const lineWidth = makeBold ? 2 : 1;
-            const background = makeBold ? "#AAAAAA" : "#EEEEEE";
-            return (
-              <SmallGridLineY
-                key={i}
-                height={height}
-                width={lineWidth}
-                left={i * height / 9 - lineWidth / 2}
-                background={background}
-              />
-            );
+            return <GridLineY key={i} height={height} left={(i * height) / 9} makeBold={makeBold} />;
           })}
           {sudoku.map((c, i) => {
             return (

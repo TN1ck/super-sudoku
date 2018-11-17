@@ -6,6 +6,7 @@ import {SUDOKU_NUMBERS} from "src/engine/utility";
 import styled, {css} from "styled-components";
 import THEME from "src/theme";
 import {showMenu} from "src/ducks/game";
+import {Bounds} from "src/utils/types";
 
 const MenuCircleContainer = styled.svg`
   z-index: 7;
@@ -38,6 +39,14 @@ const MenuCircleComponent = styled.circle<{
       cursor: pointer;
       fill-opacity: 0.9;
     `}
+`;
+
+export const MenuContainer = styled.div<{bounds: Bounds}>`
+  position: absolute;
+  width: ${props => props.bounds.width}px;
+  height: ${props => props.bounds.height}px;
+  top: ${props => props.bounds.top}px;
+  left: ${props => props.bounds.left}px;
 `;
 
 export const MenuWrapper = styled.div`

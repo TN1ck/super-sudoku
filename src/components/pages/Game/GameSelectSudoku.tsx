@@ -8,7 +8,7 @@ import {DIFFICULTY, ParsedComplexSudoku, parseListOfSudokusComplex} from "src/en
 import SUDOKUS from "src/sudokus";
 import Button from "src/components/modules/Button";
 import THEME from "src/theme";
-import SmallSudokuComponent from "src/components/modules/Sudoku/SmallSudoku";
+import SmallSudokuComponent from "src/components/modules/Sudoku/SudokuSmall";
 import {TouchProvider} from "src/components/modules/Swiper";
 
 const SelectContainer = styled.div<{

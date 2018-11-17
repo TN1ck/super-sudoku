@@ -3,7 +3,7 @@ import * as React from "react";
 import {connect} from "react-redux";
 import {pauseGame, continueGame, resetGame, newGame, GameState, wonGame} from "src/ducks/game";
 
-import {SudokuConnected} from "src/components/modules/Sudoku";
+import {SudokuConnected} from "src/components/modules/Sudoku/Sudoku";
 
 import GameTimer from "./GameTimer";
 import GameMenu from "./GameMenu";

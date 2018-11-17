@@ -5,17 +5,20 @@ import {Cell} from "src/ducks/sudoku/model";
 
 import * as _ from "lodash";
 
-import SudokuMenu, {MenuWrapper} from "./SudokuMenu";
+import SudokuMenu, {MenuWrapper, MenuContainer} from "./SudokuMenu";
 import {
-  SmallGridLineX,
+  GridLineX,
   GridCell,
-  SmallGridLineY,
+  GridLineY,
   GridCellNumber,
   CellNote,
   CellNoteContainer,
-} from "src/components/modules/Sudoku/modules";
+  SudokuBackground,
+  SudokuContainer,
+} from "src/components/modules/Sudoku/Sudoku.styles";
 import SudokuState from "src/ducks/sudoku/accessor";
 import {RootState} from "src/ducks";
+import {Bounds} from "src/utils/types";
 
 const fontSize = 14;
 // const fontSizeNotes = 11;
@@ -45,8 +48,8 @@ class SudokuComponent extends React.PureComponent<
   constructor(props) {
     super(props);
     this.state = {
-      height: 0,
-      width: 0,
+      height: 300,
+      width: 300,
       notesMode: false,
     };
     this.setRef = this.setRef.bind(this);
@@ -130,18 +133,12 @@ class SudokuComponent extends React.PureComponent<
     );
 
     return (
-      <div ref={this.setRef} style={{height: "100%", position: "absolute", width: "100%"}}>
-        <div
+      <SudokuContainer ref={this.setRef}>
+        <SudokuBackground
           style={{
-            transition: "background 500ms ease-out",
-            top: 0,
-            left: 0,
+            fontSize,
             height,
             width,
-            position: "absolute",
-            pointerEvents: "none",
-            zIndex: 6,
-            fontSize,
             lineHeight: fontSize + "px",
           }}
         />
@@ -151,17 +148,7 @@ class SudokuComponent extends React.PureComponent<
             return null;
           }
           const makeBold = [3, 6].includes(i);
-          const lineWidth = makeBold ? 2 : 1;
-          const background = makeBold ? "#AAAAAA" : "#EEEEEE";
-          return (
-            <SmallGridLineX
-              key={i}
-              height={lineWidth}
-              width={width}
-              top={(i * height) / 9 - lineWidth / 2}
-              background={background}
-            />
-          );
+          return <GridLineX makeBold={makeBold} key={i} width={width} top={(i * height) / 9} />;
         })}
         {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
           const hide = [0, 9].includes(i);
@@ -169,17 +156,7 @@ class SudokuComponent extends React.PureComponent<
             return null;
           }
           const makeBold = [3, 6].includes(i);
-          const lineWidth = makeBold ? 2 : 1;
-          const background = makeBold ? "#AAAAAA" : "#EEEEEE";
-          return (
-            <SmallGridLineY
-              key={i}
-              height={height}
-              width={lineWidth}
-              left={(i * height) / 9 - lineWidth / 2}
-              background={background}
-            />
-          );
+          return <GridLineY makeBold={makeBold} key={i} height={height} left={(i * height) / 9} />;
         })}
         {sudoku.map((c, i) => {
           const onClick = e => {
@@ -199,44 +176,26 @@ class SudokuComponent extends React.PureComponent<
             return d.x === c.x && d.y === c.y;
           });
 
+          const bounds: Bounds = {
+            width: xSection,
+            height: ySection,
+            left: xSection * c.x,
+            top: ySection * c.y,
+          };
+
           return (
             <div key={i}>
-              <GridCell
-                highlight={inConflictPath}
-                style={{
-                  position: "absolute",
-                  height: ySection,
-                  width: xSection,
-                  left: xSection * c.x,
-                  top: ySection * c.y,
-                  zIndex: 0,
-                }}
-                onClick={onClick}
-              />
+              <GridCell highlight={inConflictPath} bounds={bounds} onClick={onClick} />
               <GridCellNumber left={position.x} top={position.y} initial={c.initial}>
                 {c.number}
               </GridCellNumber>
-              <CellNoteContainer
-                style={{
-                  left: xSection * c.x,
-                  top: ySection * c.y,
-                  fontWeight: c.initial ? "bold" : "normal",
-                  width: xSection,
-                  height: ySection,
-                }}
-              >
+              <CellNoteContainer initial={c.initial} bounds={bounds}>
                 {c.initial || c.number
                   ? null
                   : notes.map(n => {
                       const notePosition = state.getNotePosition(n);
                       return (
-                        <CellNote
-                          key={n}
-                          style={{
-                            left: notePosition.x,
-                            top: notePosition.y,
-                          }}
-                        >
+                        <CellNote key={n} left={notePosition.x} top={notePosition.y}>
                           {n}
                         </CellNote>
                       );
@@ -246,9 +205,8 @@ class SudokuComponent extends React.PureComponent<
           );
         })}
         {activeCell ? (
-          <div
-            style={{
-              position: "absolute",
+          <MenuContainer
+            bounds={{
               top: ySection * selectionPosition.y,
               left: xSection * selectionPosition.x,
               height: ySection,
@@ -263,9 +221,9 @@ class SudokuComponent extends React.PureComponent<
                 cell={activeCell}
               />
             </MenuWrapper>
-          </div>
+          </MenuContainer>
         ) : null}
-      </div>
+      </SudokuContainer>
     );
   }
 }
