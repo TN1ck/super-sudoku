@@ -43,10 +43,10 @@ const MenuCircleComponent = styled.circle<{
 
 export const MenuContainer = styled.div<{bounds: Bounds}>`
   position: absolute;
-  width: ${props => props.bounds.width}px;
-  height: ${props => props.bounds.height}px;
-  top: ${props => props.bounds.top}px;
-  left: ${props => props.bounds.left}px;
+  width: ${props => props.bounds.width}%;
+  height: ${props => props.bounds.height}%;
+  top: ${props => props.bounds.top}%;
+  left: ${props => props.bounds.left}%;
 `;
 
 export const MenuWrapper = styled.div`

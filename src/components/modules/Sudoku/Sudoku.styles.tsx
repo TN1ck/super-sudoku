@@ -2,15 +2,6 @@ import styled, {css} from "styled-components";
 import THEME from "src/theme";
 import {Bounds} from "src/utils/types";
 
-export const SudokuBackground = styled.div`
-  transition: "background 500ms ease-out";
-  top: 0;
-  left: 0;
-  position: "absolute";
-  pointer-events: "none";
-  z-index: 6;
-`;
-
 export const SudokuContainer = styled.div`
   position: absolute;
   height: 100%;
@@ -41,8 +32,8 @@ export const GridLineX = styled.div<{
 }>`
   position: absolute;
   left: 0;
-  width: ${props => props.width}px;
-  top: ${props => props.top}px;
+  width: ${props => props.width}%;
+  top: ${props => props.top}%;
   transform: translateY(-50%);
   height: 1px;
   background: #eeeeee;
@@ -63,8 +54,8 @@ export const GridLineY = styled.div<{
 }>`
   position: absolute;
   top: 0;
-  height: ${props => props.height}px;
-  left: ${props => props.left}px;
+  height: ${props => props.height}%;
+  left: ${props => props.left}%;
   background: #eeeeee;
   width: 1px;
   transform: translateX(-50%);
@@ -87,8 +78,8 @@ export const CellNote = styled.div<{
   left: number;
   top: number;
 }>`
-  top: ${props => props.top}px;
-  left: ${props => props.left}px;
+  top: ${props => props.top}%;
+  left: ${props => props.left}%;
   font-size: 12px;
   color: ${THEME.colors.gray200};
   position: absolute;
@@ -110,10 +101,10 @@ export const CellNoteContainer = styled.div<{
   pointer-events: none;
   font-weight: ${props => (props.initial ? "bold" : "normal")};
 
-  width: ${props => props.bounds.width}px;
-  height: ${props => props.bounds.height}px;
-  top: ${props => props.bounds.top}px;
-  left: ${props => props.bounds.left}px;
+  width: ${props => props.bounds.width}%;
+  height: ${props => props.bounds.height}%;
+  top: ${props => props.bounds.top}%;
+  left: ${props => props.bounds.left}%;
 `;
 
 export const CellNumber = styled.div`
@@ -154,10 +145,10 @@ export const GridCell = styled.div<{
     border: 1px solid ${THEME.colors.primary};
   }
 
-  width: ${props => props.bounds.width}px;
-  height: ${props => props.bounds.height}px;
-  top: ${props => props.bounds.top}px;
-  left: ${props => props.bounds.left}px;
+  width: ${props => props.bounds.width}%;
+  height: ${props => props.bounds.height}%;
+  top: ${props => props.bounds.top}%;
+  left: ${props => props.bounds.left}%;
 
   ${props =>
     props.highlight &&
@@ -201,8 +192,8 @@ export const GridCellNumber = styled.div<{
   top: number;
 }>`
   position: absolute;
-  left: ${props => props.left}px;
-  top: ${props => props.top}px;
+  left: ${props => props.left}%;
+  top: ${props => props.top}%;
   color: ${THEME.colors.primary};
   font-size: 16px;
   font-weight: bold;

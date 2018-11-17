@@ -52,6 +52,7 @@ const GameContainer = styled.div`
 `;
 
 const GridContainer = styled.div`
+  position: relative;
   color: black;
   box-shadow: ${THEME.boxShadow};
   background-color: white;

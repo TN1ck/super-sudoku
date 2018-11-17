@@ -10,8 +10,10 @@ export default class SmallSudokuComponent extends React.PureComponent<{
 }> {
   render() {
     const {sudoku, id, darken} = this.props;
-    const height = 150;
-    const width = 150;
+    const containerHeight = 150;
+    const containerWidth = 150;
+    const height = 100;
+    const width = 100;
     const fontSize = 8;
 
     const xSection = height / 9;
@@ -35,8 +37,8 @@ export default class SmallSudokuComponent extends React.PureComponent<{
         />
         <SudokuSmall
           style={{
-            height,
-            width,
+            height: containerHeight,
+            width: containerWidth,
             fontSize,
             lineHeight: fontSize + "px",
           }}
@@ -56,8 +58,8 @@ export default class SmallSudokuComponent extends React.PureComponent<{
                 key={i}
                 style={{
                   position: "absolute",
-                  left: xSection * c.x + fontXOffset,
-                  top: ySection * c.y + fontYOffset,
+                  left: xSection * c.x + fontXOffset + "%",
+                  top: ySection * c.y + fontYOffset + "%",
                 }}
               >
                 {c.number}

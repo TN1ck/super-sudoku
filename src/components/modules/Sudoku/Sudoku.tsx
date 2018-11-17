@@ -13,15 +13,11 @@ import {
   GridCellNumber,
   CellNote,
   CellNoteContainer,
-  SudokuBackground,
   SudokuContainer,
 } from "src/components/modules/Sudoku/Sudoku.styles";
 import SudokuState from "src/ducks/sudoku/accessor";
 import {RootState} from "src/ducks";
 import {Bounds} from "src/utils/types";
-
-const fontSize = 14;
-// const fontSizeNotes = 11;
 
 interface SudokuComponentStateProps {
   activeCell: Cell;
@@ -38,8 +34,6 @@ interface SudokuComponentOwnProps {}
 class SudokuComponent extends React.PureComponent<
   SudokuComponentDispatchProps & SudokuComponentStateProps & SudokuComponentOwnProps,
   {
-    height: number;
-    width: number;
     notesMode: boolean;
   }
 > {
@@ -48,14 +42,10 @@ class SudokuComponent extends React.PureComponent<
   constructor(props) {
     super(props);
     this.state = {
-      height: 300,
-      width: 300,
       notesMode: false,
     };
-    this.setRef = this.setRef.bind(this);
     this.enterNotesMode = this.enterNotesMode.bind(this);
     this.exitNotesMode = this.exitNotesMode.bind(this);
-    this.setDimensions = this.setDimensions.bind(this);
   }
   componentDidMount() {
     this._isMounted = true;
@@ -64,23 +54,6 @@ class SudokuComponent extends React.PureComponent<
         this.props.showMenu(null);
       }
     });
-  }
-
-  setRef(el: HTMLElement) {
-    this.element = el;
-    this.setDimensions();
-    window.addEventListener("resize", this.setDimensions);
-  }
-
-  setDimensions() {
-    if (this.element) {
-      const height = this.element.clientHeight;
-      const width = this.element.clientWidth;
-      this.setState({
-        height,
-        width,
-      });
-    }
   }
 
   enterNotesMode() {
@@ -99,9 +72,8 @@ class SudokuComponent extends React.PureComponent<
 
   render() {
     const {sudoku, showHints} = this.props;
-    const size = Math.min(this.state.height, this.state.width);
-    const height = size;
-    const width = size;
+    const height = 100;
+    const width = 100;
 
     const xSection = height / 9;
     const ySection = width / 9;
@@ -114,8 +86,8 @@ class SudokuComponent extends React.PureComponent<
     };
 
     const state = new SudokuState();
-    state.width = width;
-    state.height = height;
+    state.width = height;
+    state.height = width;
     const positionedCells = state.positionedCells(sudoku);
     const conflicting = state.conflictingFields(sudoku);
     const uniquePaths = state.uniquePaths(
@@ -133,15 +105,7 @@ class SudokuComponent extends React.PureComponent<
     );
 
     return (
-      <SudokuContainer ref={this.setRef}>
-        <SudokuBackground
-          style={{
-            fontSize,
-            height,
-            width,
-            lineHeight: fontSize + "px",
-          }}
-        />
+      <SudokuContainer>
         {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
           const hide = [0, 9].includes(i);
           if (hide) {
