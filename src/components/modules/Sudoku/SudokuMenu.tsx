@@ -5,7 +5,6 @@ import {Cell} from "src/ducks/sudoku/model";
 import {SUDOKU_NUMBERS} from "src/engine/utility";
 import styled, {css} from "styled-components";
 import THEME from "src/theme";
-import {withProps} from "src/utils";
 import {showMenu} from "src/ducks/game";
 
 const MenuCircleContainer = styled.svg`
@@ -19,17 +18,17 @@ const MenuCircleContainer = styled.svg`
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 `;
 
-const MenuCircleComponent = withProps<{
+const MenuCircleComponent = styled.circle<{
   notesMode: boolean;
   isActive: boolean;
-}>()(styled.circle)`
+}>`
   stroke-width: 50px;
   opacity: 0.75;
 
   &:hover {
-      stroke-width: 60px;
-      cursor: pointer;
-      fill-opacity: 0.9;
+    stroke-width: 60px;
+    cursor: pointer;
+    fill-opacity: 0.9;
   }
 
   ${props =>
@@ -39,7 +38,6 @@ const MenuCircleComponent = withProps<{
       cursor: pointer;
       fill-opacity: 0.9;
     `}
-
 `;
 
 export const MenuWrapper = styled.div`
@@ -79,8 +77,8 @@ const MenuCircle: React.StatelessComponent<{
   const x = textRadius * Math.cos(minRad + step * 0.5) + center;
   const y = textRadius * Math.sin(minRad + step * 0.5) + center + yOffset;
 
-  const strokeDashoffset = -(minRad / TAU * circumCircle);
-  const strokeDasharray = `${step / TAU * circumCircle} ${circumCircle}`;
+  const strokeDashoffset = -((minRad / TAU) * circumCircle);
+  const strokeDasharray = `${(step / TAU) * circumCircle} ${circumCircle}`;
 
   return (
     <g>
@@ -161,7 +159,7 @@ class Menu extends React.Component<MenuOwnProps & MenuDispatchProps, {}> {
           style={{
             pointerEvents: "none",
             strokeDashoffset: 0,
-            strokeDasharray: `${usedRad / TAU * circumCircle} ${circumCircle}`,
+            strokeDasharray: `${(usedRad / TAU) * circumCircle} ${circumCircle}`,
           }}
           fill="none"
           className={this.props.notesMode ? "ss_menu-circle-notes" : "ss_menu-circle"}
@@ -181,8 +179,8 @@ class Menu extends React.Component<MenuOwnProps & MenuDispatchProps, {}> {
               ? THEME.menuColors.noteNormal
               : THEME.menuColors.noteAlternate
             : useAlt
-              ? THEME.menuColors.normal
-              : THEME.menuColors.alternate;
+            ? THEME.menuColors.normal
+            : THEME.menuColors.alternate;
 
           return (
             <MenuCircle
@@ -238,12 +236,15 @@ class Menu extends React.Component<MenuOwnProps & MenuDispatchProps, {}> {
   }
 }
 
-const MenuComponent = connect<null, MenuDispatchProps, MenuOwnProps>(null, {
-  showMenu,
-  setNumber,
-  setNote,
-  clearNote,
-  clearNumber,
-})(Menu);
+const MenuComponent = connect<null, MenuDispatchProps, MenuOwnProps>(
+  null,
+  {
+    showMenu,
+    setNumber,
+    setNote,
+    clearNote,
+    clearNumber,
+  },
+)(Menu);
 
 export default MenuComponent;

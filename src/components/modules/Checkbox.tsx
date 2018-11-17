@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import THEME from "src/theme";
-import {withProps} from "src/utils";
 
 const StyledCheckbox = styled.input`
   margin-top: ${THEME.spacer.x2}px;
@@ -17,9 +16,9 @@ const StyledCheckbox = styled.input`
   }
 `;
 
-const StyledCheckboxSquare = withProps<{
+const StyledCheckboxSquare = styled.div<{
   checked: boolean;
-}>()(styled.div)`
+}>`
   border-radius: ${THEME.borderRadius}px;
   position: absolute;
   top: 0;
@@ -43,7 +42,6 @@ const StyledCheckboxSquare = withProps<{
   &:hover {
     cursor: pointer;
   }
-
 `;
 
 const StyledLabel = styled.label`

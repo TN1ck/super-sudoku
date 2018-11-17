@@ -9,12 +9,11 @@ import SUDOKUS from "src/sudokus";
 import Button from "src/components/modules/Button";
 import THEME from "src/theme";
 import SmallSudokuComponent from "src/components/modules/Sudoku/SmallSudoku";
-import {withProps} from "src/utils";
 import {TouchProvider} from "src/components/modules/Swiper";
 
-const SelectContainer = withProps<{
+const SelectContainer = styled.div<{
   active: boolean;
-}>()(styled.div)`
+}>`
   position: absolute;
   top: 0;
   left: 50%;

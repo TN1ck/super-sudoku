@@ -58,7 +58,7 @@ const Main = styled.div`
     "header"
     "main"
     "footer";
-}`;
+`;
 
 const HeaderArea = styled.div`
   grid-area: header;

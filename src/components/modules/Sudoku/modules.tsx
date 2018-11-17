@@ -1,6 +1,5 @@
 import styled, {css} from "styled-components";
 import THEME from "src/theme";
-import {withProps} from "src/utils";
 
 export const SudokuSmallTitle = styled.div`
   display: flex;
@@ -18,12 +17,12 @@ export const SudokuSmallTitle = styled.div`
   left: 0;
 `;
 
-export const SmallGridLineX = withProps<{
+export const SmallGridLineX = styled.div<{
   top: number;
   height: number;
   width: number;
   background: string;
-}>()(styled.div)`
+}>`
   position: absolute;
   left: 0;
   height: ${props => props.height}px;
@@ -32,12 +31,12 @@ export const SmallGridLineX = withProps<{
   background: ${props => props.background};
 `;
 
-export const SmallGridLineY = withProps<{
+export const SmallGridLineY = styled.div<{
   left: number;
   height: number;
   width: number;
   background: string;
-}>()(styled.div)`
+}>`
   position: absolute;
   top: 0;
   height: ${props => props.height}px;
@@ -85,9 +84,9 @@ export const CellNumber = styled.div`
   font-size: 16px;
 `;
 
-export const CellInner = withProps<{
+export const CellInner = styled.div<{
   active: boolean;
-}>()(styled.div)`
+}>`
   user-select: none;
   position: relative;
   width: 100%;
@@ -106,9 +105,9 @@ export const CellInner = withProps<{
     `}
 `;
 
-export const GridCell = withProps<{
+export const GridCell = styled.div<{
   highlight: boolean;
-}>()(styled.div)`
+}>`
   background-color: transparent;
   transition: background-color 0.3s ease;
   &:hover {
@@ -122,10 +121,10 @@ export const GridCell = withProps<{
     `}
 `;
 
-export const CellContainer = withProps<{
+export const CellContainer = styled.div<{
   initial: boolean;
   highlight: boolean;
-}>()(styled.div)`
+}>`
   position: relative;
   width: 33.333%;
   height: 33.333%;
@@ -134,8 +133,8 @@ export const CellContainer = withProps<{
   border-color: ${THEME.colors.gray700};
 
   &:hover {
-      border-color: ${THEME.colors.primary};
-      cursor: pointer;
+    border-color: ${THEME.colors.primary};
+    cursor: pointer;
   }
 
   ${props =>
@@ -151,11 +150,11 @@ export const CellContainer = withProps<{
     `}
 `;
 
-export const GridCellNumber = withProps<{
+export const GridCellNumber = styled.div<{
   initial: boolean;
   left: number;
   top: number;
-}>()(styled.div)`
+}>`
   position: absolute;
   left: ${props => props.left}px;
   top: ${props => props.top}px;

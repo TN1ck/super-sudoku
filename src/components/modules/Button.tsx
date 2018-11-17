@@ -1,10 +1,9 @@
 import THEME from "src/theme";
 import styled, {css} from "styled-components";
-import {withProps} from "src/utils";
 
-const Button = withProps<{
+const Button = styled.button<{
   active?: boolean;
-}>()(styled.button)`
+}>`
   border-radius: ${THEME.borderRadius}px;
   background: ${THEME.colors.primary};
   color: ${THEME.colors.white};
