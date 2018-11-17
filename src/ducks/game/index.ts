@@ -98,7 +98,7 @@ export interface GameState {
   sudokuIndex: number;
   menu: MenuState;
   difficulty: DIFFICULTY;
-  showMenu: Cell;
+  activeCell: Cell;
   showHints: boolean;
   won: boolean;
 }
@@ -116,7 +116,7 @@ const gameState: GameState = {
   sudokuIndex: 0,
   menu: MenuState.chooseGame,
   difficulty: DIFFICULTY.EASY,
-  showMenu: null,
+  activeCell: null,
   showHints: false,
 };
 
@@ -196,7 +196,7 @@ export default function gameReducer(state: GameState = gameState, action): GameS
     case SHOW_MENU:
       return {
         ...state,
-        showMenu: action.cell,
+        activeCell: action.cell,
       };
     default:
       return state;

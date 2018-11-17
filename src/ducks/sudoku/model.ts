@@ -3,7 +3,6 @@ import {SimpleCell} from "src/engine/utility";
 export interface Cell extends SimpleCell {
   initial: boolean;
   notes: Set<number>;
-  allowed: Set<number>;
 }
 
 export function createCell(
@@ -11,7 +10,6 @@ export function createCell(
   y: number,
   number: number | undefined,
   notes: Set<number>,
-  allowed: Set<number>,
   initial: boolean,
 ): Cell {
   return {
@@ -19,7 +17,6 @@ export function createCell(
     y,
     number,
     notes,
-    allowed,
     initial,
   };
 }
@@ -43,7 +40,7 @@ export function parseSudoku(sudoku: string): Cell[] {
       const characters = line.split("");
       return characters.map((c, x) => {
         const number = c === "_" ? undefined : Number(c);
-        return createCell(x, y, number, new Set([]), new Set([]), number !== undefined);
+        return createCell(x, y, number, new Set([]), number !== undefined);
       });
     }),
   );

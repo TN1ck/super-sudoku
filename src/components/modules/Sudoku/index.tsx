@@ -21,7 +21,7 @@ const fontSize = 14;
 // const fontSizeNotes = 11;
 
 interface SudokuComponentStateProps {
-  showMenuForCell: Cell;
+  activeCell: Cell;
   sudoku: Cell[];
   showHints: boolean;
 }
@@ -57,7 +57,7 @@ class SudokuComponent extends React.PureComponent<
   componentDidMount() {
     this._isMounted = true;
     window.addEventListener("click", () => {
-      if (this.props.showMenuForCell !== null) {
+      if (this.props.activeCell !== null) {
         this.props.showMenu(null);
       }
     });
@@ -104,8 +104,7 @@ class SudokuComponent extends React.PureComponent<
     const ySection = width / 9;
 
     const activeCell =
-      this.props.showMenuForCell &&
-      sudoku.find(c => c.x === this.props.showMenuForCell.x && c.y === this.props.showMenuForCell.y);
+      this.props.activeCell && sudoku.find(c => c.x === this.props.activeCell.x && c.y === this.props.activeCell.y);
     const selectionPosition = {
       x: (activeCell && activeCell.x) || 0,
       y: (activeCell && activeCell.y) || 0,
@@ -278,7 +277,7 @@ export const SudokuConnected = connect<
 >(
   (state: RootState) => {
     return {
-      showMenuForCell: state.game.showMenu,
+      activeCell: state.game.activeCell,
       showHints: state.game.showHints,
       sudoku: state.sudoku.grid,
     };
