@@ -12,10 +12,10 @@ import configureStore from "src/store/configureStore";
 
 import Header from "src/components/modules/Header";
 import Footer from "src/components/modules/Footer";
-import styled, {injectGlobal} from "styled-components";
+import styled, {createGlobalStyle} from "styled-components";
 import THEME from "src/theme";
 
-injectGlobal`
+const GlobalStyle = createGlobalStyle`
 
   * {
     box-sizing: border-box;
@@ -91,6 +91,7 @@ const Root: React.StatelessComponent = () => {
             <FooterArea>
               <Footer />
             </FooterArea>
+            <GlobalStyle />
           </Main>
         </Router>
       </Provider>
