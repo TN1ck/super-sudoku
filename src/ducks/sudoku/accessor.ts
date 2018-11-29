@@ -129,6 +129,9 @@ export default class SudokuState {
   }
 
   isSolved(sudoku: Cell[]): Boolean {
+    if (!sudoku) {
+      return false;
+    }
     const noConflicts = this.correct(sudoku);
     const set = sudoku.filter(c => c.number !== undefined);
     const allSet = set.length === sudoku.length;
@@ -150,6 +153,9 @@ export default class SudokuState {
   }
 
   correct(sudoku: Cell[]): Boolean {
+    if (!sudoku) {
+      return false;
+    }
     const sudokuFiltered = sudoku.filter(c => c.number !== undefined);
     const rows = Object.values(
       _.groupBy(sudokuFiltered, c => {

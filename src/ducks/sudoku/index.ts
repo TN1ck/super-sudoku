@@ -81,15 +81,11 @@ export function setSudoku(difficulty: DIFFICULTY, sudoku: string) {
   };
 }
 
-export interface SudokuState {
-  grid: Cell[];
-}
+export type SudokuState = Cell[];
 
 const initialGrid = parseSudoku(solvableSudoku1);
 
-const initialState: SudokuState = {
-  grid: initialGrid,
-};
+const initialState: SudokuState = initialGrid;
 
 export default function sudokuReducer(state: SudokuState = initialState, action) {
   if (
@@ -102,12 +98,12 @@ export default function sudokuReducer(state: SudokuState = initialState, action)
 
   switch (action.type) {
     case SET_SUDOKU:
-      return {...state, grid: action.sudoku};
+      return action.sudoku;
   }
 
   const actionCell: Cell = action.cell;
   // hide all menus in all cells
-  const newGrid = state.grid.map(cell => {
+  const newGrid = state.map(cell => {
     const id = `${cell.x}-${cell.y}`;
     const actionCellId = `${actionCell.x}-${actionCell.y}`;
     switch (action.type) {
@@ -141,5 +137,5 @@ export default function sudokuReducer(state: SudokuState = initialState, action)
     }
   });
 
-  return {...state, grid: newGrid};
+  return newGrid;
 }

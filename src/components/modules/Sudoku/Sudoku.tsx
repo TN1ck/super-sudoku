@@ -201,7 +201,7 @@ export const SudokuConnected = connect<
     return {
       activeCell: state.game.activeCell,
       showHints: state.game.showHints,
-      sudoku: state.sudoku.grid,
+      sudoku: state.sudoku,
     };
   },
   {showMenu},

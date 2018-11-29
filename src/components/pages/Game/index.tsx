@@ -83,7 +83,6 @@ class Game extends React.Component<{
     const state = new SudokuState();
     const wasSolved = state.isSolved(this.props.sudoku);
     const isSolved = state.isSolved(props.sudoku);
-    console.log("was", wasSolved, "is", isSolved);
     if (isSolved && !wasSolved) {
       this.props.wonGame();
     }
@@ -114,7 +113,7 @@ export default connect(
   (state: RootState) => {
     return {
       game: state.game,
-      sudoku: state.sudoku.grid,
+      sudoku: state.sudoku,
     };
   },
   {
