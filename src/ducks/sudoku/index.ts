@@ -12,7 +12,7 @@ const SELECT_NUMBER_FOR_EDIT = "sudoku/SELECT_NUMBER_FOR_EDIT";
 
 import {DIFFICULTY} from "src/engine/utility";
 
-import {Cell, parseSudoku, solvableSudoku1} from "./model";
+import {Cell, parseSudoku, emptySudoku} from "./model";
 
 //
 // Actions
@@ -83,9 +83,9 @@ export function setSudoku(difficulty: DIFFICULTY, sudoku: string) {
 
 export type SudokuState = Cell[];
 
-const initialGrid = parseSudoku(solvableSudoku1);
+export const emptyGrid: SudokuState = parseSudoku(emptySudoku);
 
-const initialState: SudokuState = initialGrid;
+const initialState = emptyGrid;
 
 export default function sudokuReducer(state: SudokuState = initialState, action) {
   if (

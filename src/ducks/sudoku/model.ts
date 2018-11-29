@@ -33,6 +33,18 @@ export const solvableSudoku1 = [
   "57_______",
 ].join("\n");
 
+export const emptySudoku = [
+  "_________",
+  "_________",
+  "_________",
+  "_________",
+  "_________",
+  "_________",
+  "_________",
+  "_________",
+  "_________",
+].join("\n");
+
 export function parseSudoku(sudoku: string): Cell[] {
   const lines = sudoku.split("\n");
   return [].concat(

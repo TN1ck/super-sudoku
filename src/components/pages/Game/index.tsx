@@ -1,9 +1,9 @@
 import * as React from "react";
 
 import {connect} from "react-redux";
-import {pauseGame, continueGame, resetGame, newGame, GameState, wonGame} from "src/ducks/game";
+import {pauseGame, continueGame, resetGame, newGame, GameState, wonGame, showMenu} from "src/ducks/game";
 
-import {SudokuConnected} from "src/components/modules/Sudoku/Sudoku";
+import {Sudoku} from "src/components/modules/Sudoku/Sudoku";
 
 import GameTimer from "./GameTimer";
 import GameMenu from "./GameMenu";
@@ -15,6 +15,7 @@ import THEME from "src/theme";
 import {RootState} from "src/ducks";
 import SudokuState from "src/ducks/sudoku/accessor";
 import {Cell} from "src/ducks/sudoku/model";
+import {emptyGrid} from "src/ducks/sudoku";
 
 function PauseButton({pauseGame}) {
   return (
@@ -70,15 +71,21 @@ const GridContainer = styled.div`
   }
 `;
 
-class Game extends React.Component<{
-  game: GameState;
-  sudoku: Cell[];
+interface GameDispatchProps {
   continueGame: typeof continueGame;
   resetGame: typeof resetGame;
   pauseGame: typeof pauseGame;
   newGame: typeof newGame;
   wonGame: typeof wonGame;
-}> {
+  showMenu: typeof showMenu;
+}
+
+interface GameStateProps {
+  game: GameState;
+  sudoku: Cell[];
+}
+
+class Game extends React.Component<GameStateProps & GameDispatchProps> {
   componentWillReceiveProps(props) {
     const state = new SudokuState();
     const wasSolved = state.isSolved(this.props.sudoku);
@@ -100,7 +107,12 @@ class Game extends React.Component<{
               <PauseButton pauseGame={pauseGame} />
             </div>
             <GridContainer>
-              <SudokuConnected />
+              <Sudoku
+                sudoku={this.props.sudoku}
+                showMenu={this.props.showMenu}
+                showHints={game.showHints && game.running}
+                activeCell={game.activeCell}
+              />
             </GridContainer>
           </div>
         </GameContainer>
@@ -111,9 +123,10 @@ class Game extends React.Component<{
 
 export default connect(
   (state: RootState) => {
+    const sudoku = state.game.running ? state.sudoku : emptyGrid;
     return {
       game: state.game,
-      sudoku: state.sudoku,
+      sudoku,
     };
   },
   {
@@ -121,5 +134,6 @@ export default connect(
     pauseGame,
     resetGame,
     wonGame,
+    showMenu,
   },
 )(Game);

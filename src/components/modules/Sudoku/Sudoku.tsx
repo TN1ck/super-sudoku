@@ -1,5 +1,4 @@
 import * as React from "react";
-import {connect} from "react-redux";
 import {showMenu} from "src/ducks/game";
 import {Cell} from "src/ducks/sudoku/model";
 
@@ -16,7 +15,6 @@ import {
   SudokuContainer,
 } from "src/components/modules/Sudoku/Sudoku.styles";
 import SudokuState from "src/ducks/sudoku/accessor";
-import {RootState} from "src/ducks";
 import {Bounds} from "src/utils/types";
 
 interface SudokuComponentStateProps {
@@ -31,7 +29,7 @@ interface SudokuComponentDispatchProps {
 
 interface SudokuComponentOwnProps {}
 
-class SudokuComponent extends React.PureComponent<
+export class Sudoku extends React.PureComponent<
   SudokuComponentDispatchProps & SudokuComponentStateProps & SudokuComponentOwnProps,
   {
     notesMode: boolean;
@@ -191,18 +189,3 @@ class SudokuComponent extends React.PureComponent<
     );
   }
 }
-
-export const SudokuConnected = connect<
-  SudokuComponentStateProps,
-  SudokuComponentDispatchProps,
-  SudokuComponentOwnProps
->(
-  (state: RootState) => {
-    return {
-      activeCell: state.game.activeCell,
-      showHints: state.game.showHints,
-      sudoku: state.sudoku,
-    };
-  },
-  {showMenu},
-)(SudokuComponent);
