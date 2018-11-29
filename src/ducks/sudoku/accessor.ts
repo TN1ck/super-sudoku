@@ -31,9 +31,6 @@ export interface ConflictingPath {
   index: number;
 }
 
-const notePadding = 4;
-const notePaddingSmall = 2;
-
 export default class SudokuState {
   width: number;
   height: number;
@@ -114,16 +111,16 @@ export default class SudokuState {
       {x: 1, y: 2},
       {x: 2, y: 2},
     ];
-    // TODO
-    const padding = window.innerWidth < 450 ? notePaddingSmall : notePadding;
-    const noteWidth = this.xSection - padding * 2;
-    const noteHeight = this.ySection - padding * 2;
+
+    // we use percentage
+    const noteWidth = 100;
+    const noteHeight = 100;
 
     const {x, y} = positions[n];
 
     return {
-      x: (noteWidth / 3) * (x + 0.5) + padding,
-      y: (noteHeight / 3) * (y + 0.5) + padding,
+      x: (noteWidth / 3) * (x + 0.5),
+      y: (noteHeight / 3) * (y + 0.5),
       note: n,
     };
   }
