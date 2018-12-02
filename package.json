@@ -39,6 +39,7 @@
   "devDependencies": {
     "@types/d3-path": "^1.0.6",
     "@types/jest": "^23.3.2",
+    "@types/keymaster": "^1.6.28",
     "@types/lodash": "^4.14.71",
     "@types/node": "^10.9.4",
     "@types/react": "^16.4.13",
@@ -80,6 +81,7 @@
     "babel-polyfill": "^6.26.0",
     "classnames": "2.2.6",
     "history": "4.7.2",
+    "keymaster": "^1.6.2",
     "lodash": "4.17.11",
     "react": "16.6.3",
     "react-hot-loader": "4.3.12",

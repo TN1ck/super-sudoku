@@ -7,8 +7,6 @@ const SET_NOTE = "sudoku/SET_NOTE";
 const CLEAR_NOTE = "sudoku/CLEAR_NOTE";
 const SET_NUMBER = "sudoku/SET_NUMBER";
 const CLEAR_NUMBER = "sudoku/CLEAR_NUMBER";
-const GET_HINT = "sudoku/GET_HINT";
-const SELECT_NUMBER_FOR_EDIT = "sudoku/SELECT_NUMBER_FOR_EDIT";
 
 import {DIFFICULTY} from "src/engine/utility";
 
@@ -66,13 +64,6 @@ export function clearNumber(cell: Cell): CellAction {
   };
 }
 
-export function getHint(cell: Cell): CellAction {
-  return {
-    type: GET_HINT,
-    cell,
-  };
-}
-
 export function setSudoku(difficulty: DIFFICULTY, sudoku: string) {
   return {
     difficulty,
@@ -88,11 +79,7 @@ export const emptyGrid: SudokuState = parseSudoku(emptySudoku);
 const initialState = emptyGrid;
 
 export default function sudokuReducer(state: SudokuState = initialState, action) {
-  if (
-    ![SET_NOTE, SET_SUDOKU, CLEAR_NOTE, SET_NUMBER, CLEAR_NUMBER, GET_HINT, SELECT_NUMBER_FOR_EDIT].find(
-      d => d === action.type,
-    )
-  ) {
+  if (![SET_NOTE, SET_SUDOKU, CLEAR_NOTE, SET_NUMBER, CLEAR_NUMBER].find(d => d === action.type)) {
     return state;
   }
 
@@ -127,10 +114,6 @@ export default function sudokuReducer(state: SudokuState = initialState, action)
         if (id === actionCellId) {
           return {...cell, number: undefined};
         }
-        return cell;
-      case GET_HINT:
-        return cell;
-      case SELECT_NUMBER_FOR_EDIT:
         return cell;
       default:
         return cell;

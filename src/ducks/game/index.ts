@@ -18,6 +18,8 @@ const CHANGE_INDEX = "game/CHANGE_INDEX";
 const SET_MENU = "game/SET_MENU";
 const SET_DIFFICULTY = "game/SET_DIFFICULTY";
 const SHOW_MENU = "game/SHOW_MENU";
+const HIDE_MENU = "game/HIDE_MENU";
+const SELECT_CELL = "game/SELECT_MENU";
 const TOGGLE_SHOW_HINTS = "game/TOGGLE_SHOW_HINTS";
 
 export function newGame(difficulty, sudokuId) {
@@ -59,10 +61,22 @@ export function changeIndex(index) {
   };
 }
 
-export function showMenu(cell) {
+export function selectCell(cell) {
+  return {
+    type: SELECT_CELL,
+    cell,
+  };
+}
+
+export function showMenu() {
   return {
     type: SHOW_MENU,
-    cell,
+  };
+}
+
+export function hideMenu() {
+  return {
+    type: HIDE_MENU,
   };
 }
 
@@ -100,11 +114,13 @@ export interface GameState {
   difficulty: DIFFICULTY;
   activeCell: Cell;
   showHints: boolean;
+  showMenu: boolean;
   won: boolean;
 }
 
 const gameState: GameState = {
   won: false,
+  showMenu: false,
   startTime: 0,
   offsetTime: 0,
   stopTime: 0,
@@ -193,10 +209,20 @@ export default function gameReducer(state: GameState = gameState, action): GameS
         ...state,
         menu: action.menu,
       };
-    case SHOW_MENU:
+    case SELECT_CELL:
       return {
         ...state,
         activeCell: action.cell,
+      };
+    case SHOW_MENU:
+      return {
+        ...state,
+        showMenu: true,
+      };
+    case HIDE_MENU:
+      return {
+        ...state,
+        showMenu: false,
       };
     default:
       return state;

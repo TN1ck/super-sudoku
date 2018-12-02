@@ -136,6 +136,7 @@ export const CellInner = styled.div<{
 export const GridCell = styled.div<{
   highlight: boolean;
   bounds: Bounds;
+  active: boolean;
 }>`
   position: absolute;
   z-index: 0;
@@ -149,6 +150,12 @@ export const GridCell = styled.div<{
   height: ${props => props.bounds.height}%;
   top: ${props => props.bounds.top}%;
   left: ${props => props.bounds.left}%;
+
+  ${props =>
+    props.active &&
+    css`
+      border: 1px solid ${THEME.colors.primary};
+    `}
 
   ${props =>
     props.highlight &&

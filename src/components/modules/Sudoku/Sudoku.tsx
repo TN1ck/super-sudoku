@@ -1,5 +1,5 @@
 import * as React from "react";
-import {showMenu} from "src/ducks/game";
+import {showMenu, selectCell, hideMenu} from "src/ducks/game";
 import {Cell} from "src/ducks/sudoku/model";
 
 import * as _ from "lodash";
@@ -21,10 +21,13 @@ interface SudokuComponentStateProps {
   activeCell: Cell;
   sudoku: Cell[];
   showHints: boolean;
+  shouldShowMenu: boolean;
 }
 
 interface SudokuComponentDispatchProps {
   showMenu: typeof showMenu;
+  hideMenu: typeof hideMenu;
+  selectCell: typeof selectCell;
 }
 
 interface SudokuComponentOwnProps {}
@@ -49,7 +52,7 @@ export class Sudoku extends React.PureComponent<
     this._isMounted = true;
     window.addEventListener("click", () => {
       if (this.props.activeCell !== null) {
-        this.props.showMenu(null);
+        this.props.hideMenu();
       }
     });
   }
@@ -124,7 +127,8 @@ export class Sudoku extends React.PureComponent<
           const onClick = e => {
             if (!c.initial) {
               this.exitNotesMode();
-              this.props.showMenu(c);
+              this.props.selectCell(c);
+              this.props.showMenu();
               e.preventDefault();
               e.stopPropagation();
             }
@@ -145,9 +149,11 @@ export class Sudoku extends React.PureComponent<
             top: ySection * c.y,
           };
 
+          const isActive = activeCell ? c.x === activeCell.x && c.y === activeCell.y : false;
+
           return (
             <div key={i}>
-              <GridCell highlight={inConflictPath} bounds={bounds} onClick={onClick} />
+              <GridCell active={isActive} highlight={inConflictPath} bounds={bounds} onClick={onClick} />
               <GridCellNumber left={position.x} top={position.y} initial={c.initial}>
                 {c.number}
               </GridCellNumber>
@@ -166,7 +172,7 @@ export class Sudoku extends React.PureComponent<
             </div>
           );
         })}
-        {activeCell ? (
+        {activeCell && this.props.shouldShowMenu ? (
           <MenuContainer
             bounds={{
               top: ySection * selectionPosition.y,

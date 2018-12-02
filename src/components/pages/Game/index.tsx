@@ -1,7 +1,17 @@
 import * as React from "react";
 
 import {connect} from "react-redux";
-import {pauseGame, continueGame, resetGame, newGame, GameState, wonGame, showMenu} from "src/ducks/game";
+import {
+  pauseGame,
+  continueGame,
+  resetGame,
+  newGame,
+  GameState,
+  wonGame,
+  hideMenu,
+  showMenu,
+  selectCell,
+} from "src/ducks/game";
 
 import {Sudoku} from "src/components/modules/Sudoku/Sudoku";
 
@@ -15,7 +25,9 @@ import THEME from "src/theme";
 import {RootState} from "src/ducks";
 import SudokuState from "src/ducks/sudoku/accessor";
 import {Cell} from "src/ducks/sudoku/model";
-import {emptyGrid} from "src/ducks/sudoku";
+import {emptyGrid, setNumber, clearNumber} from "src/ducks/sudoku";
+import key from "keymaster";
+import {SUDOKU_NUMBERS, SUDOKU_COORDINATES} from "src/engine/utility";
 
 function PauseButton({pauseGame}) {
   return (
@@ -78,12 +90,129 @@ interface GameDispatchProps {
   newGame: typeof newGame;
   wonGame: typeof wonGame;
   showMenu: typeof showMenu;
+  hideMenu: typeof hideMenu;
+  selectCell: typeof selectCell;
 }
 
 interface GameStateProps {
   game: GameState;
   sudoku: Cell[];
 }
+
+const SHORTCUTS = "SHORTCUTS";
+
+interface GameKeyboardShortcutsStateProps {
+  activeCell: Cell;
+  sudoku: Cell[];
+}
+
+interface GameKeyboardShortcutsDispatchProps {
+  showMenu: typeof showMenu;
+  hideMenu: typeof hideMenu;
+  selectCell: typeof selectCell;
+  setNumber: typeof setNumber;
+  clearNumber: typeof clearNumber;
+}
+
+class GameKeyboardShortcuts extends React.Component<
+  GameKeyboardShortcutsStateProps & GameKeyboardShortcutsDispatchProps
+> {
+  componentDidMount() {
+    const getCellByXY = (x, y) => {
+      return this.props.sudoku.find(cell => {
+        return cell.x === x && cell.y === y;
+      });
+    };
+
+    const setDefault = () => {
+      this.props.selectCell(this.props.sudoku[0]);
+    };
+
+    const minCoordinate = SUDOKU_COORDINATES[0];
+    const maxCoordinate = SUDOKU_COORDINATES[SUDOKU_COORDINATES.length - 1];
+
+    key("up", SHORTCUTS, () => {
+      const currentCell = this.props.activeCell;
+      if (currentCell === null) {
+        return setDefault();
+      }
+      const {x, y} = currentCell;
+      const newY = Math.max(y - 1, minCoordinate);
+      const nextCell = getCellByXY(x, newY);
+      this.props.selectCell(nextCell);
+      return false;
+    });
+
+    key("down", SHORTCUTS, () => {
+      const currentCell = this.props.activeCell;
+      if (currentCell === null) {
+        return setDefault();
+      }
+      const {x, y} = currentCell;
+      const newY = Math.min(y + 1, maxCoordinate);
+      const nextCell = getCellByXY(x, newY);
+      this.props.selectCell(nextCell);
+      return false;
+    });
+
+    key("right", SHORTCUTS, () => {
+      const currentCell = this.props.activeCell;
+      if (currentCell === null) {
+        return setDefault();
+      }
+      const {x, y} = currentCell;
+      const newX = Math.min(x + 1, maxCoordinate);
+      const nextCell = getCellByXY(newX, y);
+      this.props.selectCell(nextCell);
+      return false;
+    });
+
+    key("left", SHORTCUTS, () => {
+      const currentCell = this.props.activeCell;
+      if (currentCell === null) {
+        return setDefault();
+      }
+      const {x, y} = currentCell;
+      const newX = Math.max(x - 1, minCoordinate);
+      const nextCell = getCellByXY(newX, y);
+      this.props.selectCell(nextCell);
+      return false;
+    });
+
+    SUDOKU_NUMBERS.forEach(n => {
+      key(String(n), SHORTCUTS, () => {
+        this.props.setNumber(this.props.activeCell, n);
+      });
+    });
+
+    key("backspace", SHORTCUTS, () => {
+      this.props.clearNumber(this.props.activeCell);
+    });
+
+    key.setScope(SHORTCUTS);
+  }
+
+  componentWillUnmount() {
+    key.deleteScope(SHORTCUTS);
+  }
+  render() {
+    return null;
+  }
+}
+
+const ConnectedGameKeyboardShortcuts = connect<GameKeyboardShortcutsStateProps, GameKeyboardShortcutsDispatchProps>(
+  (state: RootState) => ({
+    sudoku: state.sudoku,
+    activeCell: state.game.activeCell,
+  }),
+  {
+    setNumber,
+    clearNumber,
+    selectCell,
+    hideMenu,
+    showMenu,
+  },
+)(GameKeyboardShortcuts);
 
 class Game extends React.Component<GameStateProps & GameDispatchProps> {
   componentWillReceiveProps(props) {
@@ -99,6 +228,7 @@ class Game extends React.Component<GameStateProps & GameDispatchProps> {
     const {game, pauseGame} = this.props;
     return (
       <Container>
+        <ConnectedGameKeyboardShortcuts />
         <GameContainer>
           <div>
             <div>
@@ -108,8 +238,11 @@ class Game extends React.Component<GameStateProps & GameDispatchProps> {
             </div>
             <GridContainer>
               <Sudoku
+                shouldShowMenu={this.props.game.showMenu}
                 sudoku={this.props.sudoku}
                 showMenu={this.props.showMenu}
+                hideMenu={this.props.hideMenu}
+                selectCell={this.props.selectCell}
                 showHints={game.showHints && game.running}
                 activeCell={game.activeCell}
               />
@@ -135,5 +268,7 @@ export default connect(
     resetGame,
     wonGame,
     showMenu,
+    selectCell,
+    hideMenu,
   },
 )(Game);
