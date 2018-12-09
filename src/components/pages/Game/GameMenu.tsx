@@ -7,10 +7,10 @@ import {
   continueGame,
   resetGame,
   newGame,
-  setMenu,
+  setGameState,
   setDifficulty,
-  MenuState,
   toggleShowHints,
+  GameStateMachine,
 } from "src/ducks/game";
 import {DIFFICULTY} from "src/engine/utility";
 
@@ -146,13 +146,31 @@ const GameMenuSelection = ({setDifficulty, newGame, changeIndex, sudokuIndex, di
   );
 };
 
-const GameMenu = connect(
-  function(state: RootState) {
+interface GameMenuDispatchProps {
+  continueGame: typeof continueGame;
+  resetGame: typeof resetGame;
+  newGame: typeof newGame;
+  setSudoku: typeof setSudoku;
+  changeIndex: typeof changeIndex;
+  setGameState: typeof setGameState;
+  setDifficulty: typeof setDifficulty;
+  toggleShowHints: typeof toggleShowHints;
+}
+
+interface GameMenuStateProps {
+  showHints: boolean;
+  hasGame: boolean;
+  sudokuIndex: number;
+  state: GameStateMachine;
+  difficulty: DIFFICULTY;
+}
+
+const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
+  (state: RootState) => {
     return {
-      running: state.game.running,
       hasGame: state.game.currentlySelectedSudokuId !== undefined,
       sudokuIndex: state.game.sudokuIndex,
-      menuState: state.game.menu,
+      state: state.game.state,
       difficulty: state.game.difficulty,
       showHints: state.game.showHints,
     };
@@ -163,27 +181,12 @@ const GameMenu = connect(
     newGame,
     setSudoku,
     changeIndex,
-    setMenu,
+    setGameState,
     setDifficulty,
     toggleShowHints,
   },
 )(
-  class GameMenu extends React.Component<{
-    continueGame: typeof continueGame;
-    resetGame: typeof resetGame;
-    newGame: typeof newGame;
-    setSudoku: typeof setSudoku;
-    changeIndex: typeof changeIndex;
-    setMenu: typeof setMenu;
-    setDifficulty: typeof setDifficulty;
-    toggleShowHints: typeof toggleShowHints;
-    showHints: boolean;
-    running: boolean;
-    hasGame: boolean;
-    sudokuIndex: number;
-    menuState: string;
-    difficulty: DIFFICULTY;
-  }> {
+  class GameMenu extends React.Component<GameMenuStateProps & GameMenuDispatchProps> {
     constructor(props) {
       super(props);
       this.newGame = this.newGame.bind(this);
@@ -192,13 +195,12 @@ const GameMenu = connect(
       this.props.setSudoku(this.props.difficulty, sudoku);
       this.props.newGame(this.props.difficulty, sudokuId);
       this.props.continueGame();
-      this.props.setMenu(MenuState.running);
+      this.props.setGameState(GameStateMachine.running);
     }
     render() {
       const {
         continueGame,
         setDifficulty,
-        running,
         hasGame,
         difficulty,
         changeIndex,
@@ -207,14 +209,10 @@ const GameMenu = connect(
         showHints,
       } = this.props;
 
-      if (running) {
-        return null;
-      }
+      const chooseGame = () => this.props.setGameState(GameStateMachine.chooseGame);
 
-      const chooseGame = () => this.props.setMenu(MenuState.chooseGame);
-
-      switch (this.props.menuState) {
-        case MenuState.chooseGame: {
+      switch (this.props.state) {
+        case GameStateMachine.chooseGame: {
           return (
             <GameMenuSelection
               setDifficulty={setDifficulty}
@@ -225,7 +223,7 @@ const GameMenu = connect(
             />
           );
         }
-        case MenuState.running: {
+        case GameStateMachine.paused: {
           if (hasGame) {
             return (
               <GameMenuRunning
@@ -237,9 +235,11 @@ const GameMenu = connect(
             );
           }
         }
-        case MenuState.wonGame: {
+        case GameStateMachine.wonGame: {
           return <WonGame chooseGame={chooseGame} />;
         }
+        default:
+          return null;
       }
     }
   },

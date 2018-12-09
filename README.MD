@@ -24,7 +24,7 @@ npm install
 npm start
 ```
 
-The app should be available on `https://localhost:3001`.
+The app should be available on `https://localhost:3000`.
 
 ## Contribution
 

@@ -2,8 +2,9 @@ import {DIFFICULTY} from "src/engine/utility";
 import sudokus from "src/sudokus";
 import {Cell} from "src/ducks/sudoku/model";
 
-export enum MenuState {
+export enum GameStateMachine {
   running = "RUNNING",
+  paused = "PAUSED",
   chooseGame = "CHOOSE_GAME",
   wonGame = "WON_GAME",
 }
@@ -80,10 +81,10 @@ export function hideMenu() {
   };
 }
 
-export function setMenu(menu) {
+export function setGameState(state) {
   return {
     type: SET_MENU,
-    menu,
+    state,
   };
 }
 
@@ -104,13 +105,12 @@ export interface GameState {
   startTime: number;
   offsetTime: number;
   stopTime: number;
-  running: boolean;
   currentlySelectedDifficulty: string;
   currentlySelectedSudokuId: string;
   sudokus: typeof sudokus;
+  state: GameStateMachine;
   // menu stuff
   sudokuIndex: number;
-  menu: MenuState;
   difficulty: DIFFICULTY;
   activeCell: Cell;
   showHints: boolean;
@@ -124,13 +124,12 @@ const gameState: GameState = {
   startTime: 0,
   offsetTime: 0,
   stopTime: 0,
-  running: false,
   currentlySelectedDifficulty: undefined,
   currentlySelectedSudokuId: undefined,
   sudokus,
   // menu stuff
   sudokuIndex: 0,
-  menu: MenuState.chooseGame,
+  state: GameStateMachine.chooseGame,
   difficulty: DIFFICULTY.EASY,
   activeCell: null,
   showHints: false,
@@ -165,7 +164,7 @@ export default function gameReducer(state: GameState = gameState, action): GameS
       return {
         ...state,
         stopTime: +new Date(),
-        running: false,
+        state: GameStateMachine.paused,
       };
     case CONTINUE_GAME:
       let offsetTime = state.offsetTime;
@@ -178,7 +177,7 @@ export default function gameReducer(state: GameState = gameState, action): GameS
       }
       return {
         ...state,
-        running: true,
+        state: GameStateMachine.running,
         startTime,
         offsetTime,
         stopTime: 0,
@@ -200,14 +199,13 @@ export default function gameReducer(state: GameState = gameState, action): GameS
     case WON_GAME: {
       return {
         ...state,
-        running: false,
-        menu: MenuState.wonGame,
+        state: GameStateMachine.wonGame,
       };
     }
     case SET_MENU:
       return {
         ...state,
-        menu: action.menu,
+        state: action.state,
       };
     case SELECT_CELL:
       return {

@@ -11,6 +11,7 @@ import {
   hideMenu,
   showMenu,
   selectCell,
+  GameStateMachine,
 } from "src/ducks/game";
 
 import {Sudoku} from "src/components/modules/Sudoku/Sudoku";
@@ -243,7 +244,7 @@ class Game extends React.Component<GameStateProps & GameDispatchProps> {
                 showMenu={this.props.showMenu}
                 hideMenu={this.props.hideMenu}
                 selectCell={this.props.selectCell}
-                showHints={game.showHints && game.running}
+                showHints={game.showHints && game.state === GameStateMachine.running}
                 activeCell={game.activeCell}
               />
             </GridContainer>
@@ -256,7 +257,7 @@ class Game extends React.Component<GameStateProps & GameDispatchProps> {
 
 export default connect(
   (state: RootState) => {
-    const sudoku = state.game.running ? state.sudoku : emptyGrid;
+    const sudoku = state.game.state === GameStateMachine.running ? state.sudoku : emptyGrid;
     return {
       game: state.game,
       sudoku,

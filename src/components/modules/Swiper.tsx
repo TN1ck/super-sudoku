@@ -71,7 +71,7 @@ export class TouchProvider extends React.Component<
     });
     this.props.onTouchMove && this.props.onTouchMove(this.state.offset);
   }
-  onTouchEnd(e: React.TouchEvent<HTMLDivElement>) {
+  onTouchEnd(_: React.TouchEvent<HTMLDivElement>) {
     // e.preventDefault();
     this.props.onTouchEnd && this.props.onTouchEnd(this.state.offset);
   }
