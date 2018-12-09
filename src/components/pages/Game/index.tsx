@@ -100,7 +100,47 @@ interface GameStateProps {
   sudoku: Cell[];
 }
 
-const SHORTCUTS = "SHORTCUTS";
+enum ShortcutScope {
+  Game = "Game",
+  Menu = "Menu",
+}
+
+interface GameMenuShortcutsDispatchProps {
+  continueGame: typeof continueGame;
+}
+
+// TODO
+class GameMenuShortcuts extends React.Component<GameMenuShortcutsDispatchProps> {
+  componentDidMount() {
+    key("esc", ShortcutScope.Menu, () => {
+      this.props.continueGame();
+      return false;
+    });
+    key("up", ShortcutScope.Menu, () => {
+      console.log("up");
+      return false;
+    });
+    key("down", ShortcutScope.Menu, () => {
+      console.log("down");
+      return false;
+    });
+    key("enter", ShortcutScope.Menu, () => {
+      console.log("enter");
+      return false;
+    });
+  }
+  componentWillUnmount() {
+    key.deleteScope(ShortcutScope.Menu);
+  }
+  render() {
+    return null;
+  }
+}
+
+const ConnectedGameMenuShortcuts = connect<{}, GameMenuShortcutsDispatchProps>(
+  null,
+  {continueGame},
+)(GameMenuShortcuts);
 
 interface GameKeyboardShortcutsStateProps {
   activeCell: Cell;
@@ -113,6 +153,7 @@ interface GameKeyboardShortcutsDispatchProps {
   selectCell: typeof selectCell;
   setNumber: typeof setNumber;
   clearNumber: typeof clearNumber;
+  pauseGame: typeof pauseGame;
 }
 
 class GameKeyboardShortcuts extends React.Component<
@@ -132,7 +173,12 @@ class GameKeyboardShortcuts extends React.Component<
     const minCoordinate = SUDOKU_COORDINATES[0];
     const maxCoordinate = SUDOKU_COORDINATES[SUDOKU_COORDINATES.length - 1];
 
-    key("up", SHORTCUTS, () => {
+    key("escape", ShortcutScope.Game, () => {
+      this.props.pauseGame();
+      return false;
+    });
+
+    key("up", ShortcutScope.Game, () => {
       const currentCell = this.props.activeCell;
       if (currentCell === null) {
         return setDefault();
@@ -144,7 +190,7 @@ class GameKeyboardShortcuts extends React.Component<
       return false;
     });
 
-    key("down", SHORTCUTS, () => {
+    key("down", ShortcutScope.Game, () => {
       const currentCell = this.props.activeCell;
       if (currentCell === null) {
         return setDefault();
@@ -156,7 +202,7 @@ class GameKeyboardShortcuts extends React.Component<
       return false;
     });
 
-    key("right", SHORTCUTS, () => {
+    key("right", ShortcutScope.Game, () => {
       const currentCell = this.props.activeCell;
       if (currentCell === null) {
         return setDefault();
@@ -168,7 +214,7 @@ class GameKeyboardShortcuts extends React.Component<
       return false;
     });
 
-    key("left", SHORTCUTS, () => {
+    key("left", ShortcutScope.Game, () => {
       const currentCell = this.props.activeCell;
       if (currentCell === null) {
         return setDefault();
@@ -181,20 +227,18 @@ class GameKeyboardShortcuts extends React.Component<
     });
 
     SUDOKU_NUMBERS.forEach(n => {
-      key(String(n), SHORTCUTS, () => {
+      key(String(n), ShortcutScope.Game, () => {
         this.props.setNumber(this.props.activeCell, n);
       });
     });
 
-    key("backspace", SHORTCUTS, () => {
+    key("backspace", ShortcutScope.Game, () => {
       this.props.clearNumber(this.props.activeCell);
     });
-
-    key.setScope(SHORTCUTS);
   }
 
   componentWillUnmount() {
-    key.deleteScope(SHORTCUTS);
+    key.deleteScope(ShortcutScope.Game);
   }
   render() {
     return null;
@@ -212,16 +256,29 @@ const ConnectedGameKeyboardShortcuts = connect<GameKeyboardShortcutsStateProps, 
     selectCell,
     hideMenu,
     showMenu,
+    pauseGame,
   },
 )(GameKeyboardShortcuts);
 
-class Game extends React.Component<GameStateProps & GameDispatchProps> {
-  componentWillReceiveProps(props) {
+type GameProps = GameStateProps & GameDispatchProps;
+
+class Game extends React.Component<GameProps> {
+  componentWillReceiveProps(props: GameProps) {
     const state = new SudokuState();
+
+    // check if won
     const wasSolved = state.isSolved(this.props.sudoku);
     const isSolved = state.isSolved(props.sudoku);
     if (isSolved && !wasSolved) {
       this.props.wonGame();
+    }
+
+    // check if paused, remap keys
+    if (props.game.state === GameStateMachine.paused) {
+      key.setScope(ShortcutScope.Menu);
+    }
+    if (props.game.state === GameStateMachine.running) {
+      key.setScope(ShortcutScope.Game);
     }
   }
 
@@ -230,6 +287,7 @@ class Game extends React.Component<GameStateProps & GameDispatchProps> {
     return (
       <Container>
         <ConnectedGameKeyboardShortcuts />
+        <ConnectedGameMenuShortcuts />
         <GameContainer>
           <div>
             <div>

@@ -11,12 +11,9 @@ export enum GameStateMachine {
 
 const NEW_GAME = "game/NEW_GAME";
 const RESET_GAME = "game/RESET_GAME";
-const PAUSE_GAME = "game/PAUSE_GAME";
-const CONTINUE_GAME = "game/CONTINUE_GAME";
-const WON_GAME = "game/WON_GAME";
 
 const CHANGE_INDEX = "game/CHANGE_INDEX";
-const SET_MENU = "game/SET_MENU";
+const SET_GAME_STATE = "game/SET_GAME_STATE";
 const SET_DIFFICULTY = "game/SET_DIFFICULTY";
 const SHOW_MENU = "game/SHOW_MENU";
 const HIDE_MENU = "game/HIDE_MENU";
@@ -32,26 +29,24 @@ export function newGame(difficulty, sudokuId) {
 }
 
 export function wonGame() {
-  return {
-    type: WON_GAME,
-  };
+  return setGameState(GameStateMachine.wonGame);
+}
+
+export function pauseGame() {
+  return setGameState(GameStateMachine.paused);
+}
+
+export function continueGame() {
+  return setGameState(GameStateMachine.running);
+}
+
+export function chooseGame() {
+  return setGameState(GameStateMachine.chooseGame);
 }
 
 export function resetGame() {
   return {
     type: RESET_GAME,
-  };
-}
-
-export function pauseGame() {
-  return {
-    type: PAUSE_GAME,
-  };
-}
-
-export function continueGame() {
-  return {
-    type: CONTINUE_GAME,
   };
 }
 
@@ -83,7 +78,7 @@ export function hideMenu() {
 
 export function setGameState(state) {
   return {
-    type: SET_MENU,
+    type: SET_GAME_STATE,
     state,
   };
 }
@@ -160,28 +155,7 @@ export default function gameReducer(state: GameState = gameState, action): GameS
         currentlySelectedDifficulty: action.difficulty,
         currentlySelectedSudokuId: action.sudokuId,
       };
-    case PAUSE_GAME:
-      return {
-        ...state,
-        stopTime: +new Date(),
-        state: GameStateMachine.paused,
-      };
-    case CONTINUE_GAME:
-      let offsetTime = state.offsetTime;
-      let startTime = state.startTime;
-      if (state.startTime === 0) {
-        startTime = +new Date();
-      }
-      if (state.stopTime > 0) {
-        offsetTime = state.offsetTime + (+new Date() - state.stopTime);
-      }
-      return {
-        ...state,
-        state: GameStateMachine.running,
-        startTime,
-        offsetTime,
-        stopTime: 0,
-      };
+
     case RESET_GAME:
       return {
         ...gameState,
@@ -196,13 +170,39 @@ export default function gameReducer(state: GameState = gameState, action): GameS
         ...state,
         difficulty: action.difficulty,
       };
-    case WON_GAME: {
-      return {
-        ...state,
-        state: GameStateMachine.wonGame,
-      };
-    }
-    case SET_MENU:
+    case SET_GAME_STATE:
+      switch (action.state) {
+        case GameStateMachine.paused: {
+          return {
+            ...state,
+            stopTime: +new Date(),
+            state: GameStateMachine.paused,
+          };
+        }
+        case GameStateMachine.running: {
+          let offsetTime = state.offsetTime;
+          let startTime = state.startTime;
+          if (state.startTime === 0) {
+            startTime = +new Date();
+          }
+          if (state.stopTime > 0) {
+            offsetTime = state.offsetTime + (+new Date() - state.stopTime);
+          }
+          return {
+            ...state,
+            state: GameStateMachine.running,
+            startTime,
+            offsetTime,
+            stopTime: 0,
+          };
+        }
+        default: {
+          return {
+            ...state,
+            state: action.state,
+          };
+        }
+      }
       return {
         ...state,
         state: action.state,
