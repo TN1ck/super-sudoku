@@ -1,5 +1,3 @@
-import {DIFFICULTY} from "src/engine/utility";
-import sudokus from "src/sudokus";
 import {Cell} from "src/ducks/sudoku/model";
 
 export enum GameStateMachine {
@@ -12,9 +10,7 @@ export enum GameStateMachine {
 const NEW_GAME = "game/NEW_GAME";
 const RESET_GAME = "game/RESET_GAME";
 
-const CHANGE_INDEX = "game/CHANGE_INDEX";
 const SET_GAME_STATE = "game/SET_GAME_STATE";
-const SET_DIFFICULTY = "game/SET_DIFFICULTY";
 const SHOW_MENU = "game/SHOW_MENU";
 const HIDE_MENU = "game/HIDE_MENU";
 const SELECT_CELL = "game/SELECT_MENU";
@@ -50,13 +46,6 @@ export function resetGame() {
   };
 }
 
-export function changeIndex(index) {
-  return {
-    type: CHANGE_INDEX,
-    index,
-  };
-}
-
 export function selectCell(cell) {
   return {
     type: SELECT_CELL,
@@ -83,13 +72,6 @@ export function setGameState(state) {
   };
 }
 
-export function setDifficulty(difficulty) {
-  return {
-    type: SET_DIFFICULTY,
-    difficulty,
-  };
-}
-
 export function toggleShowHints() {
   return {
     type: TOGGLE_SHOW_HINTS,
@@ -100,13 +82,8 @@ export interface GameState {
   startTime: number;
   offsetTime: number;
   stopTime: number;
-  currentlySelectedDifficulty: string;
-  currentlySelectedSudokuId: string;
-  sudokus: typeof sudokus;
   state: GameStateMachine;
   // menu stuff
-  sudokuIndex: number;
-  difficulty: DIFFICULTY;
   activeCell: Cell;
   showHints: boolean;
   showMenu: boolean;
@@ -119,13 +96,8 @@ const gameState: GameState = {
   startTime: 0,
   offsetTime: 0,
   stopTime: 0,
-  currentlySelectedDifficulty: undefined,
-  currentlySelectedSudokuId: undefined,
-  sudokus,
   // menu stuff
-  sudokuIndex: 0,
   state: GameStateMachine.chooseGame,
-  difficulty: DIFFICULTY.EASY,
   activeCell: null,
   showHints: false,
 };
@@ -152,23 +124,11 @@ export default function gameReducer(state: GameState = gameState, action): GameS
     case NEW_GAME:
       return {
         ...state,
-        currentlySelectedDifficulty: action.difficulty,
-        currentlySelectedSudokuId: action.sudokuId,
       };
 
     case RESET_GAME:
       return {
         ...gameState,
-      };
-    case CHANGE_INDEX:
-      return {
-        ...state,
-        sudokuIndex: action.index,
-      };
-    case SET_DIFFICULTY:
-      return {
-        ...state,
-        difficulty: action.difficulty,
       };
     case SET_GAME_STATE:
       switch (action.state) {
@@ -203,10 +163,6 @@ export default function gameReducer(state: GameState = gameState, action): GameS
           };
         }
       }
-      return {
-        ...state,
-        state: action.state,
-      };
     case SELECT_CELL:
       return {
         ...state,

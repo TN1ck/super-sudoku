@@ -2,16 +2,7 @@ import * as React from "react";
 
 import {connect} from "react-redux";
 import {setSudoku} from "src/ducks/sudoku";
-import {
-  changeIndex,
-  continueGame,
-  resetGame,
-  newGame,
-  setGameState,
-  setDifficulty,
-  toggleShowHints,
-  GameStateMachine,
-} from "src/ducks/game";
+import {continueGame, resetGame, newGame, setGameState, toggleShowHints, GameStateMachine} from "src/ducks/game";
 import {DIFFICULTY} from "src/engine/utility";
 
 import SelectSudoku from "./GameSelectSudoku";
@@ -21,6 +12,7 @@ import styled from "styled-components";
 import {RootState} from "src/ducks";
 import Button from "src/components/modules/Button";
 import Checkbox from "src/components/modules/Checkbox";
+import {changeSudoku, setDifficulty, previousSudoku, nextSudoku} from "src/ducks/game/choose";
 
 export const GameMenuContainer = styled.div`
   background-color: rgba(255, 255, 255, 0.8);
@@ -95,7 +87,15 @@ const WonGame = ({chooseGame}) => {
   );
 };
 
-const GameMenuSelection = ({setDifficulty, newGame, changeIndex, sudokuIndex, difficulty}) => {
+const GameMenuSelection = ({
+  setDifficulty,
+  newGame,
+  changeSudoku,
+  nextSudoku,
+  previousSudoku,
+  sudokuIndex,
+  difficulty,
+}) => {
   const currentDifficulty = difficulty;
   const difficulties = [
     {
@@ -139,7 +139,9 @@ const GameMenuSelection = ({setDifficulty, newGame, changeIndex, sudokuIndex, di
         key="select-sudoku"
         newGame={newGame}
         difficulty={currentDifficulty}
-        changeIndex={changeIndex}
+        changeSudoku={changeSudoku}
+        nextSudoku={nextSudoku}
+        previousSudoku={previousSudoku}
         sudokuIndex={sudokuIndex}
       />
     </GameMenuContainer>
@@ -151,7 +153,9 @@ interface GameMenuDispatchProps {
   resetGame: typeof resetGame;
   newGame: typeof newGame;
   setSudoku: typeof setSudoku;
-  changeIndex: typeof changeIndex;
+  changeSudoku: typeof changeSudoku;
+  nextSudoku: typeof nextSudoku;
+  previousSudoku: typeof previousSudoku;
   setGameState: typeof setGameState;
   setDifficulty: typeof setDifficulty;
   toggleShowHints: typeof toggleShowHints;
@@ -159,7 +163,6 @@ interface GameMenuDispatchProps {
 
 interface GameMenuStateProps {
   showHints: boolean;
-  hasGame: boolean;
   sudokuIndex: number;
   state: GameStateMachine;
   difficulty: DIFFICULTY;
@@ -168,10 +171,9 @@ interface GameMenuStateProps {
 const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
   (state: RootState) => {
     return {
-      hasGame: state.game.currentlySelectedSudokuId !== undefined,
-      sudokuIndex: state.game.sudokuIndex,
+      sudokuIndex: state.choose.sudokuIndex,
       state: state.game.state,
-      difficulty: state.game.difficulty,
+      difficulty: state.choose.difficulty,
       showHints: state.game.showHints,
     };
   },
@@ -180,7 +182,9 @@ const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
     resetGame,
     newGame,
     setSudoku,
-    changeIndex,
+    changeSudoku,
+    nextSudoku,
+    previousSudoku,
     setGameState,
     setDifficulty,
     toggleShowHints,
@@ -201,9 +205,10 @@ const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
       const {
         continueGame,
         setDifficulty,
-        hasGame,
         difficulty,
-        changeIndex,
+        changeSudoku,
+        previousSudoku,
+        nextSudoku,
         sudokuIndex,
         toggleShowHints,
         showHints,
@@ -218,22 +223,22 @@ const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
               setDifficulty={setDifficulty}
               difficulty={difficulty}
               newGame={this.newGame}
-              changeIndex={changeIndex}
+              changeSudoku={changeSudoku}
+              previousSudoku={previousSudoku}
+              nextSudoku={nextSudoku}
               sudokuIndex={sudokuIndex}
             />
           );
         }
         case GameStateMachine.paused: {
-          if (hasGame) {
-            return (
-              <GameMenuRunning
-                continueGame={continueGame}
-                chooseGame={chooseGame}
-                toggleShowHints={toggleShowHints}
-                showHints={showHints}
-              />
-            );
-          }
+          return (
+            <GameMenuRunning
+              continueGame={continueGame}
+              chooseGame={chooseGame}
+              toggleShowHints={toggleShowHints}
+              showHints={showHints}
+            />
+          );
         }
         case GameStateMachine.wonGame: {
           return <WonGame chooseGame={chooseGame} />;

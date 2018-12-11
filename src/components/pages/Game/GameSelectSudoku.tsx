@@ -2,7 +2,6 @@ import * as React from "react";
 import * as _ from "lodash";
 import styled, {css} from "styled-components";
 
-import {changeIndex} from "src/ducks/game";
 import {DIFFICULTY, ParsedComplexSudoku, parseListOfSudokusComplex} from "src/engine/utility";
 
 import SUDOKUS from "src/sudokus";
@@ -10,6 +9,7 @@ import Button from "src/components/modules/Button";
 import THEME from "src/theme";
 import SmallSudokuComponent from "src/components/modules/Sudoku/SudokuSmall";
 import {TouchProvider} from "src/components/modules/Swiper";
+import {previousSudoku, nextSudoku, changeSudoku} from "src/ducks/game/choose";
 
 const SelectContainer = styled.div<{
   active: boolean;
@@ -61,7 +61,9 @@ class SelectSudoku extends React.Component<
     newGame: (difficulty, sudokuId) => void;
     difficulty: DIFFICULTY;
     sudokuIndex: number;
-    changeIndex: typeof changeIndex;
+    changeSudoku: typeof changeSudoku;
+    previousSudoku: typeof previousSudoku;
+    nextSudoku: typeof nextSudoku;
   },
   {
     xOffset: number;
@@ -90,13 +92,13 @@ class SelectSudoku extends React.Component<
     return safeIndex;
   }
   onTouchEnd() {
-    this.props.changeIndex(this.getNewIndex(this.state.xOffset));
+    this.props.changeSudoku(this.getNewIndex(this.state.xOffset));
     this.setState({
       xOffset: 0,
     });
   }
   render() {
-    let {newGame, difficulty, sudokuIndex, changeIndex} = this.props;
+    let {newGame, difficulty, sudokuIndex, changeSudoku, previousSudoku, nextSudoku} = this.props;
     const SUDOKU_SHOW = 8;
     const sudokus = PARSED_SUDOKUS[difficulty];
 
@@ -157,7 +159,7 @@ class SelectSudoku extends React.Component<
         if (isCenter) {
           newGame(id, value);
         } else {
-          changeIndex(id);
+          changeSudoku(id);
         }
       };
       return (
@@ -202,7 +204,7 @@ class SelectSudoku extends React.Component<
         >
           <Button
             onClick={() => {
-              changeIndex((sudokuIndex - 1 + sudokus.length) % sudokus.length);
+              previousSudoku();
             }}
             style={{
               marginRight: THEME.spacer.x2,
@@ -213,7 +215,7 @@ class SelectSudoku extends React.Component<
           </Button>
           <Button
             onClick={() => {
-              changeIndex((sudokuIndex + 1) % sudokus.length);
+              nextSudoku();
             }}
             style={{
               padding: `${THEME.spacer.x2}px ${THEME.spacer.x3}px`,
