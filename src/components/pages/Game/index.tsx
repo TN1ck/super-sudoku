@@ -26,10 +26,11 @@ import THEME from "src/theme";
 import {RootState} from "src/ducks";
 import SudokuState from "src/ducks/sudoku/accessor";
 import {Cell} from "src/ducks/sudoku/model";
-import {emptyGrid, setNumber, clearNumber} from "src/ducks/sudoku";
+import {emptyGrid, setNumber, clearNumber, setSudoku} from "src/ducks/sudoku";
 import key from "keymaster";
-import {SUDOKU_NUMBERS, SUDOKU_COORDINATES} from "src/engine/utility";
+import {SUDOKU_NUMBERS, SUDOKU_COORDINATES, DIFFICULTY} from "src/engine/utility";
 import {nextSudoku, previousSudoku} from "src/ducks/game/choose";
+import sudokus from "src/sudokus";
 
 function PauseButton({pauseGame}) {
   return (
@@ -159,12 +160,15 @@ interface GameKeyboardShortcutsDispatchProps {
 }
 
 interface GameSelectShortcutsDispatchProps {
+  setSudoku: typeof setSudoku;
   nextSudoku: typeof nextSudoku;
   previousSudoku: typeof previousSudoku;
+  continueGame: typeof continueGame;
 }
 
 interface GameSelectShortcutsStateProps {
   sudokuIndex: number;
+  difficulty: DIFFICULTY;
 }
 
 class GameSelectShortcuts extends React.Component<GameSelectShortcutsDispatchProps & GameSelectShortcutsStateProps> {
@@ -185,6 +189,11 @@ class GameSelectShortcuts extends React.Component<GameSelectShortcutsDispatchPro
       this.props.nextSudoku();
       return false;
     });
+    key("enter", ShortcutScope.SelectSudoku, () => {
+      const sudoku = sudokus[this.props.difficulty][this.props.sudokuIndex];
+      this.props.setSudoku(this.props.difficulty, sudoku.value);
+      this.props.continueGame();
+    });
   }
   componentWillUnmount() {
     key.deleteScope(ShortcutScope.SelectSudoku);
@@ -197,8 +206,9 @@ class GameSelectShortcuts extends React.Component<GameSelectShortcutsDispatchPro
 const ConnectedGameSelectShortcuts = connect<GameSelectShortcutsStateProps, GameSelectShortcutsDispatchProps>(
   (state: RootState) => ({
     sudokuIndex: state.choose.sudokuIndex,
+    difficulty: state.choose.difficulty,
   }),
-  {previousSudoku, nextSudoku},
+  {previousSudoku, nextSudoku, setSudoku, continueGame},
 )(GameSelectShortcuts);
 
 class GameKeyboardShortcuts extends React.Component<
