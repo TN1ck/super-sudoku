@@ -3,6 +3,8 @@
 //
 
 const SET_SUDOKU = "sudoku/SET_SUDOKU";
+const GET_HINT = "sudoku/GET_HINT";
+const CLEAR_CELL = "sudoku/CLEAR_CELL";
 const SET_NOTE = "sudoku/SET_NOTE";
 const CLEAR_NOTE = "sudoku/CLEAR_NOTE";
 const SET_NUMBER = "sudoku/SET_NUMBER";
@@ -20,6 +22,20 @@ interface NoteAction {
   type: string;
   cell: Cell;
   note: number;
+}
+
+export function getHint(cell: Cell) {
+  return {
+    type: GET_HINT,
+    cell,
+  };
+}
+
+export function clearCell(cell: Cell) {
+  return {
+    type: CLEAR_CELL,
+    cell,
+  };
 }
 
 export function setNote(cell: Cell, note: number): NoteAction {
@@ -79,7 +95,9 @@ export const emptyGrid: SudokuState = parseSudoku(emptySudoku);
 const initialState = emptyGrid;
 
 export default function sudokuReducer(state: SudokuState = initialState, action) {
-  if (![SET_NOTE, SET_SUDOKU, CLEAR_NOTE, SET_NUMBER, CLEAR_NUMBER].find(d => d === action.type)) {
+  if (
+    ![SET_NOTE, SET_SUDOKU, CLEAR_NOTE, SET_NUMBER, CLEAR_NUMBER, CLEAR_CELL, GET_HINT].find(d => d === action.type)
+  ) {
     return state;
   }
 
@@ -105,6 +123,11 @@ export default function sudokuReducer(state: SudokuState = initialState, action)
           return {...cell, notes: new Set(cell.notes)};
         }
         return cell;
+      case CLEAR_CELL:
+        if (id === actionCellId) {
+          console.log("cleaar");
+          return {...cell, notes: new Set(), number: undefined};
+        }
       case SET_NUMBER:
         if (id === actionCellId) {
           return {...cell, number: action.number};
@@ -114,6 +137,8 @@ export default function sudokuReducer(state: SudokuState = initialState, action)
         if (id === actionCellId) {
           return {...cell, number: undefined};
         }
+      case GET_HINT:
+        console.log("TODO");
         return cell;
       default:
         return cell;

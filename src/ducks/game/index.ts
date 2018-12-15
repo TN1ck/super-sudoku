@@ -15,6 +15,20 @@ const SHOW_MENU = "game/SHOW_MENU";
 const HIDE_MENU = "game/HIDE_MENU";
 const SELECT_CELL = "game/SELECT_MENU";
 const TOGGLE_SHOW_HINTS = "game/TOGGLE_SHOW_HINTS";
+const ACTIVATE_NOTES_MODE = "game/ACTIVATE_NOTES_MODE";
+const DEACTIVATE_NOTES_MODE = "game/DEACTIVATE_NOTES_MODE";
+
+export function activateNotesMode() {
+  return {
+    type: ACTIVATE_NOTES_MODE,
+  };
+}
+
+export function deactivateNotesMode() {
+  return {
+    type: DEACTIVATE_NOTES_MODE,
+  };
+}
 
 export function newGame(difficulty, sudokuId) {
   return {
@@ -88,6 +102,7 @@ export interface GameState {
   showHints: boolean;
   showMenu: boolean;
   won: boolean;
+  notesMode: boolean;
 }
 
 const gameState: GameState = {
@@ -100,6 +115,7 @@ const gameState: GameState = {
   state: GameStateMachine.chooseGame,
   activeCell: null,
   showHints: false,
+  notesMode: false,
 };
 
 export function getTime(startTime: number, offsetTime: number, stopTime: number) {
@@ -130,6 +146,17 @@ export default function gameReducer(state: GameState = gameState, action): GameS
       return {
         ...gameState,
       };
+    case ACTIVATE_NOTES_MODE:
+      return {
+        ...state,
+        notesMode: true,
+      };
+    case DEACTIVATE_NOTES_MODE:
+      return {
+        ...state,
+        notesMode: false,
+      };
+
     case SET_GAME_STATE:
       switch (action.state) {
         case GameStateMachine.paused: {

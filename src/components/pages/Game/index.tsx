@@ -32,6 +32,7 @@ import {SUDOKU_NUMBERS, SUDOKU_COORDINATES, DIFFICULTY} from "src/engine/utility
 import {nextSudoku, previousSudoku} from "src/ducks/game/choose";
 import sudokus from "src/sudokus";
 import SudokuMenuNumbers from "src/components/modules/Sudoku/SudokuMenuNumbers";
+import SudokuMenuControls from "src/components/modules/Sudoku/SudokuMenuControls";
 
 function PauseButton({pauseGame}) {
   return (
@@ -378,6 +379,7 @@ class Game extends React.Component<GameProps> {
           </GameHeaderArea>
           <GameMainArea>
             <Sudoku
+              notesMode={this.props.game.notesMode}
               shouldShowMenu={this.props.game.showMenu}
               sudoku={this.props.sudoku}
               showMenu={this.props.showMenu}
@@ -389,6 +391,7 @@ class Game extends React.Component<GameProps> {
           </GameMainArea>
           <GameFooterArea>
             <SudokuMenuNumbers />
+            <SudokuMenuControls />
           </GameFooterArea>
         </GameContainer>
       </Container>

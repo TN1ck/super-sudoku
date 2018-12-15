@@ -86,7 +86,7 @@ const MenuCirclePart: React.StatelessComponent<{
   const x = textRadius * Math.cos(minRad + step * 0.5) + center;
   const y = textRadius * Math.sin(minRad + step * 0.5) + center + yOffset;
 
-  const strokeDashoffset = -((minRad / TAU) * circumCircle);
+  const strokeDashoffset = -((minRad / TAU) * circumCircle) % circumCircle;
   const strokeDasharray = `${(step / TAU) * circumCircle} ${circumCircle}`;
 
   return (
@@ -150,7 +150,7 @@ class MenuCircle extends React.Component<MenuCircleOwnProps & MenuCircleDispatch
 
     const usedRad = Math.abs(maxRad - minRad);
     const circumCircle = TAU * circleRadius;
-    const radPerStep = usedRad / (SUDOKU_NUMBERS.length + 1);
+    const radPerStep = usedRad / SUDOKU_NUMBERS.length;
 
     return (
       <MenuCircleContainer
@@ -182,14 +182,11 @@ class MenuCircle extends React.Component<MenuCircleOwnProps & MenuCircleDispatch
             isActive = cell.notes.has(number);
           }
 
-          const useAlt = i % 2 === 0;
-          const stroke = this.props.notesMode
-            ? useAlt
-              ? THEME.menuColors.noteNormal
-              : THEME.menuColors.noteAlternate
-            : useAlt
-            ? THEME.menuColors.normal
-            : THEME.menuColors.alternate;
+          const colors = this.props.notesMode
+            ? [THEME.menuColors.noteNormal, THEME.menuColors.noteAlternate, THEME.menuColors.noteAlternate2]
+            : [THEME.menuColors.normal, THEME.menuColors.alternate, THEME.menuColors.alternate2];
+
+          const stroke = colors[i % colors.length];
 
           return (
             <MenuCirclePart
@@ -224,7 +221,7 @@ class MenuCircle extends React.Component<MenuCircleOwnProps & MenuCircleDispatch
             </MenuCirclePart>
           );
         })}
-        <MenuCirclePart
+        {/* <MenuCirclePart
           radius={circleRadius}
           notesMode={this.props.notesMode}
           minRad={minRad}
@@ -239,7 +236,7 @@ class MenuCircle extends React.Component<MenuCircleOwnProps & MenuCircleDispatch
           }}
         >
           {"N"}
-        </MenuCirclePart>
+        </MenuCirclePart> */}
       </MenuCircleContainer>
     );
   }

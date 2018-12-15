@@ -16,13 +16,13 @@ import {
 } from "src/components/modules/Sudoku/Sudoku.styles";
 import SudokuState from "src/ducks/sudoku/accessor";
 import {Bounds} from "src/utils/types";
-import SudokuMenuNumbers from "./SudokuMenuNumbers";
 
 interface SudokuComponentStateProps {
   activeCell: Cell;
   sudoku: Cell[];
   showHints: boolean;
   shouldShowMenu: boolean;
+  notesMode: boolean;
 }
 
 interface SudokuComponentDispatchProps {
@@ -34,20 +34,12 @@ interface SudokuComponentDispatchProps {
 interface SudokuComponentOwnProps {}
 
 export class Sudoku extends React.PureComponent<
-  SudokuComponentDispatchProps & SudokuComponentStateProps & SudokuComponentOwnProps,
-  {
-    notesMode: boolean;
-  }
+  SudokuComponentDispatchProps & SudokuComponentStateProps & SudokuComponentOwnProps
 > {
   _isMounted: boolean = false;
   element: HTMLElement;
   constructor(props) {
     super(props);
-    this.state = {
-      notesMode: false,
-    };
-    this.enterNotesMode = this.enterNotesMode.bind(this);
-    this.exitNotesMode = this.exitNotesMode.bind(this);
   }
   componentDidMount() {
     this._isMounted = true;
@@ -56,20 +48,6 @@ export class Sudoku extends React.PureComponent<
         this.props.hideMenu();
       }
     });
-  }
-
-  enterNotesMode() {
-    this.setState({
-      notesMode: true,
-    });
-  }
-  exitNotesMode() {
-    this.setState({
-      notesMode: false,
-    });
-  }
-  toggleMenu() {
-    return;
   }
 
   render() {
@@ -127,7 +105,6 @@ export class Sudoku extends React.PureComponent<
         {sudoku.map((c, i) => {
           const onClick = e => {
             if (!c.initial) {
-              this.exitNotesMode();
               this.props.selectCell(c);
               this.props.showMenu();
               e.preventDefault();
@@ -183,12 +160,7 @@ export class Sudoku extends React.PureComponent<
             }}
           >
             <MenuWrapper>
-              <SudokuMenuCircle
-                enterNotesMode={this.enterNotesMode}
-                exitNotesMode={this.exitNotesMode}
-                notesMode={this.state.notesMode}
-                cell={activeCell}
-              />
+              <SudokuMenuCircle notesMode={this.props.notesMode} cell={activeCell} />
             </MenuWrapper>
           </MenuContainer>
         ) : null}

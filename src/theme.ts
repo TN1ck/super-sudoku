@@ -15,8 +15,10 @@ const THEME = {
   menuColors: {
     normal: "#F09A7A",
     alternate: "#ED8963",
+    alternate2: "#d57b59",
     noteNormal: "#84caf3",
     noteAlternate: "#76B5DA",
+    noteAlternate2: "#69a1c2",
   },
   fontFamily: `'Source Sans Pro', sans-serif`,
   spacer: {
