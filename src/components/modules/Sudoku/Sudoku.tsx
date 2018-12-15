@@ -4,7 +4,7 @@ import {Cell} from "src/ducks/sudoku/model";
 
 import * as _ from "lodash";
 
-import SudokuMenu, {MenuWrapper, MenuContainer} from "./SudokuMenu";
+import SudokuMenuCircle, {MenuWrapper, MenuContainer} from "./SudokuMenuCircle";
 import {
   GridLineX,
   GridCell,
@@ -16,6 +16,7 @@ import {
 } from "src/components/modules/Sudoku/Sudoku.styles";
 import SudokuState from "src/ducks/sudoku/accessor";
 import {Bounds} from "src/utils/types";
+import SudokuMenuNumbers from "./SudokuMenuNumbers";
 
 interface SudokuComponentStateProps {
   activeCell: Cell;
@@ -182,7 +183,7 @@ export class Sudoku extends React.PureComponent<
             }}
           >
             <MenuWrapper>
-              <SudokuMenu
+              <SudokuMenuCircle
                 enterNotesMode={this.enterNotesMode}
                 exitNotesMode={this.exitNotesMode}
                 notesMode={this.state.notesMode}

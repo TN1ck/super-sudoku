@@ -31,6 +31,7 @@ import key from "keymaster";
 import {SUDOKU_NUMBERS, SUDOKU_COORDINATES, DIFFICULTY} from "src/engine/utility";
 import {nextSudoku, previousSudoku} from "src/ducks/game/choose";
 import sudokus from "src/sudokus";
+import SudokuMenuNumbers from "src/components/modules/Sudoku/SudokuMenuNumbers";
 
 function PauseButton({pauseGame}) {
   return (
@@ -49,8 +50,16 @@ function PauseButton({pauseGame}) {
 const MAX_WIDTH = 550;
 
 const GameContainer = styled.div`
-  display: flex;
+  display: grid;
   justify-content: center;
+
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "game-header"
+    "game-main"
+    "game-footer";
 
   color: white;
   position: relative;
@@ -67,7 +76,8 @@ const GameContainer = styled.div`
   }
 `;
 
-const GridContainer = styled.div`
+const GameMainArea = styled.div`
+  grid-area: game-main;
   position: relative;
   color: black;
   box-shadow: ${THEME.boxShadow};
@@ -84,6 +94,14 @@ const GridContainer = styled.div`
     width: calc(100vw - ${THEME.spacer.x5}px);
     height: calc(100vw - ${THEME.spacer.x5}px);
   }
+`;
+
+const GameHeaderArea = styled.div`
+  grid-area: game-header;
+`;
+
+const GameFooterArea = styled.div`
+  grid-area: game-footer;
 `;
 
 interface GameDispatchProps {
@@ -353,24 +371,25 @@ class Game extends React.Component<GameProps> {
         <ConnectedGameMenuShortcuts />
         <ConnectedGameSelectShortcuts />
         <GameContainer>
-          <div>
-            <div>
-              <GameMenu />
-              <GameTimer startTime={game.startTime} stopTime={game.stopTime} offsetTime={game.offsetTime} />
-              <PauseButton pauseGame={pauseGame} />
-            </div>
-            <GridContainer>
-              <Sudoku
-                shouldShowMenu={this.props.game.showMenu}
-                sudoku={this.props.sudoku}
-                showMenu={this.props.showMenu}
-                hideMenu={this.props.hideMenu}
-                selectCell={this.props.selectCell}
-                showHints={game.showHints && game.state === GameStateMachine.running}
-                activeCell={game.activeCell}
-              />
-            </GridContainer>
-          </div>
+          <GameHeaderArea>
+            <GameMenu />
+            <GameTimer startTime={game.startTime} stopTime={game.stopTime} offsetTime={game.offsetTime} />
+            <PauseButton pauseGame={pauseGame} />
+          </GameHeaderArea>
+          <GameMainArea>
+            <Sudoku
+              shouldShowMenu={this.props.game.showMenu}
+              sudoku={this.props.sudoku}
+              showMenu={this.props.showMenu}
+              hideMenu={this.props.hideMenu}
+              selectCell={this.props.selectCell}
+              showHints={game.showHints && game.state === GameStateMachine.running}
+              activeCell={game.activeCell}
+            />
+          </GameMainArea>
+          <GameFooterArea>
+            <SudokuMenuNumbers />
+          </GameFooterArea>
         </GameContainer>
       </Container>
     );

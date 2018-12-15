@@ -33,6 +33,7 @@ const THEME = {
     h1: 48,
   },
   boxShadow: "0 0.5rem 1rem rgba(0,0,0,0.15)",
+  boxShadowSmall: "0 0.25rem 0.5rem rgba(0,0,0,0.15)",
   borderRadius: 6,
   lineHeight: 1.5,
   sizes: {

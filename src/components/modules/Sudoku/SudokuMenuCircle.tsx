@@ -19,7 +19,7 @@ const MenuCircleContainer = styled.svg`
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 `;
 
-const MenuCircleComponent = styled.circle<{
+const MenuCirclePartComponent = styled.circle<{
   notesMode: boolean;
   isActive: boolean;
 }>`
@@ -67,7 +67,7 @@ const TAU = Math.PI * 2;
 // Menu
 //
 
-const MenuCircle: React.StatelessComponent<{
+const MenuCirclePart: React.StatelessComponent<{
   radius: number;
   notesMode?: boolean;
   isActive?: boolean;
@@ -76,7 +76,7 @@ const MenuCircle: React.StatelessComponent<{
   maxRad: number;
   children?: React.ReactChild;
   stroke: string;
-}> = function MenuCircle({radius, notesMode, isActive, onClick, minRad, maxRad, children, stroke}) {
+}> = ({radius, notesMode, isActive, onClick, minRad, maxRad, children, stroke}) => {
   const yOffset = 7;
   const textRadius = radius + 8;
   const circumCircle = TAU * radius;
@@ -91,7 +91,7 @@ const MenuCircle: React.StatelessComponent<{
 
   return (
     <g>
-      <MenuCircleComponent
+      <MenuCirclePartComponent
         notesMode={notesMode}
         isActive={isActive}
         r={radius}
@@ -121,14 +121,14 @@ const MenuCircle: React.StatelessComponent<{
   );
 };
 
-interface MenuOwnProps {
+interface MenuCircleOwnProps {
   cell: Cell;
   notesMode: boolean;
   enterNotesMode: () => void;
   exitNotesMode: () => void;
 }
 
-interface MenuDispatchProps {
+interface MenuCircleDispatchProps {
   setNumber: typeof setNumber;
   setNote: typeof setNote;
   clearNote: typeof clearNote;
@@ -136,7 +136,7 @@ interface MenuDispatchProps {
   clearNumber: typeof clearNumber;
 }
 
-class Menu extends React.Component<MenuOwnProps & MenuDispatchProps, {}> {
+class MenuCircle extends React.Component<MenuCircleOwnProps & MenuCircleDispatchProps, {}> {
   render() {
     const cell = this.props.cell;
     if (cell === null) {
@@ -192,7 +192,7 @@ class Menu extends React.Component<MenuOwnProps & MenuDispatchProps, {}> {
             : THEME.menuColors.alternate;
 
           return (
-            <MenuCircle
+            <MenuCirclePart
               key={i}
               radius={circleRadius}
               notesMode={this.props.notesMode}
@@ -221,10 +221,10 @@ class Menu extends React.Component<MenuOwnProps & MenuDispatchProps, {}> {
               }}
             >
               {number}
-            </MenuCircle>
+            </MenuCirclePart>
           );
         })}
-        <MenuCircle
+        <MenuCirclePart
           radius={circleRadius}
           notesMode={this.props.notesMode}
           minRad={minRad}
@@ -239,13 +239,13 @@ class Menu extends React.Component<MenuOwnProps & MenuDispatchProps, {}> {
           }}
         >
           {"N"}
-        </MenuCircle>
+        </MenuCirclePart>
       </MenuCircleContainer>
     );
   }
 }
 
-const MenuComponent = connect<null, MenuDispatchProps, MenuOwnProps>(
+const MenuComponent = connect<null, MenuCircleDispatchProps, MenuCircleOwnProps>(
   null,
   {
     showMenu,
@@ -254,6 +254,6 @@ const MenuComponent = connect<null, MenuDispatchProps, MenuOwnProps>(
     clearNote,
     clearNumber,
   },
-)(Menu);
+)(MenuCircle);
 
 export default MenuComponent;
