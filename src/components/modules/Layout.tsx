@@ -2,8 +2,11 @@ import styled from "styled-components";
 import THEME from "src/theme";
 
 export const Container = styled.div`
-  min-width: 300px;
-  max-width: 1000px;
-  padding: 0 ${THEME.spacer.x2}px;
+  max-width: ${THEME.widths.maxDesktop}px;
   margin: 0 auto;
+
+  @media (max-width: ${THEME.widths.maxMobile}px) {
+    padding-left: ${THEME.spacer.paddingMobile}px;
+    padding-right: ${THEME.spacer.paddingMobile}px;
+  }
 `;

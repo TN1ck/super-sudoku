@@ -29,6 +29,7 @@ const THEME = {
     x5: 80,
     x6: 160,
     x7: 320,
+    paddingMobile: 10,
   },
   fontSize: {
     base: 16,
@@ -40,6 +41,10 @@ const THEME = {
   lineHeight: 1.5,
   sizes: {
     header: 60,
+  },
+  widths: {
+    maxMobile: 600,
+    maxDesktop: 1000,
   },
 };
 

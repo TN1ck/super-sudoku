@@ -56,8 +56,9 @@ export const MenuWrapper = styled.div`
   transform: translate(-50%, -50%);
   z-index: 3;
 
-  @media (max-width: 600px) {
-    transform: translate(-50%, -50%) scale(0.7);
+  /* We just hide it on mobile, as it's not useful there */
+  @media (max-width: ${THEME.widths.maxMobile}px) {
+    display: none;
   }
 `;
 
@@ -124,8 +125,8 @@ const MenuCirclePart: React.StatelessComponent<{
 interface MenuCircleOwnProps {
   cell: Cell;
   notesMode: boolean;
-  enterNotesMode: () => void;
-  exitNotesMode: () => void;
+  // enterNotesMode: () => void;
+  // exitNotesMode: () => void;
 }
 
 interface MenuCircleDispatchProps {

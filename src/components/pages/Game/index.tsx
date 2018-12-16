@@ -48,8 +48,6 @@ function PauseButton({pauseGame}) {
   );
 }
 
-const MAX_WIDTH = 550;
-
 const GameContainer = styled.div`
   display: grid;
   justify-content: center;
@@ -68,12 +66,10 @@ const GameContainer = styled.div`
   margin-bottom: ${THEME.spacer.x3 + 20}px;
   margin-left: auto;
   margin-right: auto;
-  max-width: ${MAX_WIDTH}px;
+  max-width: ${THEME.widths.maxMobile - THEME.spacer.paddingMobile * 2}px;
 
-  @media (max-width: 600px) {
-    max-width: auto;
-    margin-left: ${-THEME.spacer.x2 + THEME.spacer.x4}px;
-    margin-right: ${-THEME.spacer.x2 + THEME.spacer.x4}px;
+  @media (max-width: ${THEME.widths.maxMobile}px) {
+    max-width: 100%;
   }
 `;
 
@@ -84,16 +80,17 @@ const GameMainArea = styled.div`
   box-shadow: ${THEME.boxShadow};
   background-color: white;
   border-radius: ${THEME.borderRadius}px;
-  width: ${MAX_WIDTH}px;
-  height: ${MAX_WIDTH}px;
+  width: ${THEME.widths.maxMobile}px;
+  height: ${THEME.widths.maxMobile}px;
   flex-wrap: wrap;
   flex-shrink: 0;
   flex-grow: 0;
   display: flex;
 
-  @media (max-width: 600px) {
-    width: calc(100vw - ${THEME.spacer.x5}px);
-    height: calc(100vw - ${THEME.spacer.x5}px);
+  @media (max-width: ${THEME.widths.maxMobile}px) {
+    /* As we need a value for the height, we need to make it it 100vw */
+    width: calc(100vw - ${THEME.spacer.paddingMobile * 2}px);
+    height: calc(100vw - ${THEME.spacer.paddingMobile * 2}px);
   }
 `;
 
