@@ -96,7 +96,7 @@ class SelectSudoku extends React.Component<
     const SUDOKU_SHOW = 8;
     const sudokus = SUDOKUS[difficulty];
 
-    const _sudokusToShow: Array<{sudoku: SimpleSudoku; id: number; solved: SimpleSudoku}> = [];
+    const _sudokusToShow: Array<{sudoku: SimpleSudoku; id: number; solution: SimpleSudoku}> = [];
 
     const newSudokuIndex = this.getNewIndex(this.state.xOffset);
 
@@ -147,11 +147,11 @@ class SelectSudoku extends React.Component<
     });
 
     const items = sudokusToShow.map(({sudoku, style, active}) => {
-      const {sudoku: simpleSudoku, id, solved} = sudoku;
+      const {sudoku: simpleSudoku, id, solution} = sudoku;
       const isCenter = id === sudokuIndex;
       const onClick = () => {
         if (isCenter) {
-          newGame(id, simpleSudoku, solved);
+          newGame(id, simpleSudoku, solution);
         } else {
           changeSudoku(id);
         }
