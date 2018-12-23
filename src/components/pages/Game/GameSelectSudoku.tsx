@@ -2,7 +2,7 @@ import * as React from "react";
 import * as _ from "lodash";
 import styled, {css} from "styled-components";
 
-import {DIFFICULTY, ParsedComplexSudoku, parseListOfSudokusComplex, SimpleSudoku} from "src/engine/utility";
+import {DIFFICULTY, SimpleSudoku} from "src/engine/utility";
 
 import SUDOKUS from "src/assets/sudokus-new";
 import Button from "src/components/modules/Button";
@@ -52,7 +52,7 @@ const SelectContainer = styled.div<{
 
 class SelectSudoku extends React.Component<
   {
-    newGame: (difficulty, sudokuId) => void;
+    newGame: (sudokuId, sudoku, solution) => void;
     difficulty: DIFFICULTY;
     sudokuIndex: number;
     changeSudoku: typeof changeSudoku;
@@ -96,7 +96,7 @@ class SelectSudoku extends React.Component<
     const SUDOKU_SHOW = 8;
     const sudokus = SUDOKUS[difficulty];
 
-    const _sudokusToShow: Array<{sudoku: SimpleSudoku; id: number}> = [];
+    const _sudokusToShow: Array<{sudoku: SimpleSudoku; id: number; solved: SimpleSudoku}> = [];
 
     const newSudokuIndex = this.getNewIndex(this.state.xOffset);
 
@@ -147,11 +147,11 @@ class SelectSudoku extends React.Component<
     });
 
     const items = sudokusToShow.map(({sudoku, style, active}) => {
-      const {sudoku: simpleSudoku, id} = sudoku;
+      const {sudoku: simpleSudoku, id, solved} = sudoku;
       const isCenter = id === sudokuIndex;
       const onClick = () => {
         if (isCenter) {
-          newGame(id, simpleSudoku);
+          newGame(id, simpleSudoku, solved);
         } else {
           changeSudoku(id);
         }

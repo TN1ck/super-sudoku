@@ -33,6 +33,7 @@ export type DomainSudoku = number[][][];
 export interface Cell extends SimpleCell {
   initial: boolean;
   notes: Set<number>;
+  solution: number;
 }
 
 export const SUDOKU_COORDINATES = [0, 1, 2, 3, 4, 5, 6, 7, 8];
@@ -124,7 +125,7 @@ export function simpleSudokuToComplexSudoku(grid: SimpleSudoku): ComplexSudoku {
   );
 }
 
-export function simpleSudokuToCells(grid: SimpleSudoku): Cell[] {
+export function simpleSudokuToCells(grid: SimpleSudoku, solution?: SimpleSudoku): Cell[] {
   return [].concat(
     ...grid.map((row, y) => {
       return row.map((n, x) => {
@@ -134,6 +135,7 @@ export function simpleSudokuToCells(grid: SimpleSudoku): Cell[] {
           number: n,
           notes: new Set(),
           initial: n !== 0,
+          solution: solution ? solution[y][x] : 0,
         };
       });
     }),

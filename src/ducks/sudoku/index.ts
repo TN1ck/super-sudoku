@@ -78,11 +78,12 @@ export function clearNumber(cell: Cell): CellAction {
   };
 }
 
-export function setSudoku(difficulty: DIFFICULTY, sudoku: SimpleSudoku) {
+export function setSudoku(difficulty: DIFFICULTY, sudoku: SimpleSudoku, solution: SimpleSudoku) {
   return {
     difficulty,
     type: SET_SUDOKU,
-    sudoku: simpleSudokuToCells(sudoku),
+    sudoku: simpleSudokuToCells(sudoku, solution),
+    solution,
   };
 }
 
@@ -144,7 +145,13 @@ export default function sudokuReducer(state: SudokuState = initialState, action)
           return {...cell, number: 0};
         }
       case GET_HINT:
-        console.log("TODO");
+        if (id === actionCellId) {
+          console.log(cell, "get hint");
+          return {
+            ...cell,
+            number: cell.solution,
+          };
+        }
         return cell;
       default:
         return cell;

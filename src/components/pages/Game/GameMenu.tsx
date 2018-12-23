@@ -191,8 +191,8 @@ const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
       super(props);
       this.newGame = this.newGame.bind(this);
     }
-    newGame(sudokuId, sudoku) {
-      this.props.setSudoku(this.props.difficulty, sudoku);
+    newGame(sudokuId, sudoku, solution) {
+      this.props.setSudoku(this.props.difficulty, sudoku, solution);
       this.props.newGame(this.props.difficulty, sudokuId);
       this.props.continueGame();
       this.props.setGameState(GameStateMachine.running);

@@ -234,7 +234,7 @@ class GameSelectShortcuts extends React.Component<GameSelectShortcutsDispatchPro
     });
     key("enter", ShortcutScope.SelectSudoku, () => {
       const sudoku = SUDOKUS[this.props.difficulty][this.props.sudokuIndex];
-      this.props.setSudoku(this.props.difficulty, sudoku.sudoku);
+      this.props.setSudoku(this.props.difficulty, sudoku.sudoku, sudoku.solved);
       this.props.continueGame();
     });
   }

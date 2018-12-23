@@ -2,6 +2,7 @@ import {Cell} from "src/engine/utility";
 
 export function createCell(x: number, y: number, number: number, notes: Set<number>, initial: boolean): Cell {
   return {
+    solution: 0,
     x,
     y,
     number,
