@@ -2,9 +2,9 @@ import * as React from "react";
 import * as _ from "lodash";
 import styled, {css} from "styled-components";
 
-import {DIFFICULTY, ParsedComplexSudoku, parseListOfSudokusComplex} from "src/engine/utility";
+import {DIFFICULTY, ParsedComplexSudoku, parseListOfSudokusComplex, SimpleSudoku} from "src/engine/utility";
 
-import SUDOKUS from "src/sudokus";
+import SUDOKUS from "src/assets/sudokus-new";
 import Button from "src/components/modules/Button";
 import THEME from "src/theme";
 import SmallSudokuComponent from "src/components/modules/Sudoku/SudokuSmall";
@@ -50,13 +50,6 @@ const SelectContainer = styled.div<{
     `}
 `;
 
-const PARSED_SUDOKUS = {
-  [DIFFICULTY.EASY]: parseListOfSudokusComplex(SUDOKUS[DIFFICULTY.EASY]),
-  [DIFFICULTY.MEDIUM]: parseListOfSudokusComplex(SUDOKUS[DIFFICULTY.MEDIUM]),
-  [DIFFICULTY.HARD]: parseListOfSudokusComplex(SUDOKUS[DIFFICULTY.HARD]),
-  [DIFFICULTY.EVIL]: parseListOfSudokusComplex(SUDOKUS[DIFFICULTY.EVIL]),
-};
-
 class SelectSudoku extends React.Component<
   {
     newGame: (difficulty, sudokuId) => void;
@@ -85,7 +78,7 @@ class SelectSudoku extends React.Component<
     });
   }
   getNewIndex(xOffset: number) {
-    const sudokus = PARSED_SUDOKUS[this.props.difficulty];
+    const sudokus = SUDOKUS[this.props.difficulty];
     const len = sudokus.length;
     const offset = Math.round(xOffset / 60);
     const newIndex = this.props.sudokuIndex - offset;
@@ -101,9 +94,9 @@ class SelectSudoku extends React.Component<
   render() {
     let {newGame, difficulty, sudokuIndex, changeSudoku, previousSudoku, nextSudoku} = this.props;
     const SUDOKU_SHOW = 8;
-    const sudokus = PARSED_SUDOKUS[difficulty];
+    const sudokus = SUDOKUS[difficulty];
 
-    const _sudokusToShow: ParsedComplexSudoku[] = [];
+    const _sudokusToShow: Array<{sudoku: SimpleSudoku; id: number}> = [];
 
     const newSudokuIndex = this.getNewIndex(this.state.xOffset);
 
@@ -154,18 +147,18 @@ class SelectSudoku extends React.Component<
     });
 
     const items = sudokusToShow.map(({sudoku, style, active}) => {
-      const {sudoku: sudokuCells, id, value} = sudoku;
+      const {sudoku: simpleSudoku, id} = sudoku;
       const isCenter = id === sudokuIndex;
       const onClick = () => {
         if (isCenter) {
-          newGame(id, value);
+          newGame(id, simpleSudoku);
         } else {
           changeSudoku(id);
         }
       };
       return (
         <SelectContainer key={id} active={active} style={style} onClick={onClick}>
-          <SmallSudokuComponent darken={!isCenter} id={id + 1} sudoku={sudokuCells} />
+          <SmallSudokuComponent darken={!isCenter} id={id + 1} sudoku={simpleSudoku} />
         </SelectContainer>
       );
     });

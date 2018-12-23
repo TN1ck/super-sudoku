@@ -1,7 +1,5 @@
-import {Cell} from "src/ducks/sudoku/model";
-
 import * as _ from "lodash";
-import {SUDOKU_NUMBERS} from "src/engine/utility";
+import {SUDOKU_NUMBERS, Cell} from "src/engine/utility";
 
 export interface CellIndexed extends Cell {
   index: number;
@@ -130,7 +128,7 @@ export default class SudokuState {
       return false;
     }
     const noConflicts = this.correct(sudoku);
-    const set = sudoku.filter(c => c.number !== undefined);
+    const set = sudoku.filter(c => c.number !== 0);
     const allSet = set.length === sudoku.length;
     return allSet && noConflicts;
   }
@@ -153,7 +151,7 @@ export default class SudokuState {
     if (!sudoku) {
       return false;
     }
-    const sudokuFiltered = sudoku.filter(c => c.number !== undefined);
+    const sudokuFiltered = sudoku.filter(c => c.number !== 0);
     const rows = Object.values(
       _.groupBy(sudokuFiltered, c => {
         return c.x;
@@ -197,7 +195,7 @@ export default class SudokuState {
         .concat(columnCells)
         .concat(squareCells)
         .filter(c => c.index !== cell.index)
-        .filter(c => c.number !== undefined);
+        .filter(c => c.number !== 0);
 
       const otherNumbers = _.uniq(all.map(c => c.number));
       const possibilities = SUDOKU_NUMBERS.filter(n => !otherNumbers.includes(n));

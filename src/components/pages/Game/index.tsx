@@ -26,12 +26,11 @@ import styled from "styled-components";
 import THEME from "src/theme";
 import {RootState} from "src/ducks";
 import SudokuState from "src/ducks/sudoku/accessor";
-import {Cell} from "src/ducks/sudoku/model";
 import {emptyGrid, setNumber, clearNumber, setSudoku} from "src/ducks/sudoku";
 import key from "keymaster";
-import {SUDOKU_NUMBERS, SUDOKU_COORDINATES, DIFFICULTY} from "src/engine/utility";
+import {SUDOKU_NUMBERS, SUDOKU_COORDINATES, DIFFICULTY, Cell} from "src/engine/utility";
 import {nextSudoku, previousSudoku} from "src/ducks/game/choose";
-import sudokus from "src/sudokus";
+import SUDOKUS from "src/assets/sudokus-new";
 import SudokuMenuNumbers from "src/components/modules/Sudoku/SudokuMenuNumbers";
 import SudokuMenuControls from "src/components/modules/Sudoku/SudokuMenuControls";
 
@@ -234,8 +233,8 @@ class GameSelectShortcuts extends React.Component<GameSelectShortcutsDispatchPro
       return false;
     });
     key("enter", ShortcutScope.SelectSudoku, () => {
-      const sudoku = sudokus[this.props.difficulty][this.props.sudokuIndex];
-      this.props.setSudoku(this.props.difficulty, sudoku.value);
+      const sudoku = SUDOKUS[this.props.difficulty][this.props.sudokuIndex];
+      this.props.setSudoku(this.props.difficulty, sudoku.sudoku);
       this.props.continueGame();
     });
   }

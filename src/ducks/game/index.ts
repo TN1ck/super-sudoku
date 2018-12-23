@@ -1,4 +1,4 @@
-import {Cell} from "src/ducks/sudoku/model";
+import {Cell} from "src/engine/utility";
 
 export enum GameStateMachine {
   running = "RUNNING",

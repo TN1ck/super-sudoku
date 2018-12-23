@@ -1,12 +1,12 @@
 import * as React from "react";
 import {connect} from "react-redux";
 import {clearCell} from "src/ducks/sudoku";
-import {Cell} from "src/ducks/sudoku/model";
 import THEME from "src/theme";
 import styled from "styled-components";
 import {RootState} from "src/ducks";
 import {activateNotesMode, deactivateNotesMode, activateSettings} from "src/ducks/game";
 import Button from "../Button";
+import {Cell} from "src/engine/utility";
 
 const ControlsButton = styled(Button)`
   width: 100%;

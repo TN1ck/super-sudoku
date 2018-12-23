@@ -1,9 +1,9 @@
 import React from "react";
 import {SudokuSmall, SudokuSmallTitle, GridLineY, GridLineX} from "src/components/modules/Sudoku/Sudoku.styles";
-import {SimpleCell} from "src/engine/utility";
+import {SimpleSudoku} from "src/engine/utility";
 
 export default class SmallSudokuComponent extends React.PureComponent<{
-  sudoku: SimpleCell[];
+  sudoku: SimpleSudoku;
   id: number;
   darken?: boolean;
   elevation?: number;
@@ -52,17 +52,23 @@ export default class SmallSudokuComponent extends React.PureComponent<{
             const makeBold = i % 3 === 0;
             return <GridLineY key={i} height={height} left={(i * height) / 9} makeBold={makeBold} />;
           })}
-          {sudoku.map((c, i) => {
+          {sudoku.map((row, y) => {
             return (
-              <div
-                key={i}
-                style={{
-                  position: "absolute",
-                  left: xSection * c.x + fontXOffset + "%",
-                  top: ySection * c.y + fontYOffset + "%",
-                }}
-              >
-                {c.number}
+              <div key={y}>
+                {row.map((n, x) => {
+                  return (
+                    <div
+                      key={x}
+                      style={{
+                        position: "absolute",
+                        left: xSection * x + fontXOffset + "%",
+                        top: ySection * y + fontYOffset + "%",
+                      }}
+                    >
+                      {n !== 0 ? n : ""}
+                    </div>
+                  );
+                })}
               </div>
             );
           })}

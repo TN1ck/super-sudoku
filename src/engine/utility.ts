@@ -24,12 +24,16 @@ export enum DIFFICULTY {
 export interface SimpleCell {
   x: number;
   y: number;
-  number: number | undefined;
+  number: number;
 }
 
 export type ComplexSudoku = SimpleCell[];
 export type SimpleSudoku = number[][];
 export type DomainSudoku = number[][][];
+export interface Cell extends SimpleCell {
+  initial: boolean;
+  notes: Set<number>;
+}
 
 export const SUDOKU_COORDINATES = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 export const SUDOKU_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -114,6 +118,22 @@ export function simpleSudokuToComplexSudoku(grid: SimpleSudoku): ComplexSudoku {
           x,
           y,
           number: n,
+        };
+      });
+    }),
+  );
+}
+
+export function simpleSudokuToCells(grid: SimpleSudoku): Cell[] {
+  return [].concat(
+    ...grid.map((row, y) => {
+      return row.map((n, x) => {
+        return {
+          x,
+          y,
+          number: n,
+          notes: new Set(),
+          initial: n !== 0,
         };
       });
     }),

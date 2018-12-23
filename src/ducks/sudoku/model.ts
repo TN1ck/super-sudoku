@@ -1,17 +1,6 @@
-import {SimpleCell} from "src/engine/utility";
+import {Cell} from "src/engine/utility";
 
-export interface Cell extends SimpleCell {
-  initial: boolean;
-  notes: Set<number>;
-}
-
-export function createCell(
-  x: number,
-  y: number,
-  number: number | undefined,
-  notes: Set<number>,
-  initial: boolean,
-): Cell {
+export function createCell(x: number, y: number, number: number, notes: Set<number>, initial: boolean): Cell {
   return {
     x,
     y,
@@ -51,8 +40,8 @@ export function parseSudoku(sudoku: string): Cell[] {
     ...lines.map((line, y) => {
       const characters = line.split("");
       return characters.map((c, x) => {
-        const number = c === "_" ? undefined : Number(c);
-        return createCell(x, y, number, new Set([]), number !== undefined);
+        const number = c === "_" ? 0 : Number(c);
+        return createCell(x, y, number, new Set([]), number !== 0);
       });
     }),
   );

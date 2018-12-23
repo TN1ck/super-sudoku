@@ -10,9 +10,7 @@ const CLEAR_NOTE = "sudoku/CLEAR_NOTE";
 const SET_NUMBER = "sudoku/SET_NUMBER";
 const CLEAR_NUMBER = "sudoku/CLEAR_NUMBER";
 
-import {DIFFICULTY} from "src/engine/utility";
-
-import {Cell, parseSudoku, emptySudoku} from "./model";
+import {DIFFICULTY, Cell, SimpleSudoku, simpleSudokuToCells} from "src/engine/utility";
 
 //
 // Actions
@@ -80,17 +78,26 @@ export function clearNumber(cell: Cell): CellAction {
   };
 }
 
-export function setSudoku(difficulty: DIFFICULTY, sudoku: string) {
+export function setSudoku(difficulty: DIFFICULTY, sudoku: SimpleSudoku) {
   return {
     difficulty,
     type: SET_SUDOKU,
-    sudoku: parseSudoku(sudoku),
+    sudoku: simpleSudokuToCells(sudoku),
   };
 }
 
 export type SudokuState = Cell[];
 
-export const emptyGrid: SudokuState = parseSudoku(emptySudoku);
+export const emptyGrid: SudokuState = simpleSudokuToCells([
+  [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0],
+]);
 
 const initialState = emptyGrid;
 
@@ -125,8 +132,7 @@ export default function sudokuReducer(state: SudokuState = initialState, action)
         return cell;
       case CLEAR_CELL:
         if (id === actionCellId) {
-          console.log("cleaar");
-          return {...cell, notes: new Set(), number: undefined};
+          return {...cell, notes: new Set(), number: 0};
         }
       case SET_NUMBER:
         if (id === actionCellId) {
@@ -135,7 +141,7 @@ export default function sudokuReducer(state: SudokuState = initialState, action)
         return cell;
       case CLEAR_NUMBER:
         if (id === actionCellId) {
-          return {...cell, number: undefined};
+          return {...cell, number: 0};
         }
       case GET_HINT:
         console.log("TODO");

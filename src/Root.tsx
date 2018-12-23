@@ -10,7 +10,6 @@ import {Provider} from "react-redux";
 
 import configureStore from "src/store/configureStore";
 
-import Header from "src/components/modules/Header";
 import Footer from "src/components/modules/Footer";
 import styled, {createGlobalStyle} from "styled-components";
 import THEME from "src/theme";
@@ -82,9 +81,6 @@ const Root: React.StatelessComponent = () => {
       <Provider store={store}>
         <Router>
           <Main>
-            {/* <HeaderArea>
-              <Header />
-            </HeaderArea> */}
             <MainArea>
               <Routes />
             </MainArea>

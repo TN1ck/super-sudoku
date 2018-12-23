@@ -1,6 +1,5 @@
 import * as React from "react";
 import {showMenu, selectCell, hideMenu} from "src/ducks/game";
-import {Cell} from "src/ducks/sudoku/model";
 
 import * as _ from "lodash";
 
@@ -16,6 +15,7 @@ import {
 } from "src/components/modules/Sudoku/Sudoku.styles";
 import SudokuState from "src/ducks/sudoku/accessor";
 import {Bounds} from "src/utils/types";
+import {Cell} from "src/engine/utility";
 
 interface SudokuComponentStateProps {
   activeCell: Cell;
@@ -133,7 +133,7 @@ export class Sudoku extends React.PureComponent<
             <div key={i}>
               <GridCell active={isActive} highlight={inConflictPath} bounds={bounds} onClick={onClick} />
               <GridCellNumber left={position.x} top={position.y} initial={c.initial}>
-                {c.number}
+                {c.number !== 0 ? c.number : ""}
               </GridCellNumber>
               <CellNoteContainer initial={c.initial} bounds={bounds}>
                 {c.initial || c.number
@@ -142,7 +142,7 @@ export class Sudoku extends React.PureComponent<
                       const notePosition = state.getNotePosition(n);
                       return (
                         <CellNote key={n} left={notePosition.x} top={notePosition.y}>
-                          {n}
+                          {n !== 0 ? n : ""}
                         </CellNote>
                       );
                     })}

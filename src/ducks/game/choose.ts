@@ -1,5 +1,5 @@
 import {DIFFICULTY} from "src/engine/utility";
-import sudokus from "src/sudokus";
+import SUDOKUS from "src/assets/sudokus-new";
 
 const SET_DIFFICULTY = "choose/SET_DIFFICULTY";
 const NEXT_SUDOKU = "choose/NEXT_SUDOKU";
@@ -50,7 +50,7 @@ const initialState: ChooseState = {
 };
 
 export default function chooseReducer(state: ChooseState = initialState, action): ChooseState {
-  const currentSudokus = sudokus[state.difficulty];
+  const currentSudokus = SUDOKUS[state.difficulty];
   switch (action.type) {
     case NEXT_SUDOKU:
       return {
