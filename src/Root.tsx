@@ -59,10 +59,6 @@ const Main = styled.div`
     "footer";
 `;
 
-const HeaderArea = styled.div`
-  grid-area: header;
-`;
-
 const MainArea = styled.div`
   grid-area: main;
 `;

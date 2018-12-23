@@ -26,13 +26,11 @@ import styled from "styled-components";
 import THEME from "src/theme";
 import {RootState} from "src/ducks";
 import SudokuState from "src/ducks/sudoku/accessor";
-import {emptyGrid, setNumber, clearNumber, setSudoku} from "src/ducks/sudoku";
-import key from "keymaster";
-import {SUDOKU_NUMBERS, SUDOKU_COORDINATES, DIFFICULTY, Cell} from "src/engine/utility";
-import {nextSudoku, previousSudoku} from "src/ducks/game/choose";
-import SUDOKUS from "src/assets/sudokus-new";
+import {emptyGrid} from "src/ducks/sudoku";
+import {DIFFICULTY, Cell} from "src/engine/utility";
 import SudokuMenuNumbers from "src/components/modules/Sudoku/SudokuMenuNumbers";
 import SudokuMenuControls from "src/components/modules/Sudoku/SudokuMenuControls";
+import Shortcuts from "./shortcuts/Shortcuts";
 
 function PauseButton({running, pauseGame, continueGame}) {
   return (
@@ -145,219 +143,6 @@ interface GameStateProps {
   difficulty: DIFFICULTY;
 }
 
-enum ShortcutScope {
-  Game = "Game",
-  Menu = "Menu",
-  SelectSudoku = "SelectSudoku",
-}
-
-interface GameMenuShortcutsDispatchProps {
-  continueGame: typeof continueGame;
-}
-
-// TODO
-class GameMenuShortcuts extends React.Component<GameMenuShortcutsDispatchProps> {
-  componentDidMount() {
-    key("esc", ShortcutScope.Menu, () => {
-      this.props.continueGame();
-      return false;
-    });
-    key("up", ShortcutScope.Menu, () => {
-      console.log("up");
-      return false;
-    });
-    key("down", ShortcutScope.Menu, () => {
-      console.log("down");
-      return false;
-    });
-    key("enter", ShortcutScope.Menu, () => {
-      console.log("enter");
-      return false;
-    });
-  }
-  componentWillUnmount() {
-    key.deleteScope(ShortcutScope.Menu);
-  }
-  render() {
-    return null;
-  }
-}
-
-const ConnectedGameMenuShortcuts = connect<{}, GameMenuShortcutsDispatchProps>(
-  null,
-  {continueGame},
-)(GameMenuShortcuts);
-
-interface GameKeyboardShortcutsStateProps {
-  activeCell: Cell;
-  sudoku: Cell[];
-}
-
-interface GameKeyboardShortcutsDispatchProps {
-  showMenu: typeof showMenu;
-  hideMenu: typeof hideMenu;
-  selectCell: typeof selectCell;
-  setNumber: typeof setNumber;
-  clearNumber: typeof clearNumber;
-  pauseGame: typeof pauseGame;
-}
-
-interface GameSelectShortcutsDispatchProps {
-  setSudoku: typeof setSudoku;
-  nextSudoku: typeof nextSudoku;
-  previousSudoku: typeof previousSudoku;
-  continueGame: typeof continueGame;
-}
-
-interface GameSelectShortcutsStateProps {
-  sudokuIndex: number;
-  difficulty: DIFFICULTY;
-}
-
-class GameSelectShortcuts extends React.Component<GameSelectShortcutsDispatchProps & GameSelectShortcutsStateProps> {
-  componentWillMount() {
-    key("up", ShortcutScope.SelectSudoku, () => {
-      console.log("up");
-      return false;
-    });
-    key("down", ShortcutScope.SelectSudoku, () => {
-      console.log("down");
-      return false;
-    });
-    key("left", ShortcutScope.SelectSudoku, () => {
-      this.props.previousSudoku();
-      return false;
-    });
-    key("right", ShortcutScope.SelectSudoku, () => {
-      this.props.nextSudoku();
-      return false;
-    });
-    key("enter", ShortcutScope.SelectSudoku, () => {
-      const sudoku = SUDOKUS[this.props.difficulty][this.props.sudokuIndex];
-      this.props.setSudoku(this.props.difficulty, sudoku.sudoku, sudoku.solution);
-      this.props.continueGame();
-    });
-  }
-  componentWillUnmount() {
-    key.deleteScope(ShortcutScope.SelectSudoku);
-  }
-  render() {
-    return null;
-  }
-}
-
-const ConnectedGameSelectShortcuts = connect<GameSelectShortcutsStateProps, GameSelectShortcutsDispatchProps>(
-  (state: RootState) => ({
-    sudokuIndex: state.choose.sudokuIndex,
-    difficulty: state.choose.difficulty,
-  }),
-  {previousSudoku, nextSudoku, setSudoku, continueGame},
-)(GameSelectShortcuts);
-
-class GameKeyboardShortcuts extends React.Component<
-  GameKeyboardShortcutsStateProps & GameKeyboardShortcutsDispatchProps
-> {
-  componentDidMount() {
-    const getCellByXY = (x, y) => {
-      return this.props.sudoku.find(cell => {
-        return cell.x === x && cell.y === y;
-      });
-    };
-
-    const setDefault = () => {
-      this.props.selectCell(this.props.sudoku[0]);
-    };
-
-    const minCoordinate = SUDOKU_COORDINATES[0];
-    const maxCoordinate = SUDOKU_COORDINATES[SUDOKU_COORDINATES.length - 1];
-
-    key("escape", ShortcutScope.Game, () => {
-      this.props.pauseGame();
-      return false;
-    });
-
-    key("up", ShortcutScope.Game, () => {
-      const currentCell = this.props.activeCell;
-      if (currentCell === null) {
-        return setDefault();
-      }
-      const {x, y} = currentCell;
-      const newY = Math.max(y - 1, minCoordinate);
-      const nextCell = getCellByXY(x, newY);
-      this.props.selectCell(nextCell);
-      return false;
-    });
-
-    key("down", ShortcutScope.Game, () => {
-      const currentCell = this.props.activeCell;
-      if (currentCell === null) {
-        return setDefault();
-      }
-      const {x, y} = currentCell;
-      const newY = Math.min(y + 1, maxCoordinate);
-      const nextCell = getCellByXY(x, newY);
-      this.props.selectCell(nextCell);
-      return false;
-    });
-
-    key("right", ShortcutScope.Game, () => {
-      const currentCell = this.props.activeCell;
-      if (currentCell === null) {
-        return setDefault();
-      }
-      const {x, y} = currentCell;
-      const newX = Math.min(x + 1, maxCoordinate);
-      const nextCell = getCellByXY(newX, y);
-      this.props.selectCell(nextCell);
-      return false;
-    });
-
-    key("left", ShortcutScope.Game, () => {
-      const currentCell = this.props.activeCell;
-      if (currentCell === null) {
-        return setDefault();
-      }
-      const {x, y} = currentCell;
-      const newX = Math.max(x - 1, minCoordinate);
-      const nextCell = getCellByXY(newX, y);
-      this.props.selectCell(nextCell);
-      return false;
-    });
-
-    SUDOKU_NUMBERS.forEach(n => {
-      key(String(n), ShortcutScope.Game, () => {
-        this.props.setNumber(this.props.activeCell, n);
-      });
-    });
-
-    key("backspace", ShortcutScope.Game, () => {
-      this.props.clearNumber(this.props.activeCell);
-    });
-  }
-
-  componentWillUnmount() {
-    key.deleteScope(ShortcutScope.Game);
-  }
-  render() {
-    return null;
-  }
-}
-
-const ConnectedGameKeyboardShortcuts = connect<GameKeyboardShortcutsStateProps, GameKeyboardShortcutsDispatchProps>(
-  (state: RootState) => ({
-    sudoku: state.sudoku,
-    activeCell: state.game.activeCell,
-  }),
-  {
-    setNumber,
-    clearNumber,
-    selectCell,
-    hideMenu,
-    showMenu,
-    pauseGame,
-  },
-)(GameKeyboardShortcuts);
-
 type GameProps = GameStateProps & GameDispatchProps;
 
 class Game extends React.Component<GameProps> {
@@ -369,32 +154,13 @@ class Game extends React.Component<GameProps> {
     if (isSolved && !wasSolved) {
       this.props.wonGame();
     }
-    this.selectShortcutState();
-  }
-
-  componentWillMount() {
-    this.selectShortcutState();
-  }
-
-  selectShortcutState() {
-    if (this.props.game.state === GameStateMachine.paused) {
-      key.setScope(ShortcutScope.Menu);
-    }
-    if (this.props.game.state === GameStateMachine.running) {
-      key.setScope(ShortcutScope.Game);
-    }
-    if (this.props.game.state === GameStateMachine.chooseGame) {
-      key.setScope(ShortcutScope.SelectSudoku);
-    }
   }
 
   render() {
     const {difficulty, game, pauseGame, continueGame, chooseGame} = this.props;
     return (
       <Container>
-        <ConnectedGameKeyboardShortcuts />
-        <ConnectedGameMenuShortcuts />
-        <ConnectedGameSelectShortcuts />
+        <Shortcuts gameState={game.state} />
         <GameMenu />
         <GameContainer>
           <GameHeaderArea>
