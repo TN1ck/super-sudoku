@@ -53,9 +53,9 @@ const Main = styled.div`
   min-height: 100%;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: 1fr auto;
   grid-template-areas:
-    "header"
+    /* "header" */
     "main"
     "footer";
 `;
@@ -82,9 +82,9 @@ const Root: React.StatelessComponent = () => {
       <Provider store={store}>
         <Router>
           <Main>
-            <HeaderArea>
+            {/* <HeaderArea>
               <Header />
-            </HeaderArea>
+            </HeaderArea> */}
             <MainArea>
               <Routes />
             </MainArea>

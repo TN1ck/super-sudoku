@@ -22,6 +22,7 @@ const SelectContainer = styled.div<{
   transition-timing-function: ease-out;
 
   &:before {
+    color: ${THEME.colors.white};
     opacity: 0;
     transition: opacity 300ms ease-out;
     content: "Play!";

@@ -12,6 +12,7 @@ import {
   showMenu,
   selectCell,
   GameStateMachine,
+  chooseGame,
 } from "src/ducks/game";
 
 import {Sudoku} from "src/components/modules/Sudoku/Sudoku";
@@ -34,19 +35,41 @@ import sudokus from "src/sudokus";
 import SudokuMenuNumbers from "src/components/modules/Sudoku/SudokuMenuNumbers";
 import SudokuMenuControls from "src/components/modules/Sudoku/SudokuMenuControls";
 
-function PauseButton({pauseGame}) {
+function PauseButton({running, pauseGame, continueGame}) {
   return (
     <Button
-      onClick={pauseGame}
+      onClick={running ? pauseGame : continueGame}
       style={{
         float: "right",
+        marginLeft: THEME.spacer.x2,
         marginBottom: THEME.spacer.x2,
       }}
     >
-      {"Pause"}
+      {running ? "Pause" : "Continue"}
     </Button>
   );
 }
+
+function NewGameButton({newGame}) {
+  return (
+    <Button
+      onClick={newGame}
+      style={{
+        float: "right",
+        marginLeft: THEME.spacer.x2,
+        marginBottom: THEME.spacer.x2,
+      }}
+    >
+      {"New Game"}
+    </Button>
+  );
+}
+
+const DifficultyShow = styled.div`
+  color: ${THEME.colors.gray400};
+  text-transform: capitalize;
+  font-size: ${THEME.fontSize.menu}px;
+`;
 
 const GameContainer = styled.div`
   display: grid;
@@ -96,6 +119,9 @@ const GameMainArea = styled.div`
 
 const GameHeaderArea = styled.div`
   grid-area: game-header;
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1fr 1fr 1fr;
 `;
 
 const GameFooterArea = styled.div`
@@ -111,11 +137,13 @@ interface GameDispatchProps {
   showMenu: typeof showMenu;
   hideMenu: typeof hideMenu;
   selectCell: typeof selectCell;
+  chooseGame: typeof chooseGame;
 }
 
 interface GameStateProps {
   game: GameState;
   sudoku: Cell[];
+  difficulty: DIFFICULTY;
 }
 
 enum ShortcutScope {
@@ -362,17 +390,25 @@ class Game extends React.Component<GameProps> {
   }
 
   render() {
-    const {game, pauseGame} = this.props;
+    const {difficulty, game, pauseGame, continueGame, chooseGame} = this.props;
     return (
       <Container>
         <ConnectedGameKeyboardShortcuts />
         <ConnectedGameMenuShortcuts />
         <ConnectedGameSelectShortcuts />
+        <GameMenu />
         <GameContainer>
           <GameHeaderArea>
-            <GameMenu />
+            <DifficultyShow>{difficulty}</DifficultyShow>
             <GameTimer startTime={game.startTime} stopTime={game.stopTime} offsetTime={game.offsetTime} />
-            <PauseButton pauseGame={pauseGame} />
+            <div>
+              <NewGameButton newGame={chooseGame} />
+              <PauseButton
+                continueGame={continueGame}
+                pauseGame={pauseGame}
+                running={game.state === GameStateMachine.running}
+              />
+            </div>
           </GameHeaderArea>
           <GameMainArea>
             <Sudoku
@@ -402,12 +438,14 @@ export default connect(
     return {
       game: state.game,
       sudoku,
+      difficulty: state.choose.difficulty,
     };
   },
   {
     continueGame,
     pauseGame,
     resetGame,
+    chooseGame,
     wonGame,
     showMenu,
     selectCell,

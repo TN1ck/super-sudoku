@@ -2,9 +2,11 @@ import * as React from "react";
 import {Link} from "react-static";
 import styled from "styled-components";
 import THEME from "src/theme";
+import {connect} from "react-redux";
 
-const Header = styled.div`
-  padding: ${THEME.spacer.x3}px;
+const HeaderContainer = styled.div`
+  padding: ${THEME.spacer.x2}px;
+  background: ${THEME.colors.gray600};
   display: flex;
 `;
 
@@ -18,36 +20,41 @@ const HeaderLink = styled.li`
   float: left;
   a {
     position: relative;
-    color: ${THEME.colors.gray100};
-    text-transform: uppercase;
+    color: ${THEME.colors.gray400};
     text-decoration: none;
 
     &:visited {
-      color: ${THEME.colors.gray100};
+      color: ${THEME.colors.gray400};
     }
     padding: ${THEME.spacer.x1}px ${THEME.spacer.x2}px;
     border-radius: ${THEME.borderRadius}px;
 
-    &.active {
+    &:hover {
+      color: ${THEME.colors.gray100};
+    }
+
+    /* &.active {
       color: white;
       background-color: ${THEME.colors.gray200};
-    }
+    } */
   }
 `;
 
-export default () => {
+const Header = ({}) => {
   return (
-    <Header>
+    <HeaderContainer>
       <HeaderLinks>
         <HeaderLink>
           <Link exact to={"/"}>
-            {"Play"}
+            {"Sudoku"}
           </Link>
         </HeaderLink>
-        <HeaderLink>
-          <Link to={"/about"}>{"About"}</Link>
-        </HeaderLink>
       </HeaderLinks>
-    </Header>
+    </HeaderContainer>
   );
 };
+
+export default connect(
+  null,
+  {},
+)(Header);

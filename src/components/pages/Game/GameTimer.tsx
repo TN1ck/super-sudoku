@@ -2,12 +2,12 @@ import * as React from "react";
 
 import {getTime} from "src/ducks/game";
 import styled from "styled-components";
+import THEME from "src/theme";
 
 const GameTimerContainer = styled.div`
-  position: absolute;
-  color: #aaaaaa;
-  font-size: 20px;
-  top: 7px;
+  color: ${THEME.colors.gray400};
+  font-size: ${THEME.fontSize.menu}px;
+  text-align: center;
 `;
 
 export default class GameTimer extends React.Component<{
@@ -41,7 +41,7 @@ export default class GameTimer extends React.Component<{
     const minuteString: string = minutes < 10 ? "0" + minutes : String(minutes);
     const secondString: string = secondRest < 10 ? "0" + secondRest : String(secondRest);
 
-    const timerString = minuteString + ":" + secondString;
+    const timerString = minuteString + ":" + secondString + " min";
 
     return <GameTimerContainer>{timerString}</GameTimerContainer>;
   }

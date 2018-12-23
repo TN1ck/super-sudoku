@@ -5,7 +5,7 @@ import {Cell} from "src/ducks/sudoku/model";
 import THEME from "src/theme";
 import styled from "styled-components";
 import {RootState} from "src/ducks";
-import {activateNotesMode, deactivateNotesMode} from "src/ducks/game";
+import {activateNotesMode, deactivateNotesMode, activateSettings} from "src/ducks/game";
 import Button from "../Button";
 
 const ControlsButton = styled(Button)`
@@ -27,7 +27,6 @@ const SudokuMenuControlsContainer = styled.div`
   grid-template-columns: repeat(4, 1fr);
   width: 100%;
   margin-top: ${THEME.spacer.x3}px;
-  overflow: hidden;
 `;
 
 interface SudokuMenuControlsStateProps {
@@ -39,6 +38,7 @@ interface SudokuMenuControlsDispatchProps {
   clearCell: typeof clearCell;
   activateNotesMode: typeof activateNotesMode;
   deactivateNotesMode: typeof deactivateNotesMode;
+  activateSettings: typeof activateSettings;
 }
 
 class SudokuMenuControls extends React.Component<SudokuMenuControlsStateProps & SudokuMenuControlsDispatchProps> {
@@ -56,6 +56,9 @@ class SudokuMenuControls extends React.Component<SudokuMenuControlsStateProps & 
         <ControlContainer>
           <ControlsButton>{"Hint"}</ControlsButton>
         </ControlContainer>
+        <ControlContainer>
+          <ControlsButton onClick={this.props.activateSettings}>{"Settings"}</ControlsButton>
+        </ControlContainer>
       </SudokuMenuControlsContainer>
     );
   }
@@ -70,6 +73,7 @@ const ConnectedSudokuMenuControls = connect<SudokuMenuControlsStateProps, Sudoku
     clearCell,
     deactivateNotesMode,
     activateNotesMode,
+    activateSettings,
   },
 )(SudokuMenuControls);
 

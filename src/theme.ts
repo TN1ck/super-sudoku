@@ -33,6 +33,7 @@ const THEME = {
   },
   fontSize: {
     base: 16,
+    menu: 20,
     h1: 48,
   },
   boxShadow: "0 0.5rem 1rem rgba(0,0,0,0.15)",

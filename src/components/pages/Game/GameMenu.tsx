@@ -38,7 +38,7 @@ const GameMenuListItem = styled.li`
   background-color: ${THEME.colors.primary};
   list-style-type: none;
   margin: 0;
-  margin-bottom: ${THEME.spacer.x2}px;
+  margin-top: ${THEME.spacer.x2}px;
   padding: ${THEME.spacer.x2}px;
   border-radius: ${THEME.borderRadius}px;
   box-shadow: ${THEME.boxShadow};
@@ -55,19 +55,15 @@ const GameWonText = styled.div`
   padding-bottom: ${THEME.spacer.x3};
 `;
 
-const GameMenuRunning = ({continueGame, chooseGame, toggleShowHints, showHints}) => {
+const GameMenuRunning = ({continueGame, toggleShowHints, showHints}) => {
   return (
     <GameMenuContainer>
       <GameMenuList>
         <Checkbox id="hints" checked={showHints} onChange={toggleShowHints}>
           {"Show all hints"}
         </Checkbox>
-        >
         <GameMenuListItem onClick={continueGame} key="continue">
           {"Continue"}
-        </GameMenuListItem>
-        <GameMenuListItem onClick={chooseGame} key="reset-game">
-          {"New Game"}
         </GameMenuListItem>
       </GameMenuList>
     </GameMenuContainer>
@@ -203,15 +199,15 @@ const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
     }
     render() {
       const {
-        continueGame,
         setDifficulty,
         difficulty,
         changeSudoku,
         previousSudoku,
         nextSudoku,
         sudokuIndex,
-        toggleShowHints,
         showHints,
+        continueGame,
+        toggleShowHints,
       } = this.props;
 
       const chooseGame = () => this.props.setGameState(GameStateMachine.chooseGame);
@@ -230,14 +226,9 @@ const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
             />
           );
         }
-        case GameStateMachine.paused: {
+        case GameStateMachine.settings: {
           return (
-            <GameMenuRunning
-              continueGame={continueGame}
-              chooseGame={chooseGame}
-              toggleShowHints={toggleShowHints}
-              showHints={showHints}
-            />
+            <GameMenuRunning continueGame={continueGame} toggleShowHints={toggleShowHints} showHints={showHints} />
           );
         }
         case GameStateMachine.wonGame: {

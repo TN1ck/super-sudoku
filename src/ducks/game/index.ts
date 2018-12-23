@@ -5,6 +5,7 @@ export enum GameStateMachine {
   paused = "PAUSED",
   chooseGame = "CHOOSE_GAME",
   wonGame = "WON_GAME",
+  settings = "SETTINGS",
 }
 
 const NEW_GAME = "game/NEW_GAME";
@@ -52,6 +53,10 @@ export function continueGame() {
 
 export function chooseGame() {
   return setGameState(GameStateMachine.chooseGame);
+}
+
+export function activateSettings() {
+  return setGameState(GameStateMachine.settings);
 }
 
 export function resetGame() {
