@@ -84,6 +84,7 @@
     "keymaster": "^1.6.2",
     "lodash": "4.17.11",
     "react": "16.6.3",
+    "react-dom": "^16.7.0",
     "react-hot-loader": "4.3.12",
     "react-redux": "5.1.1",
     "redux": "4.0.1",
