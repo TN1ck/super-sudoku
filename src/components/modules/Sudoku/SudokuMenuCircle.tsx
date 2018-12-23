@@ -1,8 +1,7 @@
 import * as React from "react";
 import {connect} from "react-redux";
 import {setNumber, clearNumber, setNote, clearNote} from "src/ducks/sudoku";
-import {Cell} from "src/ducks/sudoku/model";
-import {SUDOKU_NUMBERS} from "src/engine/utility";
+import {SUDOKU_NUMBERS, Cell} from "src/engine/utility";
 import styled, {css} from "styled-components";
 import THEME from "src/theme";
 import {showMenu} from "src/ducks/game";

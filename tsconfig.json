@@ -19,6 +19,7 @@
     "preserveConstEnums": true,
     "sourceMap": true,
     "skipLibCheck": true,
+    "strictNullChecks": true,
     "outDir": "dist/",
     "baseUrl": ".",
     "paths": {

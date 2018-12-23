@@ -70,7 +70,7 @@ const MainArea = styled.div`
 const FooterArea = styled.div`
   grid-area: footer;
   margin-top: ${THEME.spacer.x4}px;
-  background: ${THEME.colors.gray200};
+  background: ${THEME.colors.gray400};
 `;
 
 const store = configureStore({});
