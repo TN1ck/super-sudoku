@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Link} from "react-static";
+import {Link} from "react-router-dom";
 import styled from "styled-components";
 import THEME from "src/theme";
 import {connect} from "react-redux";
@@ -45,9 +45,7 @@ const Header = ({}) => {
     <HeaderContainer>
       <HeaderLinks>
         <HeaderLink>
-          <Link exact to={"/"}>
-            {"Sudoku"}
-          </Link>
+          <Link to={"/"}>{"Sudoku"}</Link>
         </HeaderLink>
       </HeaderLinks>
     </HeaderContainer>

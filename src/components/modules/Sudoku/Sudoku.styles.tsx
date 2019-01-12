@@ -26,7 +26,6 @@ export const SudokuSmallTitle = styled.div`
 
 export const GridLineX = styled.div<{
   top: number;
-  height: number;
   width: number;
   makeBold: boolean;
 }>`
@@ -49,8 +48,7 @@ export const GridLineX = styled.div<{
 export const GridLineY = styled.div<{
   left: number;
   height: number;
-  width: number;
-  background: string;
+  makeBold: boolean;
 }>`
   position: absolute;
   top: 0;

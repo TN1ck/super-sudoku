@@ -1,8 +1,6 @@
 import * as React from "react";
 
-import {Router} from "react-static";
-import Routes from "react-static-routes";
-import {hot} from "react-hot-loader";
+import {Root, Routes} from "react-static";
 
 import {AppContainer} from "react-hot-loader";
 
@@ -71,11 +69,11 @@ const FooterArea = styled.div`
 
 const store = configureStore({});
 
-const Root: React.StatelessComponent = () => {
+const App: React.StatelessComponent = () => {
   return (
     <AppContainer>
       <Provider store={store}>
-        <Router>
+        <Root>
           <Main>
             <MainArea>
               <Routes />
@@ -85,10 +83,10 @@ const Root: React.StatelessComponent = () => {
             </FooterArea>
             <GlobalStyle />
           </Main>
-        </Router>
+        </Root>
       </Provider>
     </AppContainer>
   );
 };
 
-export default hot(module)(Root);
+export default App;

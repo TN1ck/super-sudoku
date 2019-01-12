@@ -115,7 +115,7 @@ export class Sudoku extends React.PureComponent<
 
           const notes = showHints ? conflicted.possibilities : [...c.notes.values()];
 
-          const inConflictPath = pathCells.find(d => {
+          const inConflictPath = pathCells.some(d => {
             return d.x === c.x && d.y === c.y;
           });
 

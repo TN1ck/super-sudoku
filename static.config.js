@@ -90,46 +90,5 @@ export default {
       <Body>{children}</Body>
     </Html>
   ),
-  webpack: (config, {defaultLoaders, stage}) => {
-    // Add .ts and .tsx extension to resolver
-    config.resolve.extensions.push(".ts", ".tsx");
-
-    const tsconfig = require("./tsconfig.json");
-
-    config.resolve.alias = {
-      src: path.join(__dirname, "src"),
-    };
-
-    config.module.rules = [
-      {
-        oneOf: [
-          {
-            test: /\.(js|jsx|ts|tsx)$/,
-            exclude: defaultLoaders.jsLoader.exclude, // as std jsLoader exclude
-            use: [
-              {
-                loader: "babel-loader",
-              },
-              {
-                loader: require.resolve("ts-loader"),
-                options: {
-                  transpileOnly: true,
-                },
-              },
-            ],
-          },
-          defaultLoaders.fileLoader,
-          {
-            test: /\.(json)$/,
-            include: path.join(__dirname, "src/assets"),
-            use: "file-loader",
-          },
-        ],
-      },
-    ];
-
-    config.plugins.push(new ExtractTextPlugin("styles.css"));
-
-    return config;
-  },
+  plugins: ["react-static-plugin-styled-components", "react-static-plugin-typescript"],
 };
