@@ -82,12 +82,12 @@ export default class SudokuState {
     const {x: x2, y: y2} = c2;
 
     const inc = x1 > x2 ? -1 : 1;
-    const xpath = [];
+    const xpath: Array<{x: number; y: number}> = [];
     for (let x = x1; x !== x2; x += inc) {
       xpath.push({x, y: y1});
     }
     const inc2 = y1 > y2 ? -1 : 1;
-    const ypath = [];
+    const ypath: Array<{x: number; y: number}> = [];
     for (let y = y1; y !== y2; y += inc2) {
       ypath.push({x: x2, y});
     }
@@ -210,7 +210,7 @@ export default class SudokuState {
 
   getPathsFromConflicting(conflictingCell: ConflictingCell, sudoku: Cell[]): ConflictingPath[] {
     const {conflicting, cell} = conflictingCell;
-    const paths = [];
+    const paths: ConflictingPath[] = [];
     conflicting.forEach(c => {
       const targetPosition = sudoku[c.index];
       const fromPosition = sudoku[cell.index];

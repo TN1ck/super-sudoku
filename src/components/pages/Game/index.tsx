@@ -57,7 +57,7 @@ function NewGameButton({newGame}) {
         marginBottom: THEME.spacer.x2,
       }}
     >
-      {"New Game"}
+      {"New"}
     </Button>
   );
 }
@@ -73,12 +73,13 @@ const GameContainer = styled.div`
   justify-content: center;
 
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr;
   grid-template-rows: auto 1fr auto;
+
   grid-template-areas:
-    "game-header"
-    "game-main"
-    "game-footer";
+    "game-header game-header"
+    "game-main game-controls"
+    "game-main game-controls";
 
   color: white;
   position: relative;
@@ -86,7 +87,19 @@ const GameContainer = styled.div`
   margin-bottom: ${THEME.spacer.x3 + 20}px;
   margin-left: auto;
   margin-right: auto;
-  max-width: ${THEME.widths.maxMobile - THEME.spacer.paddingMobile * 2}px;
+
+  grid-column-gap: ${THEME.spacer.x3}px;
+  padding: 0 ${THEME.spacer.x3}px;
+
+  @media (max-width: 800px) {
+    grid-template-areas:
+      "game-header"
+      "game-main"
+      "game-controls";
+    max-width: ${THEME.widths.maxMobile - THEME.spacer.paddingMobile * 2}px;
+    grid-column-gap: 0;
+    padding: 0;
+  }
 
   @media (max-width: ${THEME.widths.maxMobile}px) {
     max-width: 100%;
@@ -107,6 +120,16 @@ const GameMainArea = styled.div`
   flex-grow: 0;
   display: flex;
 
+  @media (min-width: 800px) and (max-width: 900px) {
+    width: 400px;
+    height: 400px;
+  }
+
+  @media (min-width: 900px) and (max-width: 1000px) {
+    width: 500px;
+    height: 500px;
+  }
+
   @media (max-width: ${THEME.widths.maxMobile}px) {
     /* As we need a value for the height, we need to make it it 100vw */
     width: calc(100vw - ${THEME.spacer.paddingMobile * 2}px);
@@ -122,7 +145,7 @@ const GameHeaderArea = styled.div`
 `;
 
 const GameFooterArea = styled.div`
-  grid-area: game-footer;
+  grid-area: game-controls;
 `;
 
 interface GameDispatchProps {
@@ -167,12 +190,12 @@ class Game extends React.Component<GameProps> {
             <DifficultyShow>{difficulty}</DifficultyShow>
             <GameTimer startTime={game.startTime} stopTime={game.stopTime} offsetTime={game.offsetTime} />
             <div>
-              <NewGameButton newGame={chooseGame} />
               <PauseButton
                 continueGame={continueGame}
                 pauseGame={pauseGame}
                 running={game.state === GameStateMachine.running}
               />
+              <NewGameButton newGame={chooseGame} />
             </div>
           </GameHeaderArea>
           <GameMainArea>

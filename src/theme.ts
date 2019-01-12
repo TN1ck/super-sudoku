@@ -45,7 +45,7 @@ const THEME = {
   },
   widths: {
     maxMobile: 600,
-    maxDesktop: 1000,
+    maxDesktop: 1200,
   },
 };
 

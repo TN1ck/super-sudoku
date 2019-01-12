@@ -1,8 +1,6 @@
 import * as React from "react";
 import {showMenu, selectCell, hideMenu} from "src/ducks/game";
 
-import * as _ from "lodash";
-
 import SudokuMenuCircle, {MenuWrapper, MenuContainer} from "./SudokuMenuCircle";
 import {
   GridLineX,
@@ -16,6 +14,7 @@ import {
 import SudokuState from "src/ducks/sudoku/accessor";
 import {Bounds} from "src/utils/types";
 import {Cell} from "src/engine/utility";
+import {flatten} from "src/utils/collection";
 
 interface SudokuComponentStateProps {
   activeCell: Cell;
@@ -71,14 +70,14 @@ export class Sudoku extends React.PureComponent<
     const positionedCells = state.positionedCells(sudoku);
     const conflicting = state.conflictingFields(sudoku);
     const uniquePaths = state.uniquePaths(
-      _.flatten(
+      flatten(
         conflicting.map(c => {
           return state.getPathsFromConflicting(c, sudoku);
         }),
       ),
     );
 
-    const pathCells = _.flatten(
+    const pathCells = flatten(
       uniquePaths.map(p => {
         return state.getPathBetweenCell(p.from, p.to);
       }),

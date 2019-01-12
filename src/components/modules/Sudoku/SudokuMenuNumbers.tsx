@@ -36,10 +36,14 @@ const ResponsiveNumber = ({children, onClick}) => {
 
 const SudokuMenuNumbersContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(9, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   width: 100%;
   margin-top: ${THEME.spacer.x3}px;
   overflow: hidden;
+
+  @media (max-width: 800px) {
+    grid-template-columns: repeat(9, 1fr);
+  }
 `;
 
 interface SudokuMenuNumbersStateProps {
