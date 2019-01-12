@@ -103,7 +103,6 @@ export default {
     config.module.rules = [
       {
         oneOf: [
-          // defaultLoaders.cssLoader,
           {
             test: /\.(js|jsx|ts|tsx)$/,
             exclude: defaultLoaders.jsLoader.exclude, // as std jsLoader exclude
