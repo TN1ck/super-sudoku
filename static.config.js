@@ -3,7 +3,6 @@ import {ServerStyleSheet} from "styled-components";
 import path from "path";
 import fs from "fs";
 import showdown from "showdown";
-import ExtractTextPlugin from "extract-text-webpack-plugin";
 
 const converter = new showdown.Converter();
 
@@ -25,6 +24,7 @@ export default {
     title: "supersudoku",
   }),
   siteRoot: URL,
+  plugins: ["react-static-plugin-styled-components", "react-static-plugin-typescript"],
   getRoutes: async () => {
     const privacyHtml = await getPrivacyHtml();
     return [
@@ -40,17 +40,11 @@ export default {
         path: "/about",
         component: "src/components/pages/About",
       },
-      {
-        path: "404",
-        component: "src/components/pages/404",
-      },
+      // {
+      //   path: "404",
+      //   component: "src/components/pages/404",
+      // },
     ];
-  },
-  renderToHtml: (render, Comp, meta) => {
-    const sheet = new ServerStyleSheet();
-    const html = render(sheet.collectStyles(<Comp />));
-    meta.styleTags = sheet.getStyleElement();
-    return html;
   },
   Document: ({Html, Head, Body, children, siteData, renderMeta}) => (
     <Html lang="en-US">
@@ -85,10 +79,8 @@ export default {
         <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet" />
         <meta name="msapplication-TileColor" content="#ffffff" />
         <meta name="theme-color" content="#ffffff" />
-        {renderMeta.styleTags}
       </Head>
       <Body>{children}</Body>
     </Html>
   ),
-  plugins: ["react-static-plugin-styled-components", "react-static-plugin-typescript"],
 };

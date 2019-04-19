@@ -1,29 +1,31 @@
-import "babel-polyfill";
+import React from 'react'
+import ReactDOM from 'react-dom'
 
-import React from "react";
-import * as ReactDOM from "react-dom";
-import {AppContainer} from "react-hot-loader";
-import Root from "./Root";
+// Your top level component
+import Root from './Root'
 
-export default Root;
+// Export your top level component as JSX (for static rendering)
+export default Root
 
-// Render your app
-if (typeof document !== "undefined") {
-  const renderMethod = module.hot ? ReactDOM.render : ReactDOM.hydrate || ReactDOM.render;
+// Render your Root
+if (typeof document !== 'undefined') {
+  const target = document.getElementById('root')
+
+  const renderMethod = target.hasChildNodes()
+    ? ReactDOM.hydrate
+    : ReactDOM.render
+
   const render = Comp => {
-    renderMethod(
-      <AppContainer>
-        <Comp />
-      </AppContainer>,
-      document.getElementById("root"),
-    );
-  };
+    renderMethod(<Comp />, target)
+  }
 
   // Render!
-  render(Root);
+  render(Root)
 
   // Hot Module Replacement
-  if (module.hot) {
-    module.hot.accept("./Root", () => render(require("./Root").default));
+  if (module && module.hot) {
+    module.hot.accept('./Root', () => {
+      render(Root)
+    })
   }
 }

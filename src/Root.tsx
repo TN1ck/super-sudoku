@@ -1,8 +1,7 @@
 import * as React from "react";
 
 import {Root, Routes} from "react-static";
-
-import {AppContainer} from "react-hot-loader";
+import {Router} from "@reach/router";
 
 import {Provider} from "react-redux";
 
@@ -71,21 +70,23 @@ const store = configureStore({});
 
 const App: React.StatelessComponent = () => {
   return (
-    <AppContainer>
+    <Root>
       <Provider store={store}>
-        <Root>
-          <Main>
-            <MainArea>
-              <Routes />
-            </MainArea>
-            <FooterArea>
-              <Footer />
-            </FooterArea>
-            <GlobalStyle />
-          </Main>
-        </Root>
+        <Main>
+          <MainArea>
+            <React.Suspense fallback={<em>Loading...</em>}>
+              <Router>
+                <Routes path="*" />
+              </Router>
+            </React.Suspense>
+          </MainArea>
+          <FooterArea>
+            <Footer />
+          </FooterArea>
+          <GlobalStyle />
+        </Main>
       </Provider>
-    </AppContainer>
+    </Root>
   );
 };
 
