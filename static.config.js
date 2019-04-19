@@ -30,20 +30,20 @@ export default {
     return [
       {
         path: "/",
-        component: "src/components/pages/Game",
+        template: "src/components/pages/Game",
       },
       {
         path: "/playground",
-        component: "src/components/pages/Playground",
+        template: "src/components/pages/Playground",
       },
       {
         path: "/about",
-        component: "src/components/pages/About",
+        template: "src/components/pages/About",
       },
-      // {
-      //   path: "404",
-      //   component: "src/components/pages/404",
-      // },
+      {
+        path: "404",
+        template: "src/components/pages/404",
+      },
     ];
   },
   Document: ({Html, Head, Body, children, siteData, renderMeta}) => (

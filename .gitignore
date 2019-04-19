@@ -5,3 +5,4 @@ dist
 typings
 node_modules
 tmp
+artifacts
