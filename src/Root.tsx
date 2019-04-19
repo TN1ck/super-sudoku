@@ -7,8 +7,7 @@ import {Provider} from "react-redux";
 
 import configureStore from "src/store/configureStore";
 
-import Footer from "src/components/modules/Footer";
-import styled, {createGlobalStyle} from "styled-components";
+import {createGlobalStyle} from "styled-components";
 import THEME from "src/theme";
 
 const GlobalStyle = createGlobalStyle`
@@ -45,46 +44,18 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-const Main = styled.div`
-  min-height: 100%;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr auto;
-  grid-template-areas:
-    /* "header" */
-    "main"
-    "footer";
-`;
-
-const MainArea = styled.div`
-  grid-area: main;
-`;
-
-const FooterArea = styled.div`
-  grid-area: footer;
-  margin-top: ${THEME.spacer.x4}px;
-  background: ${THEME.colors.gray400};
-`;
-
 const store = configureStore({});
 
 const App: React.StatelessComponent = () => {
   return (
     <Root>
       <Provider store={store}>
-        <Main>
-          <MainArea>
-            <React.Suspense fallback={<em>Loading...</em>}>
-              <Router>
-                <Routes path="*" />
-              </Router>
-            </React.Suspense>
-          </MainArea>
-          <FooterArea>
-            <Footer />
-          </FooterArea>
-          <GlobalStyle />
-        </Main>
+        <React.Suspense fallback={<em>Loading...</em>}>
+          <Router style={{height: '100%'}}>
+            <Routes path="*" />
+          </Router>
+        </React.Suspense>
+      <GlobalStyle />
       </Provider>
     </Root>
   );

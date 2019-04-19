@@ -12,14 +12,15 @@ export const SudokuSmallTitle = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: ${THEME.colors.primary};
-  border-bottom-right-radius: ${THEME.borderRadius}px;
-  color: white;
-  font-size: 14px;
+  /* border-bottom-right-radius: ${THEME.borderRadius}px; */
+  color: black;
+  opacity: 0.8;
+  font-size: 42px;
+  font-weight: bold;
   position: absolute;
-  height: 34px;
+  height: 100%;
   z-index: 4;
-  width: 34px;
+  width: 100%;
   top: 0;
   left: 0;
 `;

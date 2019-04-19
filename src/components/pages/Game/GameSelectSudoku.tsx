@@ -158,7 +158,7 @@ class SelectSudoku extends React.Component<
       };
       return (
         <SelectContainer key={id} active={active} style={style} onClick={onClick}>
-          <SmallSudokuComponent darken={!isCenter} id={id + 1} sudoku={simpleSudoku} />
+          <SmallSudokuComponent id={id + 1} sudoku={simpleSudoku} />
         </SelectContainer>
       );
     });
