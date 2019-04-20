@@ -1,6 +1,5 @@
 import * as React from "react";
 import LazyLoad from "react-lazyload";
-import {navigate} from "@reach/router";
 import SUDOKUS from "src/assets/sudokus-new";
 import {connect} from "react-redux";
 import {RootState} from "src/ducks";
@@ -99,7 +98,6 @@ const GameSelect: React.StatelessComponent<GameSelectProps & GameSelectDispatchP
   const chooseSudoku = (sudoku, solution) => {
     newGame();
     setSudoku(difficulty, sudoku, solution);
-    navigate("/");
   };
 
   return (
