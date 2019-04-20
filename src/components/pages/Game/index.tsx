@@ -233,7 +233,7 @@ class Game extends React.Component<GameProps> {
                 <SudokuMenuControls />
                 <h1>Settings</h1>
                 <Checkbox id="hints" checked={game.showHints} onChange={toggleShowHints}>
-                  {"Show all hints"}
+                  {"Show auto generated notes"}
                 </Checkbox>
               </GameFooterArea>
             </GameGrid>

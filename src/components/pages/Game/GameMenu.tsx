@@ -11,6 +11,7 @@ import {RootState} from "src/ducks";
 import {changeSudoku, setDifficulty, previousSudoku, nextSudoku} from "src/ducks/game/choose";
 
 import GameSelect from "./GameSelect";
+import Button from "src/components/modules/Button";
 
 
 export const GameMenuContainer = styled.div`
@@ -26,42 +27,33 @@ export const GameMenuContainer = styled.div`
   justify-content: space-around;
 `;
 
-const GameMenuList = styled.ul`
-  padding: 0;
-  margin: 0;
-`;
-
-const GameMenuListItem = styled.li`
-  color: white;
-  background-color: ${THEME.colors.primary};
-  list-style-type: none;
-  margin: 0;
-  margin-top: ${THEME.spacer.x2}px;
-  padding: ${THEME.spacer.x2}px;
-  border-radius: ${THEME.borderRadius}px;
-  box-shadow: ${THEME.boxShadow};
-
-  &:hover {
-    cursor: pointer;
-    background-color: $color__dark-blue;
-  }
+const GameMenuCenter = styled.div`
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
 `;
 
 const GameWonText = styled.div`
   color: white;
   font-size: 32px;
-  padding-bottom: ${THEME.spacer.x3};
+  padding-bottom: ${THEME.spacer.x3}px;
+`;
+
+const NewGameButton = styled(Button)`
+  display: block;
 `;
 
 const WonGame = ({chooseGame}) => {
   return (
     <GameMenuContainer>
-      <GameMenuList>
+      <GameMenuCenter>
         <GameWonText>{"Congratulations, You won!"}</GameWonText>
-        <GameMenuListItem onClick={chooseGame} key="reset-game">
+        <NewGameButton onClick={chooseGame} key="reset-game">
           {"New Game"}
-        </GameMenuListItem>
-      </GameMenuList>
+        </NewGameButton>
+      </GameMenuCenter>
     </GameMenuContainer>
   );
 };
