@@ -10,10 +10,11 @@ const NumberContainer = styled.div`
   /* background: ${THEME.colors.white}; */
   position: relative;
   border: 1px solid transparent;
-  /* border-right: 1px solid ${THEME.colors.gray700}; */
+  background: white;
+  border: 3px solid black;
 
   &:hover {
-    border: 1px solid ${THEME.colors.primary};
+    border: 3px solid ${THEME.colors.primary};
   }
 `;
 

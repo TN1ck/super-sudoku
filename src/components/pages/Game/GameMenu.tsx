@@ -5,12 +5,9 @@ import {setSudoku} from "src/ducks/sudoku";
 import {continueGame, resetGame, newGame, setGameState, toggleShowHints, GameStateMachine} from "src/ducks/game";
 import {DIFFICULTY} from "src/engine/utility";
 
-import SelectSudoku from "./GameSelectSudoku";
-
 import THEME from "src/theme";
 import styled from "styled-components";
 import {RootState} from "src/ducks";
-import Button from "src/components/modules/Button";
 import Checkbox from "src/components/modules/Checkbox";
 import {changeSudoku, setDifficulty, previousSudoku, nextSudoku} from "src/ducks/game/choose";
 
@@ -83,67 +80,6 @@ const WonGame = ({chooseGame}) => {
   );
 };
 
-const GameMenuSelection = ({
-  setDifficulty,
-  newGame,
-  changeSudoku,
-  nextSudoku,
-  previousSudoku,
-  sudokuIndex,
-  difficulty,
-}) => {
-  const currentDifficulty = difficulty;
-  const difficulties = [
-    {
-      label: "Easy",
-      difficulty: DIFFICULTY.EASY,
-    },
-    {
-      label: "Medium",
-      difficulty: DIFFICULTY.MEDIUM,
-    },
-    {
-      label: "Hard",
-      difficulty: DIFFICULTY.HARD,
-    },
-    {
-      label: "Evil",
-      difficulty: DIFFICULTY.EVIL,
-    },
-  ];
-  return (
-    <GameMenuContainer>
-      <div style={{display: "flex", justifyContent: "center", width: "100%", height: "40px"}}>
-        {difficulties.map(({label, difficulty}, i) => {
-          const onClick = () => setDifficulty(difficulty);
-          const active = difficulty === currentDifficulty;
-          return (
-            <Button
-              style={{
-                marginLeft: i === 0 ? 0 : THEME.spacer.x2,
-              }}
-              onClick={onClick}
-              key={difficulty}
-              active={active}
-            >
-              {label}
-            </Button>
-          );
-        })}
-      </div>
-      <SelectSudoku
-        key="select-sudoku"
-        newGame={newGame}
-        difficulty={currentDifficulty}
-        changeSudoku={changeSudoku}
-        nextSudoku={nextSudoku}
-        previousSudoku={previousSudoku}
-        sudokuIndex={sudokuIndex}
-      />
-    </GameMenuContainer>
-  );
-};
-
 interface GameMenuDispatchProps {
   continueGame: typeof continueGame;
   resetGame: typeof resetGame;
@@ -191,20 +127,14 @@ const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
       super(props);
       this.newGame = this.newGame.bind(this);
     }
-    newGame(sudokuId, sudoku, solution) {
+    newGame(_, sudoku, solution) {
       this.props.setSudoku(this.props.difficulty, sudoku, solution);
-      this.props.newGame(this.props.difficulty, sudokuId);
+      this.props.newGame();
       this.props.continueGame();
       this.props.setGameState(GameStateMachine.running);
     }
     render() {
       const {
-        setDifficulty,
-        difficulty,
-        changeSudoku,
-        previousSudoku,
-        nextSudoku,
-        sudokuIndex,
         showHints,
         continueGame,
         toggleShowHints,
@@ -213,19 +143,6 @@ const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
       const chooseGame = () => this.props.setGameState(GameStateMachine.chooseGame);
 
       switch (this.props.state) {
-        case GameStateMachine.chooseGame: {
-          return (
-            <GameMenuSelection
-              setDifficulty={setDifficulty}
-              difficulty={difficulty}
-              newGame={this.newGame}
-              changeSudoku={changeSudoku}
-              previousSudoku={previousSudoku}
-              nextSudoku={nextSudoku}
-              sudokuIndex={sudokuIndex}
-            />
-          );
-        }
         case GameStateMachine.settings: {
           return (
             <GameMenuRunning continueGame={continueGame} toggleShowHints={toggleShowHints} showHints={showHints} />

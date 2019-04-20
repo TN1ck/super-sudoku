@@ -20,7 +20,7 @@ const GlobalStyle = createGlobalStyle`
     padding: 0;
     margin: 0;
     font-family: ${THEME.fontFamily};
-    background: ${THEME.colors.gray700};
+    background: ${THEME.colors.white};
     font-size: ${THEME.fontSize.base}px;
     height: 100vh;
     width: 100vw;

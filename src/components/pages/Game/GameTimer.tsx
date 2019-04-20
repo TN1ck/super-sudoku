@@ -5,7 +5,7 @@ import styled from "styled-components";
 import THEME from "src/theme";
 
 const GameTimerContainer = styled.div`
-  color: ${THEME.colors.gray400};
+  color: white;
   font-size: ${THEME.fontSize.menu}px;
   text-align: center;
 `;

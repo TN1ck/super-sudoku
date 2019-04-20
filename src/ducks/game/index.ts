@@ -31,12 +31,8 @@ export function deactivateNotesMode() {
   };
 }
 
-export function newGame(difficulty, sudokuId) {
-  return {
-    type: NEW_GAME,
-    difficulty,
-    sudokuId,
-  };
+export function newGame() {
+  return setGameState(GameStateMachine.running);
 }
 
 export function wonGame() {
@@ -145,6 +141,7 @@ export default function gameReducer(state: GameState = gameState, action): GameS
     case NEW_GAME:
       return {
         ...state,
+        state: GameStateMachine.running,
       };
 
     case RESET_GAME:

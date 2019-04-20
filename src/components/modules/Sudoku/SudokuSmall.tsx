@@ -25,9 +25,10 @@ export default class SmallSudokuComponent extends React.PureComponent<{
   id: number;
   darken?: boolean;
   size?: number;
+  onClick?: () => void;
 }> {
   render() {
-    const {sudoku, id, size = 150} = this.props;
+    const {sudoku, id, onClick, size = 150} = this.props;
     const containerHeight = size;
     const containerWidth = size;
     const height = 100;
@@ -38,7 +39,7 @@ export default class SmallSudokuComponent extends React.PureComponent<{
     const ySection = width / 9;
 
     return (
-      <SudokuSmallContainer>
+      <SudokuSmallContainer onClick={onClick}>
         <SudokuSmall
           style={{
             height: containerHeight,

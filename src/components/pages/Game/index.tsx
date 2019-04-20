@@ -1,4 +1,5 @@
 import * as React from "react";
+import {navigate} from "@reach/router";
 
 import {connect} from "react-redux";
 import {
@@ -20,7 +21,7 @@ import {Sudoku} from "src/components/modules/Sudoku/Sudoku";
 import GameTimer from "./GameTimer";
 import GameMenu from "./GameMenu";
 
-import {Container} from "src/components/modules/Layout";
+// import {Container} from "src/components/modules/Layout";
 import Button from "src/components/modules/Button";
 import styled from "styled-components";
 import THEME from "src/theme";
@@ -30,7 +31,7 @@ import {emptyGrid} from "src/ducks/sudoku";
 import {DIFFICULTY, Cell} from "src/engine/utility";
 import SudokuMenuNumbers from "src/components/modules/Sudoku/SudokuMenuNumbers";
 import SudokuMenuControls from "src/components/modules/Sudoku/SudokuMenuControls";
-import Shortcuts from "./shortcuts/Shortcuts";
+// import Shortcuts from "./shortcuts/Shortcuts";
 
 function PauseButton({running, pauseGame, continueGame}) {
   return (
@@ -63,7 +64,7 @@ function NewGameButton({newGame}) {
 }
 
 const DifficultyShow = styled.div`
-  color: ${THEME.colors.gray400};
+  color: white;
   text-transform: capitalize;
   font-size: ${THEME.fontSize.menu}px;
 `;
@@ -71,6 +72,8 @@ const DifficultyShow = styled.div`
 const GameContainer = styled.div`
   display: grid;
   justify-content: center;
+  background: black;
+  min-height: 100%;
 
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -83,8 +86,8 @@ const GameContainer = styled.div`
 
   color: white;
   position: relative;
-  margin-top: ${THEME.spacer.x3}px;
-  margin-bottom: ${THEME.spacer.x3 + 20}px;
+  padding-top: ${THEME.spacer.x3}px;
+  padding-bottom: ${THEME.spacer.x3 + 20}px;
   margin-left: auto;
   margin-right: auto;
 
@@ -180,12 +183,14 @@ class Game extends React.Component<GameProps> {
   }
 
   render() {
-    const {difficulty, game, pauseGame, continueGame, chooseGame} = this.props;
+    const {difficulty, game, pauseGame, continueGame} = this.props;
+    const chooseAnotherGame = () => {
+      navigate("/new");
+    };
     return (
-      <Container>
-        <Shortcuts gameState={game.state} />
+      <GameContainer>
+        {/* <Shortcuts gameState={game.state} /> */}
         <GameMenu />
-        <GameContainer>
           <GameHeaderArea>
             <DifficultyShow>{difficulty}</DifficultyShow>
             <GameTimer startTime={game.startTime} stopTime={game.stopTime} offsetTime={game.offsetTime} />
@@ -195,7 +200,7 @@ class Game extends React.Component<GameProps> {
                 pauseGame={pauseGame}
                 running={game.state === GameStateMachine.running}
               />
-              <NewGameButton newGame={chooseGame} />
+              <NewGameButton newGame={chooseAnotherGame} />
             </div>
           </GameHeaderArea>
           <GameMainArea>
@@ -214,8 +219,7 @@ class Game extends React.Component<GameProps> {
             <SudokuMenuNumbers />
             <SudokuMenuControls />
           </GameFooterArea>
-        </GameContainer>
-      </Container>
+      </GameContainer>
     );
   }
 }

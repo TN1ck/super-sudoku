@@ -5,8 +5,8 @@ const Button = styled.button<{
   active?: boolean;
 }>`
   border-radius: ${THEME.borderRadius}px;
-  background: ${THEME.colors.primary};
-  color: ${THEME.colors.white};
+  background: white;
+  color: black;
   font-size: ${THEME.fontSize.base}px;
   padding: ${THEME.spacer.x2}px;
   box-shadow: ${THEME.boxShadow};
