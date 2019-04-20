@@ -87,6 +87,8 @@ const GameGrid = styled.div`
 
   grid-column-gap: ${THEME.spacer.x3}px;
 
+  margin: 0 auto;
+
   @media (max-width: 800px) {
     grid-template-areas:
       "game-header"
@@ -94,7 +96,7 @@ const GameGrid = styled.div`
       "game-controls";
     max-width: ${THEME.widths.maxMobile - THEME.spacer.paddingMobile * 2}px;
     grid-column-gap: 0;
-    padding: 0;
+    padding-bottom: 0;
   }
 
   @media (max-width: ${THEME.widths.maxMobile}px) {

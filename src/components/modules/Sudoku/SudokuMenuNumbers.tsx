@@ -37,7 +37,8 @@ const ResponsiveNumber = ({children, onClick}) => {
 
 const SudokuMenuNumbersContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr 1fr 1fr;
+  justify-content: center;
   width: 100%;
   margin-top: ${THEME.spacer.x3}px;
   overflow: hidden;
