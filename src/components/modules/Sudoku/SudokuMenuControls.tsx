@@ -18,6 +18,10 @@ const ControlContainer = styled.div`
   justify-content: center;
   color: black;
   display: flex;
+
+  &:hover {
+    border: 1px solid ${THEME.colors.primary};
+  }
 `;
 
 const SudokuMenuControlsContainer = styled.div`

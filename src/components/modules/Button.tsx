@@ -13,7 +13,6 @@ const Button = styled.button<{
   border: none;
   transition: transform 0.3s ease-out;
   &:hover {
-    cursor: pointer;
     filter: brightness(110%);
   }
 
