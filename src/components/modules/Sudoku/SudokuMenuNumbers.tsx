@@ -44,6 +44,7 @@ const SudokuMenuNumbersContainer = styled.div`
   overflow: hidden;
 
   @media (max-width: 800px) {
+    margin-top: ${THEME.spacer.x3}px;
     grid-template-columns: repeat(9, 1fr);
   }
 `;
