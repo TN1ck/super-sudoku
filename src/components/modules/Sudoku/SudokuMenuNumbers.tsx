@@ -11,10 +11,9 @@ const NumberContainer = styled.div`
   position: relative;
   border: 1px solid transparent;
   background: white;
-  border: 3px solid black;
 
   &:hover {
-    border: 3px solid ${THEME.colors.primary};
+    border: 1px solid ${THEME.colors.primary};
   }
 `;
 
@@ -38,6 +37,7 @@ const ResponsiveNumber = ({children, onClick}) => {
 const SudokuMenuNumbersContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 6px;
   justify-content: center;
   width: 100%;
   margin-top: ${THEME.spacer.x3}px;

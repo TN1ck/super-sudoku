@@ -10,8 +10,6 @@ import {Cell} from "src/engine/utility";
 
 const ControlsButton = styled(Button)`
   width: 100%;
-  margin-left: ${THEME.spacer.x1}px;
-  margin-right: ${THEME.spacer.x1}px;
 `;
 
 const ControlContainer = styled.div`
@@ -25,6 +23,7 @@ const ControlContainer = styled.div`
 const SudokuMenuControlsContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  column-gap: 6px;
   width: 100%;
   margin-top: ${THEME.spacer.x3}px;
 `;
