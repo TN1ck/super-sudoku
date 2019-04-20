@@ -37,11 +37,10 @@ const ResponsiveNumber = ({children, onClick}) => {
 const SudokuMenuNumbersContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  column-gap: 6px;
-  row-gap: 6px;
+  column-gap: ${THEME.spacer.x1}px;
+  row-gap: ${THEME.spacer.x1}px;
   justify-content: center;
   width: 100%;
-  margin-top: ${THEME.spacer.x3}px;
   overflow: hidden;
 
   @media (max-width: 800px) {

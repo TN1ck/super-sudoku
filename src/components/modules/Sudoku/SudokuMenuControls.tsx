@@ -10,24 +10,24 @@ import {Cell} from "src/engine/utility";
 
 const ControlsButton = styled(Button)`
   width: 100%;
-`;
-
-const ControlContainer = styled.div`
-  position: relative;
   border: 1px solid transparent;
-  justify-content: center;
-  color: black;
-  display: flex;
 
   &:hover {
     border: 1px solid ${THEME.colors.primary};
   }
 `;
 
+const ControlContainer = styled.div`
+  position: relative;
+  justify-content: center;
+  color: black;
+  display: flex;
+`;
+
 const SudokuMenuControlsContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  column-gap: 6px;
+  column-gap: ${THEME.spacer.x1}px;
   width: 100%;
   margin-top: ${THEME.spacer.x3}px;
 `;

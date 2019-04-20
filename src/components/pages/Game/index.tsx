@@ -40,8 +40,7 @@ function PauseButton({running, pauseGame, continueGame}) {
       onClick={running ? pauseGame : continueGame}
       style={{
         float: "right",
-        marginLeft: THEME.spacer.x2,
-        marginBottom: THEME.spacer.x2,
+        marginLeft: THEME.spacer.x1,
       }}
     >
       {running ? "Pause" : "Continue"}
@@ -55,8 +54,7 @@ function NewGameButton({newGame}) {
       onClick={newGame}
       style={{
         float: "right",
-        marginLeft: THEME.spacer.x2,
-        marginBottom: THEME.spacer.x2,
+        marginLeft: THEME.spacer.x1,
       }}
     >
       {"New"}
@@ -84,7 +82,6 @@ const GameGrid = styled.div`
 
   color: white;
   position: relative;
-  padding-top: ${THEME.spacer.x3}px;
   padding-bottom: ${THEME.spacer.x3 + 20}px;
 
   grid-column-gap: ${THEME.spacer.x3}px;
@@ -147,6 +144,8 @@ const GameHeaderArea = styled.div`
   grid-area: game-header;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  padding: ${THEME.spacer.x2}px 0;
 `;
 
 const GameHeaderLeftSide = styled.div`
