@@ -9,6 +9,7 @@ import configureStore from "src/store/configureStore";
 
 import {createGlobalStyle} from "styled-components";
 import THEME from "src/theme";
+import Header from "./components/modules/Header";
 
 const GlobalStyle = createGlobalStyle`
 
@@ -20,7 +21,7 @@ const GlobalStyle = createGlobalStyle`
     padding: 0;
     margin: 0;
     font-family: ${THEME.fontFamily};
-    background: ${THEME.colors.white};
+    background: black;
     font-size: ${THEME.fontSize.base}px;
     height: 100vh;
     width: 100vw;
@@ -50,6 +51,7 @@ const App: React.StatelessComponent = () => {
   return (
     <Root>
       <Provider store={store}>
+        <Header />
         <React.Suspense fallback={<em>Loading...</em>}>
           <Router style={{height: '100%'}}>
             <Routes path="*" />

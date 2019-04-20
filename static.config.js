@@ -33,10 +33,6 @@ export default {
         template: "src/components/pages/Game",
       },
       {
-        path: "/new",
-        template: "src/components/pages/GameNew",
-      },
-      {
         path: "/playground",
         template: "src/components/pages/Playground",
       },

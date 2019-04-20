@@ -45,7 +45,7 @@ const StyledCheckboxSquare = styled.div<{
 `;
 
 const StyledLabel = styled.label`
-  color: black;
+  color: white;
   &:hover {
     cursor: pointer;
   }

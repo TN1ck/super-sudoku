@@ -5,48 +5,27 @@ import SUDOKUS from "src/assets/sudokus-new";
 import {connect} from "react-redux";
 import {RootState} from "src/ducks";
 import {DIFFICULTY} from "src/engine/utility";
-import {Container} from "../modules/Layout";
 import styled from "styled-components";
-import SmallSudokuComponent from "../modules/Sudoku/SudokuSmall";
+import SmallSudokuComponent from "../../modules/Sudoku/SudokuSmall";
 import {setDifficulty} from "src/ducks/game/choose";
 import {newGame} from "src/ducks/game";
 import {setSudoku} from "src/ducks/sudoku";
 
 const TabBar = styled.div`
-  width: 100%;
-  background: red;
   display: flex;
-  background: #ddd;
-  border: 1px solid #ccc;
   border-bottom: none;
   color: white;
+  justify-content: center;
 `;
 
 const TabItem = styled.div<{
   active: boolean;
 }>`
   padding: 10px 10px;
-  background: ${p => (p.active ? "black" : "transparent")};
-  color: ${p => (p.active ? "white" : "black")};
+  background: ${p => (p.active ? "white" : "black")};
+  color: ${p => (p.active ? "black" : "white")};
   cursor: pointer;
   text-transform: capitalize;
-`;
-
-const Grid = styled.div`
-  min-height: 100%;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: auto 1fr;
-  grid-template-areas:
-    "header"
-    "main";
-`;
-
-const MainArea = styled.div`
-  grid-area: main;
-  padding-top: 30px;
-  background: black;
-  position: relative;
 `;
 
 const SudokusContainer = styled.div`
@@ -58,10 +37,6 @@ const SudokusContainer = styled.div`
 
 const SudokuContainer = styled.div`
   padding: 10px;
-`;
-
-const Header = styled.div`
-  grid-area: header;
 `;
 
 const SudokuSmallPlaceholder: React.StatelessComponent<{size: number}> = ({size}) => (
@@ -105,17 +80,17 @@ class GameIndex extends React.Component<{
   }
 }
 
-interface GameNewProps {
+interface GameSelectProps {
   difficulty: DIFFICULTY;
 }
 
-interface GameNewDispatchProps {
+interface GameSelectDispatchProps {
   setDifficulty: typeof setDifficulty;
   setSudoku: typeof setSudoku;
   newGame: typeof newGame;
 }
 
-const GameNew: React.StatelessComponent<GameNewProps & GameNewDispatchProps> = ({
+const GameSelect: React.StatelessComponent<GameSelectProps & GameSelectDispatchProps> = ({
   difficulty,
   setDifficulty,
   newGame,
@@ -128,31 +103,22 @@ const GameNew: React.StatelessComponent<GameNewProps & GameNewDispatchProps> = (
   };
 
   return (
-    <Grid>
-      <Header>
-        <Container>
-          <h1>New Game</h1>
-          <TabBar>
-            {[DIFFICULTY.EASY, DIFFICULTY.MEDIUM, DIFFICULTY.HARD, DIFFICULTY.EVIL].map(d => {
-              return (
-                <TabItem key={d} active={d === difficulty} onClick={() => setDifficulty(d)}>
-                  {d}
-                </TabItem>
-              );
-            })}
-          </TabBar>
-        </Container>
-      </Header>
-      <MainArea>
-        <Container>
-          <GameIndex difficulty={difficulty} chooseSudoku={chooseSudoku} />
-        </Container>
-      </MainArea>
-    </Grid>
+    <div>
+      <TabBar>
+        {[DIFFICULTY.EASY, DIFFICULTY.MEDIUM, DIFFICULTY.HARD, DIFFICULTY.EVIL].map(d => {
+          return (
+            <TabItem key={d} active={d === difficulty} onClick={() => setDifficulty(d)}>
+              {d}
+            </TabItem>
+          );
+        })}
+      </TabBar>
+      <GameIndex difficulty={difficulty} chooseSudoku={chooseSudoku} />
+    </div>
   );
 };
 
-const GameNewConnected = connect<GameNewProps, GameNewDispatchProps>(
+const GameSelectConnected = connect<GameSelectProps, GameSelectDispatchProps>(
   (state: RootState) => {
     return {
       difficulty: state.choose.difficulty,
@@ -163,6 +129,6 @@ const GameNewConnected = connect<GameNewProps, GameNewDispatchProps>(
     newGame,
     setSudoku,
   },
-)(GameNew);
+)(GameSelect);
 
-export default GameNewConnected;
+export default GameSelectConnected;

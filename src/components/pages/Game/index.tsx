@@ -1,5 +1,4 @@
 import * as React from "react";
-import {navigate} from "@reach/router";
 
 import {connect} from "react-redux";
 import {
@@ -31,7 +30,7 @@ import {emptyGrid} from "src/ducks/sudoku";
 import {DIFFICULTY, Cell} from "src/engine/utility";
 import SudokuMenuNumbers from "src/components/modules/Sudoku/SudokuMenuNumbers";
 import SudokuMenuControls from "src/components/modules/Sudoku/SudokuMenuControls";
-import { Container } from "src/components/modules/Layout";
+import {Container} from "src/components/modules/Layout";
 // import Shortcuts from "./shortcuts/Shortcuts";
 
 function PauseButton({running, pauseGame, continueGame}) {
@@ -100,13 +99,14 @@ const GameGrid = styled.div`
   }
 
   @media (max-width: ${THEME.widths.maxMobile}px) {
-    max-width: 100%;
   }
 `;
 
 const GameContainer = styled.div`
+  max-width: 100%;
   min-height: 100%;
   background: black;
+  position: relative;
 `;
 
 const GameMainArea = styled.div`
@@ -150,8 +150,7 @@ const GameHeaderLeftSide = styled.div`
   display: flex;
 `;
 
-const GameHeaderRightSide = styled.div`
-`;
+const GameHeaderRightSide = styled.div``;
 
 const GameFooterArea = styled.div`
   grid-area: game-controls;
@@ -189,24 +188,20 @@ class Game extends React.Component<GameProps> {
   }
 
   render() {
-    const {difficulty, game, pauseGame, continueGame} = this.props;
-    const chooseAnotherGame = () => {
-      navigate("/new");
-    };
+    const {difficulty, game, pauseGame, continueGame, chooseGame} = this.props;
     return (
       <div style={{height: "100%"}}>
-        <Container>
-          <h1>Sudoku </h1>
-        </Container>
-      <GameContainer>
-        <Container>
-          <GameGrid>
-            {/* <Shortcuts gameState={game.state} /> */}
-            <GameMenu />
+        <GameContainer>
+          <GameMenu />
+          <Container>
+            <GameGrid>
+              {/* <Shortcuts gameState={game.state} /> */}
               <GameHeaderArea>
                 <GameHeaderLeftSide>
                   <DifficultyShow>{difficulty}</DifficultyShow>
-                  <div style={{width: THEME.spacer.x2}} />{"|"}<div style={{width: THEME.spacer.x2}} />
+                  <div style={{width: THEME.spacer.x2}} />
+                  {"|"}
+                  <div style={{width: THEME.spacer.x2}} />
                   <GameTimer startTime={game.startTime} stopTime={game.stopTime} offsetTime={game.offsetTime} />
                 </GameHeaderLeftSide>
                 <GameHeaderRightSide>
@@ -215,7 +210,7 @@ class Game extends React.Component<GameProps> {
                     pauseGame={pauseGame}
                     running={game.state === GameStateMachine.running}
                   />
-                  <NewGameButton newGame={chooseAnotherGame} />
+                  <NewGameButton newGame={chooseGame} />
                 </GameHeaderRightSide>
               </GameHeaderArea>
               <GameMainArea>
@@ -234,9 +229,9 @@ class Game extends React.Component<GameProps> {
                 <SudokuMenuNumbers />
                 <SudokuMenuControls />
               </GameFooterArea>
-          </GameGrid>
-        </Container>
-      </GameContainer>
+            </GameGrid>
+          </Container>
+        </GameContainer>
       </div>
     );
   }

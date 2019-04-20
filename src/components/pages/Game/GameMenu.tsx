@@ -11,16 +11,18 @@ import {RootState} from "src/ducks";
 import Checkbox from "src/components/modules/Checkbox";
 import {changeSudoku, setDifficulty, previousSudoku, nextSudoku} from "src/ducks/game/choose";
 
+import GameSelect from "./GameSelect";
+
+
 export const GameMenuContainer = styled.div`
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(0, 0, 0, 0.8);
   position: absolute;
   z-index: 20;
-  padding-top: 90px;
   border-radius: ${THEME.borderRadius}px;
-  top: -${THEME.spacer.x3}px;
-  bottom: -${THEME.spacer.x3}px;
-  left: -${THEME.spacer.x3}px;
-  right: -${THEME.spacer.x3}px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   justify-content: space-around;
 `;
@@ -47,7 +49,7 @@ const GameMenuListItem = styled.li`
 `;
 
 const GameWonText = styled.div`
-  color: black;
+  color: white;
   font-size: 32px;
   padding-bottom: ${THEME.spacer.x3};
 `;
@@ -79,6 +81,14 @@ const WonGame = ({chooseGame}) => {
     </GameMenuContainer>
   );
 };
+
+const GameMenuSelection = () => {
+  return (
+    <GameMenuContainer>
+      <GameSelect />
+    </GameMenuContainer>
+  )
+}
 
 interface GameMenuDispatchProps {
   continueGame: typeof continueGame;
@@ -143,6 +153,11 @@ const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
       const chooseGame = () => this.props.setGameState(GameStateMachine.chooseGame);
 
       switch (this.props.state) {
+        case GameStateMachine.chooseGame: {
+          return (
+            <GameMenuSelection />
+          );
+        }
         case GameStateMachine.settings: {
           return (
             <GameMenuRunning continueGame={continueGame} toggleShowHints={toggleShowHints} showHints={showHints} />
