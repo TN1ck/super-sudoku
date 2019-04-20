@@ -20,7 +20,6 @@ import {Sudoku} from "src/components/modules/Sudoku/Sudoku";
 import GameTimer from "./GameTimer";
 import GameMenu from "./GameMenu";
 
-// import {Container} from "src/components/modules/Layout";
 import Button from "src/components/modules/Button";
 import styled from "styled-components";
 import THEME from "src/theme";
@@ -31,7 +30,7 @@ import {DIFFICULTY, Cell} from "src/engine/utility";
 import SudokuMenuNumbers from "src/components/modules/Sudoku/SudokuMenuNumbers";
 import SudokuMenuControls from "src/components/modules/Sudoku/SudokuMenuControls";
 import {Container} from "src/components/modules/Layout";
-// import Shortcuts from "./shortcuts/Shortcuts";
+import Shortcuts from "./shortcuts/Shortcuts";
 
 function PauseButton({running, pauseGame, continueGame}) {
   return (
@@ -195,7 +194,7 @@ class Game extends React.Component<GameProps> {
           <GameMenu />
           <Container>
             <GameGrid>
-              {/* <Shortcuts gameState={game.state} /> */}
+              <Shortcuts gameState={game.state} />
               <GameHeaderArea>
                 <GameHeaderLeftSide>
                   <DifficultyShow>{difficulty}</DifficultyShow>
