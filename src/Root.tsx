@@ -22,12 +22,12 @@ const GlobalStyle = createGlobalStyle`
     font-family: ${THEME.fontFamily};
     background: ${THEME.colors.gray700};
     font-size: ${THEME.fontSize.base}px;
-    overflow-x: hidden;
-    overflow-y: scroll;
     height: 100vh;
     width: 100vw;
-    -webkit-overflow-scrolling: touch;
-    -webkit-touch-callout: none;
+    /* overflow-x: hidden; */
+    /* overflow-y: scroll; */
+    /* -webkit-overflow-scrolling: touch; */
+    /* -webkit-touch-callout: none; */
     -webkit-tap-highlight-color: rgba(0,0,0,0);
 
   }
@@ -37,10 +37,10 @@ const GlobalStyle = createGlobalStyle`
 
   html {
     line-height: ${THEME.lineHeight}em;
-    position: fixed;
-    overflow: hidden;
+    /* position: fixed; */
+    /* overflow: hidden; */
+    /* touch-action: manipulation; */
     height: 100%;
-    touch-action: manipulation;
   }
 `;
 

@@ -70,6 +70,7 @@
   },
   "dependencies": {
     "@reach/router": "^1.2.1",
+    "@types/react-lazyload": "^2.3.2",
     "babel-polyfill": "6.26.0",
     "history": "4.9.0",
     "keymaster": "1.6.2",
@@ -77,6 +78,7 @@
     "react": "16.8.6",
     "react-dom": "16.8.6",
     "react-hot-loader": "4.8.4",
+    "react-lazyload": "^2.5.0",
     "react-redux": "7.0.2",
     "react-router": "5.0.0",
     "react-router-dom": "5.0.0",

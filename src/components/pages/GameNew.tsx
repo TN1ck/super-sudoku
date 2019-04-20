@@ -1,11 +1,13 @@
-import * as React from 'react';
+import * as React from "react";
+import LazyLoad from "react-lazyload";
 import SUDOKUS from "src/assets/sudokus-new";
-import { connect } from 'react-redux';
-import { RootState } from 'src/ducks';
-import { DIFFICULTY } from 'src/engine/utility';
-import { Container } from '../modules/Layout';
-import styled from 'styled-components';
-import SmallSudokuComponent from '../modules/Sudoku/SudokuSmall';
+import {connect} from "react-redux";
+import {RootState} from "src/ducks";
+import {DIFFICULTY} from "src/engine/utility";
+import {Container} from "../modules/Layout";
+import styled from "styled-components";
+import SmallSudokuComponent from "../modules/Sudoku/SudokuSmall";
+import {setDifficulty} from "src/ducks/game/choose";
 
 const TabBar = styled.div`
   width: 100%;
@@ -19,7 +21,9 @@ const TabItem = styled.div<{
   active: boolean;
 }>`
   padding: 10px 10px;
-  background: ${p => p.active ? "black": "transparent"};
+  background: ${p => (p.active ? "black" : "transparent")};
+  cursor: pointer;
+  text-transform: capitalize;
 `;
 
 const Grid = styled.div`
@@ -42,6 +46,7 @@ const MainArea = styled.div`
 const SudokusContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   margin: 0 -10px;
 `;
 
@@ -53,11 +58,15 @@ const Header = styled.div`
   grid-area: header;
 `;
 
-class GameIndex extends React.Component<
-  {
-    difficulty: DIFFICULTY;
-  }
-> {
+const SudokuSmallPlaceholder: React.StatelessComponent<{size: number}> = ({size}) => (
+  <SudokuContainer>
+    <div style={{height: size, width: size, background: "grey"}} />
+  </SudokuContainer>
+);
+
+class GameIndex extends React.Component<{
+  difficulty: DIFFICULTY;
+}> {
   constructor(props) {
     super(props);
   }
@@ -65,13 +74,17 @@ class GameIndex extends React.Component<
     let {difficulty} = this.props;
     const sudokus = SUDOKUS[difficulty];
 
+    const size = 170;
+
     return (
       <SudokusContainer>
         {sudokus.map(sudoku => {
           return (
-            <SudokuContainer key={sudoku.id}>
-              <SmallSudokuComponent id={sudoku.id + 1} sudoku={sudoku.sudoku} darken />
-            </SudokuContainer>
+            <LazyLoad height={size} key={sudoku.id} placeholder={<SudokuSmallPlaceholder size={size} />}>
+              <SudokuContainer>
+                <SmallSudokuComponent size={size} id={sudoku.id + 1} sudoku={sudoku.sudoku} darken />
+              </SudokuContainer>
+            </LazyLoad>
           );
         })}
       </SudokusContainer>
@@ -83,7 +96,11 @@ interface GameNewProps {
   difficulty: DIFFICULTY;
 }
 
-const GameNew: React.StatelessComponent<GameNewProps> = ({difficulty}) => {
+interface GameNewDispatchProps {
+  setDifficulty: typeof setDifficulty;
+}
+
+const GameNew: React.StatelessComponent<GameNewProps & GameNewDispatchProps> = ({difficulty, setDifficulty}) => {
   return (
     <Grid>
       <Header>
@@ -92,10 +109,10 @@ const GameNew: React.StatelessComponent<GameNewProps> = ({difficulty}) => {
           <TabBar>
             {[DIFFICULTY.EASY, DIFFICULTY.MEDIUM, DIFFICULTY.HARD, DIFFICULTY.EVIL].map(d => {
               return (
-                <TabItem active={d === difficulty}>
+                <TabItem key={d} active={d === difficulty} onClick={() => setDifficulty(d)}>
                   {d}
                 </TabItem>
-              )
+              );
             })}
           </TabBar>
         </Container>
@@ -106,15 +123,18 @@ const GameNew: React.StatelessComponent<GameNewProps> = ({difficulty}) => {
         </Container>
       </MainArea>
     </Grid>
-  )
-}
+  );
+};
 
-const GameNewConnected = connect(
+const GameNewConnected = connect<GameNewProps, GameNewDispatchProps>(
   (state: RootState) => {
     return {
       difficulty: state.choose.difficulty,
     };
-  }
+  },
+  {
+    setDifficulty,
+  },
 )(GameNew);
 
 export default GameNewConnected;

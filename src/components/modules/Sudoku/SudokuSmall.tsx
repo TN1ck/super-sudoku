@@ -24,19 +24,18 @@ export default class SmallSudokuComponent extends React.PureComponent<{
   sudoku: SimpleSudoku;
   id: number;
   darken?: boolean;
+  size?: number;
 }> {
   render() {
-    const {sudoku, id} = this.props;
-    const containerHeight = 150;
-    const containerWidth = 150;
+    const {sudoku, id, size = 150} = this.props;
+    const containerHeight = size;
+    const containerWidth = size;
     const height = 100;
     const width = 100;
-    const fontSize = 8;
+    const fontSize = size / 16;
 
     const xSection = height / 9;
     const ySection = width / 9;
-    const fontXOffset = xSection / 2 - 2;
-    const fontYOffset = ySection / 2 - 4;
 
     return (
       <SudokuSmallContainer>
@@ -45,10 +44,10 @@ export default class SmallSudokuComponent extends React.PureComponent<{
             height: containerHeight,
             width: containerWidth,
             fontSize,
-            lineHeight: fontSize + "px",
+            lineHeight: 1,
           }}
-        >
-          <SudokuSmallTitle>{id}</SudokuSmallTitle>
+          >
+          <SudokuSmallTitle style={{fontSize: size / 3}}>{id}</SudokuSmallTitle>
           {[1, 2, 3, 4, 5, 6, 7, 8].map(i => {
             const makeBold = i % 3 === 0;
             return <GridLineX key={i} width={width} top={(i * height) / 9} makeBold={makeBold} />;
@@ -61,18 +60,19 @@ export default class SmallSudokuComponent extends React.PureComponent<{
             return (
               <div key={y}>
                 {row.map((n, x) => {
-                  return (
+                  return n !== 0 ? (
                     <div
                       key={x}
                       style={{
                         position: "absolute",
-                        left: xSection * x + fontXOffset + "%",
-                        top: ySection * y + fontYOffset + "%",
+                        left: xSection * (x + 0.5) + "%",
+                        top: ySection * (y + 0.5) + "%",
+                        transform: "translate(-50%, -50%)"
                       }}
                     >
-                      {n !== 0 ? n : ""}
+                      {n}
                     </div>
-                  );
+                  ) : null;
                 })}
               </div>
             );
