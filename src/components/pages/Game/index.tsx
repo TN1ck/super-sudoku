@@ -31,6 +31,7 @@ import {emptyGrid} from "src/ducks/sudoku";
 import {DIFFICULTY, Cell} from "src/engine/utility";
 import SudokuMenuNumbers from "src/components/modules/Sudoku/SudokuMenuNumbers";
 import SudokuMenuControls from "src/components/modules/Sudoku/SudokuMenuControls";
+import { Container } from "src/components/modules/Layout";
 // import Shortcuts from "./shortcuts/Shortcuts";
 
 function PauseButton({running, pauseGame, continueGame}) {
@@ -69,11 +70,8 @@ const DifficultyShow = styled.div`
   font-size: ${THEME.fontSize.menu}px;
 `;
 
-const GameContainer = styled.div`
-  display: grid;
+const GameGrid = styled.div`
   justify-content: center;
-  background: black;
-  min-height: 100%;
 
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -88,11 +86,8 @@ const GameContainer = styled.div`
   position: relative;
   padding-top: ${THEME.spacer.x3}px;
   padding-bottom: ${THEME.spacer.x3 + 20}px;
-  margin-left: auto;
-  margin-right: auto;
 
   grid-column-gap: ${THEME.spacer.x3}px;
-  padding: 0 ${THEME.spacer.x3}px;
 
   @media (max-width: 800px) {
     grid-template-areas:
@@ -107,6 +102,11 @@ const GameContainer = styled.div`
   @media (max-width: ${THEME.widths.maxMobile}px) {
     max-width: 100%;
   }
+`;
+
+const GameContainer = styled.div`
+  min-height: 100%;
+  background: black;
 `;
 
 const GameMainArea = styled.div`
@@ -142,9 +142,15 @@ const GameMainArea = styled.div`
 
 const GameHeaderArea = styled.div`
   grid-area: game-header;
-  display: grid;
-  align-items: center;
-  grid-template-columns: 1fr 1fr 1fr;
+  display: flex;
+  justify-content: space-between;
+`;
+
+const GameHeaderLeftSide = styled.div`
+  display: flex;
+`;
+
+const GameHeaderRightSide = styled.div`
 `;
 
 const GameFooterArea = styled.div`
@@ -188,38 +194,50 @@ class Game extends React.Component<GameProps> {
       navigate("/new");
     };
     return (
+      <div style={{height: "100%"}}>
+        <Container>
+          <h1>Sudoku </h1>
+        </Container>
       <GameContainer>
-        {/* <Shortcuts gameState={game.state} /> */}
-        <GameMenu />
-          <GameHeaderArea>
-            <DifficultyShow>{difficulty}</DifficultyShow>
-            <GameTimer startTime={game.startTime} stopTime={game.stopTime} offsetTime={game.offsetTime} />
-            <div>
-              <PauseButton
-                continueGame={continueGame}
-                pauseGame={pauseGame}
-                running={game.state === GameStateMachine.running}
-              />
-              <NewGameButton newGame={chooseAnotherGame} />
-            </div>
-          </GameHeaderArea>
-          <GameMainArea>
-            <Sudoku
-              notesMode={this.props.game.notesMode}
-              shouldShowMenu={this.props.game.showMenu}
-              sudoku={this.props.sudoku}
-              showMenu={this.props.showMenu}
-              hideMenu={this.props.hideMenu}
-              selectCell={this.props.selectCell}
-              showHints={game.showHints && game.state === GameStateMachine.running}
-              activeCell={game.activeCell}
-            />
-          </GameMainArea>
-          <GameFooterArea>
-            <SudokuMenuNumbers />
-            <SudokuMenuControls />
-          </GameFooterArea>
+        <Container>
+          <GameGrid>
+            {/* <Shortcuts gameState={game.state} /> */}
+            <GameMenu />
+              <GameHeaderArea>
+                <GameHeaderLeftSide>
+                  <DifficultyShow>{difficulty}</DifficultyShow>
+                  <div style={{width: THEME.spacer.x2}} />{"|"}<div style={{width: THEME.spacer.x2}} />
+                  <GameTimer startTime={game.startTime} stopTime={game.stopTime} offsetTime={game.offsetTime} />
+                </GameHeaderLeftSide>
+                <GameHeaderRightSide>
+                  <PauseButton
+                    continueGame={continueGame}
+                    pauseGame={pauseGame}
+                    running={game.state === GameStateMachine.running}
+                  />
+                  <NewGameButton newGame={chooseAnotherGame} />
+                </GameHeaderRightSide>
+              </GameHeaderArea>
+              <GameMainArea>
+                <Sudoku
+                  notesMode={this.props.game.notesMode}
+                  shouldShowMenu={this.props.game.showMenu}
+                  sudoku={this.props.sudoku}
+                  showMenu={this.props.showMenu}
+                  hideMenu={this.props.hideMenu}
+                  selectCell={this.props.selectCell}
+                  showHints={game.showHints && game.state === GameStateMachine.running}
+                  activeCell={game.activeCell}
+                />
+              </GameMainArea>
+              <GameFooterArea>
+                <SudokuMenuNumbers />
+                <SudokuMenuControls />
+              </GameFooterArea>
+          </GameGrid>
+        </Container>
       </GameContainer>
+      </div>
     );
   }
 }
