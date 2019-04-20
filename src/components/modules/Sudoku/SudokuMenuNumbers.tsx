@@ -38,6 +38,7 @@ const SudokuMenuNumbersContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   column-gap: 6px;
+  row-gap: 6px;
   justify-content: center;
   width: 100%;
   margin-top: ${THEME.spacer.x3}px;
