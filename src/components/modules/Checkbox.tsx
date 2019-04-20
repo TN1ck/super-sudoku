@@ -25,18 +25,19 @@ const StyledCheckboxSquare = styled.div<{
   left: 0;
   width: 20px;
   height: 20px;
-  background: white;
-  border: 1px solid ${THEME.colors.primary};
+  background: black;
+  border: 1px solid white;
+  transform: translate(0, 3px);
 
   &:after {
-    color: black;
+    color: white;
     display: block;
     content: ${props => (props.checked ? "'L'" : "''")};
     position: absolute;
     top: -3px;
     left: 7px;
     font-size: 17px;
-    transform: scaleY(-1) rotate(-221deg);
+    transform: translate(-1px, -2px) scaleY(-1) rotate(-221deg);
   }
 
   &:hover {
@@ -46,6 +47,7 @@ const StyledCheckboxSquare = styled.div<{
 
 const StyledLabel = styled.label`
   color: white;
+  user-select: none;
   &:hover {
     cursor: pointer;
   }

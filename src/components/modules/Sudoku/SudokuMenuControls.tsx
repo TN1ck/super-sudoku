@@ -24,7 +24,7 @@ const ControlContainer = styled.div`
 
 const SudokuMenuControlsContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   width: 100%;
   margin-top: ${THEME.spacer.x3}px;
 `;
@@ -57,9 +57,9 @@ class SudokuMenuControls extends React.Component<SudokuMenuControlsStateProps & 
         <ControlContainer>
           <ControlsButton onClick={() => this.props.getHint(this.props.activeCell)}>{"Hint"}</ControlsButton>
         </ControlContainer>
-        <ControlContainer>
+        {/* <ControlContainer>
           <ControlsButton onClick={this.props.activateSettings}>{"Settings"}</ControlsButton>
-        </ControlContainer>
+        </ControlContainer> */}
       </SudokuMenuControlsContainer>
     );
   }

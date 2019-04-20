@@ -13,6 +13,7 @@ import {
   selectCell,
   GameStateMachine,
   chooseGame,
+  toggleShowHints,
 } from "src/ducks/game";
 
 import {Sudoku} from "src/components/modules/Sudoku/Sudoku";
@@ -31,6 +32,7 @@ import SudokuMenuNumbers from "src/components/modules/Sudoku/SudokuMenuNumbers";
 import SudokuMenuControls from "src/components/modules/Sudoku/SudokuMenuControls";
 import {Container} from "src/components/modules/Layout";
 import Shortcuts from "./shortcuts/Shortcuts";
+import Checkbox from "src/components/modules/Checkbox";
 
 function PauseButton({running, pauseGame, continueGame}) {
   return (
@@ -167,6 +169,7 @@ interface GameDispatchProps {
   hideMenu: typeof hideMenu;
   selectCell: typeof selectCell;
   chooseGame: typeof chooseGame;
+  toggleShowHints: typeof toggleShowHints;
 }
 
 interface GameStateProps {
@@ -189,7 +192,7 @@ class Game extends React.Component<GameProps> {
   }
 
   render() {
-    const {difficulty, game, pauseGame, continueGame, chooseGame} = this.props;
+    const {difficulty, game, pauseGame, continueGame, chooseGame, toggleShowHints} = this.props;
     return (
       <div style={{height: "100%"}}>
         <GameContainer>
@@ -229,6 +232,10 @@ class Game extends React.Component<GameProps> {
               <GameFooterArea>
                 <SudokuMenuNumbers />
                 <SudokuMenuControls />
+                <h1>Settings</h1>
+                <Checkbox id="hints" checked={game.showHints} onChange={toggleShowHints}>
+                  {"Show all hints"}
+                </Checkbox>
               </GameFooterArea>
             </GameGrid>
           </Container>
@@ -256,5 +263,7 @@ export default connect(
     showMenu,
     selectCell,
     hideMenu,
+    toggleShowHints,
+
   },
 )(Game);
