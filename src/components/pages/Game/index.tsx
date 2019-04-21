@@ -217,7 +217,7 @@ class Game extends React.Component<GameProps> {
               </GameHeaderArea>
               <GameMainArea>
                 <Sudoku
-                  notesMode={this.props.game.notesMode}
+                  notesMode={this.props.game.notesMode || this.props.game.showNotes}
                   shouldShowMenu={this.props.game.showMenu}
                   sudoku={this.props.sudoku}
                   showMenu={this.props.showMenu}
@@ -262,6 +262,5 @@ export default connect(
     selectCell,
     hideMenu,
     toggleShowHints,
-
   },
 )(Game);

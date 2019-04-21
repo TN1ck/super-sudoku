@@ -159,7 +159,7 @@ class MenuCircle extends React.Component<MenuCircleOwnProps & MenuCircleDispatch
           width: circleRadius * 4,
           transform: `translate(-50%, -50%) rotate(${minRad}rad)`,
         }}
-        onClick={this.props.showMenu}
+        onClick={() => this.props.showMenu()}
       >
         <circle
           r={circleRadius}

@@ -68,9 +68,10 @@ export function selectCell(cell) {
   };
 }
 
-export function showMenu() {
+export function showMenu(showNotes?: boolean) {
   return {
     type: SHOW_MENU,
+    showNotes,
   };
 }
 
@@ -103,7 +104,8 @@ export interface GameState {
   showHints: boolean;
   showMenu: boolean;
   won: boolean;
-  notesMode: boolean;
+  notesMode: boolean; // global notes mode
+  showNotes: boolean; // local overwrite
 }
 
 const gameState: GameState = {
@@ -117,6 +119,7 @@ const gameState: GameState = {
   activeCell: null,
   showHints: false,
   notesMode: false,
+  showNotes: false,
 };
 
 export function getTime(startTime: number, offsetTime: number, stopTime: number) {
@@ -201,11 +204,13 @@ export default function gameReducer(state: GameState = gameState, action): GameS
       return {
         ...state,
         showMenu: true,
+        showNotes: action.showNotes,
       };
     case HIDE_MENU:
       return {
         ...state,
         showMenu: false,
+        showNotes: false,
       };
     default:
       return state;

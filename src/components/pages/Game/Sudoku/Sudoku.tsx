@@ -56,14 +56,15 @@ const SudokuCell: React.StatelessComponent<{
   highlight: boolean;
   bounds: Bounds;
   onClick: (e) => void;
+  onRightClick: (e) => void;
   top: number;
   left: number;
   initial: boolean;
   notes: number[];
-}> = ({number, active, highlight, bounds, onClick, left, top, initial, notes}) => {
+}> = ({number, active, highlight, bounds, onClick, onRightClick, left, top, initial, notes}) => {
   return (
     <div>
-      <GridCell active={active} highlight={highlight} bounds={bounds} onClick={onClick} />
+      <GridCell active={active} highlight={highlight} bounds={bounds} onClick={onClick} onContextMenu={onRightClick}  />
       <GridCellNumber left={left} top={top} initial={initial}>
         {number !== 0 ? number : ""}
       </GridCellNumber>
@@ -135,8 +136,17 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
         {sudoku.map((c, i) => {
           const onClick = e => {
             if (!c.initial) {
+
               this.props.selectCell(c);
               this.props.showMenu();
+              e.preventDefault();
+              e.stopPropagation();
+            }
+          };1
+          const onRightClick = e => {
+            if (!c.initial) {
+              this.props.selectCell(c);
+              this.props.showMenu(true);
               e.preventDefault();
               e.stopPropagation();
             }
@@ -166,6 +176,7 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
               highlight={inConflictPath}
               bounds={bounds}
               onClick={onClick}
+              onRightClick={onRightClick}
               left={position.x}
               top={position.y}
               notes={notes}
