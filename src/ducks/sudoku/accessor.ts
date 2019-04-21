@@ -33,42 +33,7 @@ export default class SudokuState {
   width: number;
   height: number;
 
-  constructor() {
-    this.getCellPosition = this.getCellPosition.bind(this);
-  }
-
-  get xSection() {
-    const xSection = this.height / 9;
-    return xSection;
-  }
-
-  get ySection() {
-    const ySection = this.width / 9;
-    return ySection;
-  }
-
-  getNextInterSection(x, y) {
-    const nextIntersectionX = this.xSection * Math.floor(x / this.xSection);
-    const nextIntersectionY = this.ySection * Math.floor(y / this.ySection);
-    return {x: nextIntersectionX, y: nextIntersectionY};
-  }
-
-  getFromTo(from, to) {
-    const startToFrame = this.getNextInterSection(from.x, from.y);
-    const frameToEnd = this.getNextInterSection(to.x, to.y);
-    return {
-      from: {
-        x: startToFrame.x + (from.x < to.x ? this.xSection : 0),
-        y: startToFrame.y + (from.y < to.y ? this.ySection : 0),
-      },
-      to: {
-        x: frameToEnd.x + (from.x > to.x ? this.xSection : 0),
-        y: frameToEnd.y + (from.y > to.y ? this.ySection : 0),
-      },
-    };
-  }
-
-  uniquePaths(paths: ConflictingPath[]) {
+  static uniquePaths(paths: ConflictingPath[]) {
     return _.uniqBy(paths, p => {
       const fromCell = p.from;
       const toCell = p.to;
@@ -77,7 +42,7 @@ export default class SudokuState {
     });
   }
 
-  getPathBetweenCell(c1: Cell, c2: Cell) {
+  static getPathBetweenCell(c1: Cell, c2: Cell) {
     const {x: x1, y: y1} = c1;
     const {x: x2, y: y2} = c2;
 
@@ -96,7 +61,7 @@ export default class SudokuState {
     return xpath.concat(ypath);
   }
 
-  getNotePosition(n: number) {
+  static getNotePosition(n: number) {
     const positions = [
       {x: 0, y: 0},
       {x: 0, y: 0},
@@ -123,7 +88,7 @@ export default class SudokuState {
     };
   }
 
-  isSolved(sudoku: Cell[]): Boolean {
+  static isSolved(sudoku: Cell[]): Boolean {
     if (!sudoku) {
       return false;
     }
@@ -133,21 +98,23 @@ export default class SudokuState {
     return allSet && noConflicts;
   }
 
-  getCellPosition(c: Cell): PositionedCell {
-    const fontXOffset = this.xSection / 2;
-    const fontYOffset = this.ySection / 2;
+  static getCellPosition(c: Cell, width: number, height: number): PositionedCell {
+    const xSection = height / 9;
+    const ySection = width / 9;
+    const fontXOffset = xSection / 2;
+    const fontYOffset = ySection / 2;
     return {
-      x: this.xSection * c.x + fontXOffset,
-      y: this.ySection * c.y + fontYOffset,
+      x: xSection * c.x + fontXOffset,
+      y: ySection * c.y + fontYOffset,
       cell: c,
     };
   }
 
-  positionedCells(sudoku: Cell[]): PositionedCell[] {
-    return sudoku.map(this.getCellPosition);
+  static positionedCells(sudoku: Cell[], width: number, height: number): PositionedCell[] {
+    return sudoku.map(c => this.getCellPosition(c, width, height));
   }
 
-  correct(sudoku: Cell[]): Boolean {
+  static correct(sudoku: Cell[]): Boolean {
     if (!sudoku) {
       return false;
     }
@@ -173,7 +140,7 @@ export default class SudokuState {
     return correctRows && correctColumns && correctSquares;
   }
 
-  conflictingFields(sudoku: Cell[]): ConflictingCell[] {
+  static conflictingFields(sudoku: Cell[]): ConflictingCell[] {
     const sudokuWithIndex: CellIndexed[] = sudoku.map((c, i) => ({
       ...c,
       index: i,
@@ -208,7 +175,7 @@ export default class SudokuState {
     });
   }
 
-  getPathsFromConflicting(conflictingCell: ConflictingCell, sudoku: Cell[]): ConflictingPath[] {
+  static getPathsFromConflicting(conflictingCell: ConflictingCell, sudoku: Cell[]): ConflictingPath[] {
     const {conflicting, cell} = conflictingCell;
     const paths: ConflictingPath[] = [];
     conflicting.forEach(c => {

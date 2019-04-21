@@ -16,7 +16,7 @@ import {
   toggleShowHints,
 } from "src/ducks/game";
 
-import {Sudoku} from "src/components/modules/Sudoku/Sudoku";
+import {Sudoku} from "src/components/pages/Game/Sudoku/Sudoku";
 
 import GameTimer from "./GameTimer";
 import GameMenu from "./GameMenu";
@@ -28,8 +28,8 @@ import {RootState} from "src/ducks";
 import SudokuState from "src/ducks/sudoku/accessor";
 import {emptyGrid} from "src/ducks/sudoku";
 import {DIFFICULTY, Cell} from "src/engine/utility";
-import SudokuMenuNumbers from "src/components/modules/Sudoku/SudokuMenuNumbers";
-import SudokuMenuControls from "src/components/modules/Sudoku/SudokuMenuControls";
+import SudokuMenuNumbers from "src/components/pages/Game/Sudoku/SudokuMenuNumbers";
+import SudokuMenuControls from "src/components/pages/Game/Sudoku/SudokuMenuControls";
 import {Container} from "src/components/modules/Layout";
 import Shortcuts from "./shortcuts/Shortcuts";
 import Checkbox from "src/components/modules/Checkbox";
@@ -181,10 +181,9 @@ type GameProps = GameStateProps & GameDispatchProps;
 
 class Game extends React.Component<GameProps> {
   componentDidUpdate(prevProps: GameProps) {
-    const state = new SudokuState();
     // check if won
-    const wasSolved = state.isSolved(prevProps.sudoku);
-    const isSolved = state.isSolved(this.props.sudoku);
+    const wasSolved = SudokuState.isSolved(prevProps.sudoku);
+    const isSolved = SudokuState.isSolved(this.props.sudoku);
     if (isSolved && !wasSolved) {
       this.props.wonGame();
     }

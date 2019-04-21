@@ -5,7 +5,7 @@ import THEME from "src/theme";
 import styled from "styled-components";
 import {RootState} from "src/ducks";
 import {activateNotesMode, deactivateNotesMode, activateSettings} from "src/ducks/game";
-import Button from "../Button";
+import Button from "../../../modules/Button";
 import {Cell} from "src/engine/utility";
 
 const ControlsButton = styled(Button)`
@@ -60,9 +60,6 @@ class SudokuMenuControls extends React.Component<SudokuMenuControlsStateProps & 
         <ControlContainer>
           <ControlsButton onClick={() => this.props.getHint(this.props.activeCell)}>{"Hint"}</ControlsButton>
         </ControlContainer>
-        {/* <ControlContainer>
-          <ControlsButton onClick={this.props.activateSettings}>{"Settings"}</ControlsButton>
-        </ControlContainer> */}
       </SudokuMenuControlsContainer>
     );
   }

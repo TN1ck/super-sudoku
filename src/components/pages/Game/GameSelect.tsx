@@ -5,7 +5,7 @@ import {connect} from "react-redux";
 import {RootState} from "src/ducks";
 import {DIFFICULTY} from "src/engine/utility";
 import styled from "styled-components";
-import SmallSudokuComponent from "../../modules/Sudoku/SudokuSmall";
+import SmallSudokuComponent from "./Sudoku/SudokuSmall";
 import {setDifficulty} from "src/ducks/game/choose";
 import {newGame} from "src/ducks/game";
 import {setSudoku} from "src/ducks/sudoku";

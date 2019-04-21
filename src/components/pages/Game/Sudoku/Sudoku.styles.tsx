@@ -8,23 +8,6 @@ export const SudokuContainer = styled.div`
   width: 100%;
 `;
 
-export const SudokuSmallTitle = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  /* border-bottom-right-radius: ${THEME.borderRadius}px; */
-  color: black;
-  opacity: 0.8;
-  font-size: 42px;
-  font-weight: bold;
-  position: absolute;
-  height: 100%;
-  z-index: 4;
-  width: 100%;
-  top: 0;
-  left: 0;
-`;
-
 export const GridLineX = styled.div<{
   top: number;
   width: number;
@@ -64,13 +47,6 @@ export const GridLineY = styled.div<{
       background: #aaaaaa;
       width: 2px;
     `};
-`;
-
-export const SudokuSmall = styled.div`
-  position: relative;
-  background-color: white;
-  color: black;
-  cursor: default;
 `;
 
 export const CellNote = styled.div<{

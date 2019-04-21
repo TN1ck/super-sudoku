@@ -10,31 +10,80 @@ import {
   CellNote,
   CellNoteContainer,
   SudokuContainer,
-} from "src/components/modules/Sudoku/Sudoku.styles";
+} from "src/components/pages/Game/Sudoku/Sudoku.styles";
 import SudokuState from "src/ducks/sudoku/accessor";
 import {Bounds} from "src/utils/types";
 import {Cell} from "src/engine/utility";
 import {flatten} from "src/utils/collection";
 
-interface SudokuComponentStateProps {
+interface SudokuProps {
   activeCell: Cell;
   sudoku: Cell[];
   showHints: boolean;
   shouldShowMenu: boolean;
   notesMode: boolean;
-}
-
-interface SudokuComponentDispatchProps {
   showMenu: typeof showMenu;
   hideMenu: typeof hideMenu;
   selectCell: typeof selectCell;
 }
 
-interface SudokuComponentOwnProps {}
+const SudokuGrid: React.StatelessComponent<{width: number, height: number, hideLeftRight?: boolean}> = ({width, height, hideLeftRight = false}) => {
+  return (
+    <div>
+      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
+        const hide = [0, 9].includes(i);
+        if (hideLeftRight && hide) {
+          return null;
+        }
+        const makeBold = [3, 6].includes(i);
+        return <GridLineX makeBold={makeBold} key={i} width={width} top={(i * height) / 9} />;
+      })}
+      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
+        const hide = [0, 9].includes(i);
+        if (hideLeftRight && hide) {
+          return null;
+        }
+        const makeBold = [3, 6].includes(i);
+        return <GridLineY makeBold={makeBold} key={i} height={height} left={(i * height) / 9} />;
+      })}
+    </div>
+  );
+}
 
-export class Sudoku extends React.PureComponent<
-  SudokuComponentDispatchProps & SudokuComponentStateProps & SudokuComponentOwnProps
-> {
+const SudokuCell: React.StatelessComponent<{
+  number: number;
+  active: boolean;
+  highlight: boolean;
+  bounds: Bounds;
+  onClick: (e) => void;
+  top: number;
+  left: number;
+  initial: boolean;
+  notes: number[];
+}> = ({number, active, highlight, bounds, onClick, left, top, initial, notes}) => {
+  return (
+    <div>
+      <GridCell active={active} highlight={highlight} bounds={bounds} onClick={onClick} />
+      <GridCellNumber left={left} top={top} initial={initial}>
+        {number !== 0 ? number : ""}
+      </GridCellNumber>
+      <CellNoteContainer initial={initial} bounds={bounds}>
+        {initial || number
+          ? null
+          : notes.map(n => {
+              const notePosition = SudokuState.getNotePosition(n);
+              return (
+                <CellNote key={n} left={notePosition.x} top={notePosition.y}>
+                  {n !== 0 ? n : ""}
+                </CellNote>
+              );
+            })}
+      </CellNoteContainer>
+    </div>
+  );
+};
+
+export class Sudoku extends React.PureComponent<SudokuProps> {
   _isMounted: boolean = false;
   element: HTMLElement;
   constructor(props) {
@@ -64,43 +113,25 @@ export class Sudoku extends React.PureComponent<
       y: (activeCell && activeCell.y) || 0,
     };
 
-    const state = new SudokuState();
-    state.width = height;
-    state.height = width;
-    const positionedCells = state.positionedCells(sudoku);
-    const conflicting = state.conflictingFields(sudoku);
-    const uniquePaths = state.uniquePaths(
+    const positionedCells = SudokuState.positionedCells(sudoku, width, height);
+    const conflicting = SudokuState.conflictingFields(sudoku);
+    const uniquePaths = SudokuState.uniquePaths(
       flatten(
         conflicting.map(c => {
-          return state.getPathsFromConflicting(c, sudoku);
+          return SudokuState.getPathsFromConflicting(c, sudoku);
         }),
       ),
     );
 
     const pathCells = flatten(
       uniquePaths.map(p => {
-        return state.getPathBetweenCell(p.from, p.to);
+        return SudokuState.getPathBetweenCell(p.from, p.to);
       }),
     );
 
     return (
       <SudokuContainer>
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
-          const hide = [0, 9].includes(i);
-          if (hide) {
-            return null;
-          }
-          const makeBold = [3, 6].includes(i);
-          return <GridLineX makeBold={makeBold} key={i} width={width} top={(i * height) / 9} />;
-        })}
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
-          const hide = [0, 9].includes(i);
-          if (hide) {
-            return null;
-          }
-          const makeBold = [3, 6].includes(i);
-          return <GridLineY makeBold={makeBold} key={i} height={height} left={(i * height) / 9} />;
-        })}
+        <SudokuGrid width={width} height={height} hideLeftRight />
         {sudoku.map((c, i) => {
           const onClick = e => {
             if (!c.initial) {
@@ -129,24 +160,18 @@ export class Sudoku extends React.PureComponent<
           const isActive = activeCell ? c.x === activeCell.x && c.y === activeCell.y : false;
 
           return (
-            <div key={i}>
-              <GridCell active={isActive} highlight={inConflictPath} bounds={bounds} onClick={onClick} />
-              <GridCellNumber left={position.x} top={position.y} initial={c.initial}>
-                {c.number !== 0 ? c.number : ""}
-              </GridCellNumber>
-              <CellNoteContainer initial={c.initial} bounds={bounds}>
-                {c.initial || c.number
-                  ? null
-                  : notes.map(n => {
-                      const notePosition = state.getNotePosition(n);
-                      return (
-                        <CellNote key={n} left={notePosition.x} top={notePosition.y}>
-                          {n !== 0 ? n : ""}
-                        </CellNote>
-                      );
-                    })}
-              </CellNoteContainer>
-            </div>
+            <SudokuCell
+              key={i}
+              active={isActive}
+              highlight={inConflictPath}
+              bounds={bounds}
+              onClick={onClick}
+              left={position.x}
+              top={position.y}
+              notes={notes}
+              number={c.number}
+              initial={c.initial}
+            />
           );
         })}
         {activeCell && this.props.shouldShowMenu ? (
