@@ -221,21 +221,27 @@ class Game extends React.Component<GameProps> {
     if (isSolved && !wasSolved) {
       this.props.wonGame();
     }
+  }
 
+  componentDidMount() {
     if (typeof document !== "undefined") {
-      document.addEventListener(
-        "visibilitychange",
-        () => {
-          if (document.visibilityState === "hidden") {
-            this.props.pauseGame();
-          } else {
-            this.props.continueGame();
-          }
-        },
-        false,
-      );
+      document.addEventListener("visibilitychange", this.onVisibiltyChange, false);
     }
   }
+
+  componentWillUnmount() {
+    if (typeof document !== "undefined") {
+      document.removeEventListener("visibilitychange", this.onVisibiltyChange, false);
+    }
+  }
+
+  onVisibiltyChange = () => {
+    if (document.visibilityState === "hidden") {
+      this.props.pauseGame();
+    } else {
+      this.props.continueGame();
+    }
+  };
 
   render() {
     const {difficulty, game, pauseGame, continueGame, chooseGame, toggleShowHints, sudoku} = this.props;
