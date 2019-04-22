@@ -85,6 +85,7 @@ export const CellNoteContainer = styled.div<{
 `;
 
 export const GridCell = styled.div<{
+  conflict: boolean;
   highlight: boolean;
   bounds: Bounds;
   active: boolean;
@@ -116,8 +117,14 @@ export const GridCell = styled.div<{
   ${props =>
     props.highlight &&
     css`
-      transition: background-color 0.3s ease;
       background-color: ${THEME.sudokuColors.cellHighlight};
+    `}
+
+  ${props =>
+    props.conflict &&
+    css`
+      transition: background-color 0.3s ease;
+      background-color: ${THEME.sudokuColors.cellConflict};
     `}
 `;
 

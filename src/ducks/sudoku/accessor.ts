@@ -140,6 +140,15 @@ export default class SudokuState {
     return correctRows && correctColumns && correctSquares;
   }
 
+  static sameSquareColumnRow(cell: Cell, sudoku: Cell[]): Cell[] {
+    const column = sudoku.filter(c => cell.y === c.y);
+    const row = sudoku.filter(c => cell.x === c.x);
+    const square = sudoku.filter(
+      c => Math.floor(c.x / 3) === Math.floor(cell.x / 3) && Math.floor(c.y / 3) === Math.floor(cell.y / 3),
+    );
+    return [...column, ...row, ...square];
+  }
+
   static conflictingFields(sudoku: Cell[]): ConflictingCell[] {
     const sudokuWithIndex: CellIndexed[] = sudoku.map((c, i) => ({
       ...c,

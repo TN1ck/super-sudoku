@@ -58,6 +58,7 @@ const SudokuCell: React.StatelessComponent<{
   number: number;
   active: boolean;
   highlight: boolean;
+  conflict: boolean;
   bounds: Bounds;
   onClick: (e) => void;
   onRightClick: (e) => void;
@@ -66,12 +67,13 @@ const SudokuCell: React.StatelessComponent<{
   initial: boolean;
   notes: number[];
   notesMode: boolean;
-}> = ({number, active, highlight, bounds, onClick, onRightClick, left, top, initial, notes, notesMode}) => {
+}> = ({number, active, highlight, bounds, onClick, onRightClick, left, top, initial, notes, notesMode, conflict}) => {
   return (
     <div>
       <GridCell
         notesMode={notesMode}
         active={active}
+        conflict={conflict}
         highlight={highlight}
         bounds={bounds}
         onClick={onClick}
@@ -142,6 +144,8 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
       }),
     );
 
+    const friendsOfActiveCell = activeCell ? SudokuState.sameSquareColumnRow(activeCell, sudoku) : [];
+
     const onRightClickOnOpenMenu = e => {
       if (activeCell && this.props.shouldShowMenu) {
         this.props.selectCell(activeCell);
@@ -189,12 +193,16 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
           };
 
           const isActive = activeCell ? c.x === activeCell.x && c.y === activeCell.y : false;
+          const highlight = friendsOfActiveCell.some(cc => {
+            return cc.x === c.x && cc.y === c.y;
+          });
 
           return (
             <SudokuCell
               key={i}
               active={isActive}
-              highlight={inConflictPath}
+              highlight={highlight}
+              conflict={inConflictPath}
               bounds={bounds}
               onClick={onClick}
               onRightClick={onRightClick}

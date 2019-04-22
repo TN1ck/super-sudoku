@@ -15,7 +15,8 @@ const THEME = {
     cellBackgroundHighlight: "#eeeeee",
     cellBorderHighlight: "#F09A7A",
     cellBorderHighlightNote: "#84caf3",
-    cellHighlight: "rgba(240, 54, 22, 0.2)",
+    cellHighlight: "rgba(150, 150, 150, 0.2)",
+    cellConflict: "rgba(240, 54, 22, 0.2)",
   },
   menuColors: {
     normal: "#F09A7A",
