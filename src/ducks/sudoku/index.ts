@@ -16,23 +16,26 @@ import {DIFFICULTY, Cell, SimpleSudoku, simpleSudokuToCells, CellCoordinates} fr
 // Actions
 //
 
-interface NoteAction {
+interface SudokuAction {
   type: string;
   cellCoordinates: CellCoordinates;
+}
+
+interface NoteAction extends SudokuAction {
   note: number;
 }
 
-export function getHint(cell: CellCoordinates) {
+export function getHint(cellCoordinates: CellCoordinates) {
   return {
     type: GET_HINT,
-    cell,
+    cellCoordinates,
   };
 }
 
-export function clearCell(cell: CellCoordinates) {
+export function clearCell(cellCoordinates: CellCoordinates) {
   return {
     type: CLEAR_CELL,
-    cell,
+    cellCoordinates,
   };
 }
 
@@ -52,9 +55,7 @@ export function clearNote(cellCoordinates: CellCoordinates, note: number): NoteA
   };
 }
 
-interface SetNumberAction {
-  type: string;
-  cellCoordinates: CellCoordinates;
+interface SetNumberAction extends SudokuAction {
   number: number;
 }
 
@@ -66,12 +67,7 @@ export function setNumber(cellCoordinates: CellCoordinates, number: number): Set
   };
 }
 
-interface CellAction {
-  type: string;
-  cellCoordinates: CellCoordinates;
-}
-
-export function clearNumber(cellCoordinates: CellCoordinates): CellAction {
+export function clearNumber(cellCoordinates: CellCoordinates): SudokuAction {
   return {
     type: CLEAR_NUMBER,
     cellCoordinates,
@@ -103,9 +99,7 @@ export const emptyGrid: SudokuState = simpleSudokuToCells([
 const initialState = emptyGrid;
 
 export default function sudokuReducer(state: SudokuState = initialState, action) {
-  if (
-    ![SET_NOTE, SET_SUDOKU, CLEAR_NOTE, SET_NUMBER, CLEAR_NUMBER, CLEAR_CELL, GET_HINT].find(d => d === action.type)
-  ) {
+  if (![SET_NOTE, SET_SUDOKU, CLEAR_NOTE, SET_NUMBER, CLEAR_NUMBER, CLEAR_CELL, GET_HINT].includes(action.type)) {
     return state;
   }
 
@@ -114,7 +108,7 @@ export default function sudokuReducer(state: SudokuState = initialState, action)
       return action.sudoku;
   }
 
-  const {x, y}: Cell = action.cellCoordinates;
+  const {x, y} = (action as SudokuAction).cellCoordinates;
   const newGrid = state.map(cell => {
     const isCell = cell.x === x && cell.y === y;
     if (isCell) {

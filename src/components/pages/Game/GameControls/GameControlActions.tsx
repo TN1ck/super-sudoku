@@ -4,6 +4,7 @@ import THEME from "src/theme";
 import styled from "styled-components";
 import {activateNotesMode, deactivateNotesMode, activateSettings} from "src/ducks/game";
 import Button from "../../../modules/Button";
+import {CellCoordinates} from "src/engine/utility";
 
 const ControlsButton = styled(Button)`
   width: 100%;
@@ -27,7 +28,7 @@ const SudokuMenuControlsContainer = styled.div`
 
 export interface SudokuMenuControlsStateProps {
   notesMode: boolean;
-  activeCell: {x: number; y: number};
+  activeCell: CellCoordinates;
 }
 
 export interface SudokuMenuControlsDispatchProps {

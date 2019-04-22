@@ -13,11 +13,11 @@ import {
 } from "src/components/pages/Game/Sudoku/Sudoku.styles";
 import SudokuState from "src/ducks/sudoku/accessor";
 import {Bounds} from "src/utils/types";
-import {Cell} from "src/engine/utility";
+import {Cell, CellCoordinates} from "src/engine/utility";
 import {flatten} from "src/utils/collection";
 
 interface SudokuProps {
-  activeCell: {x: number; y: number};
+  activeCell: CellCoordinates;
   sudoku: Cell[];
   showHints: boolean;
   shouldShowMenu: boolean;
