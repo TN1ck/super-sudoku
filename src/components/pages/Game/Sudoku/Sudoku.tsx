@@ -16,17 +16,6 @@ import {Bounds} from "src/utils/types";
 import {Cell, CellCoordinates} from "src/engine/utility";
 import {flatten} from "src/utils/collection";
 
-interface SudokuProps {
-  activeCell: CellCoordinates;
-  sudoku: Cell[];
-  showHints: boolean;
-  shouldShowMenu: boolean;
-  notesMode: boolean;
-  showMenu: typeof showMenu;
-  hideMenu: typeof hideMenu;
-  selectCell: typeof selectCell;
-}
-
 const SudokuGrid: React.StatelessComponent<{width: number; height: number; hideLeftRight?: boolean}> = ({
   width,
   height,
@@ -97,6 +86,17 @@ const SudokuCell: React.StatelessComponent<{
     </div>
   );
 };
+
+interface SudokuProps {
+  activeCell: CellCoordinates;
+  sudoku: Cell[];
+  showHints: boolean;
+  shouldShowMenu: boolean;
+  notesMode: boolean;
+  showMenu: typeof showMenu;
+  hideMenu: typeof hideMenu;
+  selectCell: typeof selectCell;
+}
 
 export class Sudoku extends React.PureComponent<SudokuProps> {
   _isMounted: boolean = false;

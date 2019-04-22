@@ -56,7 +56,7 @@ export const MenuWrapper = styled.div`
   z-index: 3;
 
   /* We just hide it on mobile, as it's not useful there */
-  @media (max-width: 700px) {
+  @media (max-width: ${THEME.widths.hideCircleMenu}px) {
     display: none;
   }
 `;

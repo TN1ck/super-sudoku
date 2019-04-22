@@ -50,6 +50,7 @@ const THEME = {
     header: 60,
   },
   widths: {
+    hideCircleMenu: 700,
     maxMobile: 600,
     maxDesktop: 1200,
   },

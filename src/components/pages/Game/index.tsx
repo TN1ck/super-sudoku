@@ -17,6 +17,7 @@ import {
   activateNotesMode,
   activateSettings,
   deactivateNotesMode,
+  toggleShowCircleMenu,
 } from "src/ducks/game";
 
 import {setNumber, setNote, clearCell, getHint} from "src/ducks/sudoku";
@@ -203,6 +204,7 @@ interface GameDispatchProps {
   selectCell: typeof selectCell;
   chooseGame: typeof chooseGame;
   toggleShowHints: typeof toggleShowHints;
+  toggleShowCircleMenu: typeof toggleShowCircleMenu;
 }
 
 interface GameStateProps {
@@ -244,7 +246,7 @@ class Game extends React.Component<GameProps> {
   };
 
   render() {
-    const {difficulty, game, pauseGame, continueGame, chooseGame, toggleShowHints, sudoku} = this.props;
+    const {difficulty, game, pauseGame, continueGame, chooseGame, sudoku} = this.props;
     const activeCell = game.activeCellCoordinates
       ? sudoku.find(s => {
           return s.x === game.activeCellCoordinates.x && s.y === game.activeCellCoordinates.y;
@@ -277,7 +279,7 @@ class Game extends React.Component<GameProps> {
               <GameMainArea>
                 <Sudoku
                   notesMode={this.props.game.notesMode || this.props.game.showNotes}
-                  shouldShowMenu={this.props.game.showMenu}
+                  shouldShowMenu={this.props.game.showMenu && this.props.game.showCircleMenu}
                   sudoku={this.props.sudoku}
                   showMenu={this.props.showMenu}
                   hideMenu={this.props.hideMenu}
@@ -290,8 +292,11 @@ class Game extends React.Component<GameProps> {
                 <SudokuMenuNumbersConnected />
                 <SudokuMenuControlsConnected />
                 <h1>Settings</h1>
-                <Checkbox id="hints" checked={game.showHints} onChange={toggleShowHints}>
+                <Checkbox id="generated_notes" checked={game.showHints} onChange={this.props.toggleShowHints}>
                   {"Show auto generated notes"}
+                </Checkbox>
+                <Checkbox id="circle_menu" checked={game.showCircleMenu} onChange={this.props.toggleShowCircleMenu}>
+                  {"Show circle menu when a cell is selected"}
                 </Checkbox>
               </GameFooterArea>
             </GameGrid>
@@ -321,5 +326,6 @@ export default connect(
     selectCell,
     hideMenu,
     toggleShowHints,
+    toggleShowCircleMenu,
   },
 )(Game);

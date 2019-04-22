@@ -16,6 +16,7 @@ const SHOW_MENU = "game/SHOW_MENU";
 const HIDE_MENU = "game/HIDE_MENU";
 const SELECT_CELL = "game/SELECT_MENU";
 const TOGGLE_SHOW_HINTS = "game/TOGGLE_SHOW_HINTS";
+const TOGGLE_SHOW_CIRCLE_MENU = "game/TOGGLE_SHOW_CIRCLE_MENU";
 const ACTIVATE_NOTES_MODE = "game/ACTIVATE_NOTES_MODE";
 const DEACTIVATE_NOTES_MODE = "game/DEACTIVATE_NOTES_MODE";
 
@@ -94,6 +95,12 @@ export function toggleShowHints() {
   };
 }
 
+export function toggleShowCircleMenu() {
+  return {
+    type: TOGGLE_SHOW_CIRCLE_MENU,
+  };
+}
+
 export interface GameState {
   startTime: number;
   offsetTime: number;
@@ -102,6 +109,7 @@ export interface GameState {
   // menu stuff
   activeCellCoordinates: CellCoordinates;
   showHints: boolean;
+  showCircleMenu: boolean;
   showMenu: boolean;
   won: boolean;
   notesMode: boolean; // global notes mode
@@ -111,6 +119,7 @@ export interface GameState {
 const gameState: GameState = {
   won: false,
   showMenu: false,
+  showCircleMenu: true,
   startTime: 0,
   offsetTime: 0,
   stopTime: 0,
@@ -139,6 +148,12 @@ export default function gameReducer(state: GameState = gameState, action): GameS
       return {
         ...state,
         showHints: !state.showHints,
+      };
+    }
+    case TOGGLE_SHOW_CIRCLE_MENU: {
+      return {
+        ...state,
+        showCircleMenu: !state.showCircleMenu,
       };
     }
     case NEW_GAME:
