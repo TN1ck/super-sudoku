@@ -3,10 +3,10 @@ import {SQUARE_TABLE, SUDOKU_NUMBERS, DomainSudoku, SimpleSudoku, squareIndex} f
 
 function removeValuesFromDomain(domain1: number[], domain2: number[]): [number[], boolean] {
   let change = false;
-  // this is an optimizitation:
+  // this is an optimization:
   // AC3 checks if there is a value in domain1 that
   // does not comply the constraint with at least one value in domain2.
-  // But because the contraint is inequality, the case happens only
+  // But because the constraint is inequality, the case happens only
   // when the domain2 is just one variable. The <= is just a safe-check.
   if (domain2.length <= 1) {
     const index = domain1.indexOf(domain2[0]);
@@ -57,7 +57,7 @@ export function _solveGridAC3(
   const [grid, ...rest] = stack;
 
   iterations++;
-  // evil puzzles have an average of about 500, everything more than 1000 than is actually solvable
+  // evil puzzles have an average of about 500, everything more than 1000 that is actually solvable
   // will be too difficult for the normal user
   if (iterations > 1000) {
     // console.log('COMPUTATION TIME OUT', iterations);
