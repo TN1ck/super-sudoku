@@ -22,7 +22,7 @@ function removeValuesFromDomain(domain1: number[], domain2: number[]): [number[]
 function toSimpleSudoku(grid: DomainSudoku): SimpleSudoku {
   return grid.map(row => {
     return row.map(cells => {
-      return cells.length === 1 ? cells[0] : undefined;
+      return cells.length === 1 ? cells[0] : 0;
     });
   });
 }
@@ -30,7 +30,7 @@ function toSimpleSudoku(grid: DomainSudoku): SimpleSudoku {
 function toDomainSudoku(grid: SimpleSudoku): DomainSudoku {
   return grid.map(row => {
     return row.map(c => {
-      return c === undefined ? SUDOKU_NUMBERS : [c];
+      return c === 0 ? SUDOKU_NUMBERS : [c];
     });
   });
 }

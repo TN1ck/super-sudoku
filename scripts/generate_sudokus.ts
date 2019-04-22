@@ -6,7 +6,7 @@ import {printSimpleSudoku, DIFFICULTY} from "../src/engine/utility";
 
 program
   .version("0.0.1")
-  .option("-n, --number <n>", "Number of sudokus to generate", parseInt, 20)
+  .option("-n, --number <n>", "Number of sudokus to generate", n => parseInt(n, 10), 20)
   .option(
     "-d, --difficulty [type]",
     "Difficulty [easy], [medium], [hard], [evil]",

@@ -175,7 +175,7 @@ export function parseSudoku(sudoku: string): SimpleSudoku {
       throw new Error("Wrong number of characters in line! Only 9 allowed");
     }
     return characters.map(c => {
-      const number = c === "_" ? undefined : Number(c);
+      const number = c === "_" ? 0 : Number(c);
       return number;
     });
   });
@@ -191,31 +191,9 @@ export function printComplexSudoku(grid: ComplexSudoku) {
     .map(([, cells]: [string, ComplexSudoku]) => {
       return _.sortBy(cells, c => c.x)
         .map(c => {
-          return c.number === undefined ? "_" : String(c.number);
+          return c.number === 0 ? "_" : String(c.number);
         })
         .join("");
     })
     .join("\n");
 }
-
-export interface ParsedSudoku {
-  sudoku: SimpleSudoku;
-  id: number;
-  value: string;
-}
-
-export interface ParsedComplexSudoku {
-  sudoku: ComplexSudoku;
-  id: number;
-  value: string;
-}
-
-export const parseListOfSudokus = (sudokus: Array<{value: string; id: number}>): ParsedSudoku[] => {
-  return sudokus.map(({value, id}) => {
-    return {sudoku: parseSudoku(value), id, value};
-  });
-};
-
-export const parseListOfSudokusComplex = (sudokus: Array<{value: string; id: number}>): ParsedComplexSudoku[] => {
-  return parseListOfSudokus(sudokus).map(s => ({...s, sudoku: simpleSudokuToComplexSudoku(s.sudoku)}));
-};

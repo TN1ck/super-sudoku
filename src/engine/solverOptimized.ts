@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import {SUDOKU_NUMBERS, SQUARE_TABLE, squareIndex, SimpleSudoku, duplicates} from "./utility";
 
 function isFilled(grid: SimpleSudoku): boolean {
-  return grid.every(row => row.every(n => n !== undefined));
+  return grid.every(row => row.every(n => n !== 0));
 }
 
 function isCorrect(rows: SimpleSudoku, columns: SimpleSudoku, squares: SimpleSudoku): boolean {
@@ -71,7 +71,7 @@ function getMinimumRemainingValue(
   // find minimum remaining value
   for (let y = 0; y < 9; y++) {
     for (let x = 0; x < 9; x++) {
-      if (grid[y][x] === undefined) {
+      if (grid[y][x] === 0) {
         const row = rows[y];
         const column = columns[x];
         const square = squares[squareIndex(x, y)];
@@ -107,6 +107,8 @@ function createNewGrids(grid: SimpleSudoku, x: number, y: number, values) {
   return newGrids;
 }
 
+const MAX_ITERATIONS = 4000;
+
 export function _solveGrid(
   stack: SimpleSudoku[] = [],
   iterations: number,
@@ -114,7 +116,7 @@ export function _solveGrid(
   sudoku: SimpleSudoku;
   iterations: number;
 } {
-  if (stack.length === 0 || iterations > 4000) {
+  if (stack.length === 0 || iterations > MAX_ITERATIONS) {
     return {
       sudoku: null,
       iterations: Infinity,
