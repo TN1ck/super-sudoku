@@ -34,7 +34,6 @@ const SudokusContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  margin: 0 -${THEME.spacer.x2}px;
 `;
 
 const SudokuContainer = styled.div`

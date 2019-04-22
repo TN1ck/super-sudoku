@@ -24,7 +24,6 @@ const GlobalStyle = createGlobalStyle`
     background: ${THEME.colors.background};
     font-size: ${THEME.fontSize.base}px;
     height: 100vh;
-    width: 100vw;
     /* overflow-x: hidden; */
     /* overflow-y: scroll; */
     /* -webkit-overflow-scrolling: touch; */
