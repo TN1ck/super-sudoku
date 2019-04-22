@@ -1,9 +1,7 @@
 import * as React from "react";
-import {connect} from "react-redux";
 import {clearCell, getHint} from "src/ducks/sudoku";
 import THEME from "src/theme";
 import styled from "styled-components";
-import {RootState} from "src/ducks";
 import {activateNotesMode, deactivateNotesMode, activateSettings} from "src/ducks/game";
 import Button from "../../../modules/Button";
 import {Cell} from "src/engine/utility";
@@ -32,12 +30,12 @@ const SudokuMenuControlsContainer = styled.div`
   margin-top: ${THEME.spacer.x3}px;
 `;
 
-interface SudokuMenuControlsStateProps {
+export interface SudokuMenuControlsStateProps {
   notesMode: boolean;
   activeCell: Cell;
 }
 
-interface SudokuMenuControlsDispatchProps {
+export interface SudokuMenuControlsDispatchProps {
   clearCell: typeof clearCell;
   activateNotesMode: typeof activateNotesMode;
   deactivateNotesMode: typeof deactivateNotesMode;
@@ -45,7 +43,9 @@ interface SudokuMenuControlsDispatchProps {
   getHint: typeof getHint;
 }
 
-class SudokuMenuControls extends React.Component<SudokuMenuControlsStateProps & SudokuMenuControlsDispatchProps> {
+export default class SudokuMenuControls extends React.Component<
+  SudokuMenuControlsStateProps & SudokuMenuControlsDispatchProps
+> {
   render() {
     return (
       <SudokuMenuControlsContainer>
@@ -64,19 +64,3 @@ class SudokuMenuControls extends React.Component<SudokuMenuControlsStateProps & 
     );
   }
 }
-
-const ConnectedSudokuMenuControls = connect<SudokuMenuControlsStateProps, SudokuMenuControlsDispatchProps>(
-  (state: RootState) => ({
-    notesMode: state.game.notesMode,
-    activeCell: state.game.activeCell,
-  }),
-  {
-    clearCell,
-    deactivateNotesMode,
-    activateNotesMode,
-    activateSettings,
-    getHint,
-  },
-)(SudokuMenuControls);
-
-export default ConnectedSudokuMenuControls;

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Link} from '@reach/router';
+import {Link} from "@reach/router";
 import styled from "styled-components";
 import THEME from "src/theme";
 import {connect} from "react-redux";
@@ -32,11 +32,6 @@ const HeaderLink = styled.li`
     &:hover {
       color: ${THEME.colors.gray100};
     }
-
-    /* &.active {
-      color: white;
-      background-color: ${THEME.colors.gray200};
-    } */
   }
 `;
 

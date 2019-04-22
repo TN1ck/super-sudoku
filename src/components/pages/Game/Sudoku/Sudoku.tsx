@@ -27,7 +27,11 @@ interface SudokuProps {
   selectCell: typeof selectCell;
 }
 
-const SudokuGrid: React.StatelessComponent<{width: number, height: number, hideLeftRight?: boolean}> = ({width, height, hideLeftRight = false}) => {
+const SudokuGrid: React.StatelessComponent<{width: number; height: number; hideLeftRight?: boolean}> = ({
+  width,
+  height,
+  hideLeftRight = false,
+}) => {
   return (
     <div>
       {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
@@ -48,7 +52,7 @@ const SudokuGrid: React.StatelessComponent<{width: number, height: number, hideL
       })}
     </div>
   );
-}
+};
 
 const SudokuCell: React.StatelessComponent<{
   number: number;
@@ -64,7 +68,7 @@ const SudokuCell: React.StatelessComponent<{
 }> = ({number, active, highlight, bounds, onClick, onRightClick, left, top, initial, notes}) => {
   return (
     <div>
-      <GridCell active={active} highlight={highlight} bounds={bounds} onClick={onClick} onContextMenu={onRightClick}  />
+      <GridCell active={active} highlight={highlight} bounds={bounds} onClick={onClick} onContextMenu={onRightClick} />
       <GridCellNumber left={left} top={top} initial={initial}>
         {number !== 0 ? number : ""}
       </GridCellNumber>
@@ -136,13 +140,13 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
         {sudoku.map((c, i) => {
           const onClick = e => {
             if (!c.initial) {
-
               this.props.selectCell(c);
               this.props.showMenu();
               e.preventDefault();
               e.stopPropagation();
             }
-          };1
+          };
+          1;
           const onRightClick = e => {
             if (!c.initial) {
               this.props.selectCell(c);

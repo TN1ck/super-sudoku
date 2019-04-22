@@ -4,7 +4,7 @@ import {GameStateMachine} from "src/ducks/game";
 import MenuShortcuts from "./MenuShortcuts";
 import GridShortcuts from "./GridShortcuts";
 import GameSelectShortcuts from "./GameSelectShortcuts";
-import {ShortcutScope} from "./scopes";
+import {ShortcutScope} from "./ShortcutScope";
 
 interface ShortcutsProps {
   gameState: GameStateMachine;

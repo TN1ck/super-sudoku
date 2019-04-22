@@ -14,7 +14,12 @@ import {
   GameStateMachine,
   chooseGame,
   toggleShowHints,
+  activateNotesMode,
+  activateSettings,
+  deactivateNotesMode,
 } from "src/ducks/game";
+
+import {setNumber, setNote, clearCell, getHint} from "src/ducks/sudoku";
 
 import {Sudoku} from "src/components/pages/Game/Sudoku/Sudoku";
 
@@ -28,11 +33,42 @@ import {RootState} from "src/ducks";
 import SudokuState from "src/ducks/sudoku/accessor";
 import {emptyGrid} from "src/ducks/sudoku";
 import {DIFFICULTY, Cell} from "src/engine/utility";
-import SudokuMenuNumbers from "src/components/pages/Game/Sudoku/SudokuMenuNumbers";
-import SudokuMenuControls from "src/components/pages/Game/Sudoku/SudokuMenuControls";
+import SudokuMenuNumbers, {
+  SudokuMenuNumbersStateProps,
+  SudokuMenuNumbersDispatchProps,
+} from "src/components/pages/Game/GameControls/GameControlNumbers";
+import SudokuMenuControls, {
+  SudokuMenuControlsStateProps,
+  SudokuMenuControlsDispatchProps,
+} from "src/components/pages/Game/GameControls/GameControlActions";
 import {Container} from "src/components/modules/Layout";
 import Shortcuts from "./shortcuts/Shortcuts";
 import Checkbox from "src/components/modules/Checkbox";
+
+const SudokuMenuControlsConnected = connect<SudokuMenuControlsStateProps, SudokuMenuControlsDispatchProps>(
+  (state: RootState) => ({
+    notesMode: state.game.notesMode,
+    activeCell: state.game.activeCell,
+  }),
+  {
+    clearCell,
+    deactivateNotesMode,
+    activateNotesMode,
+    activateSettings,
+    getHint,
+  },
+)(SudokuMenuControls);
+
+const SudokuMenuNumbersConnected = connect<SudokuMenuNumbersStateProps, SudokuMenuNumbersDispatchProps>(
+  (state: RootState) => ({
+    notesMode: false,
+    activeCell: state.game.activeCell,
+  }),
+  {
+    setNumber,
+    setNote,
+  },
+)(SudokuMenuNumbers);
 
 function PauseButton({running, pauseGame, continueGame}) {
   return (
@@ -228,8 +264,8 @@ class Game extends React.Component<GameProps> {
                 />
               </GameMainArea>
               <GameFooterArea>
-                <SudokuMenuNumbers />
-                <SudokuMenuControls />
+                <SudokuMenuNumbersConnected />
+                <SudokuMenuControlsConnected />
                 <h1>Settings</h1>
                 <Checkbox id="hints" checked={game.showHints} onChange={toggleShowHints}>
                   {"Show auto generated notes"}

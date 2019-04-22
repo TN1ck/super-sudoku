@@ -53,11 +53,11 @@ const App: React.StatelessComponent = () => {
       <Provider store={store}>
         <Header />
         <React.Suspense fallback={<em>Loading...</em>}>
-          <Router style={{height: '100%'}}>
+          <Router style={{height: "100%"}}>
             <Routes path="*" />
           </Router>
         </React.Suspense>
-      <GlobalStyle />
+        <GlobalStyle />
       </Provider>
     </Root>
   );

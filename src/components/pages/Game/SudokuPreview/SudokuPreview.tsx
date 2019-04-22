@@ -1,19 +1,19 @@
 import React from "react";
 import {SimpleSudoku} from "src/engine/utility";
-import styled, { css } from "styled-components";
+import styled, {css} from "styled-components";
 
-const SudokuSmallContainer = styled.div`
+const SudokuPreviewContainer = styled.div`
   user-select: none;
 `;
 
-const SudokuSmall = styled.div`
+const SudokuPreviewInnerContainer = styled.div`
   position: relative;
   background-color: white;
   color: black;
   cursor: default;
 `;
 
-const SudokuSmallDarken = styled.div`
+const SudokuPreviewDarken = styled.div`
   position: absolute;
   background: black;
   height: 100%;
@@ -26,7 +26,7 @@ const SudokuSmallDarken = styled.div`
   }
 `;
 
-const SudokuSmallTitle = styled.div`
+const SudokuPreviewTitle = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -83,7 +83,11 @@ const GridLineY = styled.div<{
     `};
 `;
 
-const SmallSudokuGrid: React.StatelessComponent<{width: number, height: number, hideLeftRight?: boolean}> = ({width, height, hideLeftRight = false}) => {
+const SudokuPreviewGrid: React.StatelessComponent<{width: number; height: number; hideLeftRight?: boolean}> = ({
+  width,
+  height,
+  hideLeftRight = false,
+}) => {
   return (
     <div>
       {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
@@ -104,9 +108,9 @@ const SmallSudokuGrid: React.StatelessComponent<{width: number, height: number, 
       })}
     </div>
   );
-}
+};
 
-export default class SmallSudokuComponent extends React.PureComponent<{
+export default class SudokuPreview extends React.PureComponent<{
   sudoku: SimpleSudoku;
   id: number;
   darken?: boolean;
@@ -125,17 +129,17 @@ export default class SmallSudokuComponent extends React.PureComponent<{
     const ySection = width / 9;
 
     return (
-      <SudokuSmallContainer onClick={onClick}>
-        <SudokuSmall
+      <SudokuPreviewContainer onClick={onClick}>
+        <SudokuPreviewInnerContainer
           style={{
             height: containerHeight,
             width: containerWidth,
             fontSize,
             lineHeight: 1,
           }}
-          >
-          <SudokuSmallTitle style={{fontSize: size / 3}}>{id}</SudokuSmallTitle>
-          <SmallSudokuGrid width={width} height={height} hideLeftRight />
+        >
+          <SudokuPreviewTitle style={{fontSize: size / 3}}>{id}</SudokuPreviewTitle>
+          <SudokuPreviewGrid width={width} height={height} hideLeftRight />
           {sudoku.map((row, y) => {
             return (
               <div key={y}>
@@ -147,7 +151,7 @@ export default class SmallSudokuComponent extends React.PureComponent<{
                         position: "absolute",
                         left: xSection * (x + 0.5) + "%",
                         top: ySection * (y + 0.5) + "%",
-                        transform: "translate(-50%, -50%)"
+                        transform: "translate(-50%, -50%)",
                       }}
                     >
                       {n}
@@ -157,9 +161,9 @@ export default class SmallSudokuComponent extends React.PureComponent<{
               </div>
             );
           })}
-          {this.props.darken ? <SudokuSmallDarken /> : null}
-        </SudokuSmall>
-      </SudokuSmallContainer>
+          {this.props.darken ? <SudokuPreviewDarken /> : null}
+        </SudokuPreviewInnerContainer>
+      </SudokuPreviewContainer>
     );
   }
 }

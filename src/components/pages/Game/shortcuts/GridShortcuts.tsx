@@ -3,7 +3,7 @@ import key from "keymaster";
 import {Cell, SUDOKU_COORDINATES, SUDOKU_NUMBERS} from "src/engine/utility";
 import {showMenu, hideMenu, selectCell, pauseGame} from "src/ducks/game";
 import {setNumber, clearNumber, getHint} from "src/ducks/sudoku";
-import {ShortcutScope} from "./scopes";
+import {ShortcutScope} from "./ShortcutScope";
 import {connect} from "react-redux";
 import {RootState} from "src/ducks";
 

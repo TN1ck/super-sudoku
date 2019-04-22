@@ -1,6 +1,6 @@
 import * as React from "react";
 import key from "keymaster";
-import {ShortcutScope} from "./scopes";
+import {ShortcutScope} from "./ShortcutScope";
 import {continueGame} from "src/ducks/game";
 import {connect} from "react-redux";
 

@@ -1,38 +1,8 @@
 import * as React from "react";
-import {connect} from "react-redux";
 import {setNumber, setNote} from "src/ducks/sudoku";
 import {SUDOKU_NUMBERS, Cell} from "src/engine/utility";
 import THEME from "src/theme";
 import styled from "styled-components";
-import {RootState} from "src/ducks";
-
-const NumberContainer = styled.div`
-  /* background: ${THEME.colors.white}; */
-  position: relative;
-  border: 1px solid transparent;
-  background: white;
-
-  &:hover {
-    border: 1px solid ${THEME.colors.primary};
-  }
-`;
-
-const ActualNumber = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  color: black;
-  transform: translate(-50%, -50%);
-`;
-
-const ResponsiveNumber = ({children, onClick}) => {
-  return (
-    <NumberContainer onClick={onClick}>
-      <svg style={{width: "100%"}} width="22" height="32" />
-      <ActualNumber>{children}</ActualNumber>
-    </NumberContainer>
-  );
-};
 
 const SudokuMenuNumbersContainer = styled.div`
   display: grid;
@@ -49,12 +19,32 @@ const SudokuMenuNumbersContainer = styled.div`
   }
 `;
 
-interface SudokuMenuNumbersStateProps {
+const NumberContainer = styled.div`
+  /* background: ${THEME.colors.white}; */
+  position: relative;
+  border: 1px solid transparent;
+  background: white;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: black;
+
+  &:hover {
+    border: 1px solid ${THEME.colors.primary};
+  }
+`;
+
+const ResponsiveNumber = ({children, onClick}) => {
+  return <NumberContainer onClick={onClick}>{children}</NumberContainer>;
+};
+
+export interface SudokuMenuNumbersStateProps {
   notesMode: boolean;
   activeCell: Cell;
 }
 
-interface SudokuMenuNumbersDispatchProps {
+export interface SudokuMenuNumbersDispatchProps {
   setNumber: typeof setNumber;
   setNote: typeof setNote;
 }
@@ -75,15 +65,4 @@ class SudokuMenuNumbers extends React.Component<SudokuMenuNumbersStateProps & Su
   }
 }
 
-const ConnectedSudokuMenuNumbers = connect<SudokuMenuNumbersStateProps, SudokuMenuNumbersDispatchProps>(
-  (state: RootState) => ({
-    notesMode: false,
-    activeCell: state.game.activeCell,
-  }),
-  {
-    setNumber,
-    setNote,
-  },
-)(SudokuMenuNumbers);
-
-export default ConnectedSudokuMenuNumbers;
+export default SudokuMenuNumbers;

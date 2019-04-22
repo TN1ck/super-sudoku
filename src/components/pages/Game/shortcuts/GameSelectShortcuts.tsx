@@ -8,7 +8,7 @@ import {RootState} from "src/ducks";
 import {connect} from "react-redux";
 
 import SUDOKUS from "src/assets/sudokus-new";
-import {ShortcutScope} from "./scopes";
+import {ShortcutScope} from "./ShortcutScope";
 
 interface GameSelectShortcutsDispatchProps {
   setSudoku: typeof setSudoku;

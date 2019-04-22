@@ -13,7 +13,6 @@ import {changeSudoku, setDifficulty, previousSudoku, nextSudoku} from "src/ducks
 import GameSelect from "./GameSelect";
 import Button from "src/components/modules/Button";
 
-
 export const GameMenuContainer = styled.div`
   background-color: rgba(0, 0, 0, 0.8);
   position: absolute;
@@ -63,8 +62,8 @@ const GameMenuSelection = () => {
     <GameMenuContainer>
       <GameSelect />
     </GameMenuContainer>
-  )
-}
+  );
+};
 
 interface GameMenuDispatchProps {
   continueGame: typeof continueGame;
@@ -124,9 +123,7 @@ const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
 
       switch (this.props.state) {
         case GameStateMachine.chooseGame: {
-          return (
-            <GameMenuSelection />
-          );
+          return <GameMenuSelection />;
         }
         case GameStateMachine.wonGame: {
           return <WonGame chooseGame={chooseGame} />;

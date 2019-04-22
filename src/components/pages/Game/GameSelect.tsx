@@ -5,7 +5,7 @@ import {connect} from "react-redux";
 import {RootState} from "src/ducks";
 import {DIFFICULTY} from "src/engine/utility";
 import styled from "styled-components";
-import SmallSudokuComponent from "./Sudoku/SudokuSmall";
+import SudokuPreview from "./SudokuPreview/SudokuPreview";
 import {setDifficulty} from "src/ducks/game/choose";
 import {newGame} from "src/ducks/game";
 import {setSudoku} from "src/ducks/sudoku";
@@ -38,7 +38,7 @@ const SudokuContainer = styled.div`
   padding: 10px;
 `;
 
-const SudokuSmallPlaceholder: React.StatelessComponent<{size: number}> = ({size}) => (
+const SudokuPreviewPlaceholder: React.StatelessComponent<{size: number}> = ({size}) => (
   <SudokuContainer>
     <div style={{height: size, width: size, background: "grey"}} />
   </SudokuContainer>
@@ -61,9 +61,9 @@ class GameIndex extends React.Component<{
       <SudokusContainer>
         {sudokus.map(sudoku => {
           return (
-            <LazyLoad height={size} key={sudoku.id} placeholder={<SudokuSmallPlaceholder size={size} />}>
+            <LazyLoad height={size} key={sudoku.id} placeholder={<SudokuPreviewPlaceholder size={size} />}>
               <SudokuContainer>
-                <SmallSudokuComponent
+                <SudokuPreview
                   onClick={() => chooseSudoku(sudoku.sudoku, sudoku.solution)}
                   size={size}
                   id={sudoku.id + 1}
