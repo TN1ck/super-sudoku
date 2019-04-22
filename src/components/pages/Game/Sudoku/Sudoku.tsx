@@ -219,7 +219,7 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
               key={i}
               active={isActive}
               highlight={highlight}
-              highlightNumber={highlightNumber}
+              highlightNumber={highlightNumber && !isActive}
               conflict={inConflictPath}
               bounds={bounds}
               onClick={onClick}

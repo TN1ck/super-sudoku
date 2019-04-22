@@ -62,7 +62,7 @@ const SudokuMenuControlsConnected = connect<SudokuMenuControlsStateProps, Sudoku
 
 const SudokuMenuNumbersConnected = connect<SudokuMenuNumbersStateProps, SudokuMenuNumbersDispatchProps>(
   (state: RootState) => ({
-    notesMode: false,
+    notesMode: state.game.notesMode,
     activeCell: state.game.activeCellCoordinates,
   }),
   {

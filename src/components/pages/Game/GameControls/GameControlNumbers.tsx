@@ -43,8 +43,15 @@ class SudokuMenuNumbers extends React.Component<SudokuMenuNumbersStateProps & Su
     return (
       <SudokuMenuNumbersContainer>
         {SUDOKU_NUMBERS.map(n => {
+          const setNumberOrNote = () => {
+            if (this.props.notesMode) {
+              this.props.setNote(this.props.activeCell, n);
+            } else {
+              this.props.setNumber(this.props.activeCell, n);
+            }
+          };
           return (
-            <NumberButton onClick={() => this.props.setNumber(this.props.activeCell, n)} key={n}>
+            <NumberButton onClick={setNumberOrNote} key={n}>
               {n}
             </NumberButton>
           );
