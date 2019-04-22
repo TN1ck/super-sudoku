@@ -111,7 +111,7 @@ export default function sudokuReducer(state: SudokuState = initialState, action)
   const {x, y} = (action as SudokuAction).cellCoordinates;
   const newGrid = state.map(cell => {
     const isCell = cell.x === x && cell.y === y;
-    if (isCell) {
+    if (isCell && !cell.initial) {
       switch (action.type) {
         case SET_NOTE:
           return {...cell, notes: new Set(cell.notes.add(action.note))};
