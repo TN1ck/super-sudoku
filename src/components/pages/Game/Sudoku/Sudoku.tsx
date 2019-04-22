@@ -11,7 +11,7 @@ import {
   CellNoteContainer,
   SudokuContainer,
 } from "src/components/pages/Game/Sudoku/Sudoku.styles";
-import SudokuState from "src/ducks/sudoku/accessor";
+import SudokuGame from "src/engine/game";
 import {Bounds} from "src/utils/types";
 import {Cell, CellCoordinates} from "src/engine/utility";
 import {flatten} from "src/utils/collection";
@@ -86,7 +86,7 @@ const SudokuCell: React.StatelessComponent<{
         {initial || number
           ? null
           : notes.map(n => {
-              const notePosition = SudokuState.getNotePosition(n);
+              const notePosition = SudokuGame.getNotePosition(n);
               return (
                 <CellNote key={n} left={notePosition.x} top={notePosition.y}>
                   {n !== 0 ? n : ""}
@@ -128,23 +128,23 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
       y: (activeCell && activeCell.y) || 0,
     };
 
-    const positionedCells = SudokuState.positionedCells(sudoku, width, height);
-    const conflicting = SudokuState.conflictingFields(sudoku);
-    const uniquePaths = SudokuState.uniquePaths(
+    const positionedCells = SudokuGame.positionedCells(sudoku, width, height);
+    const conflicting = SudokuGame.conflictingFields(sudoku);
+    const uniquePaths = SudokuGame.uniquePaths(
       flatten(
         conflicting.map(c => {
-          return SudokuState.getPathsFromConflicting(c, sudoku);
+          return SudokuGame.getPathsFromConflicting(c, sudoku);
         }),
       ),
     );
 
     const pathCells = flatten(
       uniquePaths.map(p => {
-        return SudokuState.getPathBetweenCell(p.from, p.to);
+        return SudokuGame.getPathBetweenCell(p.from, p.to);
       }),
     );
 
-    const friendsOfActiveCell = activeCell ? SudokuState.sameSquareColumnRow(activeCell, sudoku) : [];
+    const friendsOfActiveCell = activeCell ? SudokuGame.sameSquareColumnRow(activeCell, sudoku) : [];
 
     const onRightClickOnOpenMenu = e => {
       if (activeCell && this.props.shouldShowMenu) {

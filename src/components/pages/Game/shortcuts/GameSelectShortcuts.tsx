@@ -7,7 +7,7 @@ import {continueGame} from "src/ducks/game";
 import {RootState} from "src/ducks";
 import {connect} from "react-redux";
 
-import SUDOKUS from "src/assets/sudokus-new";
+import SUDOKUS from "src/assets/sudokus";
 import {ShortcutScope} from "./ShortcutScope";
 
 interface GameSelectShortcutsDispatchProps {

@@ -1,5 +1,5 @@
 import {DIFFICULTY} from "src/engine/utility";
-import SUDOKUS from "src/assets/sudokus-new";
+import SUDOKUS from "src/assets/sudokus";
 
 const SET_DIFFICULTY = "choose/SET_DIFFICULTY";
 const NEXT_SUDOKU = "choose/NEXT_SUDOKU";

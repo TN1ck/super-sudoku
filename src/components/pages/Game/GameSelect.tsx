@@ -1,6 +1,6 @@
 import * as React from "react";
 import LazyLoad from "react-lazyload";
-import SUDOKUS from "src/assets/sudokus-new";
+import SUDOKUS from "src/assets/sudokus";
 import {connect} from "react-redux";
 import {RootState} from "src/ducks";
 import {DIFFICULTY} from "src/engine/utility";

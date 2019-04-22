@@ -30,7 +30,7 @@ import Button from "src/components/modules/Button";
 import styled from "styled-components";
 import THEME from "src/theme";
 import {RootState} from "src/ducks";
-import SudokuState from "src/ducks/sudoku/accessor";
+import SudokuGame from "src/engine/game";
 import {emptyGrid} from "src/ducks/sudoku";
 import {DIFFICULTY, Cell} from "src/engine/utility";
 import SudokuMenuNumbers, {
@@ -216,8 +216,8 @@ type GameProps = GameStateProps & GameDispatchProps;
 class Game extends React.Component<GameProps> {
   componentDidUpdate(prevProps: GameProps) {
     // check if won
-    const wasSolved = SudokuState.isSolved(prevProps.sudoku);
-    const isSolved = SudokuState.isSolved(this.props.sudoku);
+    const wasSolved = SudokuGame.isSolved(prevProps.sudoku);
+    const isSolved = SudokuGame.isSolved(this.props.sudoku);
     if (isSolved && !wasSolved) {
       this.props.wonGame();
     }
@@ -225,17 +225,17 @@ class Game extends React.Component<GameProps> {
 
   componentDidMount() {
     if (typeof document !== "undefined") {
-      document.addEventListener("visibilitychange", this.onVisibiltyChange, false);
+      document.addEventListener("visibilitychange", this.onVisibilityChange, false);
     }
   }
 
   componentWillUnmount() {
     if (typeof document !== "undefined") {
-      document.removeEventListener("visibilitychange", this.onVisibiltyChange, false);
+      document.removeEventListener("visibilitychange", this.onVisibilityChange, false);
     }
   }
 
-  onVisibiltyChange = () => {
+  onVisibilityChange = () => {
     if (document.visibilityState === "hidden") {
       this.props.pauseGame();
     } else {

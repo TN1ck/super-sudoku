@@ -29,7 +29,7 @@ export interface ConflictingPath {
   index: number;
 }
 
-export default class SudokuState {
+export default class SudokuGame {
   width: number;
   height: number;
 
