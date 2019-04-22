@@ -5,7 +5,9 @@ const THEME = {
     background: "#333333",
   },
   sudokuColors: {
-    numberInitial: "black",
+    numberInitial: "#000000",
+    numberHighlighted: "#69a1c2",
+    cellHighlightNumber: "rgba(150, 150, 150, 0.3)",
     number: "#d57b59",
     note: "#69a1c2",
     background: "#FFFFFF",

@@ -140,6 +140,10 @@ export default class SudokuGame {
     return correctRows && correctColumns && correctSquares;
   }
 
+  static sameNumber(cell: Cell, sudoku: Cell[]): Cell[] {
+    return sudoku.filter(c => c.number === cell.number);
+  }
+
   static sameSquareColumnRow(cell: Cell, sudoku: Cell[]): Cell[] {
     const column = sudoku.filter(c => cell.y === c.y);
     const row = sudoku.filter(c => cell.x === c.x);

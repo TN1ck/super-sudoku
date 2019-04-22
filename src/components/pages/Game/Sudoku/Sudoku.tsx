@@ -46,6 +46,7 @@ const SudokuGrid: React.StatelessComponent<{width: number; height: number; hideL
 const SudokuCell: React.StatelessComponent<{
   number: number;
   active: boolean;
+  highlightNumber: boolean;
   highlight: boolean;
   conflict: boolean;
   bounds: Bounds;
@@ -56,7 +57,21 @@ const SudokuCell: React.StatelessComponent<{
   initial: boolean;
   notes: number[];
   notesMode: boolean;
-}> = ({number, active, highlight, bounds, onClick, onRightClick, left, top, initial, notes, notesMode, conflict}) => {
+}> = ({
+  number,
+  active,
+  highlight,
+  bounds,
+  onClick,
+  onRightClick,
+  left,
+  top,
+  initial,
+  notes,
+  notesMode,
+  conflict,
+  highlightNumber,
+}) => {
   return (
     <div>
       <GridCell
@@ -64,11 +79,12 @@ const SudokuCell: React.StatelessComponent<{
         active={active}
         conflict={conflict}
         highlight={highlight}
+        highlightNumber={highlightNumber}
         bounds={bounds}
         onClick={onClick}
         onContextMenu={onRightClick}
       />
-      <GridCellNumber left={left} top={top} initial={initial}>
+      <GridCellNumber left={left} top={top} initial={initial} highlight={highlightNumber}>
         {number !== 0 ? number : ""}
       </GridCellNumber>
       <CellNoteContainer initial={initial} bounds={bounds}>
@@ -160,21 +176,21 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
         <SudokuGrid width={width} height={height} hideLeftRight />
         {sudoku.map((c, i) => {
           const onClick = e => {
+            this.props.selectCell(c);
             if (!c.initial) {
-              this.props.selectCell(c);
               this.props.showMenu();
-              e.preventDefault();
-              e.stopPropagation();
             }
+            e.preventDefault();
+            e.stopPropagation();
           };
           1;
           const onRightClick = e => {
+            this.props.selectCell(c);
             if (!c.initial) {
-              this.props.selectCell(c);
               this.props.showMenu(true);
-              e.preventDefault();
-              e.stopPropagation();
             }
+            e.preventDefault();
+            e.stopPropagation();
           };
           const position = positionedCells[i];
           const conflicted = conflicting[i];
@@ -196,12 +212,14 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
           const highlight = friendsOfActiveCell.some(cc => {
             return cc.x === c.x && cc.y === c.y;
           });
+          const highlightNumber = activeCell && c.number !== 0 ? activeCell.number === c.number : false;
 
           return (
             <SudokuCell
               key={i}
               active={isActive}
               highlight={highlight}
+              highlightNumber={highlightNumber}
               conflict={inConflictPath}
               bounds={bounds}
               onClick={onClick}

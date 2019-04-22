@@ -87,6 +87,7 @@ export const CellNoteContainer = styled.div<{
 export const GridCell = styled.div<{
   conflict: boolean;
   highlight: boolean;
+  highlightNumber: boolean;
   bounds: Bounds;
   active: boolean;
   notesMode: boolean;
@@ -107,11 +108,17 @@ export const GridCell = styled.div<{
   left: ${props => props.bounds.left}%;
 
   ${props =>
-    props.active &&
+    props.conflict &&
     css`
-      border: 2px solid
-        ${props.notesMode ? THEME.sudokuColors.cellBorderHighlightNote : THEME.sudokuColors.cellBorderHighlight};
-      background: ${THEME.sudokuColors.cellBackgroundHighlight};
+      transition: background-color 0.3s ease;
+      background-color: ${THEME.sudokuColors.cellConflict};
+    `}
+
+  ${props =>
+    props.highlightNumber &&
+    css`
+      transition: background-color 0.3s ease;
+      background-color: ${THEME.sudokuColors.cellHighlightNumber};
     `}
 
   ${props =>
@@ -121,15 +128,17 @@ export const GridCell = styled.div<{
     `}
 
   ${props =>
-    props.conflict &&
+    props.active &&
     css`
-      transition: background-color 0.3s ease;
-      background-color: ${THEME.sudokuColors.cellConflict};
+      border: 2px solid
+        ${props.notesMode ? THEME.sudokuColors.cellBorderHighlightNote : THEME.sudokuColors.cellBorderHighlight};
+      background: ${THEME.sudokuColors.cellBackgroundHighlight};
     `}
 `;
 
 export const GridCellNumber = styled.div<{
   initial: boolean;
+  highlight: boolean;
   left: number;
   top: number;
 }>`
@@ -143,6 +152,11 @@ export const GridCellNumber = styled.div<{
     props.initial &&
     css`
       color: ${THEME.sudokuColors.numberInitial};
+    `}
+  ${props =>
+    props.highlight &&
+    css`
+      color: ${THEME.sudokuColors.numberHighlighted};
     `}
   pointer-events: none;
   transform: translate(-50%, -50%);
