@@ -134,6 +134,15 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
       }),
     );
 
+    const onRightClickOnOpenMenu = e => {
+      if (activeCell && this.props.shouldShowMenu) {
+        this.props.selectCell(activeCell);
+        this.props.showMenu(true);
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+
     return (
       <SudokuContainer>
         <SudokuGrid width={width} height={height} hideLeftRight />
@@ -191,6 +200,7 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
         })}
         {activeCell && this.props.shouldShowMenu ? (
           <MenuContainer
+            onContextMenu={onRightClickOnOpenMenu}
             bounds={{
               top: ySection * selectionPosition.y,
               left: xSection * selectionPosition.x,

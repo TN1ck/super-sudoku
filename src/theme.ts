@@ -11,6 +11,7 @@ const THEME = {
     background: "#FFFFFF",
     gridLine: "#eeeeee",
     gridLineBold: "#aaaaaa",
+    cellBackgroundHighlight: "#eeeeee",
     cellBorderHighlight: "#F09A7A",
     cellHighlight: "rgba(240, 54, 22, 0.2)",
   },

@@ -92,9 +92,11 @@ export const GridCell = styled.div<{
   position: absolute;
   z-index: 0;
   background-color: transparent;
-  transition: background-color 0.3s ease;
+  transition: background-color 0s ease;
   &:hover {
-    border: 1px solid ${THEME.sudokuColors.cellBorderHighlight};
+    transition: background-color 0s ease;
+    border: 1px solid ${THEME.sudokuColors.gridLineBold};
+    background: ${THEME.sudokuColors.cellBackgroundHighlight};
   }
 
   width: ${props => props.bounds.width}%;
@@ -106,11 +108,13 @@ export const GridCell = styled.div<{
     props.active &&
     css`
       border: 1px solid ${THEME.sudokuColors.cellBorderHighlight};
+      background: ${THEME.sudokuColors.cellBackgroundHighlight};
     `}
 
   ${props =>
     props.highlight &&
     css`
+      transition: background-color 0.3s ease;
       background-color: ${THEME.sudokuColors.cellHighlight};
     `}
 `;
