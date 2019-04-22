@@ -11,7 +11,9 @@
     "test-watchAll": "jest --watchAll",
     "start": "react-static start",
     "prettier:write": "prettier --write './src/**/*.ts' './src/**/*.tsx'",
-    "generate-easy-sudokus": "ts-node --project ./tsconfig.json ./scripts/generate_sudokus.ts -d easy -n 10",
+    "generate-easy-sudokus": "ts-node --project ./tsconfig.json ./scripts/generate_sudokus.ts -d easy -n 20",
+    "generate-medium-sudokus": "ts-node --project ./tsconfig.json ./scripts/generate_sudokus.ts -d medium -n 20",
+    "generate-hard-sudokus": "ts-node --project ./tsconfig.json ./scripts/generate_sudokus.ts -d heard -n 20",
     "generate-evil-sudokus": "ts-node --project ./tsconfig.json ./scripts/generate_sudokus.ts -d evil -n 20"
   },
   "keywords": [

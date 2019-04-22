@@ -1,20 +1,17 @@
-import * as fs from 'fs';
-import * as program from 'commander';
-import * as generate from '../src/engine/generate';
-import * as solverAC3 from '../src/engine/solverAC3';
-import {
-  printSimpleSudoku,
-  DIFFICULTY,
-} from '../src/engine/utility';
+import * as fs from "fs";
+import * as program from "commander";
+import * as generate from "../src/engine/generate";
+import * as solverAC3 from "../src/engine/solverAC3";
+import {printSimpleSudoku, DIFFICULTY} from "../src/engine/utility";
 
 program
-  .version('0.0.1')
-  .option('-n, --number <n>', 'Number of sudokus to generate', parseInt, 20)
+  .version("0.0.1")
+  .option("-n, --number <n>", "Number of sudokus to generate", parseInt, 20)
   .option(
-    '-d, --difficulty [type]',
-    'Difficulty [easy], [medium], [hard], [evil]',
+    "-d, --difficulty [type]",
+    "Difficulty [easy], [medium], [hard], [evil]",
     /^(easy|medium|hard|evil)$/i,
-    'medium',
+    "medium",
   )
   .parse(process.argv);
 
@@ -37,12 +34,12 @@ ${printedSudoku}
 
 
 `;
-  fs.appendFileSync('sudokus.txt', stringToAppend);
+  fs.appendFileSync("sudokus.txt", stringToAppend);
 }
 
 const number = program.number;
 console.log(`Generate ${number} sudokus with difficulty ` + difficulty);
 new Array(number).fill(0).forEach((_, i) => {
-  console.log('Generate sudoku ' + (i + 1));
+  console.log("Generate sudoku " + (i + 1));
   writeSudoku(generate.generateSudoku(sudokuDifficulty));
 });
