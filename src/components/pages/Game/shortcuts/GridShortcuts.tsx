@@ -1,8 +1,8 @@
 import * as React from "react";
 import key from "keymaster";
 import {Cell, SUDOKU_COORDINATES, SUDOKU_NUMBERS} from "src/engine/utility";
-import {showMenu, hideMenu, selectCell, pauseGame} from "src/ducks/game";
-import {setNumber, clearNumber, getHint} from "src/ducks/sudoku";
+import {showMenu, hideMenu, selectCell, pauseGame, activateNotesMode, deactivateNotesMode} from "src/ducks/game";
+import {setNumber, clearNumber, getHint, setNote, clearNote} from "src/ducks/sudoku";
 import {ShortcutScope} from "./ShortcutScope";
 import {connect} from "react-redux";
 import {RootState} from "src/ducks";
@@ -10,6 +10,7 @@ import {RootState} from "src/ducks";
 interface GameKeyboardShortcutsStateProps {
   activeCell: Cell;
   sudoku: Cell[];
+  notesMode: boolean;
 }
 
 interface GameKeyboardShortcutsDispatchProps {
@@ -17,9 +18,13 @@ interface GameKeyboardShortcutsDispatchProps {
   hideMenu: typeof hideMenu;
   selectCell: typeof selectCell;
   setNumber: typeof setNumber;
+  setNote: typeof setNote;
   clearNumber: typeof clearNumber;
+  clearNote: typeof clearNote;
   pauseGame: typeof pauseGame;
   getHint: typeof getHint;
+  activateNotesMode: typeof activateNotesMode;
+  deactivateNotesMode: typeof deactivateNotesMode;
 }
 
 class GameKeyboardShortcuts extends React.Component<
@@ -41,6 +46,16 @@ class GameKeyboardShortcuts extends React.Component<
 
     key("escape", ShortcutScope.Game, () => {
       this.props.pauseGame();
+      return false;
+    });
+
+    key("n", ShortcutScope.Game, () => {
+      console.log("test", this.props.notesMode);
+      if (this.props.notesMode) {
+        this.props.deactivateNotesMode();
+      } else {
+        this.props.activateNotesMode();
+      }
       return false;
     });
 
@@ -95,7 +110,15 @@ class GameKeyboardShortcuts extends React.Component<
     SUDOKU_NUMBERS.forEach(n => {
       key(String(n), ShortcutScope.Game, () => {
         if (!this.props.activeCell.initial) {
-          this.props.setNumber(this.props.activeCell, n);
+          if (this.props.notesMode) {
+            if (this.props.activeCell.notes.has(n)) {
+              this.props.clearNote(this.props.activeCell, n);
+            } else {
+              this.props.setNote(this.props.activeCell, n);
+            }
+          } else {
+            this.props.setNumber(this.props.activeCell, n);
+          }
         }
       });
     });
@@ -121,17 +144,29 @@ class GameKeyboardShortcuts extends React.Component<
 }
 
 export default connect<GameKeyboardShortcutsStateProps, GameKeyboardShortcutsDispatchProps>(
-  (state: RootState) => ({
-    sudoku: state.sudoku,
-    activeCell: state.game.activeCell,
-  }),
+  (state: RootState) => {
+    const activeCell = state.game.activeCellCoordinates
+      ? state.sudoku.find(s => {
+          return s.x === state.game.activeCellCoordinates.x && s.y === state.game.activeCellCoordinates.y;
+        })
+      : null;
+    return {
+      sudoku: state.sudoku,
+      activeCell,
+      notesMode: state.game.notesMode,
+    };
+  },
   {
     setNumber,
+    setNote,
     clearNumber,
+    clearNote,
     selectCell,
     hideMenu,
     showMenu,
     pauseGame,
     getHint,
+    deactivateNotesMode,
+    activateNotesMode,
   },
 )(GameKeyboardShortcuts);

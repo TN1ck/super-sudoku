@@ -10,7 +10,7 @@ const CLEAR_NOTE = "sudoku/CLEAR_NOTE";
 const SET_NUMBER = "sudoku/SET_NUMBER";
 const CLEAR_NUMBER = "sudoku/CLEAR_NUMBER";
 
-import {DIFFICULTY, Cell, SimpleSudoku, simpleSudokuToCells} from "src/engine/utility";
+import {DIFFICULTY, Cell, SimpleSudoku, simpleSudokuToCells, CellCoordinates} from "src/engine/utility";
 
 //
 // Actions
@@ -18,63 +18,63 @@ import {DIFFICULTY, Cell, SimpleSudoku, simpleSudokuToCells} from "src/engine/ut
 
 interface NoteAction {
   type: string;
-  cell: Cell;
+  cellCoordinates: CellCoordinates;
   note: number;
 }
 
-export function getHint(cell: Cell) {
+export function getHint(cell: CellCoordinates) {
   return {
     type: GET_HINT,
     cell,
   };
 }
 
-export function clearCell(cell: Cell) {
+export function clearCell(cell: CellCoordinates) {
   return {
     type: CLEAR_CELL,
     cell,
   };
 }
 
-export function setNote(cell: Cell, note: number): NoteAction {
+export function setNote(cellCoordinates: CellCoordinates, note: number): NoteAction {
   return {
     type: SET_NOTE,
-    cell,
+    cellCoordinates,
     note,
   };
 }
 
-export function clearNote(cell: Cell, note: number): NoteAction {
+export function clearNote(cellCoordinates: CellCoordinates, note: number): NoteAction {
   return {
     type: CLEAR_NOTE,
-    cell,
+    cellCoordinates,
     note,
   };
 }
 
 interface SetNumberAction {
   type: string;
-  cell: Cell;
+  cellCoordinates: CellCoordinates;
   number: number;
 }
 
-export function setNumber(cell: Cell, number: number): SetNumberAction {
+export function setNumber(cellCoordinates: CellCoordinates, number: number): SetNumberAction {
   return {
     type: SET_NUMBER,
-    cell,
+    cellCoordinates,
     number,
   };
 }
 
 interface CellAction {
   type: string;
-  cell: Cell;
+  cellCoordinates: CellCoordinates;
 }
 
-export function clearNumber(cell: Cell): CellAction {
+export function clearNumber(cellCoordinates: CellCoordinates): CellAction {
   return {
     type: CLEAR_NUMBER,
-    cell,
+    cellCoordinates,
   };
 }
 
@@ -114,48 +114,32 @@ export default function sudokuReducer(state: SudokuState = initialState, action)
       return action.sudoku;
   }
 
-  const actionCell: Cell = action.cell;
-  // hide all menus in all cells
+  const {x, y}: Cell = action.cellCoordinates;
   const newGrid = state.map(cell => {
-    const id = `${cell.x}-${cell.y}`;
-    const actionCellId = `${actionCell.x}-${actionCell.y}`;
-    switch (action.type) {
-      case SET_NOTE:
-        if (id === actionCellId) {
+    const isCell = cell.x === x && cell.y === y;
+    if (isCell) {
+      switch (action.type) {
+        case SET_NOTE:
           return {...cell, notes: new Set(cell.notes.add(action.note))};
-        }
-        return cell;
-      case CLEAR_NOTE:
-        if (id === actionCellId) {
+        case CLEAR_NOTE:
           cell.notes.delete(action.note);
           return {...cell, notes: new Set(cell.notes)};
-        }
-        return cell;
-      case CLEAR_CELL:
-        if (id === actionCellId) {
+        case CLEAR_CELL:
           return {...cell, notes: new Set(), number: 0};
-        }
-      case SET_NUMBER:
-        if (id === actionCellId) {
+        case SET_NUMBER:
           return {...cell, number: action.number};
-        }
-        return cell;
-      case CLEAR_NUMBER:
-        if (id === actionCellId) {
+        case CLEAR_NUMBER:
           return {...cell, number: 0};
-        }
-      case GET_HINT:
-        if (id === actionCellId) {
-          console.log(cell, "get hint");
+        case GET_HINT:
           return {
             ...cell,
             number: cell.solution,
           };
-        }
-        return cell;
-      default:
-        return cell;
+        default:
+          return cell;
+      }
     }
+    return cell;
   });
 
   return newGrid;

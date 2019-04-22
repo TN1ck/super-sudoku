@@ -21,9 +21,12 @@ export enum DIFFICULTY {
   EVIL = "evil",
 }
 
-export interface SimpleCell {
+export interface CellCoordinates {
   x: number;
   y: number;
+}
+
+export interface SimpleCell extends CellCoordinates {
   number: number;
 }
 

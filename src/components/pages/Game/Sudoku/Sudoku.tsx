@@ -17,7 +17,7 @@ import {Cell} from "src/engine/utility";
 import {flatten} from "src/utils/collection";
 
 interface SudokuProps {
-  activeCell: Cell;
+  activeCell: {x: number; y: number};
   sudoku: Cell[];
   showHints: boolean;
   shouldShowMenu: boolean;
@@ -65,10 +65,18 @@ const SudokuCell: React.StatelessComponent<{
   left: number;
   initial: boolean;
   notes: number[];
-}> = ({number, active, highlight, bounds, onClick, onRightClick, left, top, initial, notes}) => {
+  notesMode: boolean;
+}> = ({number, active, highlight, bounds, onClick, onRightClick, left, top, initial, notes, notesMode}) => {
   return (
     <div>
-      <GridCell active={active} highlight={highlight} bounds={bounds} onClick={onClick} onContextMenu={onRightClick} />
+      <GridCell
+        notesMode={notesMode}
+        active={active}
+        highlight={highlight}
+        bounds={bounds}
+        onClick={onClick}
+        onContextMenu={onRightClick}
+      />
       <GridCellNumber left={left} top={top} initial={initial}>
         {number !== 0 ? number : ""}
       </GridCellNumber>
@@ -195,6 +203,7 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
               notes={notes}
               number={c.number}
               initial={c.initial}
+              notesMode={this.props.notesMode}
             />
           );
         })}

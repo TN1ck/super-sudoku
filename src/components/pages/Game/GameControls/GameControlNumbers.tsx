@@ -1,6 +1,6 @@
 import * as React from "react";
 import {setNumber, setNote} from "src/ducks/sudoku";
-import {SUDOKU_NUMBERS, Cell} from "src/engine/utility";
+import {SUDOKU_NUMBERS} from "src/engine/utility";
 import THEME from "src/theme";
 import styled from "styled-components";
 import Button from "src/components/modules/Button";
@@ -30,7 +30,7 @@ const NumberButton = styled(Button)`
 
 export interface SudokuMenuNumbersStateProps {
   notesMode: boolean;
-  activeCell: Cell;
+  activeCell: {x: number; y: number};
 }
 
 export interface SudokuMenuNumbersDispatchProps {

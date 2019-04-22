@@ -1,4 +1,4 @@
-import {Cell} from "src/engine/utility";
+import {CellCoordinates} from "src/engine/utility";
 
 export enum GameStateMachine {
   running = "RUNNING",
@@ -61,10 +61,10 @@ export function resetGame() {
   };
 }
 
-export function selectCell(cell) {
+export function selectCell(cellCoordinates: CellCoordinates) {
   return {
     type: SELECT_CELL,
-    cell,
+    cellCoordinates,
   };
 }
 
@@ -100,7 +100,7 @@ export interface GameState {
   stopTime: number;
   state: GameStateMachine;
   // menu stuff
-  activeCell: Cell;
+  activeCellCoordinates: CellCoordinates;
   showHints: boolean;
   showMenu: boolean;
   won: boolean;
@@ -116,7 +116,7 @@ const gameState: GameState = {
   stopTime: 0,
   // menu stuff
   state: GameStateMachine.chooseGame,
-  activeCell: null,
+  activeCellCoordinates: null,
   showHints: false,
   notesMode: false,
   showNotes: false,
@@ -198,7 +198,7 @@ export default function gameReducer(state: GameState = gameState, action): GameS
     case SELECT_CELL:
       return {
         ...state,
-        activeCell: action.cell,
+        activeCellCoordinates: action.cellCoordinates,
       };
     case SHOW_MENU:
       return {

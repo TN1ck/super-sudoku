@@ -6,13 +6,15 @@ const THEME = {
   },
   sudokuColors: {
     numberInitial: "black",
-    number: "#F09A7A",
-    note: "#F09A7A",
+    number: "#d57b59",
+    note: "#69a1c2",
     background: "#FFFFFF",
     gridLine: "#eeeeee",
     gridLineBold: "#aaaaaa",
+    cellBackgroundHover: "#eeeeee",
     cellBackgroundHighlight: "#eeeeee",
     cellBorderHighlight: "#F09A7A",
+    cellBorderHighlightNote: "#84caf3",
     cellHighlight: "rgba(240, 54, 22, 0.2)",
   },
   menuColors: {

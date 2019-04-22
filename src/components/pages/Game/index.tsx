@@ -48,7 +48,7 @@ import Checkbox from "src/components/modules/Checkbox";
 const SudokuMenuControlsConnected = connect<SudokuMenuControlsStateProps, SudokuMenuControlsDispatchProps>(
   (state: RootState) => ({
     notesMode: state.game.notesMode,
-    activeCell: state.game.activeCell,
+    activeCell: state.game.activeCellCoordinates,
   }),
   {
     clearCell,
@@ -62,7 +62,7 @@ const SudokuMenuControlsConnected = connect<SudokuMenuControlsStateProps, Sudoku
 const SudokuMenuNumbersConnected = connect<SudokuMenuNumbersStateProps, SudokuMenuNumbersDispatchProps>(
   (state: RootState) => ({
     notesMode: false,
-    activeCell: state.game.activeCell,
+    activeCell: state.game.activeCellCoordinates,
   }),
   {
     setNumber,
@@ -228,6 +228,8 @@ class Game extends React.Component<GameProps> {
         () => {
           if (document.visibilityState === "hidden") {
             this.props.pauseGame();
+          } else {
+            this.props.continueGame();
           }
         },
         false,
@@ -236,7 +238,12 @@ class Game extends React.Component<GameProps> {
   }
 
   render() {
-    const {difficulty, game, pauseGame, continueGame, chooseGame, toggleShowHints} = this.props;
+    const {difficulty, game, pauseGame, continueGame, chooseGame, toggleShowHints, sudoku} = this.props;
+    const activeCell = game.activeCellCoordinates
+      ? sudoku.find(s => {
+          return s.x === game.activeCellCoordinates.x && s.y === game.activeCellCoordinates.y;
+        })
+      : null;
     return (
       <div style={{height: "100%"}}>
         <GameContainer>
@@ -270,7 +277,7 @@ class Game extends React.Component<GameProps> {
                   hideMenu={this.props.hideMenu}
                   selectCell={this.props.selectCell}
                   showHints={game.showHints && game.state === GameStateMachine.running}
-                  activeCell={game.activeCell}
+                  activeCell={activeCell}
                 />
               </GameMainArea>
               <GameFooterArea>
