@@ -221,6 +221,18 @@ class Game extends React.Component<GameProps> {
     if (isSolved && !wasSolved) {
       this.props.wonGame();
     }
+
+    if (typeof document !== "undefined") {
+      document.addEventListener(
+        "visibilitychange",
+        () => {
+          if (document.visibilityState === "hidden") {
+            this.props.pauseGame();
+          }
+        },
+        false,
+      );
+    }
   }
 
   render() {
