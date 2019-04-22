@@ -278,7 +278,7 @@ class Game extends React.Component<GameProps> {
               </GameHeaderArea>
               <GameMainArea>
                 <Sudoku
-                  notesMode={this.props.game.notesMode || this.props.game.showNotes}
+                  notesMode={this.props.game.notesMode}
                   shouldShowMenu={this.props.game.showMenu && this.props.game.showCircleMenu}
                   sudoku={this.props.sudoku}
                   showMenu={this.props.showMenu}

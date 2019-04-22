@@ -6,6 +6,7 @@ import styled, {css} from "styled-components";
 import THEME from "src/theme";
 import {showMenu} from "src/ducks/game";
 import {Bounds} from "src/utils/types";
+import {RootState} from "src/ducks";
 
 const MenuCircleContainer = styled.svg`
   z-index: 7;
@@ -121,11 +122,12 @@ const MenuCirclePart: React.StatelessComponent<{
   );
 };
 
+interface MenuCircleStateProps {
+  notesMode: boolean;
+}
+
 interface MenuCircleOwnProps {
   cell: Cell;
-  notesMode: boolean;
-  // enterNotesMode: () => void;
-  // exitNotesMode: () => void;
 }
 
 interface MenuCircleDispatchProps {
@@ -136,7 +138,7 @@ interface MenuCircleDispatchProps {
   clearNumber: typeof clearNumber;
 }
 
-class MenuCircle extends React.Component<MenuCircleOwnProps & MenuCircleDispatchProps, {}> {
+class MenuCircle extends React.Component<MenuCircleOwnProps & MenuCircleDispatchProps & MenuCircleStateProps, {}> {
   render() {
     const cell = this.props.cell;
     if (cell === null) {
@@ -242,8 +244,12 @@ class MenuCircle extends React.Component<MenuCircleOwnProps & MenuCircleDispatch
   }
 }
 
-const MenuComponent = connect<null, MenuCircleDispatchProps, MenuCircleOwnProps>(
-  null,
+const MenuComponent = connect<MenuCircleStateProps, MenuCircleDispatchProps, MenuCircleOwnProps>(
+  (state: RootState) => {
+    return {
+      notesMode: state.game.showNotes,
+    };
+  },
   {
     showMenu,
     setNumber,

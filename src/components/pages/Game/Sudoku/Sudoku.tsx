@@ -244,7 +244,7 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
             }}
           >
             <MenuWrapper>
-              <SudokuMenuCircle notesMode={this.props.notesMode} cell={activeCell} />
+              <SudokuMenuCircle cell={activeCell} />
             </MenuWrapper>
           </MenuContainer>
         ) : null}
