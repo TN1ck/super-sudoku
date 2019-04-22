@@ -56,7 +56,7 @@ export const MenuWrapper = styled.div`
   z-index: 3;
 
   /* We just hide it on mobile, as it's not useful there */
-  @media (max-width: ${THEME.widths.maxMobile}px) {
+  @media (max-width: 700px) {
     display: none;
   }
 `;

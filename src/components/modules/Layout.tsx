@@ -6,7 +6,7 @@ export const Container = styled.div`
   margin: 0 auto;
 
   @media (max-width: ${THEME.widths.maxDesktop}px) {
-    padding-left: ${THEME.spacer.x3}px;
-    padding-right: ${THEME.spacer.x3}px;
+    padding-left: ${THEME.spacer.x4}px;
+    padding-right: ${THEME.spacer.x4}px;
   }
 `;
