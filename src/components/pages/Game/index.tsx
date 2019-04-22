@@ -130,6 +130,7 @@ const GameGrid = styled.div`
       "game-main"
       "game-controls";
     max-width: ${THEME.widths.maxMobile - THEME.spacer.paddingMobile * 2}px;
+    grid-template-columns: auto;
     grid-column-gap: 0;
     padding-bottom: 0;
   }
@@ -141,16 +142,13 @@ const GameGrid = styled.div`
 const GameContainer = styled.div`
   max-width: 100%;
   min-height: 100%;
-  background: black;
   position: relative;
 `;
 
 const GameMainArea = styled.div`
   grid-area: game-main;
   position: relative;
-  color: black;
   box-shadow: ${THEME.boxShadow};
-  background-color: white;
   border-radius: ${THEME.borderRadius}px;
   width: ${THEME.widths.maxMobile}px;
   height: ${THEME.widths.maxMobile}px;

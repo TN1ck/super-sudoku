@@ -3,6 +3,7 @@ import {setNumber, setNote} from "src/ducks/sudoku";
 import {SUDOKU_NUMBERS, Cell} from "src/engine/utility";
 import THEME from "src/theme";
 import styled from "styled-components";
+import Button from "src/components/modules/Button";
 
 const SudokuMenuNumbersContainer = styled.div`
   display: grid;
@@ -19,25 +20,11 @@ const SudokuMenuNumbersContainer = styled.div`
   }
 `;
 
-const NumberContainer = styled.div`
-  /* background: ${THEME.colors.white}; */
-  position: relative;
-  border: 1px solid transparent;
-  background: white;
-  height: 40px;
+const NumberButton = styled(Button)`
   display: flex;
   justify-content: center;
   align-items: center;
-  color: black;
-
-  &:hover {
-    border: 1px solid ${THEME.colors.primary};
-  }
 `;
-
-const ResponsiveNumber = ({children, onClick}) => {
-  return <NumberContainer onClick={onClick}>{children}</NumberContainer>;
-};
 
 export interface SudokuMenuNumbersStateProps {
   notesMode: boolean;
@@ -55,9 +42,9 @@ class SudokuMenuNumbers extends React.Component<SudokuMenuNumbersStateProps & Su
       <SudokuMenuNumbersContainer>
         {SUDOKU_NUMBERS.map(n => {
           return (
-            <ResponsiveNumber onClick={() => this.props.setNumber(this.props.activeCell, n)} key={n}>
+            <NumberButton onClick={() => this.props.setNumber(this.props.activeCell, n)} key={n}>
               {n}
-            </ResponsiveNumber>
+            </NumberButton>
           );
         })}
       </SudokuMenuNumbersContainer>

@@ -25,12 +25,12 @@ const StyledCheckboxSquare = styled.div<{
   left: 0;
   width: 20px;
   height: 20px;
-  background: black;
-  border: 1px solid white;
+  background: ${THEME.colors.background};
+  border: 1px solid ${THEME.colors.foreground};
   transform: translate(0, 3px);
 
   &:after {
-    color: white;
+    color: ${THEME.colors.foreground};
     display: block;
     content: ${props => (props.checked ? "'L'" : "''")};
     position: absolute;
@@ -46,7 +46,7 @@ const StyledCheckboxSquare = styled.div<{
 `;
 
 const StyledLabel = styled.label`
-  color: white;
+  color: ${THEME.colors.foreground};
   user-select: none;
   &:hover {
     cursor: pointer;

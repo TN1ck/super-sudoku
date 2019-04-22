@@ -8,17 +8,11 @@ import {Cell} from "src/engine/utility";
 
 const ControlsButton = styled(Button)`
   width: 100%;
-  border: 1px solid transparent;
-
-  &:hover {
-    border: 1px solid ${THEME.colors.primary};
-  }
 `;
 
 const ControlContainer = styled.div`
   position: relative;
   justify-content: center;
-  color: black;
   display: flex;
 `;
 

@@ -1,6 +1,7 @@
 import React from "react";
 import {SimpleSudoku} from "src/engine/utility";
 import styled, {css} from "styled-components";
+import THEME from "src/theme";
 
 const SudokuPreviewContainer = styled.div`
   user-select: none;
@@ -11,6 +12,7 @@ const SudokuPreviewInnerContainer = styled.div`
   background-color: white;
   color: black;
   cursor: default;
+  border-radius: ${THEME.borderRadius}px;
 `;
 
 const SudokuPreviewDarken = styled.div`

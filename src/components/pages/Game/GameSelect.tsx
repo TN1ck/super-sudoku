@@ -9,6 +9,7 @@ import SudokuPreview from "./SudokuPreview/SudokuPreview";
 import {setDifficulty} from "src/ducks/game/choose";
 import {newGame} from "src/ducks/game";
 import {setSudoku} from "src/ducks/sudoku";
+import THEME from "src/theme";
 
 const TabBar = styled.div`
   display: flex;
@@ -20,22 +21,24 @@ const TabBar = styled.div`
 const TabItem = styled.div<{
   active: boolean;
 }>`
-  padding: 10px 10px;
-  background: ${p => (p.active ? "white" : "black")};
-  color: ${p => (p.active ? "black" : "white")};
+  padding: ${THEME.spacer.x2}px ${THEME.spacer.x2}px;
+  background: ${p => (p.active ? THEME.colors.foreground : THEME.colors.background)};
+  color: ${p => (p.active ? THEME.colors.background : THEME.colors.foreground)};
   cursor: pointer;
   text-transform: capitalize;
+  border-bottom-left-radius: ${THEME.borderRadius}px;
+  border-bottom-right-radius: ${THEME.borderRadius}px;
 `;
 
 const SudokusContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  margin: 0 -10px;
+  margin: 0 -${THEME.spacer.x2}px;
 `;
 
 const SudokuContainer = styled.div`
-  padding: 10px;
+  padding: ${THEME.spacer.x2}px;
 `;
 
 const SudokuPreviewPlaceholder: React.StatelessComponent<{size: number}> = ({size}) => (

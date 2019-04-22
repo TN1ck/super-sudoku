@@ -6,7 +6,7 @@ import {connect} from "react-redux";
 
 const HeaderContainer = styled.div`
   padding: ${THEME.spacer.x2}px;
-  background: white;
+  background: ${THEME.colors.foreground};
   display: flex;
 `;
 
@@ -20,17 +20,17 @@ const HeaderLink = styled.li`
   float: left;
   a {
     position: relative;
-    color: black;
+    ${THEME.colors.background};
     text-decoration: none;
 
     &:visited {
-      color: black;
+      color: ${THEME.colors.background};
     }
     padding: ${THEME.spacer.x1}px ${THEME.spacer.x2}px;
     border-radius: ${THEME.borderRadius}px;
 
     &:hover {
-      color: ${THEME.colors.gray100};
+      color: ${THEME.colors.primary};
     }
   }
 `;

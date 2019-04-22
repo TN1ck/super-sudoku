@@ -5,15 +5,15 @@ const Button = styled.button<{
   active?: boolean;
 }>`
   border-radius: ${THEME.borderRadius}px;
-  background: white;
-  color: black;
+  background: ${THEME.colors.foreground};
+  color: ${THEME.colors.background};
   font-size: ${THEME.fontSize.base}px;
-  padding: ${THEME.spacer.x2}px;
+  padding: ${THEME.spacer.x2 + THEME.spacer.x1}px;
   box-shadow: ${THEME.boxShadow};
   border: none;
   transition: transform 0.3s ease-out;
   &:hover {
-    filter: brightness(110%);
+    filter: brightness(90%);
   }
 
   &:focus {
@@ -23,7 +23,7 @@ const Button = styled.button<{
   ${props =>
     props.active &&
     css`
-      filter: brightness(110%);
+      filter: brightness(90%);
       transform: scale(1.1);
     `}
 `;

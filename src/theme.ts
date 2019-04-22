@@ -1,16 +1,18 @@
 const THEME = {
   colors: {
     primary: "#F09A7A",
+    foreground: "#FFFFFF",
+    background: "#333333",
+  },
+  sudokuColors: {
+    numberInitial: "black",
+    number: "#F09A7A",
+    note: "#F09A7A",
+    background: "#FFFFFF",
+    gridLine: "#eeeeee",
+    gridLineBold: "#aaaaaa",
+    cellBorderHighlight: "#F09A7A",
     cellHighlight: "rgba(240, 54, 22, 0.2)",
-    secondary: "orange",
-    gray700: "#EEEEEE",
-    gray600: "#CCCCCC",
-    gray500: "#AAAAAA",
-    gray400: "#888888",
-    gray300: "#666666",
-    gray200: "#444444",
-    gray100: "#222222",
-    white: "#FFFFFF",
   },
   menuColors: {
     normal: "#F09A7A",
@@ -38,7 +40,7 @@ const THEME = {
   },
   boxShadow: "none",
   boxShadowSmall: "none",
-  borderRadius: 0,
+  borderRadius: 2,
   lineHeight: 1.5,
   sizes: {
     header: 60,

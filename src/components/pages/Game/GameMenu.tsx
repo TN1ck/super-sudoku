@@ -14,7 +14,8 @@ import GameSelect from "./GameSelect";
 import Button from "src/components/modules/Button";
 
 export const GameMenuContainer = styled.div`
-  background-color: rgba(0, 0, 0, 0.8);
+  // rgba hex colors
+  background-color: ${THEME.colors.background + "AA"};
   position: absolute;
   z-index: 20;
   border-radius: ${THEME.borderRadius}px;
@@ -35,7 +36,7 @@ const GameMenuCenter = styled.div`
 `;
 
 const GameWonText = styled.div`
-  color: white;
+  color: ${THEME.colors.foreground};
   font-size: 32px;
   padding-bottom: ${THEME.spacer.x3}px;
 `;
