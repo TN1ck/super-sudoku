@@ -8,6 +8,8 @@ import {Cell} from "src/engine/utility";
 
 const ControlsButton = styled(Button)`
   width: 100%;
+  padding-left: 0;
+  padding-right: 0;
 `;
 
 const ControlContainer = styled.div`

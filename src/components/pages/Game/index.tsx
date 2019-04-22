@@ -130,7 +130,7 @@ const GameGrid = styled.div`
       "game-main"
       "game-controls";
     max-width: ${THEME.widths.maxMobile - THEME.spacer.paddingMobile * 2}px;
-    grid-template-columns: auto;
+    grid-template-columns: 1fr;
     grid-column-gap: 0;
     padding-bottom: 0;
   }

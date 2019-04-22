@@ -24,6 +24,8 @@ const NumberButton = styled(Button)`
   display: flex;
   justify-content: center;
   align-items: center;
+  padding-left: 0;
+  padding-right: 0;
 `;
 
 export interface SudokuMenuNumbersStateProps {
