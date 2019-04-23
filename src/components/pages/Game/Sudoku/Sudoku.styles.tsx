@@ -120,13 +120,15 @@ export const GridCell = styled.div<{
       background-color: ${THEME.sudokuColors.cellHighlight};
     `}
 
-  ${props =>
-    props.active &&
-    css`
-      border: 2px solid
-        ${props.notesMode ? THEME.sudokuColors.cellBorderHighlightNote : THEME.sudokuColors.cellBorderHighlight};
-      background: ${THEME.sudokuColors.cellBackgroundHighlight};
-    `}
+  &, &:hover {
+    ${props =>
+      props.active &&
+      css`
+        border: 2px solid
+          ${props.notesMode ? THEME.sudokuColors.cellBorderHighlightNote : THEME.sudokuColors.cellBorderHighlight};
+        background: ${THEME.sudokuColors.cellBackgroundHighlight};
+      `}
+  }
 
   ${props =>
     props.conflict &&
