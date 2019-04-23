@@ -10,7 +10,8 @@ const CLEAR_NOTE = "sudoku/CLEAR_NOTE";
 const SET_NUMBER = "sudoku/SET_NUMBER";
 const CLEAR_NUMBER = "sudoku/CLEAR_NUMBER";
 
-import {DIFFICULTY, Cell, SimpleSudoku, simpleSudokuToCells, CellCoordinates} from "src/engine/utility";
+import {simpleSudokuToCells} from "src/engine/utility";
+import {DIFFICULTY, Cell, SimpleSudoku, CellCoordinates} from "src/engine/types";
 
 //
 // Actions

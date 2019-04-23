@@ -1,4 +1,5 @@
-import {SimpleSudoku, printSimpleSudoku, complexSudokuToSimpleSudoku, simpleSudokuToComplexSudoku} from "./utility";
+import {printSimpleSudoku, complexSudokuToSimpleSudoku, simpleSudokuToComplexSudoku} from "./utility";
+import {SimpleSudoku} from "./types";
 
 import * as solverAC3 from "./solverAC3";
 import * as solverOptimized from "./solverOptimized";
@@ -15,7 +16,7 @@ function measureTime<T>(fn: () => T, times: number): T {
   return result;
 }
 
-export function solve(grid: SimpleSudoku): SimpleSudoku {
+export function benchmark(grid: SimpleSudoku): SimpleSudoku {
   console.log(printSimpleSudoku(grid));
 
   const TIMES = 1;

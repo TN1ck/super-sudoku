@@ -1,4 +1,4 @@
-import {DIFFICULTY} from "src/engine/utility";
+import {DIFFICULTY} from "src/engine/types";
 import SUDOKUS from "src/assets/sudokus";
 
 const SET_DIFFICULTY = "choose/SET_DIFFICULTY";

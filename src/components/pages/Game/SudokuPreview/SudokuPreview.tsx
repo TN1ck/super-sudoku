@@ -1,5 +1,5 @@
 import React from "react";
-import {SimpleSudoku} from "src/engine/utility";
+import {SimpleSudoku} from "src/engine/types";
 import styled, {css} from "styled-components";
 import THEME from "src/theme";
 

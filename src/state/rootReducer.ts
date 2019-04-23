@@ -1,7 +1,7 @@
 import {combineReducers} from "redux";
 import sudoku, {SudokuState} from "./sudoku";
 import game, {GameState} from "./game";
-import choose, {ChooseState} from "./game/choose";
+import choose, {ChooseState} from "./choose";
 
 const rootReducer = combineReducers({
   sudoku,

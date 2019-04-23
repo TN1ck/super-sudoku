@@ -21,7 +21,8 @@
 import * as lodash from "lodash";
 import * as solverAC3 from "./solverAC3";
 
-import {SUDOKU_NUMBERS, SUDOKU_COORDINATES, DIFFICULTY, SimpleSudoku} from "./utility";
+import {SUDOKU_NUMBERS, SUDOKU_COORDINATES} from "./utility";
+import {DIFFICULTY, SimpleSudoku} from "./types";
 
 const DIFFICULTY_MAPPING = {
   [DIFFICULTY.EASY]: 6.234,

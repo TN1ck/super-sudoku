@@ -1,10 +1,10 @@
 import * as React from "react";
 import key from "keymaster";
-import {DIFFICULTY} from "src/engine/utility";
-import {setSudoku} from "src/ducks/sudoku";
-import {nextSudoku, previousSudoku} from "src/ducks/game/choose";
-import {continueGame} from "src/ducks/game";
-import {RootState} from "src/ducks";
+import {DIFFICULTY} from "src/engine/types";
+import {setSudoku} from "src/state/sudoku";
+import {nextSudoku, previousSudoku} from "src/state/choose";
+import {continueGame} from "src/state/game";
+import {RootState} from "src/state/rootReducer";
 import {connect} from "react-redux";
 
 import SUDOKUS from "src/assets/sudokus";

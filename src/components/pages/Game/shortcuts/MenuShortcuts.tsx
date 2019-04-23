@@ -1,7 +1,7 @@
 import * as React from "react";
 import key from "keymaster";
 import {ShortcutScope} from "./ShortcutScope";
-import {continueGame} from "src/ducks/game";
+import {continueGame} from "src/state/game";
 import {connect} from "react-redux";
 
 interface GameMenuShortcutsDispatchProps {

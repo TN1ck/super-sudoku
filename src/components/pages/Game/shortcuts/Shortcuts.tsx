@@ -1,6 +1,6 @@
 import React from "react";
 import key from "keymaster";
-import {GameStateMachine} from "src/ducks/game";
+import {GameStateMachine} from "src/state/game";
 import MenuShortcuts from "./MenuShortcuts";
 import GridShortcuts from "./GridShortcuts";
 import GameSelectShortcuts from "./GameSelectShortcuts";

@@ -1,44 +1,5 @@
 import * as _ from "lodash";
-/*
-    _x = 0       _x = 1     _x = 2
-.-----0-----------1----------2------|
-|   x < 3   | 3 < x < 6 |   x > 6   |  _y = 0
-|   y < 3   | y < 3     |   y < 3   |
-|-----3-----------4----------5------|
-|   x < 3   | 3 < x < 6 |   x > 6   |  _y = 1
-| 3 < y < 6 | 3 < y < 6 | 3 < y < 6 |
-.-----6-----------7----------8------|
-|   x < 3   | 3 < x < 6 |   x > 6   |  _y = 2
-|   y > 6   | y > 6     |   y > 6   |
-|-----------------------------------|
-square = _y * 3 + _x;
-*/
-
-export enum DIFFICULTY {
-  EASY = "easy",
-  MEDIUM = "medium",
-  HARD = "hard",
-  EVIL = "evil",
-}
-
-export interface CellCoordinates {
-  x: number;
-  y: number;
-}
-
-export interface SimpleCell extends CellCoordinates {
-  number: number;
-}
-
-export type ComplexSudoku = SimpleCell[];
-export type SimpleSudoku = number[][];
-export type DomainSudoku = number[][][];
-export interface Cell extends SimpleCell {
-  initial: boolean;
-  notes: Set<number>;
-  solution: number;
-}
-
+import {SimpleSudoku, ComplexSudoku, Cell} from "./types";
 export const SUDOKU_COORDINATES = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 export const SUDOKU_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -79,6 +40,20 @@ export const solvableSudoku2 = [
 ].join("\n");
 
 // SQUARE TABLE
+/*
+    _x = 0       _x = 1     _x = 2
+.-----0-----------1----------2------|
+|   x < 3   | 3 < x < 6 |   x > 6   |  _y = 0
+|   y < 3   | y < 3     |   y < 3   |
+|-----3-----------4----------5------|
+|   x < 3   | 3 < x < 6 |   x > 6   |  _y = 1
+| 3 < y < 6 | 3 < y < 6 | 3 < y < 6 |
+.-----6-----------7----------8------|
+|   x < 3   | 3 < x < 6 |   x > 6   |  _y = 2
+|   y > 6   | y > 6     |   y > 6   |
+|-----------------------------------|
+square = _y * 3 + _x;
+*/
 export const SQUARE_TABLE = (function() {
   const cells: Array<[number, number]> = [].concat(
     ...SUDOKU_COORDINATES.map(x => {

@@ -1,5 +1,6 @@
 import * as _ from "lodash";
-import {SUDOKU_NUMBERS, SQUARE_TABLE, squareIndex, SimpleSudoku, duplicates} from "./utility";
+import {SUDOKU_NUMBERS, SQUARE_TABLE, squareIndex, duplicates} from "./utility";
+import {SimpleSudoku} from "./types";
 
 function isFilled(grid: SimpleSudoku): boolean {
   return grid.every(row => row.every(n => n !== 0));

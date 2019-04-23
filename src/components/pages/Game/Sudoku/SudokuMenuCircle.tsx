@@ -1,12 +1,13 @@
 import * as React from "react";
 import {connect} from "react-redux";
-import {setNumber, clearNumber, setNote, clearNote} from "src/ducks/sudoku";
-import {SUDOKU_NUMBERS, Cell} from "src/engine/utility";
+import {setNumber, clearNumber, setNote, clearNote} from "src/state/sudoku";
+import {SUDOKU_NUMBERS} from "src/engine/utility";
+import {Cell} from "src/engine/types";
 import styled, {css} from "styled-components";
 import THEME from "src/theme";
-import {showMenu} from "src/ducks/game";
+import {showMenu} from "src/state/game";
 import {Bounds} from "src/utils/types";
-import {RootState} from "src/ducks";
+import {RootState} from "src/state/rootReducer";
 
 const MenuCircleContainer = styled.svg`
   z-index: 7;

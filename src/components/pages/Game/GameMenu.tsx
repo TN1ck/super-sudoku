@@ -1,14 +1,14 @@
 import * as React from "react";
 
 import {connect} from "react-redux";
-import {setSudoku} from "src/ducks/sudoku";
-import {continueGame, resetGame, newGame, setGameState, toggleShowHints, GameStateMachine} from "src/ducks/game";
-import {DIFFICULTY} from "src/engine/utility";
+import {setSudoku} from "src/state/sudoku";
+import {continueGame, resetGame, newGame, setGameState, toggleShowHints, GameStateMachine} from "src/state/game";
+import {DIFFICULTY} from "src/engine/types";
 
 import THEME from "src/theme";
 import styled from "styled-components";
-import {RootState} from "src/ducks";
-import {changeSudoku, setDifficulty, previousSudoku, nextSudoku} from "src/ducks/game/choose";
+import {RootState} from "src/state/rootReducer";
+import {changeSudoku, setDifficulty, previousSudoku, nextSudoku} from "src/state/choose";
 
 import GameSelect from "./GameSelect";
 import Button from "src/components/modules/Button";

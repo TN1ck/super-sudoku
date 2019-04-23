@@ -2,7 +2,8 @@ import * as fs from "fs";
 import * as program from "commander";
 import * as generate from "../src/engine/generate";
 import * as solverAC3 from "../src/engine/solverAC3";
-import {printSimpleSudoku, DIFFICULTY} from "../src/engine/utility";
+import {printSimpleSudoku} from "../src/engine/utility";
+import {DIFFICULTY} from "../src/engine/types";
 
 program
   .version("0.0.1")

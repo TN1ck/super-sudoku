@@ -1,5 +1,6 @@
 import * as _ from "lodash";
-import {SUDOKU_NUMBERS, SimpleCell, ComplexSudoku} from "./utility";
+import {SUDOKU_NUMBERS} from "./utility";
+import {SimpleCell, ComplexSudoku} from "./types";
 
 function duplicates(array: ComplexSudoku): ComplexSudoku {
   const grouped = _.groupBy(array, c => String(c.number));
@@ -57,16 +58,18 @@ function everyFieldIsCorrect(grid: ComplexSudoku): boolean {
 }
 
 function getMinimumRemainingValue(grid: ComplexSudoku) {
-  const remainingValues = grid.filter(c => !c.number).map(c => {
-    const cells = checkRow(grid, c)
-      .concat(checkColumn(grid, c))
-      .concat(checkSquare(grid, c));
-    const uniqCells = _.uniqBy(cells, c => c.number);
-    return {
-      cell: c,
-      cells: uniqCells,
-    };
-  });
+  const remainingValues = grid
+    .filter(c => !c.number)
+    .map(c => {
+      const cells = checkRow(grid, c)
+        .concat(checkColumn(grid, c))
+        .concat(checkSquare(grid, c));
+      const uniqCells = _.uniqBy(cells, c => c.number);
+      return {
+        cell: c,
+        cells: uniqCells,
+      };
+    });
   const sortedRemainingValues = _.sortBy(remainingValues, ({cells}) => -cells.length);
   const emptyCell = sortedRemainingValues[0].cell;
   return emptyCell;
@@ -94,12 +97,14 @@ export function* solveGridGenerator(stack: ComplexSudoku[] = []): Iterable<Compl
       });
 
       const newGrids = newCells
-        .map((c: SimpleCell): ComplexSudoku => {
-          // remove the cell from the grid and use the new one
-          const newGrid = grid.filter(cc => `${c.x}-${c.y}` !== `${cc.x}-${cc.y}`);
-          newGrid.push(c);
-          return newGrid;
-        })
+        .map(
+          (c: SimpleCell): ComplexSudoku => {
+            // remove the cell from the grid and use the new one
+            const newGrid = grid.filter(cc => `${c.x}-${c.y}` !== `${cc.x}-${cc.y}`);
+            newGrid.push(c);
+            return newGrid;
+          },
+        )
         .filter(g => everyFieldIsCorrect(g));
 
       yield* solveGridGenerator(newGrids.concat(rest));
@@ -138,12 +143,14 @@ export function _solveGrid(
   });
 
   const newGrids = newCells
-    .map((c: SimpleCell): ComplexSudoku => {
-      // remove the cell from the grid and use the new one
-      const newGrid = grid.filter(cc => `${c.x}-${c.y}` !== `${cc.x}-${cc.y}`);
-      newGrid.push(c);
-      return newGrid;
-    })
+    .map(
+      (c: SimpleCell): ComplexSudoku => {
+        // remove the cell from the grid and use the new one
+        const newGrid = grid.filter(cc => `${c.x}-${c.y}` !== `${cc.x}-${cc.y}`);
+        newGrid.push(c);
+        return newGrid;
+      },
+    )
     .filter(g => everyFieldIsCorrect(g));
 
   return _solveGrid(newGrids.concat(rest), iterations);

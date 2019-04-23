@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import {getTime} from "src/ducks/game";
+import {getTime} from "src/state/game";
 import styled from "styled-components";
 import THEME from "src/theme";
 

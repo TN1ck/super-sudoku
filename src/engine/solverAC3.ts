@@ -1,5 +1,6 @@
 import * as _ from "lodash";
-import {SQUARE_TABLE, SUDOKU_NUMBERS, DomainSudoku, SimpleSudoku, squareIndex} from "./utility";
+import {SQUARE_TABLE, SUDOKU_NUMBERS, squareIndex} from "./utility";
+import {DomainSudoku, SimpleSudoku} from "./types";
 
 function removeValuesFromDomain(domain1: number[], domain2: number[]): [number[], boolean] {
   let change = false;

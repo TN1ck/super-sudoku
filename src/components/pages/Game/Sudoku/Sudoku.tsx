@@ -1,5 +1,5 @@
 import * as React from "react";
-import {showMenu, selectCell, hideMenu} from "src/ducks/game";
+import {showMenu, selectCell, hideMenu} from "src/state/game";
 
 import SudokuMenuCircle, {MenuWrapper, MenuContainer} from "./SudokuMenuCircle";
 import {
@@ -11,9 +11,9 @@ import {
   CellNoteContainer,
   SudokuContainer,
 } from "src/components/pages/Game/Sudoku/Sudoku.styles";
-import SudokuGame from "src/engine/game";
+import SudokuGame from "src/sudoku-game/SudokuGame";
 import {Bounds} from "src/utils/types";
-import {Cell, CellCoordinates} from "src/engine/utility";
+import {Cell, CellCoordinates} from "src/engine/types";
 import {flatten} from "src/utils/collection";
 
 const SudokuGrid: React.StatelessComponent<{width: number; height: number; hideLeftRight?: boolean}> = ({

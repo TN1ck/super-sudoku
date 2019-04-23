@@ -18,9 +18,9 @@ import {
   activateSettings,
   deactivateNotesMode,
   toggleShowCircleMenu,
-} from "src/ducks/game";
+} from "src/state/game";
 
-import {setNumber, setNote, clearCell, getHint} from "src/ducks/sudoku";
+import {setNumber, setNote, clearCell, getHint} from "src/state/sudoku";
 
 import {Sudoku} from "src/components/pages/Game/Sudoku/Sudoku";
 
@@ -30,10 +30,10 @@ import GameMenu from "./GameMenu";
 import Button from "src/components/modules/Button";
 import styled from "styled-components";
 import THEME from "src/theme";
-import {RootState} from "src/ducks";
-import SudokuGame from "src/engine/game";
-import {emptyGrid} from "src/ducks/sudoku";
-import {DIFFICULTY, Cell} from "src/engine/utility";
+import {RootState} from "src/state/rootReducer";
+import SudokuGame from "src/sudoku-game/SudokuGame";
+import {emptyGrid} from "src/state/sudoku";
+import {DIFFICULTY, Cell} from "src/engine/types";
 import SudokuMenuNumbers, {
   SudokuMenuNumbersStateProps,
   SudokuMenuNumbersDispatchProps,
@@ -238,9 +238,9 @@ class Game extends React.Component<GameProps> {
   }
 
   onVisibilityChange = () => {
-    if (document.visibilityState === "hidden") {
+    if (document.visibilityState === "hidden" && this.props.game.state === GameStateMachine.running) {
       this.props.pauseGame();
-    } else {
+    } else if (this.props.game.state === GameStateMachine.paused) {
       this.props.continueGame();
     }
   };
@@ -253,56 +253,54 @@ class Game extends React.Component<GameProps> {
         })
       : null;
     return (
-      <div style={{height: "100%"}}>
-        <GameContainer>
-          <GameMenu />
-          <Container>
-            <GameGrid>
-              <Shortcuts gameState={game.state} />
-              <GameHeaderArea>
-                <GameHeaderLeftSide>
-                  <DifficultyShow>{difficulty}</DifficultyShow>
-                  <div style={{width: THEME.spacer.x2}} />
-                  {"|"}
-                  <div style={{width: THEME.spacer.x2}} />
-                  <GameTimer startTime={game.startTime} stopTime={game.stopTime} offsetTime={game.offsetTime} />
-                </GameHeaderLeftSide>
-                <GameHeaderRightSide>
-                  <PauseButton
-                    continueGame={continueGame}
-                    pauseGame={pauseGame}
-                    running={game.state === GameStateMachine.running}
-                  />
-                  <NewGameButton newGame={chooseGame} />
-                </GameHeaderRightSide>
-              </GameHeaderArea>
-              <GameMainArea>
-                <Sudoku
-                  notesMode={this.props.game.notesMode}
-                  shouldShowMenu={this.props.game.showMenu && this.props.game.showCircleMenu}
-                  sudoku={this.props.sudoku}
-                  showMenu={this.props.showMenu}
-                  hideMenu={this.props.hideMenu}
-                  selectCell={this.props.selectCell}
-                  showHints={game.showHints && game.state === GameStateMachine.running}
-                  activeCell={activeCell}
+      <GameContainer>
+        <GameMenu />
+        <Container>
+          <GameGrid>
+            <Shortcuts gameState={game.state} />
+            <GameHeaderArea>
+              <GameHeaderLeftSide>
+                <DifficultyShow>{difficulty}</DifficultyShow>
+                <div style={{width: THEME.spacer.x2}} />
+                {"|"}
+                <div style={{width: THEME.spacer.x2}} />
+                <GameTimer startTime={game.startTime} stopTime={game.stopTime} offsetTime={game.offsetTime} />
+              </GameHeaderLeftSide>
+              <GameHeaderRightSide>
+                <PauseButton
+                  continueGame={continueGame}
+                  pauseGame={pauseGame}
+                  running={game.state === GameStateMachine.running}
                 />
-              </GameMainArea>
-              <GameFooterArea>
-                <SudokuMenuNumbersConnected />
-                <SudokuMenuControlsConnected />
-                <h1>Settings</h1>
-                <Checkbox id="generated_notes" checked={game.showHints} onChange={this.props.toggleShowHints}>
-                  {"Show auto generated notes"}
-                </Checkbox>
-                <Checkbox id="circle_menu" checked={game.showCircleMenu} onChange={this.props.toggleShowCircleMenu}>
-                  {"Show circle menu when a cell is selected"}
-                </Checkbox>
-              </GameFooterArea>
-            </GameGrid>
-          </Container>
-        </GameContainer>
-      </div>
+                <NewGameButton newGame={chooseGame} />
+              </GameHeaderRightSide>
+            </GameHeaderArea>
+            <GameMainArea>
+              <Sudoku
+                notesMode={this.props.game.notesMode}
+                shouldShowMenu={this.props.game.showMenu && this.props.game.showCircleMenu}
+                sudoku={this.props.sudoku}
+                showMenu={this.props.showMenu}
+                hideMenu={this.props.hideMenu}
+                selectCell={this.props.selectCell}
+                showHints={game.showHints && game.state === GameStateMachine.running}
+                activeCell={activeCell}
+              />
+            </GameMainArea>
+            <GameFooterArea>
+              <SudokuMenuNumbersConnected />
+              <SudokuMenuControlsConnected />
+              <h1>Settings</h1>
+              <Checkbox id="generated_notes" checked={game.showHints} onChange={this.props.toggleShowHints}>
+                {"Show auto generated notes"}
+              </Checkbox>
+              <Checkbox id="circle_menu" checked={game.showCircleMenu} onChange={this.props.toggleShowCircleMenu}>
+                {"Show circle menu when a cell is selected"}
+              </Checkbox>
+            </GameFooterArea>
+          </GameGrid>
+        </Container>
+      </GameContainer>
     );
   }
 }

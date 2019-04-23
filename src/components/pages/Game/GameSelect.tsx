@@ -2,13 +2,13 @@ import * as React from "react";
 import LazyLoad from "react-lazyload";
 import SUDOKUS from "src/assets/sudokus";
 import {connect} from "react-redux";
-import {RootState} from "src/ducks";
-import {DIFFICULTY} from "src/engine/utility";
+import {RootState} from "src/state/rootReducer";
+import {DIFFICULTY} from "src/engine/types";
 import styled from "styled-components";
 import SudokuPreview from "./SudokuPreview/SudokuPreview";
-import {setDifficulty} from "src/ducks/game/choose";
-import {newGame} from "src/ducks/game";
-import {setSudoku} from "src/ducks/sudoku";
+import {setDifficulty} from "src/state/choose";
+import {newGame} from "src/state/game";
+import {setSudoku} from "src/state/sudoku";
 import THEME from "src/theme";
 
 const TabBar = styled.div`

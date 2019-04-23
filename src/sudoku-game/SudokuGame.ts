@@ -1,5 +1,6 @@
 import * as _ from "lodash";
-import {SUDOKU_NUMBERS, Cell} from "src/engine/utility";
+import {SUDOKU_NUMBERS} from "src/engine/utility";
+import {Cell} from "src/engine/types";
 
 export interface CellIndexed extends Cell {
   index: number;

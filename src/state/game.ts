@@ -1,4 +1,4 @@
-import {CellCoordinates} from "src/engine/utility";
+import {CellCoordinates} from "src/engine/types";
 
 export enum GameStateMachine {
   running = "RUNNING",
@@ -201,6 +201,13 @@ export default function gameReducer(state: GameState = gameState, action): GameS
             startTime,
             offsetTime,
             stopTime: 0,
+          };
+        }
+        case GameStateMachine.wonGame: {
+          return {
+            ...state,
+            stopTime: +new Date(),
+            state: GameStateMachine.wonGame,
           };
         }
         default: {

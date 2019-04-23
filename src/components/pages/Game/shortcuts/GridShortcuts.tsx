@@ -1,11 +1,12 @@
 import * as React from "react";
 import key from "keymaster";
-import {Cell, SUDOKU_COORDINATES, SUDOKU_NUMBERS} from "src/engine/utility";
-import {showMenu, hideMenu, selectCell, pauseGame, activateNotesMode, deactivateNotesMode} from "src/ducks/game";
-import {setNumber, clearNumber, getHint, setNote, clearNote} from "src/ducks/sudoku";
+import {SUDOKU_COORDINATES, SUDOKU_NUMBERS} from "src/engine/utility";
+import {Cell} from "src/engine/types";
+import {showMenu, hideMenu, selectCell, pauseGame, activateNotesMode, deactivateNotesMode} from "src/state/game";
+import {setNumber, clearNumber, getHint, setNote, clearNote} from "src/state/sudoku";
 import {ShortcutScope} from "./ShortcutScope";
 import {connect} from "react-redux";
-import {RootState} from "src/ducks";
+import {RootState} from "src/state/rootReducer";
 
 interface GameKeyboardShortcutsStateProps {
   activeCell: Cell;

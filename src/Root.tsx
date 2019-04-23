@@ -5,7 +5,7 @@ import {Router} from "@reach/router";
 
 import {Provider} from "react-redux";
 
-import configureStore from "src/store/configureStore";
+import configureStore from "src/state/configureStore";
 
 import {createGlobalStyle} from "styled-components";
 import THEME from "src/theme";

@@ -1,6 +1,7 @@
 import * as React from "react";
-import {setNumber, setNote} from "src/ducks/sudoku";
-import {SUDOKU_NUMBERS, CellCoordinates} from "src/engine/utility";
+import {setNumber, setNote} from "src/state/sudoku";
+import {SUDOKU_NUMBERS} from "src/engine/utility";
+import {CellCoordinates} from "src/engine/types";
 import THEME from "src/theme";
 import styled from "styled-components";
 import Button from "src/components/modules/Button";

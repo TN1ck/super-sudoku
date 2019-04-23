@@ -1,10 +1,10 @@
 import * as React from "react";
-import {clearCell, getHint} from "src/ducks/sudoku";
+import {clearCell, getHint} from "src/state/sudoku";
 import THEME from "src/theme";
 import styled from "styled-components";
-import {activateNotesMode, deactivateNotesMode, activateSettings} from "src/ducks/game";
+import {activateNotesMode, deactivateNotesMode, activateSettings} from "src/state/game";
 import Button from "../../../modules/Button";
-import {CellCoordinates} from "src/engine/utility";
+import {CellCoordinates} from "src/engine/types";
 
 const ControlsButton = styled(Button)`
   width: 100%;
