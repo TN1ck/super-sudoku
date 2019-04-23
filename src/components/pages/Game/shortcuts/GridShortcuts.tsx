@@ -112,7 +112,7 @@ class GameKeyboardShortcuts extends React.Component<
       key(String(n), ShortcutScope.Game, () => {
         if (!this.props.activeCell.initial) {
           if (this.props.notesMode) {
-            if (this.props.activeCell.notes.has(n)) {
+            if (this.props.activeCell.notes.includes(n)) {
               this.props.clearNote(this.props.activeCell, n);
             } else {
               this.props.setNote(this.props.activeCell, n);

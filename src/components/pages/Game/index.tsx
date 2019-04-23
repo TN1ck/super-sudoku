@@ -45,6 +45,9 @@ import SudokuMenuControls, {
 import {Container} from "src/components/modules/Layout";
 import Shortcuts from "./shortcuts/Shortcuts";
 import Checkbox from "src/components/modules/Checkbox";
+import store from "src/state/store";
+import {Unsubscribe} from "redux";
+import {saveToLocalStorage} from "src/sudoku-game/progress";
 
 const SudokuMenuControlsConnected = connect<SudokuMenuControlsStateProps, SudokuMenuControlsDispatchProps>(
   (state: RootState) => ({
@@ -216,6 +219,7 @@ interface GameStateProps {
 type GameProps = GameStateProps & GameDispatchProps;
 
 class Game extends React.Component<GameProps> {
+  unsubscribe: Unsubscribe;
   componentDidUpdate(prevProps: GameProps) {
     // check if won
     const wasSolved = SudokuGame.isSolved(prevProps.sudoku);
@@ -229,9 +233,14 @@ class Game extends React.Component<GameProps> {
     if (typeof document !== "undefined") {
       document.addEventListener("visibilitychange", this.onVisibilityChange, false);
     }
+    this.unsubscribe = store.subscribe(() => {
+      const state: RootState = store.getState();
+      saveToLocalStorage(state.game, state.sudoku);
+    });
   }
 
   componentWillUnmount() {
+    this.unsubscribe();
     if (typeof document !== "undefined") {
       document.removeEventListener("visibilitychange", this.onVisibilityChange, false);
     }

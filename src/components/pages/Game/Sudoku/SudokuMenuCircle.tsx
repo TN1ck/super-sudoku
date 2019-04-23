@@ -182,7 +182,7 @@ class MenuCircle extends React.Component<MenuCircleOwnProps & MenuCircleDispatch
           let isActive = number === cell.number;
 
           if (this.props.notesMode) {
-            isActive = cell.notes.has(number);
+            isActive = cell.notes.includes(number);
           }
 
           const colors = this.props.notesMode

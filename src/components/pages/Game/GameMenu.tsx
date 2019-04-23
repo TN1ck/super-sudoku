@@ -1,14 +1,11 @@
 import * as React from "react";
 
 import {connect} from "react-redux";
-import {setSudoku} from "src/state/sudoku";
-import {continueGame, resetGame, newGame, setGameState, toggleShowHints, GameStateMachine} from "src/state/game";
-import {DIFFICULTY} from "src/engine/types";
+import {setGameState, GameStateMachine} from "src/state/game";
 
 import THEME from "src/theme";
 import styled from "styled-components";
 import {RootState} from "src/state/rootReducer";
-import {changeSudoku, setDifficulty, previousSudoku, nextSudoku} from "src/state/choose";
 
 import GameSelect from "./GameSelect";
 import Button from "src/components/modules/Button";
@@ -67,58 +64,24 @@ const GameMenuSelection = () => {
 };
 
 interface GameMenuDispatchProps {
-  continueGame: typeof continueGame;
-  resetGame: typeof resetGame;
-  newGame: typeof newGame;
-  setSudoku: typeof setSudoku;
-  changeSudoku: typeof changeSudoku;
-  nextSudoku: typeof nextSudoku;
-  previousSudoku: typeof previousSudoku;
   setGameState: typeof setGameState;
-  setDifficulty: typeof setDifficulty;
-  toggleShowHints: typeof toggleShowHints;
 }
 
 interface GameMenuStateProps {
-  showHints: boolean;
-  sudokuIndex: number;
   state: GameStateMachine;
-  difficulty: DIFFICULTY;
 }
 
 const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
   (state: RootState) => {
     return {
-      sudokuIndex: state.choose.sudokuIndex,
       state: state.game.state,
-      difficulty: state.choose.difficulty,
-      showHints: state.game.showHints,
     };
   },
   {
-    continueGame,
-    resetGame,
-    newGame,
-    setSudoku,
-    changeSudoku,
-    nextSudoku,
-    previousSudoku,
     setGameState,
-    setDifficulty,
-    toggleShowHints,
   },
 )(
   class GameMenu extends React.Component<GameMenuStateProps & GameMenuDispatchProps> {
-    constructor(props) {
-      super(props);
-      this.newGame = this.newGame.bind(this);
-    }
-    newGame(_, sudoku, solution) {
-      this.props.setSudoku(this.props.difficulty, sudoku, solution);
-      this.props.newGame();
-      this.props.continueGame();
-      this.props.setGameState(GameStateMachine.running);
-    }
     render() {
       const chooseGame = () => this.props.setGameState(GameStateMachine.chooseGame);
 

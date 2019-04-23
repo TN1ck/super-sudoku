@@ -30,6 +30,7 @@ lineReader.on("line", line => {
       iterations: currentIterations,
       sudoku,
       solution: solve(sudoku).sudoku,
+      id: sudokus.length,
     });
     currentIterations = 0;
     index = 0;
@@ -49,11 +50,6 @@ lineReader.on("close", () => {
     return difficulty ? difficulty[2] : "not_grouped";
   });
   console.log(Object.keys(groupedSudokus).map(k => [k, groupedSudokus[k].length]));
-  for (const group of Object.values(groupedSudokus)) {
-    for (let i = 0; i < group.length; i++) {
-      group[i].id = i;
-    }
-  }
   // sort the groups
   const outputJson = {
     easy: groupedSudokus.easy,

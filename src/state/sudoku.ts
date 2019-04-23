@@ -11,7 +11,7 @@ const SET_NUMBER = "sudoku/SET_NUMBER";
 const CLEAR_NUMBER = "sudoku/CLEAR_NUMBER";
 
 import {simpleSudokuToCells} from "src/engine/utility";
-import {DIFFICULTY, Cell, SimpleSudoku, CellCoordinates} from "src/engine/types";
+import {Cell, SimpleSudoku, CellCoordinates} from "src/engine/types";
 
 //
 // Actions
@@ -75,12 +75,10 @@ export function clearNumber(cellCoordinates: CellCoordinates): SudokuAction {
   };
 }
 
-export function setSudoku(difficulty: DIFFICULTY, sudoku: SimpleSudoku, solution: SimpleSudoku) {
+export function setSudoku(sudoku: SimpleSudoku, solution: SimpleSudoku) {
   return {
-    difficulty,
     type: SET_SUDOKU,
     sudoku: simpleSudokuToCells(sudoku, solution),
-    solution,
   };
 }
 
@@ -114,13 +112,16 @@ export default function sudokuReducer(state: SudokuState = initialState, action)
     const isCell = cell.x === x && cell.y === y;
     if (isCell && !cell.initial) {
       switch (action.type) {
-        case SET_NOTE:
-          return {...cell, notes: new Set(cell.notes.add(action.note))};
-        case CLEAR_NOTE:
-          cell.notes.delete(action.note);
-          return {...cell, notes: new Set(cell.notes)};
+        case SET_NOTE: {
+          const notes = cell.notes.filter(n => n !== action.note).concat(action.note);
+          return {...cell, notes};
+        }
+        case CLEAR_NOTE: {
+          const notes = cell.notes.filter(n => n !== action.note);
+          return {...cell, notes};
+        }
         case CLEAR_CELL:
-          return {...cell, notes: new Set(), number: 0};
+          return {...cell, notes: [], number: 0};
         case SET_NUMBER:
           return {...cell, number: action.number};
         case CLEAR_NUMBER:

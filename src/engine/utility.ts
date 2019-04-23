@@ -111,7 +111,7 @@ export function simpleSudokuToCells(grid: SimpleSudoku, solution?: SimpleSudoku)
           x,
           y,
           number: n,
-          notes: new Set(),
+          notes: [],
           initial: n !== 0,
           solution: solution ? solution[y][x] : 0,
         };

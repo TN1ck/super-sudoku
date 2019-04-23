@@ -32,8 +32,11 @@ export function deactivateNotesMode() {
   };
 }
 
-export function newGame() {
-  return setGameState(GameStateMachine.running);
+export function newGame(sudokuId: number) {
+  return {
+    type: NEW_GAME,
+    sudokuId: sudokuId,
+  };
 }
 
 export function wonGame() {
@@ -102,6 +105,7 @@ export function toggleShowCircleMenu() {
 }
 
 export interface GameState {
+  sudokuId: number;
   startTime: number;
   offsetTime: number;
   stopTime: number;
@@ -117,6 +121,7 @@ export interface GameState {
 }
 
 const gameState: GameState = {
+  sudokuId: -1,
   won: false,
   showMenu: false,
   showCircleMenu: true,
@@ -159,6 +164,7 @@ export default function gameReducer(state: GameState = gameState, action): GameS
     case NEW_GAME:
       return {
         ...state,
+        sudokuId: action.sudokuId,
         state: GameStateMachine.running,
       };
 

@@ -5,11 +5,10 @@ import {Router} from "@reach/router";
 
 import {Provider} from "react-redux";
 
-import configureStore from "src/state/configureStore";
-
 import {createGlobalStyle} from "styled-components";
 import THEME from "src/theme";
 import Header from "./components/modules/Header";
+import store from "./state/store";
 
 const GlobalStyle = createGlobalStyle`
 
@@ -43,8 +42,6 @@ const GlobalStyle = createGlobalStyle`
     height: 100%;
   }
 `;
-
-const store = configureStore({});
 
 const App: React.StatelessComponent = () => {
   return (

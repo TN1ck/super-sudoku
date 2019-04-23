@@ -7,7 +7,7 @@ import {continueGame} from "src/state/game";
 import {RootState} from "src/state/rootReducer";
 import {connect} from "react-redux";
 
-import SUDOKUS from "src/assets/sudokus";
+import SUDOKUS from "src/sudoku-game/sudokus";
 import {ShortcutScope} from "./ShortcutScope";
 
 interface GameSelectShortcutsDispatchProps {
@@ -42,7 +42,7 @@ class GameSelectShortcuts extends React.Component<GameSelectShortcutsDispatchPro
     });
     key("enter", ShortcutScope.SelectSudoku, () => {
       const sudoku = SUDOKUS[this.props.difficulty][this.props.sudokuIndex];
-      this.props.setSudoku(this.props.difficulty, sudoku.sudoku, sudoku.solution);
+      this.props.setSudoku(sudoku.sudoku, sudoku.solution);
       this.props.continueGame();
     });
   }

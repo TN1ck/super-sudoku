@@ -16,6 +16,6 @@ export type SimpleSudoku = number[][];
 export type DomainSudoku = number[][][];
 export interface Cell extends SimpleCell {
   initial: boolean;
-  notes: Set<number>;
+  notes: number[];
   solution: number;
 }

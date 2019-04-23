@@ -1,6 +1,6 @@
 import * as React from "react";
 import LazyLoad from "react-lazyload";
-import SUDOKUS from "src/assets/sudokus";
+import SUDOKUS from "src/sudoku-game/sudokus";
 import {connect} from "react-redux";
 import {RootState} from "src/state/rootReducer";
 import {DIFFICULTY} from "src/engine/types";
@@ -48,7 +48,7 @@ const SudokuPreviewPlaceholder: React.StatelessComponent<{size: number}> = ({siz
 
 class GameIndex extends React.Component<{
   difficulty: DIFFICULTY;
-  chooseSudoku: (sudoku, solution) => void;
+  chooseSudoku: (sudoku) => void;
 }> {
   constructor(props) {
     super(props);
@@ -61,14 +61,14 @@ class GameIndex extends React.Component<{
 
     return (
       <SudokusContainer>
-        {sudokus.map(sudoku => {
+        {sudokus.map((sudoku, i) => {
           return (
             <LazyLoad height={size} key={sudoku.id} placeholder={<SudokuPreviewPlaceholder size={size} />}>
               <SudokuContainer>
                 <SudokuPreview
-                  onClick={() => chooseSudoku(sudoku.sudoku, sudoku.solution)}
+                  onClick={() => chooseSudoku(sudoku)}
                   size={size}
-                  id={sudoku.id + 1}
+                  id={i + 1}
                   sudoku={sudoku.sudoku}
                   darken
                 />
@@ -97,9 +97,9 @@ const GameSelect: React.StatelessComponent<GameSelectProps & GameSelectDispatchP
   newGame,
   setSudoku,
 }) => {
-  const chooseSudoku = (sudoku, solution) => {
-    newGame();
-    setSudoku(difficulty, sudoku, solution);
+  const chooseSudoku = sudoku => {
+    newGame(sudoku.id);
+    setSudoku(sudoku.sudoku, sudoku.solution);
   };
 
   return (
