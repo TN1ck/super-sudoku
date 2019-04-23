@@ -108,13 +108,6 @@ export const GridCell = styled.div<{
   left: ${props => props.bounds.left}%;
 
   ${props =>
-    props.conflict &&
-    css`
-      transition: background-color 0.3s ease;
-      background-color: ${THEME.sudokuColors.cellConflict};
-    `}
-
-  ${props =>
     props.highlightNumber &&
     css`
       transition: background-color 0.3s ease;
@@ -133,6 +126,13 @@ export const GridCell = styled.div<{
       border: 2px solid
         ${props.notesMode ? THEME.sudokuColors.cellBorderHighlightNote : THEME.sudokuColors.cellBorderHighlight};
       background: ${THEME.sudokuColors.cellBackgroundHighlight};
+    `}
+
+  ${props =>
+    props.conflict &&
+    css`
+      transition: background-color 0.3s ease;
+      background-color: ${THEME.sudokuColors.cellConflict};
     `}
 `;
 
