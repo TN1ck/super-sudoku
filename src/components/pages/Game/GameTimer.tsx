@@ -8,6 +8,10 @@ const GameTimerContainer = styled.div`
   color: white;
   font-size: ${THEME.fontSize.menu}px;
   text-align: center;
+
+  @media (max-width: 800px) {
+    font-size: ${THEME.fontSize.base}px;
+  }
 `;
 
 export default class GameTimer extends React.Component<{

@@ -103,6 +103,9 @@ const DifficultyShow = styled.div`
   color: white;
   text-transform: capitalize;
   font-size: ${THEME.fontSize.menu}px;
+  @media (max-width: 800px) {
+    font-size: ${THEME.fontSize.base}px;
+  }
 `;
 
 const GameGrid = styled.div`

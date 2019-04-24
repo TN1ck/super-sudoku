@@ -26,6 +26,10 @@ const Button = styled.button<{
       filter: brightness(90%);
       transform: scale(1.1);
     `}
+
+  @media (max-width: 800px) {
+    padding: ${THEME.spacer.x2}px ${THEME.spacer.x1}px;
+  }
 `;
 
 export default Button;
