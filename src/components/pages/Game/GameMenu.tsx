@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import {connect} from "react-redux";
-import {setGameState, GameStateMachine} from "src/state/game";
+import {setGameStateMachine, GameStateMachine} from "src/state/game";
 
 import THEME from "src/theme";
 import styled from "styled-components";
@@ -9,6 +9,7 @@ import {RootState} from "src/state/rootReducer";
 
 import GameSelect from "./GameSelect";
 import Button from "src/components/modules/Button";
+import {Container} from "src/components/modules/Layout";
 
 export const GameMenuContainer = styled.div`
   // rgba hex colors
@@ -45,12 +46,14 @@ const NewGameButton = styled(Button)`
 const WonGame = ({chooseGame}) => {
   return (
     <GameMenuContainer>
-      <GameMenuCenter>
-        <GameWonText>{"Congratulations, You won!"}</GameWonText>
-        <NewGameButton onClick={chooseGame} key="reset-game">
-          {"New Game"}
-        </NewGameButton>
-      </GameMenuCenter>
+      <Container>
+        <GameMenuCenter>
+          <GameWonText>{"Congratulations, You won!"}</GameWonText>
+          <NewGameButton onClick={chooseGame} key="reset-game">
+            {"New Game"}
+          </NewGameButton>
+        </GameMenuCenter>
+      </Container>
     </GameMenuContainer>
   );
 };
@@ -58,13 +61,15 @@ const WonGame = ({chooseGame}) => {
 const GameMenuSelection = () => {
   return (
     <GameMenuContainer>
-      <GameSelect />
+      <Container>
+        <GameSelect />
+      </Container>
     </GameMenuContainer>
   );
 };
 
 interface GameMenuDispatchProps {
-  setGameState: typeof setGameState;
+  setGameState: typeof setGameStateMachine;
 }
 
 interface GameMenuStateProps {
@@ -78,7 +83,7 @@ const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
     };
   },
   {
-    setGameState,
+    setGameState: setGameStateMachine,
   },
 )(
   class GameMenu extends React.Component<GameMenuStateProps & GameMenuDispatchProps> {

@@ -2,7 +2,8 @@
 // Constants
 //
 
-const SET_SUDOKU = "sudoku/SET_SUDOKU";
+export const SET_SUDOKU = "sudoku/SET_SUDOKU";
+export const SET_SUDOKU_STATE = "sudoku/SET_SUDOKU_STATE";
 const GET_HINT = "sudoku/GET_HINT";
 const CLEAR_CELL = "sudoku/CLEAR_CELL";
 const SET_NOTE = "sudoku/SET_NOTE";
@@ -84,6 +85,13 @@ export function setSudoku(sudoku: SimpleSudoku, solution: SimpleSudoku) {
 
 export type SudokuState = Cell[];
 
+export function setSudokuState(sudokuState: SudokuState) {
+  return {
+    type: SET_SUDOKU_STATE,
+    sudoku: sudokuState,
+  };
+}
+
 export const emptyGrid: SudokuState = simpleSudokuToCells([
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -98,12 +106,17 @@ export const emptyGrid: SudokuState = simpleSudokuToCells([
 const initialState = emptyGrid;
 
 export default function sudokuReducer(state: SudokuState = initialState, action) {
-  if (![SET_NOTE, SET_SUDOKU, CLEAR_NOTE, SET_NUMBER, CLEAR_NUMBER, CLEAR_CELL, GET_HINT].includes(action.type)) {
+  if (
+    ![SET_NOTE, SET_SUDOKU, CLEAR_NOTE, SET_NUMBER, CLEAR_NUMBER, CLEAR_CELL, GET_HINT, SET_SUDOKU_STATE].includes(
+      action.type,
+    )
+  ) {
     return state;
   }
 
   switch (action.type) {
     case SET_SUDOKU:
+    case SET_SUDOKU_STATE:
       return action.sudoku;
   }
 

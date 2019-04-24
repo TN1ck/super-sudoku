@@ -8,10 +8,11 @@ export enum GameStateMachine {
   settings = "SETTINGS",
 }
 
-const NEW_GAME = "game/NEW_GAME";
-const RESET_GAME = "game/RESET_GAME";
+export const NEW_GAME = "game/NEW_GAME";
+export const SET_GAME_STATE = "game/SET_GAME_STATE";
 
-const SET_GAME_STATE = "game/SET_GAME_STATE";
+const RESET_GAME = "game/RESET_GAME";
+const SET_GAME_STATE_MACHINE = "game/SET_GAME_STATE_MACHINE";
 const SHOW_MENU = "game/SHOW_MENU";
 const HIDE_MENU = "game/HIDE_MENU";
 const SELECT_CELL = "game/SELECT_MENU";
@@ -32,31 +33,32 @@ export function deactivateNotesMode() {
   };
 }
 
-export function newGame(sudokuId: number) {
+export function newGame(sudokuId: number, sudokuIndex: number) {
   return {
     type: NEW_GAME,
     sudokuId: sudokuId,
+    sudokuIndex: sudokuIndex,
   };
 }
 
 export function wonGame() {
-  return setGameState(GameStateMachine.wonGame);
+  return setGameStateMachine(GameStateMachine.wonGame);
 }
 
 export function pauseGame() {
-  return setGameState(GameStateMachine.paused);
+  return setGameStateMachine(GameStateMachine.paused);
 }
 
 export function continueGame() {
-  return setGameState(GameStateMachine.running);
+  return setGameStateMachine(GameStateMachine.running);
 }
 
 export function chooseGame() {
-  return setGameState(GameStateMachine.chooseGame);
+  return setGameStateMachine(GameStateMachine.chooseGame);
 }
 
 export function activateSettings() {
-  return setGameState(GameStateMachine.settings);
+  return setGameStateMachine(GameStateMachine.settings);
 }
 
 export function resetGame() {
@@ -85,9 +87,9 @@ export function hideMenu() {
   };
 }
 
-export function setGameState(state) {
+export function setGameStateMachine(state: GameStateMachine) {
   return {
-    type: SET_GAME_STATE,
+    type: SET_GAME_STATE_MACHINE,
     state,
   };
 }
@@ -106,6 +108,7 @@ export function toggleShowCircleMenu() {
 
 export interface GameState {
   sudokuId: number;
+  sudokuIndex: number;
   startTime: number;
   offsetTime: number;
   stopTime: number;
@@ -122,6 +125,7 @@ export interface GameState {
 
 const gameState: GameState = {
   sudokuId: -1,
+  sudokuIndex: -1,
   won: false,
   showMenu: false,
   showCircleMenu: true,
@@ -136,6 +140,13 @@ const gameState: GameState = {
   showNotes: false,
 };
 
+export function setGameState(state: GameState) {
+  return {
+    type: SET_GAME_STATE,
+    state,
+  };
+}
+
 export function getTime(startTime: number, offsetTime: number, stopTime: number) {
   const now = +new Date();
   if (startTime === 0) {
@@ -149,6 +160,8 @@ export function getTime(startTime: number, offsetTime: number, stopTime: number)
 
 export default function gameReducer(state: GameState = gameState, action): GameState {
   switch (action.type) {
+    case SET_GAME_STATE:
+      return action.state;
     case TOGGLE_SHOW_HINTS: {
       return {
         ...state,
@@ -165,7 +178,7 @@ export default function gameReducer(state: GameState = gameState, action): GameS
       return {
         ...state,
         sudokuId: action.sudokuId,
-        state: GameStateMachine.running,
+        sudokuIndex: action.sudokuIndex,
       };
 
     case RESET_GAME:
@@ -183,7 +196,7 @@ export default function gameReducer(state: GameState = gameState, action): GameS
         notesMode: false,
       };
 
-    case SET_GAME_STATE:
+    case SET_GAME_STATE_MACHINE:
       switch (action.state) {
         case GameStateMachine.paused: {
           return {

@@ -1,15 +1,16 @@
 import * as React from "react";
 import LazyLoad from "react-lazyload";
-import SUDOKUS from "src/sudoku-game/sudokus";
+import SUDOKUS, {SudokuRaw} from "src/sudoku-game/sudokus";
 import {connect} from "react-redux";
 import {RootState} from "src/state/rootReducer";
 import {DIFFICULTY} from "src/engine/types";
 import styled from "styled-components";
 import SudokuPreview from "./SudokuPreview/SudokuPreview";
 import {setDifficulty} from "src/state/choose";
-import {newGame} from "src/state/game";
-import {setSudoku} from "src/state/sudoku";
+import {newGame, setGameState, continueGame} from "src/state/game";
+import {setSudoku, setSudokuState} from "src/state/sudoku";
 import THEME from "src/theme";
+import {getState} from "src/sudoku-game/persistence";
 
 const TabBar = styled.div`
   display: flex;
@@ -38,6 +39,17 @@ const SudokusContainer = styled.div`
 
 const SudokuContainer = styled.div`
   padding: ${THEME.spacer.x2}px;
+  position: relative;
+`;
+
+const SudokuPreviewContainer = styled.div`
+  position: absolute;
+  background: ${THEME.colors.background};
+  color: ${THEME.colors.foreground};
+  z-index: 2;
+  padding: ${THEME.spacer.x1}px;
+  left: ${THEME.spacer.x2 + THEME.spacer.x1}px;
+  bottom: ${THEME.spacer.x2 + THEME.spacer.x1}px;
 `;
 
 const SudokuPreviewPlaceholder: React.StatelessComponent<{size: number}> = ({size}) => (
@@ -48,7 +60,7 @@ const SudokuPreviewPlaceholder: React.StatelessComponent<{size: number}> = ({siz
 
 class GameIndex extends React.Component<{
   difficulty: DIFFICULTY;
-  chooseSudoku: (sudoku) => void;
+  chooseSudoku: (sudoku, index) => void;
 }> {
   constructor(props) {
     super(props);
@@ -57,21 +69,21 @@ class GameIndex extends React.Component<{
     let {difficulty, chooseSudoku} = this.props;
     const sudokus = SUDOKUS[difficulty];
 
-    const size = 170;
+    const size = window.innerWidth < 500 ? 130 : 170;
+    const localState = getState();
 
     return (
       <SudokusContainer>
         {sudokus.map((sudoku, i) => {
+          const local = localState.sudokus[sudoku.id];
+          const choose = () => {
+            chooseSudoku(sudoku, i);
+          };
           return (
             <LazyLoad height={size} key={sudoku.id} placeholder={<SudokuPreviewPlaceholder size={size} />}>
               <SudokuContainer>
-                <SudokuPreview
-                  onClick={() => chooseSudoku(sudoku)}
-                  size={size}
-                  id={i + 1}
-                  sudoku={sudoku.sudoku}
-                  darken
-                />
+                {local ? <SudokuPreviewContainer>{"Continue"}</SudokuPreviewContainer> : null}
+                <SudokuPreview onClick={choose} size={size} id={i + 1} sudoku={sudoku.sudoku} darken />
               </SudokuContainer>
             </LazyLoad>
           );
@@ -88,7 +100,10 @@ interface GameSelectProps {
 interface GameSelectDispatchProps {
   setDifficulty: typeof setDifficulty;
   setSudoku: typeof setSudoku;
+  setSudokuState: typeof setSudokuState;
+  setGameState: typeof setGameState;
   newGame: typeof newGame;
+  continueGame: typeof continueGame;
 }
 
 const GameSelect: React.StatelessComponent<GameSelectProps & GameSelectDispatchProps> = ({
@@ -96,10 +111,22 @@ const GameSelect: React.StatelessComponent<GameSelectProps & GameSelectDispatchP
   setDifficulty,
   newGame,
   setSudoku,
+  setGameState,
+  setSudokuState,
+  continueGame,
 }) => {
-  const chooseSudoku = sudoku => {
-    newGame(sudoku.id);
-    setSudoku(sudoku.sudoku, sudoku.solution);
+  const chooseSudoku = (sudoku: SudokuRaw, index: number) => {
+    const localState = getState();
+    const local = localState.sudokus[sudoku.id];
+    if (local) {
+      setGameState(local.game);
+      setSudokuState(local.sudoku);
+      continueGame();
+    } else {
+      setSudoku(sudoku.sudoku, sudoku.solution);
+      newGame(sudoku.id, index);
+      continueGame();
+    }
   };
 
   return (
@@ -127,7 +154,10 @@ const GameSelectConnected = connect<GameSelectProps, GameSelectDispatchProps>(
   {
     setDifficulty,
     newGame,
+    continueGame,
     setSudoku,
+    setSudokuState,
+    setGameState,
   },
 )(GameSelect);
 
