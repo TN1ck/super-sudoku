@@ -47,7 +47,7 @@ import Shortcuts from "./shortcuts/Shortcuts";
 import Checkbox from "src/components/modules/Checkbox";
 import store from "src/state/store";
 import {Unsubscribe} from "redux";
-import {saveToLocalStorage} from "src/sudoku-game/progress";
+import {saveToLocalStorage} from "src/sudoku-game/persistence";
 
 const SudokuMenuControlsConnected = connect<SudokuMenuControlsStateProps, SudokuMenuControlsDispatchProps>(
   (state: RootState) => ({

@@ -1,5 +1,5 @@
 import configureStore from "./configureStore";
-import {getState} from "src/sudoku-game/progress";
+import {getState} from "src/sudoku-game/persistence";
 
 const savedState = getState();
 const currentSudoku = savedState.sudokus[savedState.active];

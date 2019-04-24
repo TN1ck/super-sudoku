@@ -11,7 +11,14 @@ interface StoredState {
   };
 }
 
-const loadFromLocalStorage = (): StoredState | null => {
+const loadFromLocalStorage = (): StoredState => {
+  const empty = {
+    active: -1,
+    sudokus: {},
+  };
+  if (typeof localStorage === "undefined") {
+    return empty;
+  }
   const text = localStorage.getItem(STORAGE_KEY);
   if (text !== null) {
     try {
@@ -21,16 +28,13 @@ const loadFromLocalStorage = (): StoredState | null => {
       console.error("File corrupted: will delete and save as corrupted.");
       localStorage.setItem(STORAGE_KEY + "_corrupted_" + new Date().toISOString, text);
       localStorage.removeItem(STORAGE_KEY);
-      return null;
+      return empty;
     }
   }
-  return null;
+  return empty;
 };
 
-let cached: StoredState = loadFromLocalStorage() || {
-  active: -1,
-  sudokus: {},
-};
+let cached: StoredState = loadFromLocalStorage();
 
 export const saveToLocalStorage = (game: GameState, sudoku: SudokuState) => {
   cached.active = game.sudokuId;
