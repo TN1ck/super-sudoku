@@ -1,8 +1,10 @@
 import * as React from "react";
+import * as _ from "lodash";
 
 import {getTime} from "src/state/game";
 import styled from "styled-components";
 import THEME from "src/theme";
+import {saveStopTimeToLocalStorage} from "src/sudoku-game/persistence";
 
 const GameTimerContainer = styled.div`
   color: white;
@@ -13,6 +15,9 @@ const GameTimerContainer = styled.div`
     font-size: ${THEME.fontSize.base}px;
   }
 `;
+
+// so we don't write to localStorage every 1/60 second
+const throttledSaveStopTime = _.throttle(saveStopTimeToLocalStorage, 500);
 
 export default class GameTimer extends React.Component<{
   startTime: number;
@@ -25,6 +30,7 @@ export default class GameTimer extends React.Component<{
     const timer = () => {
       requestAnimationFrame(() => {
         this.forceUpdate();
+        throttledSaveStopTime(new Date());
         if (this._isMounted) {
           timer();
         }
