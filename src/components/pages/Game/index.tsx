@@ -32,7 +32,6 @@ import styled from "styled-components";
 import THEME from "src/theme";
 import {RootState} from "src/state/rootReducer";
 import SudokuGame from "src/sudoku-game/SudokuGame";
-import {emptyGrid} from "src/state/sudoku";
 import {DIFFICULTY, Cell} from "src/engine/types";
 import SudokuMenuNumbers, {
   SudokuMenuNumbersStateProps,
@@ -98,6 +97,44 @@ function NewGameButton({newGame}) {
     </Button>
   );
 }
+
+const ContinueIcon = styled.div`
+  background: ${THEME.colors.primary};
+  border-radius: 100%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 200ms ease-out;
+
+  &:after {
+    content: "";
+    height: 0;
+    width: 0;
+    transform: translateX(5px);
+    border-style: solid;
+    border-width: 20px 0 20px 30px;
+    border-color: transparent transparent transparent white;
+  }
+`;
+
+const CenteredContinueButton = styled.div<{visible: boolean}>`
+  display: ${p => (p.visible ? "flex" : "none")};
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 1;
+
+  &:hover {
+    cursor: pointer;
+    ${ContinueIcon} {
+      transform: scale(1.1);
+    }
+  }
+`;
 
 const DifficultyShow = styled.div`
   color: white;
@@ -243,14 +280,14 @@ class Game extends React.Component<GameProps> {
   onVisibilityChange = () => {
     if (document.visibilityState === "hidden" && this.props.game.state === GameStateMachine.running) {
       this.props.pauseGame();
+    } else if (this.props.game.state === GameStateMachine.paused) {
+      this.props.continueGame();
     }
-    // else if (this.props.game.state === GameStateMachine.paused) {
-    //   this.props.continueGame();
-    // }
   };
 
   render() {
     const {difficulty, game, pauseGame, continueGame, chooseGame, sudoku} = this.props;
+    const pausedGame = game.state === GameStateMachine.paused;
     const activeCell = game.activeCellCoordinates
       ? sudoku.find(s => {
           return s.x === game.activeCellCoordinates.x && s.y === game.activeCellCoordinates.y;
@@ -280,7 +317,11 @@ class Game extends React.Component<GameProps> {
               </GameHeaderRightSide>
             </GameHeaderArea>
             <GameMainArea>
+              <CenteredContinueButton visible={pausedGame} onClick={continueGame}>
+                <ContinueIcon />
+              </CenteredContinueButton>
               <Sudoku
+                paused={pausedGame}
                 notesMode={this.props.game.notesMode}
                 shouldShowMenu={this.props.game.showMenu && this.props.game.showCircleMenu}
                 sudoku={this.props.sudoku}
@@ -311,10 +352,9 @@ class Game extends React.Component<GameProps> {
 
 export default connect(
   (state: RootState) => {
-    const sudoku = state.game.state === GameStateMachine.running ? state.sudoku : emptyGrid;
     return {
       game: state.game,
-      sudoku,
+      sudoku: state.sudoku,
       difficulty: state.choose.difficulty,
     };
   },

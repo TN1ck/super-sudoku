@@ -2,6 +2,7 @@ import * as React from "react";
 import {showMenu, selectCell, hideMenu} from "src/state/game";
 
 import SudokuMenuCircle, {MenuWrapper, MenuContainer} from "./SudokuMenuCircle";
+import {emptyGrid} from "src/state/sudoku";
 import {
   GridLineX,
   GridCell,
@@ -112,6 +113,7 @@ interface SudokuProps {
   showMenu: typeof showMenu;
   hideMenu: typeof hideMenu;
   selectCell: typeof selectCell;
+  paused: boolean;
 }
 
 export class Sudoku extends React.PureComponent<SudokuProps> {
@@ -130,7 +132,9 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
   }
 
   render() {
-    const {sudoku, showHints} = this.props;
+    const {sudoku: passedSudoku, showHints, paused, activeCell: passedActiveCell} = this.props;
+    const sudoku = paused ? emptyGrid : passedSudoku;
+
     const height = 100;
     const width = 100;
 
@@ -138,7 +142,7 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
     const ySection = width / 9;
 
     const activeCell =
-      this.props.activeCell && sudoku.find(c => c.x === this.props.activeCell.x && c.y === this.props.activeCell.y);
+      passedActiveCell && !paused && sudoku.find(c => c.x === passedActiveCell.x && c.y === passedActiveCell.y);
     const selectionPosition = {
       x: (activeCell && activeCell.x) || 0,
       y: (activeCell && activeCell.y) || 0,
@@ -176,6 +180,9 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
         <SudokuGrid width={width} height={height} hideLeftRight />
         {sudoku.map((c, i) => {
           const onClick = e => {
+            if (paused) {
+              return;
+            }
             this.props.selectCell(c);
             if (!c.initial) {
               this.props.showMenu();
