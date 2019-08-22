@@ -243,9 +243,10 @@ class Game extends React.Component<GameProps> {
   onVisibilityChange = () => {
     if (document.visibilityState === "hidden" && this.props.game.state === GameStateMachine.running) {
       this.props.pauseGame();
-    } else if (this.props.game.state === GameStateMachine.paused) {
-      this.props.continueGame();
     }
+    // else if (this.props.game.state === GameStateMachine.paused) {
+    //   this.props.continueGame();
+    // }
   };
 
   render() {
