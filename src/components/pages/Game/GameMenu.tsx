@@ -95,7 +95,7 @@ const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
         return <GameMenuSelection />;
       }
       if (this.props.gameState === GameStateMachine.wonGame) {
-        return <WonGame chooseGame={chooseGame} />;
+        return <WonGame chooseGame={this.props.chooseGame} />;
       }
       return null;
     }
