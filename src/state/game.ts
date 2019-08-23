@@ -3,7 +3,6 @@ import {CellCoordinates} from "src/engine/types";
 export enum GameStateMachine {
   running = "RUNNING",
   paused = "PAUSED",
-  chooseGame = "CHOOSE_GAME",
   wonGame = "WON_GAME",
 }
 
@@ -49,10 +48,6 @@ export function pauseGame() {
 
 export function continueGame() {
   return setGameStateMachine(GameStateMachine.running);
-}
-
-export function chooseGame() {
-  return setGameStateMachine(GameStateMachine.chooseGame);
 }
 
 export function selectCell(cellCoordinates: CellCoordinates) {
@@ -121,7 +116,7 @@ const INITIAL_GAME_STATE: GameState = {
   offsetTime: 0,
   stopTime: 0,
   // menu stuff
-  state: GameStateMachine.chooseGame,
+  state: GameStateMachine.paused,
   activeCellCoordinates: null,
   showHints: false,
   notesMode: false,

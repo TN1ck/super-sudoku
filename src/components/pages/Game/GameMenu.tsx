@@ -1,7 +1,8 @@
 import * as React from "react";
 
 import {connect} from "react-redux";
-import {setGameStateMachine, GameStateMachine} from "src/state/game";
+import {GameStateMachine} from "src/state/game";
+import {chooseGame, ApplicationStateMachine} from "src/state/application";
 
 import THEME from "src/theme";
 import styled from "styled-components";
@@ -69,37 +70,34 @@ const GameMenuSelection = () => {
 };
 
 interface GameMenuDispatchProps {
-  setGameState: typeof setGameStateMachine;
+  chooseGame: typeof chooseGame;
 }
 
 interface GameMenuStateProps {
-  state: GameStateMachine;
+  applicationState: ApplicationStateMachine;
+  gameState: GameStateMachine;
 }
 
 const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
   (state: RootState) => {
     return {
-      state: state.game.state,
+      gameState: state.game.state,
+      applicationState: state.application.state,
     };
   },
   {
-    setGameState: setGameStateMachine,
+    chooseGame,
   },
 )(
   class GameMenu extends React.Component<GameMenuStateProps & GameMenuDispatchProps> {
     render() {
-      const chooseGame = () => this.props.setGameState(GameStateMachine.chooseGame);
-
-      switch (this.props.state) {
-        case GameStateMachine.chooseGame: {
-          return <GameMenuSelection />;
-        }
-        case GameStateMachine.wonGame: {
-          return <WonGame chooseGame={chooseGame} />;
-        }
-        default:
-          return null;
+      if (this.props.applicationState === ApplicationStateMachine.chooseGame) {
+        return <GameMenuSelection />;
       }
+      if (this.props.gameState === GameStateMachine.wonGame) {
+        return <WonGame chooseGame={chooseGame} />;
+      }
+      return null;
     }
   },
 );

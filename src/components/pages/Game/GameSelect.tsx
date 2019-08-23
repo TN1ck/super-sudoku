@@ -11,6 +11,7 @@ import {newGame, setGameState, continueGame, GameStateMachine} from "src/state/g
 import {setSudoku, setSudokuState} from "src/state/sudoku";
 import THEME from "src/theme";
 import {getState} from "src/sudoku-game/persistence";
+import {playGame} from "src/state/application";
 
 const TabBar = styled.div`
   display: flex;
@@ -107,6 +108,7 @@ interface GameSelectDispatchProps {
   setGameState: typeof setGameState;
   newGame: typeof newGame;
   continueGame: typeof continueGame;
+  playGame: typeof playGame;
 }
 
 const GameSelect: React.StatelessComponent<GameSelectProps & GameSelectDispatchProps> = ({
@@ -117,13 +119,13 @@ const GameSelect: React.StatelessComponent<GameSelectProps & GameSelectDispatchP
   setGameState,
   setSudokuState,
   continueGame,
+  playGame,
 }) => {
   const chooseSudoku = (sudoku: SudokuRaw, index: number) => {
     const localState = getState();
     const local = localState.sudokus[sudoku.id];
-    // this does not work right now as we always have the
-    // CHOOSE_GAME state.
-    if (local && GameStateMachine.wonGame) {
+    playGame();
+    if (!local || local.game.state === GameStateMachine.wonGame) {
       setSudoku(sudoku.sudoku, sudoku.solution);
       newGame(sudoku.id, index);
       continueGame();
@@ -160,6 +162,7 @@ const GameSelectConnected = connect<GameSelectProps, GameSelectDispatchProps>(
     setDifficulty,
     newGame,
     continueGame,
+    playGame,
     setSudoku,
     setSudokuState,
     setGameState,

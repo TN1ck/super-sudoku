@@ -11,12 +11,13 @@ import {
   showMenu,
   selectCell,
   GameStateMachine,
-  chooseGame,
   toggleShowHints,
   activateNotesMode,
   deactivateNotesMode,
   toggleShowCircleMenu,
 } from "src/state/game";
+
+import {chooseGame, ApplicationState} from "src/state/application";
 
 import {setNumber, setNote, clearCell, getHint} from "src/state/sudoku";
 
@@ -245,6 +246,7 @@ interface GameDispatchProps {
 
 interface GameStateProps {
   game: GameState;
+  application: ApplicationState;
   sudoku: Cell[];
   difficulty: DIFFICULTY;
 }
@@ -282,7 +284,7 @@ class Game extends React.Component<GameProps> {
   };
 
   render() {
-    const {difficulty, game, pauseGame, continueGame, chooseGame, sudoku} = this.props;
+    const {difficulty, game, application, pauseGame, continueGame, chooseGame, sudoku} = this.props;
     const pausedGame = game.state === GameStateMachine.paused;
     const pauseAndChoose = () => {
       pauseGame();
@@ -298,7 +300,7 @@ class Game extends React.Component<GameProps> {
         <GameMenu />
         <Container>
           <GameGrid>
-            <Shortcuts gameState={game.state} />
+            <Shortcuts gameState={game.state} applicationState={application.state} />
             <GameHeaderArea>
               <GameHeaderLeftSide>
                 <DifficultyShow>{`${difficulty} - ${game.sudokuIndex + 1}`}</DifficultyShow>
@@ -354,6 +356,7 @@ export default connect(
   (state: RootState) => {
     return {
       game: state.game,
+      application: state.application,
       sudoku: state.sudoku,
       difficulty: state.choose.difficulty,
     };

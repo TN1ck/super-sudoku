@@ -5,9 +5,11 @@ import MenuShortcuts from "./MenuShortcuts";
 import GridShortcuts from "./GridShortcuts";
 import GameSelectShortcuts from "./GameSelectShortcuts";
 import {ShortcutScope} from "./ShortcutScope";
+import {ApplicationStateMachine} from "src/state/application";
 
 interface ShortcutsProps {
   gameState: GameStateMachine;
+  applicationState: ApplicationStateMachine;
 }
 
 export default class Shortcuts extends React.Component<ShortcutsProps> {
@@ -26,7 +28,7 @@ export default class Shortcuts extends React.Component<ShortcutsProps> {
     if (this.props.gameState === GameStateMachine.running) {
       key.setScope(ShortcutScope.Game);
     }
-    if (this.props.gameState === GameStateMachine.chooseGame) {
+    if (this.props.applicationState === ApplicationStateMachine.chooseGame) {
       key.setScope(ShortcutScope.SelectSudoku);
     }
   }
