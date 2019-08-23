@@ -5,13 +5,11 @@ export enum GameStateMachine {
   paused = "PAUSED",
   chooseGame = "CHOOSE_GAME",
   wonGame = "WON_GAME",
-  settings = "SETTINGS",
 }
 
 export const NEW_GAME = "game/NEW_GAME";
 export const SET_GAME_STATE = "game/SET_GAME_STATE";
 
-const RESET_GAME = "game/RESET_GAME";
 const SET_GAME_STATE_MACHINE = "game/SET_GAME_STATE_MACHINE";
 const SHOW_MENU = "game/SHOW_MENU";
 const HIDE_MENU = "game/HIDE_MENU";
@@ -55,16 +53,6 @@ export function continueGame() {
 
 export function chooseGame() {
   return setGameStateMachine(GameStateMachine.chooseGame);
-}
-
-export function activateSettings() {
-  return setGameStateMachine(GameStateMachine.settings);
-}
-
-export function resetGame() {
-  return {
-    type: RESET_GAME,
-  };
 }
 
 export function selectCell(cellCoordinates: CellCoordinates) {
@@ -123,7 +111,7 @@ export interface GameState {
   showNotes: boolean; // local overwrite
 }
 
-const gameState: GameState = {
+const INITIAL_GAME_STATE: GameState = {
   sudokuId: -1,
   sudokuIndex: -1,
   won: false,
@@ -158,7 +146,7 @@ export function getTime(startTime: number, offsetTime: number, stopTime: number)
   return Math.floor(now - startTime - offsetTime);
 }
 
-export default function gameReducer(state: GameState = gameState, action): GameState {
+export default function gameReducer(state: GameState = INITIAL_GAME_STATE, action): GameState {
   switch (action.type) {
     case SET_GAME_STATE:
       return action.state;
@@ -176,14 +164,9 @@ export default function gameReducer(state: GameState = gameState, action): GameS
     }
     case NEW_GAME:
       return {
-        ...state,
+        ...INITIAL_GAME_STATE,
         sudokuId: action.sudokuId,
         sudokuIndex: action.sudokuIndex,
-      };
-
-    case RESET_GAME:
-      return {
-        ...gameState,
       };
     case ACTIVATE_NOTES_MODE:
       return {

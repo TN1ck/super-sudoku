@@ -7,7 +7,7 @@ import {DIFFICULTY} from "src/engine/types";
 import styled from "styled-components";
 import SudokuPreview from "./SudokuPreview/SudokuPreview";
 import {setDifficulty} from "src/state/choose";
-import {newGame, setGameState, continueGame} from "src/state/game";
+import {newGame, setGameState, continueGame, GameStateMachine} from "src/state/game";
 import {setSudoku, setSudokuState} from "src/state/sudoku";
 import THEME from "src/theme";
 import {getState} from "src/sudoku-game/persistence";
@@ -42,7 +42,7 @@ const SudokuContainer = styled.div`
   position: relative;
 `;
 
-const SudokuPreviewContainer = styled.div`
+const SudokuPreviewButton = styled.div`
   position: absolute;
   background: ${THEME.colors.background};
   color: ${THEME.colors.foreground};
@@ -76,13 +76,16 @@ class GameIndex extends React.Component<{
       <SudokusContainer>
         {sudokus.map((sudoku, i) => {
           const local = localState.sudokus[sudoku.id];
+          const unfinished = local && local.game.state === GameStateMachine.paused;
+          const finished = local && local.game.state === GameStateMachine.wonGame;
           const choose = () => {
             chooseSudoku(sudoku, i);
           };
           return (
             <LazyLoad height={size} key={sudoku.id} placeholder={<SudokuPreviewPlaceholder size={size} />}>
               <SudokuContainer>
-                {local ? <SudokuPreviewContainer>{"Continue"}</SudokuPreviewContainer> : null}
+                {unfinished ? <SudokuPreviewButton>{"Continue"}</SudokuPreviewButton> : null}
+                {finished ? <SudokuPreviewButton>{"Finished. Restart?"}</SudokuPreviewButton> : null}
                 <SudokuPreview onClick={choose} size={size} id={i + 1} sudoku={sudoku.sudoku} darken />
               </SudokuContainer>
             </LazyLoad>
@@ -118,13 +121,15 @@ const GameSelect: React.StatelessComponent<GameSelectProps & GameSelectDispatchP
   const chooseSudoku = (sudoku: SudokuRaw, index: number) => {
     const localState = getState();
     const local = localState.sudokus[sudoku.id];
-    if (local) {
-      setGameState(local.game);
-      setSudokuState(local.sudoku);
-      continueGame();
-    } else {
+    // this does not work right now as we always have the
+    // CHOOSE_GAME state.
+    if (local && GameStateMachine.wonGame) {
       setSudoku(sudoku.sudoku, sudoku.solution);
       newGame(sudoku.id, index);
+      continueGame();
+    } else {
+      setGameState(local.game);
+      setSudokuState(local.sudoku);
       continueGame();
     }
   };

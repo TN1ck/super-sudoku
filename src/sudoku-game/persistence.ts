@@ -37,7 +37,7 @@ const loadFromLocalStorage = (): StoredState => {
         const activeSudoku = result.sudokus[result.active];
         // load the last time the user had the app running
         const stopTime = loadStopTimeFromLocalStorage();
-        if (stopTime && activeSudoku.game.state !== GameStateMachine.paused) {
+        if (stopTime && ![GameStateMachine.paused, GameStateMachine.wonGame].includes(activeSudoku.game.state)) {
           activeSudoku.game.stopTime = stopTime.getTime();
           activeSudoku.game.state = GameStateMachine.paused;
         }

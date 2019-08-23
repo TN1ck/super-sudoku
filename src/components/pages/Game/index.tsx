@@ -4,7 +4,6 @@ import {connect} from "react-redux";
 import {
   pauseGame,
   continueGame,
-  resetGame,
   newGame,
   GameState,
   wonGame,
@@ -15,7 +14,6 @@ import {
   chooseGame,
   toggleShowHints,
   activateNotesMode,
-  activateSettings,
   deactivateNotesMode,
   toggleShowCircleMenu,
 } from "src/state/game";
@@ -54,7 +52,6 @@ const SudokuMenuControlsConnected = connect<SudokuMenuControlsStateProps, Sudoku
     clearCell,
     deactivateNotesMode,
     activateNotesMode,
-    activateSettings,
     getHint,
   },
 )(SudokuMenuControls);
@@ -235,7 +232,6 @@ const GameFooterArea = styled.div`
 
 interface GameDispatchProps {
   continueGame: typeof continueGame;
-  resetGame: typeof resetGame;
   pauseGame: typeof pauseGame;
   newGame: typeof newGame;
   wonGame: typeof wonGame;
@@ -288,6 +284,10 @@ class Game extends React.Component<GameProps> {
   render() {
     const {difficulty, game, pauseGame, continueGame, chooseGame, sudoku} = this.props;
     const pausedGame = game.state === GameStateMachine.paused;
+    const pauseAndChoose = () => {
+      pauseGame();
+      chooseGame();
+    };
     const activeCell = game.activeCellCoordinates
       ? sudoku.find(s => {
           return s.x === game.activeCellCoordinates.x && s.y === game.activeCellCoordinates.y;
@@ -313,7 +313,7 @@ class Game extends React.Component<GameProps> {
                   pauseGame={pauseGame}
                   running={game.state === GameStateMachine.running}
                 />
-                <NewGameButton newGame={chooseGame} />
+                <NewGameButton newGame={pauseAndChoose} />
               </GameHeaderRightSide>
             </GameHeaderArea>
             <GameMainArea>
@@ -361,7 +361,6 @@ export default connect(
   {
     continueGame,
     pauseGame,
-    resetGame,
     chooseGame,
     wonGame,
     showMenu,

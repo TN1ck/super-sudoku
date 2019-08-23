@@ -2,7 +2,7 @@ import * as React from "react";
 import {clearCell, getHint} from "src/state/sudoku";
 import THEME from "src/theme";
 import styled from "styled-components";
-import {activateNotesMode, deactivateNotesMode, activateSettings} from "src/state/game";
+import {activateNotesMode, deactivateNotesMode} from "src/state/game";
 import Button from "../../../modules/Button";
 import {CellCoordinates} from "src/engine/types";
 
@@ -35,7 +35,6 @@ export interface SudokuMenuControlsDispatchProps {
   clearCell: typeof clearCell;
   activateNotesMode: typeof activateNotesMode;
   deactivateNotesMode: typeof deactivateNotesMode;
-  activateSettings: typeof activateSettings;
   getHint: typeof getHint;
 }
 
