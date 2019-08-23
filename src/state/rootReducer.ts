@@ -20,8 +20,8 @@ const doNotPersistOnTheseActions = [
   SET_SUDOKU_STATE,
 ];
 const persistReducer = (state, action) => {
-  if (state.game && state.sudoku && !doNotPersistOnTheseActions.includes(action.type)) {
-    saveToLocalStorage(state.game, state.sudoku);
+  if (state.application && state.game && state.sudoku && !doNotPersistOnTheseActions.includes(action.type)) {
+    saveToLocalStorage(state.application, state.game, state.sudoku);
   }
   return rootReducer(state, action);
 };

@@ -1,12 +1,14 @@
 import SUDOKUS from "src/sudoku-game/sudokus";
 import {GameState, GameStateMachine} from "src/state/game";
 import {SudokuState} from "src/state/sudoku";
+import {ApplicationState} from "src/state/application";
 
 const STORAGE_KEY = "super_sudoku_1_0_use_this_file_if_you_want_to_cheat";
 const STORAGE_KEY_STOP_TIME = "super_sudoku_1_0_use_this_file_if_you_want_to_cheat_stop_time";
 
 interface StoredState {
   active: number;
+  application: ApplicationState | undefined;
   sudokus: {
     [key: number]: {game: GameState; sudoku: SudokuState};
   };
@@ -25,6 +27,7 @@ const loadFromLocalStorage = (): StoredState => {
   const empty = {
     active: -1,
     sudokus: {},
+    application: undefined,
   };
   if (typeof localStorage === "undefined") {
     return empty;
@@ -56,8 +59,9 @@ const loadFromLocalStorage = (): StoredState => {
 
 let cached: StoredState = loadFromLocalStorage();
 
-export const saveToLocalStorage = (game: GameState, sudoku: SudokuState) => {
+export const saveToLocalStorage = (application: ApplicationState, game: GameState, sudoku: SudokuState) => {
   cached.active = game.sudokuId;
+  cached.application = application;
   cached.sudokus[game.sudokuId] = {game, sudoku};
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cached));
