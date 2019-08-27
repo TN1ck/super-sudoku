@@ -31,7 +31,7 @@ import styled from "styled-components";
 import THEME from "src/theme";
 import {RootState} from "src/state/rootReducer";
 import SudokuGame from "src/sudoku-game/SudokuGame";
-import {DIFFICULTY, Cell} from "src/engine/types";
+import {Cell} from "src/engine/types";
 import SudokuMenuNumbers, {
   SudokuMenuNumbersStateProps,
   SudokuMenuNumbersDispatchProps,
@@ -248,7 +248,6 @@ interface GameStateProps {
   game: GameState;
   application: ApplicationState;
   sudoku: Cell[];
-  difficulty: DIFFICULTY;
 }
 
 type GameProps = GameStateProps & GameDispatchProps;
@@ -284,7 +283,7 @@ class Game extends React.Component<GameProps> {
   };
 
   render() {
-    const {difficulty, game, application, pauseGame, continueGame, chooseGame, sudoku} = this.props;
+    const {game, application, pauseGame, continueGame, chooseGame, sudoku} = this.props;
     const pausedGame = game.state === GameStateMachine.paused;
     const pauseAndChoose = () => {
       pauseGame();
@@ -303,7 +302,7 @@ class Game extends React.Component<GameProps> {
             <Shortcuts gameState={game.state} applicationState={application.state} />
             <GameHeaderArea>
               <GameHeaderLeftSide>
-                <DifficultyShow>{`${difficulty} - ${game.sudokuIndex + 1}`}</DifficultyShow>
+                <DifficultyShow>{`${game.difficulty} - ${game.sudokuIndex + 1}`}</DifficultyShow>
                 <div style={{width: THEME.spacer.x2}} />
                 {"|"}
                 <div style={{width: THEME.spacer.x2}} />
@@ -358,7 +357,6 @@ export default connect(
       game: state.game,
       application: state.application,
       sudoku: state.sudoku,
-      difficulty: state.choose.difficulty,
     };
   },
   {

@@ -1,4 +1,4 @@
-import {CellCoordinates} from "src/engine/types";
+import {CellCoordinates, DIFFICULTY} from "src/engine/types";
 
 export enum GameStateMachine {
   running = "RUNNING",
@@ -30,11 +30,12 @@ export function deactivateNotesMode() {
   };
 }
 
-export function newGame(sudokuId: number, sudokuIndex: number) {
+export function newGame(sudokuId: number, sudokuIndex: number, difficulty: DIFFICULTY) {
   return {
     type: NEW_GAME,
-    sudokuId: sudokuId,
-    sudokuIndex: sudokuIndex,
+    sudokuId,
+    sudokuIndex,
+    difficulty,
   };
 }
 
@@ -90,37 +91,37 @@ export function toggleShowCircleMenu() {
 }
 
 export interface GameState {
+  activeCellCoordinates: CellCoordinates;
+  difficulty: DIFFICULTY;
+  notesMode: boolean; // global notes mode
+  offsetTime: number;
+  showCircleMenu: boolean;
+  showHints: boolean;
+  showMenu: boolean;
+  showNotes: boolean; // local overwrite
+  startTime: number;
+  state: GameStateMachine;
+  stopTime: number;
   sudokuId: number;
   sudokuIndex: number;
-  startTime: number;
-  offsetTime: number;
-  stopTime: number;
-  state: GameStateMachine;
-  // menu stuff
-  activeCellCoordinates: CellCoordinates;
-  showHints: boolean;
-  showCircleMenu: boolean;
-  showMenu: boolean;
   won: boolean;
-  notesMode: boolean; // global notes mode
-  showNotes: boolean; // local overwrite
 }
 
 const INITIAL_GAME_STATE: GameState = {
+  activeCellCoordinates: null,
+  difficulty: DIFFICULTY.EASY,
+  notesMode: false,
+  offsetTime: 0,
+  showCircleMenu: true,
+  showHints: false,
+  showMenu: false,
+  showNotes: false,
+  startTime: 0,
+  state: GameStateMachine.paused,
+  stopTime: 0,
   sudokuId: -1,
   sudokuIndex: -1,
   won: false,
-  showMenu: false,
-  showCircleMenu: true,
-  startTime: 0,
-  offsetTime: 0,
-  stopTime: 0,
-  // menu stuff
-  state: GameStateMachine.paused,
-  activeCellCoordinates: null,
-  showHints: false,
-  notesMode: false,
-  showNotes: false,
 };
 
 export function setGameState(state: GameState) {
@@ -162,6 +163,7 @@ export default function gameReducer(state: GameState = INITIAL_GAME_STATE, actio
         ...INITIAL_GAME_STATE,
         sudokuId: action.sudokuId,
         sudokuIndex: action.sudokuIndex,
+        difficulty: action.difficulty,
       };
     case ACTIVATE_NOTES_MODE:
       return {

@@ -135,7 +135,7 @@ const GameSelect: React.StatelessComponent<GameSelectProps & GameSelectDispatchP
     playGame();
     if (!local || local.game.state === GameStateMachine.wonGame) {
       setSudoku(sudoku.sudoku, sudoku.solution);
-      newGame(sudoku.id, index);
+      newGame(sudoku.id, index, difficulty);
       continueGame();
     } else {
       setGameState(local.game);
