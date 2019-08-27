@@ -36,6 +36,9 @@ const SudokusContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  position: relative;
+  height: calc(100vh - ${44 + 58}px);
+  overflow: scroll;
 `;
 
 const SudokuContainer = styled.div`
@@ -74,7 +77,7 @@ class GameIndex extends React.Component<{
     const localState = getState();
 
     return (
-      <SudokusContainer>
+      <SudokusContainer id="lazyload-container">
         {sudokus.map((sudoku, i) => {
           const local = localState.sudokus[sudoku.id];
           const unfinished = local && local.game.state === GameStateMachine.paused;
@@ -83,7 +86,12 @@ class GameIndex extends React.Component<{
             chooseSudoku(sudoku, i);
           };
           return (
-            <LazyLoad height={size} key={sudoku.id} placeholder={<SudokuPreviewPlaceholder size={size} />}>
+            <LazyLoad
+              scrollContainer="#lazyload-container"
+              height={size}
+              key={sudoku.id}
+              placeholder={<SudokuPreviewPlaceholder size={size} />}
+            >
               <SudokuContainer>
                 {unfinished ? <SudokuPreviewButton>{"Continue"}</SudokuPreviewButton> : null}
                 {finished ? <SudokuPreviewButton>{"Finished. Restart?"}</SudokuPreviewButton> : null}
