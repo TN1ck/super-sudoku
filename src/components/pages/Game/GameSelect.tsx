@@ -62,44 +62,90 @@ const SudokuPreviewPlaceholder: React.StatelessComponent<{size: number}> = ({siz
   </SudokuContainer>
 );
 
-class GameIndex extends React.Component<{
-  difficulty: DIFFICULTY;
-  chooseSudoku: (sudoku, index) => void;
-}> {
+class GameIndex extends React.Component<
+  {
+    difficulty: DIFFICULTY;
+    chooseSudoku: (sudoku, index) => void;
+  },
+  {elementWidth: number}
+> {
+  dom: HTMLDivElement;
+  resizeListener: number;
   constructor(props) {
     super(props);
+    this.state = {
+      elementWidth: -1,
+    };
   }
+  componentDidMount() {
+    this.calcWidth();
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", this.calcWidth);
+    }
+  }
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.calcWidth);
+  }
+  calcWidth = () => {
+    const width = this.dom.getBoundingClientRect().width;
+    const MIN_SIZE = 150;
+    const MAX_SIZE = 260;
+    const MAX_COLUMNS = 4;
+
+    let numberOfItems = 1;
+    let elementWidth = Infinity;
+    while (true) {
+      const numberOfItemsNew = numberOfItems + 1;
+      const elementWidthNew = (width - numberOfItemsNew * 20) / numberOfItemsNew;
+      if (elementWidthNew < MIN_SIZE || numberOfItemsNew > MAX_COLUMNS) {
+        break;
+      }
+      numberOfItems = numberOfItemsNew;
+      elementWidth = elementWidthNew;
+    }
+    this.setState({
+      elementWidth: Math.min(MAX_SIZE, elementWidth),
+    });
+  };
+  setElementWidth;
+  setRef = dom => {
+    this.dom = dom;
+  };
   render() {
-    let {difficulty, chooseSudoku} = this.props;
+    const {elementWidth} = this.state;
+    const {difficulty, chooseSudoku} = this.props;
     const sudokus = SUDOKUS[difficulty];
 
-    const size = window.innerWidth < 500 ? 130 : 170;
+    const size = elementWidth;
     const localState = getState();
 
     return (
-      <SudokusContainer id="lazyload-container">
-        {sudokus.map((sudoku, i) => {
-          const local = localState.sudokus[sudoku.id];
-          const unfinished = local && local.game.state === GameStateMachine.paused;
-          const finished = local && local.game.state === GameStateMachine.wonGame;
-          const choose = () => {
-            chooseSudoku(sudoku, i);
-          };
-          return (
-            <LazyLoad
-              scrollContainer="#lazyload-container"
-              height={size}
-              key={sudoku.id}
-              placeholder={<SudokuPreviewPlaceholder size={size} />}
-            >
-              <SudokuContainer>
-                {unfinished ? <SudokuPreviewButton>{"Continue"}</SudokuPreviewButton> : null}
-                {finished ? <SudokuPreviewButton>{"Finished. Restart?"}</SudokuPreviewButton> : null}
-                <SudokuPreview onClick={choose} size={size} id={i + 1} sudoku={sudoku.sudoku} darken />
-              </SudokuContainer>
-            </LazyLoad>
-          );
-        })}
+      <SudokusContainer ref={this.setRef} id="lazyload-container">
+        {this.state.elementWidth !== -1
+          ? sudokus.map((sudoku, i) => {
+              const local = localState.sudokus[sudoku.id];
+              const unfinished = local && local.game.state === GameStateMachine.paused;
+              const finished = local && local.game.state === GameStateMachine.wonGame;
+              const choose = () => {
+                chooseSudoku(sudoku, i);
+              };
+              return (
+                <LazyLoad
+                  resize
+                  scrollContainer="#lazyload-container"
+                  height={size}
+                  key={`${size}-${sudoku.id}}`}
+                  placeholder={<SudokuPreviewPlaceholder size={size} />}
+                >
+                  <SudokuContainer>
+                    {unfinished ? <SudokuPreviewButton>{"Continue"}</SudokuPreviewButton> : null}
+                    {finished ? <SudokuPreviewButton>{"Finished. Restart?"}</SudokuPreviewButton> : null}
+                    <SudokuPreview onClick={choose} size={size} id={i + 1} sudoku={sudoku.sudoku} darken />
+                  </SudokuContainer>
+                </LazyLoad>
+              );
+            })
+          : null}
       </SudokusContainer>
     );
   }
