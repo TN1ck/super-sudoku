@@ -1,8 +1,9 @@
 import * as React from "react";
+import * as Modal from "react-aria-modal";
 
 import {connect} from "react-redux";
-import {GameStateMachine} from "src/state/game";
-import {chooseGame, ApplicationStateMachine} from "src/state/application";
+import {GameStateMachine, continueGame} from "src/state/game";
+import {chooseGame, playGame, ApplicationStateMachine} from "src/state/application";
 
 import THEME from "src/theme";
 import styled from "styled-components";
@@ -11,20 +12,6 @@ import {RootState} from "src/state/rootReducer";
 import GameSelect from "./GameSelect";
 import Button from "src/components/modules/Button";
 import {Container} from "src/components/modules/Layout";
-
-export const GameMenuContainer = styled.div`
-  // rgba hex colors
-  background-color: ${THEME.colors.background + "AA"};
-  position: absolute;
-  z-index: 20;
-  border-radius: ${THEME.borderRadius}px;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-around;
-`;
 
 const GameMenuCenter = styled.div`
   height: 100%;
@@ -44,33 +31,38 @@ const NewGameButton = styled(Button)`
   display: block;
 `;
 
+const ModalInner = styled.div`
+  width: 80vw;
+  background: ${THEME.colors.background};
+  margin: 0 auto;
+  border-radius: ${THEME.borderRadius}px;
+`;
+
 const WonGame = ({chooseGame}) => {
   return (
-    <GameMenuContainer>
-      <Container>
-        <GameMenuCenter>
-          <GameWonText>{"Congratulations, You won!"}</GameWonText>
-          <NewGameButton onClick={chooseGame} key="reset-game">
-            {"New Game"}
-          </NewGameButton>
-        </GameMenuCenter>
-      </Container>
-    </GameMenuContainer>
+    <Container>
+      <GameMenuCenter>
+        <GameWonText>{"Congratulations, You won!"}</GameWonText>
+        <NewGameButton onClick={chooseGame} key="reset-game">
+          {"New Game"}
+        </NewGameButton>
+      </GameMenuCenter>
+    </Container>
   );
 };
 
 const GameMenuSelection = () => {
   return (
-    <GameMenuContainer>
-      <Container>
-        <GameSelect />
-      </Container>
-    </GameMenuContainer>
+    <ModalInner>
+      <GameSelect />
+    </ModalInner>
   );
 };
 
 interface GameMenuDispatchProps {
   chooseGame: typeof chooseGame;
+  playGame: typeof playGame;
+  continueGame: typeof continueGame;
 }
 
 interface GameMenuStateProps {
@@ -87,15 +79,39 @@ const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
   },
   {
     chooseGame,
+    playGame,
+    continueGame,
   },
 )(
   class GameMenu extends React.Component<GameMenuStateProps & GameMenuDispatchProps> {
+    getApplicationNode = () => {
+      return document.getElementById("#root");
+    };
     render() {
       if (this.props.applicationState === ApplicationStateMachine.chooseGame) {
-        return <GameMenuSelection />;
+        const onExit = () => {
+          this.props.playGame();
+          this.props.continueGame();
+        };
+
+        return (
+          <Modal
+            underlayStyle={{paddingTop: THEME.spacer.x3}}
+            initialFocus="#tab-easy"
+            titleText="Select a game."
+            getApplicationNode={this.getApplicationNode}
+            onExit={onExit}
+          >
+            <GameMenuSelection />
+          </Modal>
+        );
       }
       if (this.props.gameState === GameStateMachine.wonGame) {
-        return <WonGame chooseGame={this.props.chooseGame} />;
+        return (
+          <Modal initialFocus="#demo-one-deactivate" titleText="You won!" getApplicationNode={this.getApplicationNode}>
+            <WonGame chooseGame={this.props.chooseGame} />
+          </Modal>
+        );
       }
       return null;
     }

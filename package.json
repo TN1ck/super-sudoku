@@ -77,6 +77,7 @@
     "keymaster": "1.6.2",
     "lodash": "4.17.15",
     "react": "16.9.0",
+    "react-aria-modal": "^4.0.0",
     "react-dom": "16.9.0",
     "react-hot-loader": "4.12.12",
     "react-lazyload": "^2.6.2",

@@ -130,8 +130,14 @@ export default class SudokuPreview extends React.PureComponent<{
     const xSection = height / 9;
     const ySection = width / 9;
 
+    const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+      if (event.key === "Enter") {
+        onClick();
+      }
+    };
+
     return (
-      <SudokuPreviewContainer onClick={onClick}>
+      <SudokuPreviewContainer tabIndex={id + 4} onClick={onClick} onKeyDown={onKeyDown}>
         <SudokuPreviewInnerContainer
           style={{
             height: containerHeight,

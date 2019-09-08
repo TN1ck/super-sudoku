@@ -1,5 +1,6 @@
 import * as React from "react";
 import LazyLoad from "react-lazyload";
+
 import SUDOKUS, {SudokuRaw} from "src/sudoku-game/sudokus";
 import {connect} from "react-redux";
 import {RootState} from "src/state/rootReducer";
@@ -18,16 +19,19 @@ const TabBar = styled.div`
   border-bottom: none;
   color: white;
   justify-content: center;
+  padding-bottom: ${THEME.spacer.x2}px;
 `;
 
-const TabItem = styled.div<{
+const TabItem = styled.button<{
   active: boolean;
 }>`
   padding: ${THEME.spacer.x2}px ${THEME.spacer.x2}px;
+  font-size: ${THEME.fontSize.base}px;
   background: ${p => (p.active ? THEME.colors.foreground : THEME.colors.background)};
   color: ${p => (p.active ? THEME.colors.background : THEME.colors.foreground)};
   cursor: pointer;
   text-transform: capitalize;
+  border: none;
   border-bottom-left-radius: ${THEME.borderRadius}px;
   border-bottom-right-radius: ${THEME.borderRadius}px;
 `;
@@ -37,7 +41,8 @@ const SudokusContainer = styled.div`
   flex-wrap: wrap;
   justify-content: center;
   position: relative;
-  height: calc(100vh - ${44 + 58}px);
+  height: calc(100vh - ${THEME.spacer.x3 * 2 + 60}px);
+  width: 100%;
   overflow: scroll;
 `;
 
@@ -54,6 +59,12 @@ const SudokuPreviewButton = styled.div`
   padding: ${THEME.spacer.x1}px;
   left: ${THEME.spacer.x2 + THEME.spacer.x1}px;
   bottom: ${THEME.spacer.x2 + THEME.spacer.x1}px;
+`;
+
+const GameSelectContainer = styled.div`
+  padding: ${THEME.spacer.x2}px 0;
+  max-height: 100%;
+  height: 100%;
 `;
 
 const SudokuPreviewPlaceholder: React.StatelessComponent<{size: number}> = ({size}) => (
@@ -96,7 +107,7 @@ class GameIndex extends React.Component<
     let elementWidth = Infinity;
     while (true) {
       const numberOfItemsNew = numberOfItems + 1;
-      const elementWidthNew = (width - numberOfItemsNew * 20) / numberOfItemsNew;
+      const elementWidthNew = Math.floor((width - numberOfItemsNew * 20) / numberOfItemsNew);
       if (elementWidthNew < MIN_SIZE || numberOfItemsNew > MAX_COLUMNS) {
         break;
       }
@@ -191,18 +202,24 @@ const GameSelect: React.StatelessComponent<GameSelectProps & GameSelectDispatchP
   };
 
   return (
-    <div>
+    <GameSelectContainer>
       <TabBar>
-        {[DIFFICULTY.EASY, DIFFICULTY.MEDIUM, DIFFICULTY.HARD, DIFFICULTY.EVIL].map(d => {
+        {[DIFFICULTY.EASY, DIFFICULTY.MEDIUM, DIFFICULTY.HARD, DIFFICULTY.EVIL].map((d, i) => {
           return (
-            <TabItem key={d} active={d === difficulty} onClick={() => setDifficulty(d)}>
+            <TabItem
+              tabIndex={i + 1}
+              id={`tab-${d}`}
+              key={d}
+              active={d === difficulty}
+              onClick={() => setDifficulty(d)}
+            >
               {d}
             </TabItem>
           );
         })}
       </TabBar>
       <GameIndex difficulty={difficulty} chooseSudoku={chooseSudoku} />
-    </div>
+    </GameSelectContainer>
   );
 };
 
