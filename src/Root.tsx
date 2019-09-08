@@ -18,11 +18,11 @@ const GlobalStyle = createGlobalStyle`
 
   body {
     padding: 0;
+    padding-bottom: ${THEME.spacer.x4}px;
     margin: 0;
     font-family: ${THEME.fontFamily};
     background: ${THEME.colors.background};
     font-size: ${THEME.fontSize.base}px;
-    height: 100vh;
     /* overflow-x: hidden; */
     /* overflow-y: scroll; */
     /* -webkit-overflow-scrolling: touch; */
@@ -31,7 +31,7 @@ const GlobalStyle = createGlobalStyle`
 
   }
   html, body, #root {
-    height: 100%;
+    min-height: 100%;
   }
 
   html {
