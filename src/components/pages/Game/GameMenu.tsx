@@ -11,7 +11,13 @@ import {RootState} from "src/state/rootReducer";
 
 import GameSelect from "./GameSelect";
 import Button from "src/components/modules/Button";
-import {Container} from "src/components/modules/Layout";
+
+const AbsoluteContainer = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+`;
 
 const GameMenuCenter = styled.div`
   height: 100%;
@@ -40,14 +46,14 @@ const ModalInner = styled.div`
 
 const WonGame = ({chooseGame}) => {
   return (
-    <Container>
+    <AbsoluteContainer>
       <GameMenuCenter>
         <GameWonText>{"Congratulations, You won!"}</GameWonText>
         <NewGameButton onClick={chooseGame} key="reset-game">
           {"New Game"}
         </NewGameButton>
       </GameMenuCenter>
-    </Container>
+    </AbsoluteContainer>
   );
 };
 

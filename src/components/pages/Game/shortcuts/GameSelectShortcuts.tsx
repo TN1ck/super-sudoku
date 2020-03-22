@@ -25,11 +25,9 @@ interface GameSelectShortcutsStateProps {
 class GameSelectShortcuts extends React.Component<GameSelectShortcutsDispatchProps & GameSelectShortcutsStateProps> {
   componentWillMount() {
     key("up", ShortcutScope.SelectSudoku, () => {
-      console.log("up");
       return false;
     });
     key("down", ShortcutScope.SelectSudoku, () => {
-      console.log("down");
       return false;
     });
     key("left", ShortcutScope.SelectSudoku, () => {

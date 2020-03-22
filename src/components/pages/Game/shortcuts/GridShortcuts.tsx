@@ -51,7 +51,6 @@ class GameKeyboardShortcuts extends React.Component<
     });
 
     key("n", ShortcutScope.Game, () => {
-      console.log("test", this.props.notesMode);
       if (this.props.notesMode) {
         this.props.deactivateNotesMode();
       } else {
@@ -128,6 +127,7 @@ class GameKeyboardShortcuts extends React.Component<
       if (!this.props.activeCell.initial) {
         this.props.clearNumber(this.props.activeCell);
       }
+      return false;
     });
     key("h", ShortcutScope.Game, () => {
       if (!this.props.activeCell.initial) {
