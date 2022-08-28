@@ -127,8 +127,10 @@ export default function sudokuReducer(state: SudokuState = initialState, action:
     if (isCell && !cell.initial) {
       switch (action.type) {
         case SET_NOTE: {
-          const notes = cell.notes.filter((n) => n !== action.note).concat(action.note);
-          return {...cell, notes};
+          if (cell.notes.find(n => n === action.note)) {
+            return {...cell, notes: cell.notes.filter((n) => n !== action.note)}
+          }
+          return {...cell, notes: cell.notes.concat([action.note])};
         }
         case CLEAR_NOTE: {
           const notes = cell.notes.filter((n) => n !== action.note);
