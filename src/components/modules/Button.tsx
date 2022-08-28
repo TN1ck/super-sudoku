@@ -1,14 +1,15 @@
 import THEME from "src/theme";
 import styled, {css} from "styled-components";
 
-const Button = styled.button<{
+const Button = styled.button.attrs({
+  className: "px-4 py-2",
+})<{
   active?: boolean;
 }>`
   border-radius: ${THEME.borderRadius}px;
   background: ${THEME.colors.foreground};
   color: ${THEME.colors.background};
   font-size: ${THEME.fontSize.base}px;
-  padding: ${THEME.spacer.x2 + THEME.spacer.x1}px;
   box-shadow: ${THEME.boxShadow};
   border: none;
   transition: transform 0.3s ease-out;
@@ -28,7 +29,7 @@ const Button = styled.button<{
     `}
 
   @media (max-width: 800px) {
-    padding: ${THEME.spacer.x2}px ${THEME.spacer.x1}px;
+    padding: ${8}px ${4}px;
   }
 `;
 

@@ -29,16 +29,6 @@ const THEME = {
     noteAlternate2: "#69a1c2",
   },
   fontFamily: `'Source Sans Pro', sans-serif`,
-  spacer: {
-    x1: 5,
-    x2: 10,
-    x3: 20,
-    x4: 40,
-    x5: 80,
-    x6: 160,
-    x7: 320,
-    paddingMobile: 10,
-  },
   fontSize: {
     base: 16,
     menu: 20,

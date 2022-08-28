@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import {Link, MakeGenerics, Outlet, ReactLocation, Router, useMatch} from "@tanstack/react-location";
+import {Outlet, ReactLocation, Router} from "@tanstack/react-location";
 
 import {Provider} from "react-redux";
 

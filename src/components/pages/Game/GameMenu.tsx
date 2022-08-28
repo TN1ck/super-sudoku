@@ -27,10 +27,11 @@ const GameMenuCenter = styled.div`
   flex-direction: column;
 `;
 
-const GameWonText = styled.div`
+const GameWonText = styled.div.attrs({
+  className: "pb-8",
+})`
   color: ${THEME.colors.foreground};
   font-size: 32px;
-  padding-bottom: ${THEME.spacer.x3}px;
 `;
 
 const NewGameButton = styled(Button)`

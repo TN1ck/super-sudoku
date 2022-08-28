@@ -58,10 +58,6 @@ function PauseButton({
   return (
     <Button
       onClick={running ? pauseGame : continueGame}
-      style={{
-        float: "right",
-        marginLeft: THEME.spacer.x1,
-      }}
     >
       {running ? "Pause" : "Continue"}
     </Button>
@@ -72,10 +68,6 @@ function NewGameButton({newGame}: {newGame: () => void}) {
   return (
     <Button
       onClick={newGame}
-      style={{
-        float: "right",
-        marginLeft: THEME.spacer.x1,
-      }}
     >
       {"New"}
     </Button>
@@ -120,19 +112,18 @@ const CenteredContinueButton = styled.div<{visible: boolean}>`
   }
 `;
 
-const DifficultyShow = styled.div`
-  color: white;
-  text-transform: capitalize;
+const DifficultyShow = styled.div.attrs({
+  className: "text-white capitalize"
+})`
   font-size: ${THEME.fontSize.menu}px;
   @media (max-width: 800px) {
     font-size: ${THEME.fontSize.base}px;
   }
 `;
 
-const GameGrid = styled.div`
-  justify-content: center;
-
-  display: grid;
+const GameGrid = styled.div.attrs({
+  className: "grid justify-center text-white relative pb-4 gap-4 mx-auto"
+})`
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto 1fr auto;
 
@@ -141,20 +132,12 @@ const GameGrid = styled.div`
     "game-main game-controls"
     "game-main game-controls";
 
-  color: white;
-  position: relative;
-  padding-bottom: ${THEME.spacer.x3 + 20}px;
-
-  grid-column-gap: ${THEME.spacer.x3}px;
-
-  margin: 0 auto;
-
   @media (max-width: 800px) {
     grid-template-areas:
       "game-header"
       "game-main"
       "game-controls";
-    max-width: ${THEME.widths.maxMobile - THEME.spacer.paddingMobile * 2}px;
+    max-width: ${THEME.widths.maxMobile - 20}px;
     grid-template-columns: 1fr;
     grid-column-gap: 0;
     padding-bottom: 0;
@@ -164,23 +147,13 @@ const GameGrid = styled.div`
   }
 `;
 
-const GameContainer = styled.div`
-  max-width: 100%;
-  min-height: 100%;
-  position: relative;
-`;
-
-const GameMainArea = styled.div`
+const GameMainArea = styled.div.attrs({
+  className: "relative flex flex-wrap shrink-0 grow-0 rounded-sm"
+})`
   grid-area: game-main;
-  position: relative;
   box-shadow: ${THEME.boxShadow};
-  border-radius: ${THEME.borderRadius}px;
   width: ${THEME.widths.maxMobile}px;
   height: ${THEME.widths.maxMobile}px;
-  flex-wrap: wrap;
-  flex-shrink: 0;
-  flex-grow: 0;
-  display: flex;
 
   @media (min-width: 800px) and (max-width: 900px) {
     width: 400px;
@@ -194,41 +167,20 @@ const GameMainArea = styled.div`
 
   @media (max-width: ${THEME.widths.maxMobile}px) {
     /* As we need a value for the height, we need to make it it 100vw */
-    width: calc(100vw - ${THEME.spacer.paddingMobile * 2}px);
-    height: calc(100vw - ${THEME.spacer.paddingMobile * 2}px);
+    width: calc(100vw - 20px);
+    height: calc(100vw - 20px);
   }
 `;
 
-const GameHeaderArea = styled.div`
+const GameHeaderArea = styled.div.attrs({
+  className: 'flex justify-between items-center mt-4',
+})`
   grid-area: game-header;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: ${THEME.spacer.x2}px 0;
 `;
-
-const GameHeaderLeftSide = styled.div`
-  display: flex;
-`;
-
-const GameHeaderRightSide = styled.div``;
 
 const GameFooterArea = styled.div`
   grid-area: game-controls;
 `;
-
-interface GameDispatchProps {
-  continueGame: typeof continueGame;
-  pauseGame: typeof pauseGame;
-  newGame: typeof newGame;
-  wonGame: typeof wonGame;
-  showMenu: typeof showMenu;
-  hideMenu: typeof hideMenu;
-  selectCell: typeof selectCell;
-  chooseGame: typeof chooseGame;
-  toggleShowHints: typeof toggleShowHints;
-  toggleShowCircleMenu: typeof toggleShowCircleMenu;
-}
 
 const connector = connect(
   (state: RootState) => {
@@ -296,27 +248,29 @@ class Game extends React.Component<PropsFromRedux> {
         })
       : undefined;
     return (
-      <GameContainer>
+      <div className="max-w-full min-h-full relative">
         <GameMenu />
         <Container>
           <GameGrid>
             <Shortcuts gameState={game.state} applicationState={application.state} />
             <GameHeaderArea>
-              <GameHeaderLeftSide>
+              <div className="flex">
                 <DifficultyShow>{`${game.difficulty} - ${game.sudokuIndex + 1}`}</DifficultyShow>
-                <div style={{width: THEME.spacer.x2}} />
+                <div className="w-4" />
                 {"|"}
-                <div style={{width: THEME.spacer.x2}} />
+                <div className="w-4" />
                 <GameTimer startTime={game.startTime} stopTime={game.stopTime} offsetTime={game.offsetTime} />
-              </GameHeaderLeftSide>
-              <GameHeaderRightSide>
-                <PauseButton
-                  continueGame={continueGame}
-                  pauseGame={pauseGame}
-                  running={game.state === GameStateMachine.running}
-                />
+              </div>
+              <div className="flex">
+                <div className="mr-2">
+                  <PauseButton
+                    continueGame={continueGame}
+                    pauseGame={pauseGame}
+                    running={game.state === GameStateMachine.running}
+                  />
+                </div>
                 <NewGameButton newGame={pauseAndChoose} />
-              </GameHeaderRightSide>
+              </div>
             </GameHeaderArea>
             <GameMainArea>
               <CenteredContinueButton visible={pausedGame} onClick={continueGame}>
@@ -337,17 +291,19 @@ class Game extends React.Component<PropsFromRedux> {
             <GameFooterArea>
               <SudokuMenuNumbersConnected />
               <SudokuMenuControls />
-              <h1>Settings</h1>
-              <Checkbox id="generated_notes" checked={game.showHints} onChange={this.props.toggleShowHints}>
-                {"Show auto generated notes"}
-              </Checkbox>
-              <Checkbox id="circle_menu" checked={game.showCircleMenu} onChange={this.props.toggleShowCircleMenu}>
-                {"Show circle menu when a cell is selected"}
-              </Checkbox>
+              <div className="mt-4">
+                <h1 className="text-3xl font-bold mb-2">Settings</h1>
+                <Checkbox id="generated_notes" checked={game.showHints} onChange={this.props.toggleShowHints}>
+                  {"Show auto generated notes"}
+                </Checkbox>
+                <Checkbox id="circle_menu" checked={game.showCircleMenu} onChange={this.props.toggleShowCircleMenu}>
+                  {"Show circle menu when a cell is selected"}
+                </Checkbox>
+              </div>
             </GameFooterArea>
           </GameGrid>
         </Container>
-      </GameContainer>
+      </div>
     );
   }
 }

@@ -13,19 +13,7 @@ const ControlsButton = styled(Button)`
   padding-right: 0;
 `;
 
-const ControlContainer = styled.div`
-  position: relative;
-  justify-content: center;
-  display: flex;
-`;
-
-const SudokuMenuControlsContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  column-gap: ${THEME.spacer.x1}px;
-  width: 100%;
-  margin-top: ${THEME.spacer.x3}px;
-`;
+const ControlContainer = styled.div.attrs({className: "relative justify-center flex"})``;
 
 const connector = connect(
   (state: RootState) => ({
@@ -44,7 +32,7 @@ type PropsFromRedux = ConnectedProps<typeof connector>;
 class SudokuMenuControls extends React.Component<PropsFromRedux> {
   render() {
     return (
-      <SudokuMenuControlsContainer>
+      <div className="grid grid-cols-3 gap-2 w-full mt-4">
         <ControlContainer
           onClick={() => (this.props.notesMode ? this.props.deactivateNotesMode() : this.props.activateNotesMode())}
         >
@@ -56,7 +44,7 @@ class SudokuMenuControls extends React.Component<PropsFromRedux> {
         <ControlContainer>
           <ControlsButton onClick={() => this.props.getHint(this.props.activeCell!)}>{"Hint"}</ControlsButton>
         </ControlContainer>
-      </SudokuMenuControlsContainer>
+      </div>
     );
   }
 }

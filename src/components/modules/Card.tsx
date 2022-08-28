@@ -7,6 +7,6 @@ export const Card = styled.div`
   border-radius: ${THEME.borderRadius}px;
 `;
 
-export const CardBody = styled.div`
-  padding: ${THEME.spacer.x3}px;
-`;
+export const CardBody = styled.div.attrs({
+  className: "p-8",
+})``;

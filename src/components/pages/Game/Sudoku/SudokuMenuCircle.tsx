@@ -130,7 +130,7 @@ interface MenuCircleOwnProps {
 const connector = connect(
   (state: RootState) => {
     return {
-      notesMode: state.game.showNotes,
+      notesMode: state.game.notesMode,
     };
   },
   {

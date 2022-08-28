@@ -8,17 +8,13 @@ import Button from "src/components/modules/Button";
 import {connect, ConnectedProps} from "react-redux";
 import {RootState} from "src/state/rootReducer";
 
-const SudokuMenuNumbersContainer = styled.div`
-  display: grid;
+const SudokuMenuNumbersContainer = styled.div.attrs({
+  className: "grid w-full overflow-hidden justify-center gap-2"
+})`
   grid-template-columns: 1fr 1fr 1fr;
-  column-gap: ${THEME.spacer.x1}px;
-  row-gap: ${THEME.spacer.x1}px;
-  justify-content: center;
-  width: 100%;
-  overflow: hidden;
 
   @media (max-width: 800px) {
-    margin-top: ${THEME.spacer.x3}px;
+    margin-top: ${16}px;
     grid-template-columns: repeat(9, 1fr);
   }
 `;

@@ -14,58 +14,43 @@ import THEME from "src/theme";
 import {getState} from "src/sudoku-game/persistence";
 import {playGame} from "src/state/application";
 
-const TabBar = styled.div`
-  display: flex;
-  border-bottom: none;
-  color: white;
-  justify-content: center;
-  padding-bottom: ${THEME.spacer.x2}px;
-`;
+const TabBar = styled.div.attrs({
+  className: "flex text-white pb-4 justify-center border-b-0"
+})``;
 
-const TabItem = styled.button<{
+const TabItem = styled.button.attrs({
+  className: "px-4 py-2 pointer capitalize"
+})<{
   active: boolean;
 }>`
-  padding: ${THEME.spacer.x2}px ${THEME.spacer.x2}px;
-  font-size: ${THEME.fontSize.base}px;
   background: ${(p) => (p.active ? THEME.colors.foreground : THEME.colors.background)};
   color: ${(p) => (p.active ? THEME.colors.background : THEME.colors.foreground)};
-  cursor: pointer;
-  text-transform: capitalize;
   border: none;
   border-bottom-left-radius: ${THEME.borderRadius}px;
   border-bottom-right-radius: ${THEME.borderRadius}px;
 `;
 
-const SudokusContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  position: relative;
-  height: calc(100vh - ${THEME.spacer.x3 * 2 + 60}px);
-  width: 100%;
-  overflow: scroll;
+const SudokusContainer = styled.div.attrs({
+  className: "flex flex-wrap justify-center relative w-full overflow-scroll"
+})`
+  height: calc(100vh - ${20 * 2 + 60}px);
 `;
 
-const SudokuContainer = styled.div`
-  padding: ${THEME.spacer.x2}px;
-  position: relative;
-`;
+const SudokuContainer = styled.div.attrs({
+  className: "p-4 relative",
+})``;
 
-const SudokuPreviewButton = styled.div`
-  position: absolute;
+const SudokuPreviewButton = styled.div.attrs({
+  className: "px-4 py-2 left-4 bottom-4 absolute"
+})`
   background: ${THEME.colors.background};
   color: ${THEME.colors.foreground};
   z-index: 2;
-  padding: ${THEME.spacer.x1}px;
-  left: ${THEME.spacer.x2 + THEME.spacer.x1}px;
-  bottom: ${THEME.spacer.x2 + THEME.spacer.x1}px;
 `;
 
-const GameSelectContainer = styled.div`
-  padding: ${THEME.spacer.x2}px 0;
-  max-height: 100%;
-  height: 100%;
-`;
+const GameSelectContainer = styled.div.attrs({
+  className: "h-full max-h-full p-4"
+})``;
 
 const SudokuPreviewPlaceholder: React.StatelessComponent<{size: number}> = ({size}) => (
   <SudokuContainer>

@@ -2,13 +2,13 @@ import React from "react";
 import styled from "styled-components";
 import THEME from "src/theme";
 
-const StyledCheckbox = styled.input`
-  margin-top: ${THEME.spacer.x2}px;
+const StyledCheckbox = styled.input.attrs({
+  className: "mt-4 mr-8"
+})`
   position: relative;
   width: 0;
   height: 0;
   opacity: 0;
-  margin-right: ${THEME.spacer.x3 + THEME.spacer.x1}px;
   display: inline-block;
 
   &:hover {
