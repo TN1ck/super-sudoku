@@ -54,10 +54,10 @@ export const solvableSudoku2 = [
 |-----------------------------------|
 square = _y * 3 + _x;
 */
-export const SQUARE_TABLE = (function() {
+export const SQUARE_TABLE = (function () {
   const cells: Array<[number, number]> = [].concat(
-    ...SUDOKU_COORDINATES.map(x => {
-      return SUDOKU_COORDINATES.map(y => {
+    ...SUDOKU_COORDINATES.map((x) => {
+      return SUDOKU_COORDINATES.map((y) => {
         return [x, y];
       });
     }),
@@ -66,7 +66,7 @@ export const SQUARE_TABLE = (function() {
     return Math.floor(y / 3) * 3 + Math.floor(x / 3);
   });
   // we sort them, so we can use an optimization
-  const squares = _.sortBy(_.keys(grouped), k => k).map(k => _.sortBy(grouped[k], ([x, y]) => `${y}-${x}`));
+  const squares = _.sortBy(_.keys(grouped), (k) => k).map((k) => _.sortBy(grouped[k], ([x, y]) => `${y}-${x}`));
   return squares;
 })();
 
@@ -76,16 +76,16 @@ export function squareIndex(x, y) {
 
 export function printSimpleSudoku(grid: SimpleSudoku) {
   return grid
-    .map(row => {
-      return row.map(c => (c === undefined ? "_" : "" + c)).join("");
+    .map((row) => {
+      return row.map((c) => (c === undefined ? "_" : "" + c)).join("");
     })
     .join("\n");
 }
 
 export function duplicates(array: number[]): number {
-  const filtered = array.filter(c => c !== undefined);
-  const grouped = _.groupBy(filtered, c => c);
-  const picked = _.pickBy(grouped, x => x.length > 1);
+  const filtered = array.filter((c) => c !== undefined);
+  const grouped = _.groupBy(filtered, (c) => c);
+  const picked = _.pickBy(grouped, (x) => x.length > 1);
   return _.values(picked).length;
 }
 
@@ -122,7 +122,7 @@ export function simpleSudokuToCells(grid: SimpleSudoku, solution?: SimpleSudoku)
 
 export function complexSudokuToSimpleSudoku(sudoku: ComplexSudoku): number[][] {
   const simple = [[], [], [], [], [], [], [], [], []];
-  sudoku.forEach(cell => {
+  sudoku.forEach((cell) => {
     simple[cell.y][cell.x] = cell.number;
   });
   return simple;
@@ -130,8 +130,8 @@ export function complexSudokuToSimpleSudoku(sudoku: ComplexSudoku): number[][] {
 
 export function parseSudoku(sudoku: string): SimpleSudoku {
   // check if the input-data is correct
-  const inputDataIsCorrectDomain = [...sudoku].every(char => {
-    return ["\n", "_"].concat(SUDOKU_NUMBERS.map(n => String(n))).indexOf(char) >= 0;
+  const inputDataIsCorrectDomain = [...sudoku].every((char) => {
+    return ["\n", "_"].concat(SUDOKU_NUMBERS.map((n) => String(n))).indexOf(char) >= 0;
   });
 
   if (!inputDataIsCorrectDomain) {
@@ -144,12 +144,12 @@ export function parseSudoku(sudoku: string): SimpleSudoku {
     throw new Error("Wrong number of lines! Only 9 allowed");
   }
 
-  return lines.map(line => {
+  return lines.map((line) => {
     const characters = line.split("");
     if (characters.length !== 9) {
       throw new Error("Wrong number of characters in line! Only 9 allowed");
     }
-    return characters.map(c => {
+    return characters.map((c) => {
       const number = c === "_" ? 0 : Number(c);
       return number;
     });
@@ -158,14 +158,14 @@ export function parseSudoku(sudoku: string): SimpleSudoku {
 
 export function printComplexSudoku(grid: ComplexSudoku) {
   return _(grid)
-    .groupBy(c => {
+    .groupBy((c) => {
       return c.y;
     })
     .toPairs()
     .sortBy(([, k]) => k)
     .map(([, cells]: [string, ComplexSudoku]) => {
-      return _.sortBy(cells, c => c.x)
-        .map(c => {
+      return _.sortBy(cells, (c) => c.x)
+        .map((c) => {
           return c.number === 0 ? "_" : String(c.number);
         })
         .join("");

@@ -47,7 +47,4 @@ const Header = ({}) => {
   );
 };
 
-export default connect(
-  null,
-  {},
-)(Header);
+export default connect(null, {})(Header);

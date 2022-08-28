@@ -32,7 +32,7 @@ const StyledCheckboxSquare = styled.div<{
   &:after {
     color: ${THEME.colors.foreground};
     display: block;
-    content: ${props => (props.checked ? "'L'" : "''")};
+    content: ${(props) => (props.checked ? "'L'" : "''")};
     position: absolute;
     top: -3px;
     left: 7px;

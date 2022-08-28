@@ -1,4 +1,4 @@
-import {combineReducers} from "redux";
+import {AnyAction, combineReducers} from "redux";
 import sudoku, {SudokuState, SET_SUDOKU, SET_SUDOKU_STATE} from "./sudoku";
 import game, {GameState, SET_GAME_STATE, NEW_GAME} from "./game";
 import application, {ApplicationState} from "./application";
@@ -19,12 +19,6 @@ const doNotPersistOnTheseActions = [
   SET_SUDOKU,
   SET_SUDOKU_STATE,
 ];
-const persistReducer = (state, action) => {
-  if (state.application && state.game && state.sudoku && !doNotPersistOnTheseActions.includes(action.type)) {
-    saveToLocalStorage(state.application, state.game, state.sudoku);
-  }
-  return rootReducer(state, action);
-};
 
 export interface RootState {
   sudoku: SudokuState;
@@ -32,5 +26,12 @@ export interface RootState {
   choose: ChooseState;
   application: ApplicationState;
 }
+
+const persistReducer = (state: RootState, action: AnyAction) => {
+  if (state.application && state.game && state.sudoku && !doNotPersistOnTheseActions.includes(action.type)) {
+    saveToLocalStorage(state.application, state.game, state.sudoku);
+  }
+  return rootReducer(state, action);
+};
 
 export default persistReducer;

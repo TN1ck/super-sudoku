@@ -2,7 +2,7 @@ import * as React from "react";
 import {Container} from "src/components/modules/Layout";
 import {CardBody, Card} from "src/components/modules/Card";
 
-const Home: React.StatelessComponent<{}> = function() {
+const About: React.StatelessComponent<{}> = function () {
   return (
     <Container>
       <Card>
@@ -24,4 +24,4 @@ const Home: React.StatelessComponent<{}> = function() {
   );
 };
 
-export default Home;
+export default About;

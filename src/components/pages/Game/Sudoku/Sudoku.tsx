@@ -24,7 +24,7 @@ const SudokuGrid: React.StatelessComponent<{width: number; height: number; hideL
 }) => {
   return (
     <div>
-      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
+      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => {
         const hide = [0, 9].includes(i);
         if (hideLeftRight && hide) {
           return null;
@@ -32,7 +32,7 @@ const SudokuGrid: React.StatelessComponent<{width: number; height: number; hideL
         const makeBold = [3, 6].includes(i);
         return <GridLineX makeBold={makeBold} key={i} width={width} top={(i * height) / 9} />;
       })}
-      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
+      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => {
         const hide = [0, 9].includes(i);
         if (hideLeftRight && hide) {
           return null;
@@ -51,8 +51,8 @@ const SudokuCell: React.StatelessComponent<{
   highlight: boolean;
   conflict: boolean;
   bounds: Bounds;
-  onClick: (e) => void;
-  onRightClick: (e) => void;
+  onClick: () => void;
+  onRightClick: () => void;
   top: number;
   left: number;
   initial: boolean;
@@ -82,8 +82,16 @@ const SudokuCell: React.StatelessComponent<{
         highlight={highlight}
         highlightNumber={highlightNumber}
         bounds={bounds}
-        onClick={onClick}
-        onContextMenu={onRightClick}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onClick();
+        }}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onRightClick();
+        }}
       />
       <GridCellNumber left={left} top={top} initial={initial} highlight={highlightNumber}>
         {number !== 0 ? number : ""}
@@ -91,7 +99,7 @@ const SudokuCell: React.StatelessComponent<{
       <CellNoteContainer initial={initial} bounds={bounds}>
         {initial || number
           ? null
-          : notes.map(n => {
+          : notes.map((n) => {
               const notePosition = SudokuGame.getNotePosition(n);
               return (
                 <CellNote key={n} left={notePosition.x} top={notePosition.y}>
@@ -105,7 +113,7 @@ const SudokuCell: React.StatelessComponent<{
 };
 
 interface SudokuProps {
-  activeCell: CellCoordinates;
+  activeCell?: CellCoordinates;
   sudoku: Cell[];
   showHints: boolean;
   shouldShowMenu: boolean;
@@ -118,14 +126,14 @@ interface SudokuProps {
 
 export class Sudoku extends React.PureComponent<SudokuProps> {
   _isMounted: boolean = false;
-  element: HTMLElement;
-  constructor(props) {
+  constructor(props: SudokuProps) {
     super(props);
   }
   componentDidMount() {
     this._isMounted = true;
     window.addEventListener("click", () => {
       if (this.props.activeCell !== null) {
+        console.log("on click hide menu");
         this.props.hideMenu();
       }
     });
@@ -142,7 +150,7 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
     const ySection = width / 9;
 
     const activeCell =
-      passedActiveCell && !paused && sudoku.find(c => c.x === passedActiveCell.x && c.y === passedActiveCell.y);
+      passedActiveCell && !paused && sudoku.find((c) => c.x === passedActiveCell.x && c.y === passedActiveCell.y);
     const selectionPosition = {
       x: (activeCell && activeCell.x) || 0,
       y: (activeCell && activeCell.y) || 0,
@@ -152,21 +160,21 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
     const conflicting = SudokuGame.conflictingFields(sudoku);
     const uniquePaths = SudokuGame.uniquePaths(
       flatten(
-        conflicting.map(c => {
+        conflicting.map((c) => {
           return SudokuGame.getPathsFromConflicting(c, sudoku);
         }),
       ),
     );
 
     const pathCells = flatten(
-      uniquePaths.map(p => {
+      uniquePaths.map((p) => {
         return SudokuGame.getPathBetweenCell(p.from, p.to);
       }),
     );
 
     const friendsOfActiveCell = activeCell ? SudokuGame.sameSquareColumnRow(activeCell, sudoku) : [];
 
-    const onRightClickOnOpenMenu = e => {
+    const onRightClickOnOpenMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       if (activeCell && this.props.shouldShowMenu) {
         this.props.selectCell(activeCell);
         this.props.showMenu(true);
@@ -179,7 +187,7 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
       <SudokuContainer>
         <SudokuGrid width={width} height={height} hideLeftRight />
         {sudoku.map((c, i) => {
-          const onClick = e => {
+          const onClick = () => {
             if (paused) {
               return;
             }
@@ -187,24 +195,20 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
             if (!c.initial) {
               this.props.showMenu();
             }
-            e.preventDefault();
-            e.stopPropagation();
           };
           1;
-          const onRightClick = e => {
+          const onRightClick = () => {
             this.props.selectCell(c);
             if (!c.initial) {
               this.props.showMenu(true);
             }
-            e.preventDefault();
-            e.stopPropagation();
           };
           const position = positionedCells[i];
           const conflicted = conflicting[i];
 
           const notes = showHints ? conflicted.possibilities : c.notes;
 
-          const inConflictPath = pathCells.some(d => {
+          const inConflictPath = pathCells.some((d) => {
             return d.x === c.x && d.y === c.y;
           });
 
@@ -216,7 +220,7 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
           };
 
           const isActive = activeCell ? c.x === activeCell.x && c.y === activeCell.y : false;
-          const highlight = friendsOfActiveCell.some(cc => {
+          const highlight = friendsOfActiveCell.some((cc) => {
             return cc.x === c.x && cc.y === c.y;
           });
           const highlightNumber = activeCell && c.number !== 0 ? activeCell.number === c.number : false;
@@ -242,7 +246,7 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
         })}
         {activeCell && this.props.shouldShowMenu ? (
           <MenuContainer
-            onContextMenu={onRightClickOnOpenMenu}
+            onContextMenu={(e) => onRightClickOnOpenMenu}
             bounds={{
               top: ySection * selectionPosition.y,
               left: xSection * selectionPosition.x,

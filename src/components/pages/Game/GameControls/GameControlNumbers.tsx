@@ -5,6 +5,8 @@ import {CellCoordinates} from "src/engine/types";
 import THEME from "src/theme";
 import styled from "styled-components";
 import Button from "src/components/modules/Button";
+import {connect, ConnectedProps} from "react-redux";
+import {RootState} from "src/state/rootReducer";
 
 const SudokuMenuNumbersContainer = styled.div`
   display: grid;
@@ -39,16 +41,28 @@ export interface SudokuMenuNumbersDispatchProps {
   setNote: typeof setNote;
 }
 
-class SudokuMenuNumbers extends React.Component<SudokuMenuNumbersStateProps & SudokuMenuNumbersDispatchProps> {
+const connector = connect(
+  (state: RootState) => ({
+    notesMode: state.game.notesMode,
+    activeCell: state.game.activeCellCoordinates,
+  }),
+  {
+    setNumber,
+    setNote,
+  },
+);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+class SudokuMenuNumbers extends React.Component<PropsFromRedux> {
   render() {
     return (
       <SudokuMenuNumbersContainer>
-        {SUDOKU_NUMBERS.map(n => {
+        {SUDOKU_NUMBERS.map((n) => {
           const setNumberOrNote = () => {
             if (this.props.notesMode) {
-              this.props.setNote(this.props.activeCell, n);
+              this.props.setNote(this.props.activeCell!, n);
             } else {
-              this.props.setNumber(this.props.activeCell, n);
+              this.props.setNumber(this.props.activeCell!, n);
             }
           };
           return (
@@ -62,4 +76,4 @@ class SudokuMenuNumbers extends React.Component<SudokuMenuNumbersStateProps & Su
   }
 }
 
-export default SudokuMenuNumbers;
+export default connector(SudokuMenuNumbers);

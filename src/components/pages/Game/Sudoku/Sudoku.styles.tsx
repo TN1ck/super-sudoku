@@ -17,12 +17,12 @@ export const GridLineX = styled.div<{
 }>`
   position: absolute;
   left: 0;
-  width: ${props => props.width}%;
-  top: ${props => props.top}%;
+  width: ${(props) => props.width}%;
+  top: ${(props) => props.top}%;
   transform: translateY(-50%);
   height: 1px;
   background: ${THEME.sudokuColors.gridLine};
-  ${props =>
+  ${(props) =>
     props.makeBold &&
     css`
       background: ${THEME.sudokuColors.gridLineBold};
@@ -38,12 +38,12 @@ export const GridLineY = styled.div<{
 }>`
   position: absolute;
   top: 0;
-  height: ${props => props.height}%;
-  left: ${props => props.left}%;
+  height: ${(props) => props.height}%;
+  left: ${(props) => props.left}%;
   background: ${THEME.sudokuColors.gridLine};
   width: 1px;
   transform: translateX(-50%);
-  ${props =>
+  ${(props) =>
     props.makeBold &&
     css`
       background: ${THEME.sudokuColors.gridLineBold};
@@ -55,8 +55,8 @@ export const CellNote = styled.div<{
   left: number;
   top: number;
 }>`
-  top: ${props => props.top}%;
-  left: ${props => props.left}%;
+  top: ${(props) => props.top}%;
+  left: ${(props) => props.left}%;
   font-size: 12px;
   color: ${THEME.sudokuColors.note};
   position: absolute;
@@ -76,12 +76,12 @@ export const CellNoteContainer = styled.div<{
 }>`
   position: absolute;
   pointer-events: none;
-  font-weight: ${props => (props.initial ? "bold" : "normal")};
+  font-weight: ${(props) => (props.initial ? "bold" : "normal")};
 
-  width: ${props => props.bounds.width}%;
-  height: ${props => props.bounds.height}%;
-  top: ${props => props.bounds.top}%;
-  left: ${props => props.bounds.left}%;
+  width: ${(props) => props.bounds.width}%;
+  height: ${(props) => props.bounds.height}%;
+  top: ${(props) => props.bounds.top}%;
+  left: ${(props) => props.bounds.left}%;
 `;
 
 export const GridCell = styled.div<{
@@ -102,26 +102,26 @@ export const GridCell = styled.div<{
     background: ${THEME.sudokuColors.cellBackgroundHover};
   }
 
-  width: ${props => props.bounds.width}%;
-  height: ${props => props.bounds.height}%;
-  top: ${props => props.bounds.top}%;
-  left: ${props => props.bounds.left}%;
+  width: ${(props) => props.bounds.width}%;
+  height: ${(props) => props.bounds.height}%;
+  top: ${(props) => props.bounds.top}%;
+  left: ${(props) => props.bounds.left}%;
 
-  ${props =>
+  ${(props) =>
     props.highlightNumber &&
     css`
       transition: background-color 0.3s ease;
       background-color: ${THEME.sudokuColors.cellHighlightNumber};
     `}
 
-  ${props =>
+  ${(props) =>
     props.highlight &&
     css`
       background-color: ${THEME.sudokuColors.cellHighlight};
     `}
 
   &, &:hover {
-    ${props =>
+    ${(props) =>
       props.active &&
       css`
         border: 2px solid
@@ -130,7 +130,7 @@ export const GridCell = styled.div<{
       `}
   }
 
-  ${props =>
+  ${(props) =>
     props.conflict &&
     css`
       transition: background-color 0.3s ease;
@@ -145,17 +145,17 @@ export const GridCellNumber = styled.div<{
   top: number;
 }>`
   position: absolute;
-  left: ${props => props.left}%;
-  top: ${props => props.top}%;
+  left: ${(props) => props.left}%;
+  top: ${(props) => props.top}%;
   color: ${THEME.sudokuColors.number};
   font-size: 20px;
   font-weight: bold;
-  ${props =>
+  ${(props) =>
     props.initial &&
     css`
       color: ${THEME.sudokuColors.numberInitial};
     `}
-  ${props =>
+  ${(props) =>
     props.highlight &&
     css`
       color: ${THEME.sudokuColors.numberHighlighted};

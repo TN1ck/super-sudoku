@@ -33,7 +33,7 @@ class GameKeyboardShortcuts extends React.Component<
 > {
   componentDidMount() {
     const getCellByXY = (x, y) => {
-      return this.props.sudoku.find(cell => {
+      return this.props.sudoku.find((cell) => {
         return cell.x === x && cell.y === y;
       });
     };
@@ -107,7 +107,7 @@ class GameKeyboardShortcuts extends React.Component<
       return false;
     });
 
-    SUDOKU_NUMBERS.forEach(n => {
+    SUDOKU_NUMBERS.forEach((n) => {
       key(String(n), ShortcutScope.Game, () => {
         if (!this.props.activeCell.initial) {
           if (this.props.notesMode) {
@@ -147,7 +147,7 @@ class GameKeyboardShortcuts extends React.Component<
 export default connect<GameKeyboardShortcutsStateProps, GameKeyboardShortcutsDispatchProps>(
   (state: RootState) => {
     const activeCell = state.game.activeCellCoordinates
-      ? state.sudoku.find(s => {
+      ? state.sudoku.find((s) => {
           return s.x === state.game.activeCellCoordinates.x && s.y === state.game.activeCellCoordinates.y;
         })
       : null;

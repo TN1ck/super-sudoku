@@ -1,3 +1,4 @@
+import {AnyAction} from "redux";
 import {CellCoordinates, DIFFICULTY} from "src/engine/types";
 
 export enum GameStateMachine {
@@ -91,7 +92,7 @@ export function toggleShowCircleMenu() {
 }
 
 export interface GameState {
-  activeCellCoordinates: CellCoordinates;
+  activeCellCoordinates?: CellCoordinates;
   difficulty: DIFFICULTY;
   notesMode: boolean; // global notes mode
   offsetTime: number;
@@ -108,7 +109,7 @@ export interface GameState {
 }
 
 const INITIAL_GAME_STATE: GameState = {
-  activeCellCoordinates: null,
+  activeCellCoordinates: undefined,
   difficulty: DIFFICULTY.EASY,
   notesMode: false,
   offsetTime: 0,
@@ -142,7 +143,7 @@ export function getTime(startTime: number, offsetTime: number, stopTime: number)
   return Math.floor(now - startTime - offsetTime);
 }
 
-export default function gameReducer(state: GameState = INITIAL_GAME_STATE, action): GameState {
+export default function gameReducer(state: GameState = INITIAL_GAME_STATE, action: AnyAction): GameState {
   switch (action.type) {
     case SET_GAME_STATE:
       return action.state;

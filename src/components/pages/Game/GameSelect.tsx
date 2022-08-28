@@ -2,7 +2,7 @@ import * as React from "react";
 import LazyLoad from "react-lazyload";
 
 import SUDOKUS, {SudokuRaw} from "src/sudoku-game/sudokus";
-import {connect} from "react-redux";
+import {connect, ConnectedProps} from "react-redux";
 import {RootState} from "src/state/rootReducer";
 import {DIFFICULTY} from "src/engine/types";
 import styled from "styled-components";
@@ -27,8 +27,8 @@ const TabItem = styled.button<{
 }>`
   padding: ${THEME.spacer.x2}px ${THEME.spacer.x2}px;
   font-size: ${THEME.fontSize.base}px;
-  background: ${p => (p.active ? THEME.colors.foreground : THEME.colors.background)};
-  color: ${p => (p.active ? THEME.colors.background : THEME.colors.foreground)};
+  background: ${(p) => (p.active ? THEME.colors.foreground : THEME.colors.background)};
+  color: ${(p) => (p.active ? THEME.colors.background : THEME.colors.foreground)};
   cursor: pointer;
   text-transform: capitalize;
   border: none;
@@ -73,16 +73,14 @@ const SudokuPreviewPlaceholder: React.StatelessComponent<{size: number}> = ({siz
   </SudokuContainer>
 );
 
-class GameIndex extends React.Component<
-  {
-    difficulty: DIFFICULTY;
-    chooseSudoku: (sudoku, index) => void;
-  },
-  {elementWidth: number}
-> {
-  dom: HTMLDivElement;
-  resizeListener: number;
-  constructor(props) {
+interface GameIndexProps {
+  difficulty: DIFFICULTY;
+  chooseSudoku: (sudoku: SudokuRaw, index: number) => void;
+}
+
+class GameIndex extends React.Component<GameIndexProps, {elementWidth: number}> {
+  dom: HTMLDivElement | null = null;
+  constructor(props: GameIndexProps) {
     super(props);
     this.state = {
       elementWidth: -1,
@@ -98,6 +96,9 @@ class GameIndex extends React.Component<
     window.removeEventListener("resize", this.calcWidth);
   }
   calcWidth = () => {
+    if (this.dom === null) {
+      return;
+    }
     const width = this.dom.getBoundingClientRect().width;
     const MIN_SIZE = 150;
     const MAX_SIZE = 260;
@@ -118,8 +119,7 @@ class GameIndex extends React.Component<
       elementWidth: Math.min(MAX_SIZE, elementWidth),
     });
   };
-  setElementWidth;
-  setRef = dom => {
+  setRef = (dom: HTMLDivElement) => {
     this.dom = dom;
   };
   render() {
@@ -166,17 +166,26 @@ interface GameSelectProps {
   difficulty: DIFFICULTY;
 }
 
-interface GameSelectDispatchProps {
-  setDifficulty: typeof setDifficulty;
-  setSudoku: typeof setSudoku;
-  setSudokuState: typeof setSudokuState;
-  setGameState: typeof setGameState;
-  newGame: typeof newGame;
-  continueGame: typeof continueGame;
-  playGame: typeof playGame;
-}
+const connector = connect(
+  (state: RootState) => {
+    return {
+      difficulty: state.choose.difficulty,
+    };
+  },
+  {
+    setDifficulty,
+    newGame,
+    continueGame,
+    playGame,
+    setSudoku,
+    setSudokuState,
+    setGameState,
+  },
+);
 
-const GameSelect: React.StatelessComponent<GameSelectProps & GameSelectDispatchProps> = ({
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+const GameSelect: React.StatelessComponent<GameSelectProps & PropsFromRedux> = ({
   difficulty,
   setDifficulty,
   newGame,
@@ -223,21 +232,4 @@ const GameSelect: React.StatelessComponent<GameSelectProps & GameSelectDispatchP
   );
 };
 
-const GameSelectConnected = connect<GameSelectProps, GameSelectDispatchProps>(
-  (state: RootState) => {
-    return {
-      difficulty: state.choose.difficulty,
-    };
-  },
-  {
-    setDifficulty,
-    newGame,
-    continueGame,
-    playGame,
-    setSudoku,
-    setSudokuState,
-    setGameState,
-  },
-)(GameSelect);
-
-export default GameSelectConnected;
+export default connector(GameSelect);

@@ -36,7 +36,4 @@ class GameMenuShortcuts extends React.Component<GameMenuShortcutsDispatchProps> 
   }
 }
 
-export default connect<{}, GameMenuShortcutsDispatchProps>(
-  null,
-  {continueGame},
-)(GameMenuShortcuts);
+export default connect<{}, GameMenuShortcutsDispatchProps>(null, {continueGame})(GameMenuShortcuts);

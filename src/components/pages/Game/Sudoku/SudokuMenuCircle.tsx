@@ -1,5 +1,5 @@
 import * as React from "react";
-import {connect} from "react-redux";
+import {connect, ConnectedProps} from "react-redux";
 import {setNumber, clearNumber, setNote, clearNote} from "src/state/sudoku";
 import {SUDOKU_NUMBERS} from "src/engine/utility";
 import {Cell} from "src/engine/types";
@@ -33,7 +33,7 @@ const MenuCirclePartComponent = styled.circle<{
     fill-opacity: 0.9;
   }
 
-  ${props =>
+  ${(props) =>
     props.isActive &&
     css`
       stroke-width: 60px;
@@ -44,10 +44,10 @@ const MenuCirclePartComponent = styled.circle<{
 
 export const MenuContainer = styled.div<{bounds: Bounds}>`
   position: absolute;
-  width: ${props => props.bounds.width}%;
-  height: ${props => props.bounds.height}%;
-  top: ${props => props.bounds.top}%;
-  left: ${props => props.bounds.left}%;
+  width: ${(props) => props.bounds.width}%;
+  height: ${(props) => props.bounds.height}%;
+  top: ${(props) => props.bounds.top}%;
+  left: ${(props) => props.bounds.left}%;
 `;
 
 export const MenuWrapper = styled.div`
@@ -71,9 +71,9 @@ const TAU = Math.PI * 2;
 
 const MenuCirclePart: React.StatelessComponent<{
   radius: number;
-  notesMode?: boolean;
-  isActive?: boolean;
-  onClick: (any) => void;
+  notesMode: boolean;
+  isActive: boolean;
+  onClick: (e: any) => void;
   minRad: number;
   maxRad: number;
   children?: React.ReactChild;
@@ -123,23 +123,28 @@ const MenuCirclePart: React.StatelessComponent<{
   );
 };
 
-interface MenuCircleStateProps {
-  notesMode: boolean;
-}
-
 interface MenuCircleOwnProps {
   cell: Cell;
 }
 
-interface MenuCircleDispatchProps {
-  setNumber: typeof setNumber;
-  setNote: typeof setNote;
-  clearNote: typeof clearNote;
-  showMenu: typeof showMenu;
-  clearNumber: typeof clearNumber;
-}
+const connector = connect(
+  (state: RootState) => {
+    return {
+      notesMode: state.game.showNotes,
+    };
+  },
+  {
+    showMenu,
+    setNumber,
+    setNote,
+    clearNote,
+    clearNumber,
+  },
+);
 
-class MenuCircle extends React.Component<MenuCircleOwnProps & MenuCircleDispatchProps & MenuCircleStateProps, {}> {
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+class MenuCircle extends React.Component<MenuCircleOwnProps & PropsFromRedux, {}> {
   render() {
     const cell = this.props.cell;
     if (cell === null) {
@@ -200,7 +205,7 @@ class MenuCircle extends React.Component<MenuCircleOwnProps & MenuCircleDispatch
               minRad={currentMinRad}
               stroke={stroke}
               maxRad={currentMaxRad}
-              onClick={e => {
+              onClick={(e) => {
                 if (this.props.notesMode) {
                   e.preventDefault();
                   e.stopPropagation();
@@ -245,19 +250,4 @@ class MenuCircle extends React.Component<MenuCircleOwnProps & MenuCircleDispatch
   }
 }
 
-const MenuComponent = connect<MenuCircleStateProps, MenuCircleDispatchProps, MenuCircleOwnProps>(
-  (state: RootState) => {
-    return {
-      notesMode: state.game.showNotes,
-    };
-  },
-  {
-    showMenu,
-    setNumber,
-    setNote,
-    clearNote,
-    clearNumber,
-  },
-)(MenuCircle);
-
-export default MenuComponent;
+export default connector(MenuCircle);

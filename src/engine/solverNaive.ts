@@ -3,22 +3,22 @@ import {SUDOKU_NUMBERS} from "./utility";
 import {SimpleCell, ComplexSudoku} from "./types";
 
 function duplicates(array: ComplexSudoku): ComplexSudoku {
-  const grouped = _.groupBy(array, c => String(c.number));
-  const picked = _.pickBy(grouped, x => x.length > 1);
+  const grouped = _.groupBy(array, (c) => String(c.number));
+  const picked = _.pickBy(grouped, (x) => x.length > 1);
   return [].concat(..._.values(picked));
 }
 
 // A sudoku has 3 constraints
 
 function checkRow(grid: ComplexSudoku, cell: SimpleCell): ComplexSudoku {
-  const currentRow = grid.filter(c => c.x === cell.x);
-  const currentRowNumbers = currentRow.filter(c => c.number);
+  const currentRow = grid.filter((c) => c.x === cell.x);
+  const currentRowNumbers = currentRow.filter((c) => c.number);
   return currentRowNumbers;
 }
 
 function checkColumn(grid: ComplexSudoku, cell: SimpleCell): ComplexSudoku {
-  const currentColumn = grid.filter(c => c.y === cell.y);
-  const currentColumnNumbers = currentColumn.filter(c => c.number);
+  const currentColumn = grid.filter((c) => c.y === cell.y);
+  const currentColumnNumbers = currentColumn.filter((c) => c.number);
   return currentColumnNumbers;
 }
 
@@ -29,10 +29,10 @@ function checkSquare(grid: ComplexSudoku, cell: SimpleCell): ComplexSudoku {
     }),
   );
 
-  const currentSquare = squares.filter(square => {
+  const currentSquare = squares.filter((square) => {
     return square.indexOf(cell) !== -1;
   })[0];
-  const currentSquareNumbers = currentSquare.filter(c => c.number);
+  const currentSquareNumbers = currentSquare.filter((c) => c.number);
   return currentSquareNumbers;
 }
 
@@ -40,18 +40,18 @@ export function checkCellForDuplicates(grid: ComplexSudoku, cell: SimpleCell): C
   const row = duplicates(checkRow(grid, cell));
   const column = duplicates(checkColumn(grid, cell));
   const square = duplicates(checkSquare(grid, cell));
-  const uniques = _.uniqBy(row.concat(column).concat(square), function(c: SimpleCell) {
+  const uniques = _.uniqBy(row.concat(column).concat(square), function (c: SimpleCell) {
     return `${c.x}-${c.y}`;
   });
   return uniques;
 }
 
 function everyFieldIsFilledWithANumber(grid: ComplexSudoku): boolean {
-  return grid.filter(c => c.number).length === grid.length;
+  return grid.filter((c) => c.number).length === grid.length;
 }
 
 function everyFieldIsCorrect(grid: ComplexSudoku): boolean {
-  const result = grid.every(c => {
+  const result = grid.every((c) => {
     return checkCellForDuplicates(grid, c).length === 0;
   });
   return result;
@@ -59,12 +59,10 @@ function everyFieldIsCorrect(grid: ComplexSudoku): boolean {
 
 function getMinimumRemainingValue(grid: ComplexSudoku) {
   const remainingValues = grid
-    .filter(c => !c.number)
-    .map(c => {
-      const cells = checkRow(grid, c)
-        .concat(checkColumn(grid, c))
-        .concat(checkSquare(grid, c));
-      const uniqCells = _.uniqBy(cells, c => c.number);
+    .filter((c) => !c.number)
+    .map((c) => {
+      const cells = checkRow(grid, c).concat(checkColumn(grid, c)).concat(checkSquare(grid, c));
+      const uniqCells = _.uniqBy(cells, (c) => c.number);
       return {
         cell: c,
         cells: uniqCells,
@@ -92,20 +90,18 @@ export function* solveGridGenerator(stack: ComplexSudoku[] = []): Iterable<Compl
     } else {
       const emptyCell = getMinimumRemainingValue(grid);
 
-      const newCells: ComplexSudoku = SUDOKU_NUMBERS.map(n => {
+      const newCells: ComplexSudoku = SUDOKU_NUMBERS.map((n) => {
         return {...emptyCell, number: n};
       });
 
       const newGrids = newCells
-        .map(
-          (c: SimpleCell): ComplexSudoku => {
-            // remove the cell from the grid and use the new one
-            const newGrid = grid.filter(cc => `${c.x}-${c.y}` !== `${cc.x}-${cc.y}`);
-            newGrid.push(c);
-            return newGrid;
-          },
-        )
-        .filter(g => everyFieldIsCorrect(g));
+        .map((c: SimpleCell): ComplexSudoku => {
+          // remove the cell from the grid and use the new one
+          const newGrid = grid.filter((cc) => `${c.x}-${c.y}` !== `${cc.x}-${cc.y}`);
+          newGrid.push(c);
+          return newGrid;
+        })
+        .filter((g) => everyFieldIsCorrect(g));
 
       yield* solveGridGenerator(newGrids.concat(rest));
     }
@@ -138,27 +134,23 @@ export function _solveGrid(
   // minimum remaining value
   const emptyCell = getMinimumRemainingValue(grid);
 
-  const newCells: ComplexSudoku = SUDOKU_NUMBERS.map(n => {
+  const newCells: ComplexSudoku = SUDOKU_NUMBERS.map((n) => {
     return {...emptyCell, number: n};
   });
 
   const newGrids = newCells
-    .map(
-      (c: SimpleCell): ComplexSudoku => {
-        // remove the cell from the grid and use the new one
-        const newGrid = grid.filter(cc => `${c.x}-${c.y}` !== `${cc.x}-${cc.y}`);
-        newGrid.push(c);
-        return newGrid;
-      },
-    )
-    .filter(g => everyFieldIsCorrect(g));
+    .map((c: SimpleCell): ComplexSudoku => {
+      // remove the cell from the grid and use the new one
+      const newGrid = grid.filter((cc) => `${c.x}-${c.y}` !== `${cc.x}-${cc.y}`);
+      newGrid.push(c);
+      return newGrid;
+    })
+    .filter((g) => everyFieldIsCorrect(g));
 
   return _solveGrid(newGrids.concat(rest), iterations);
 }
 
-export function solve(
-  grid: ComplexSudoku,
-): {
+export function solve(grid: ComplexSudoku): {
   sudoku: ComplexSudoku;
   iterations: number;
 } {

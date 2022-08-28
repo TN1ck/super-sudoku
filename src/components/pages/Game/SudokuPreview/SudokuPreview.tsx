@@ -51,12 +51,12 @@ const GridLineX = styled.div<{
 }>`
   position: absolute;
   left: 0;
-  width: ${props => props.width}%;
-  top: ${props => props.top}%;
+  width: ${(props) => props.width}%;
+  top: ${(props) => props.top}%;
   transform: translateY(-50%);
   height: 1px;
   background: #eeeeee;
-  ${props =>
+  ${(props) =>
     props.makeBold &&
     css`
       background: #aaaaaa;
@@ -72,12 +72,12 @@ const GridLineY = styled.div<{
 }>`
   position: absolute;
   top: 0;
-  height: ${props => props.height}%;
-  left: ${props => props.left}%;
+  height: ${(props) => props.height}%;
+  left: ${(props) => props.left}%;
   background: #eeeeee;
   width: 1px;
   transform: translateX(-50%);
-  ${props =>
+  ${(props) =>
     props.makeBold &&
     css`
       background: #aaaaaa;
@@ -92,7 +92,7 @@ const SudokuPreviewGrid: React.StatelessComponent<{width: number; height: number
 }) => {
   return (
     <div>
-      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
+      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => {
         const hide = [0, 9].includes(i);
         if (hideLeftRight && hide) {
           return null;
@@ -100,7 +100,7 @@ const SudokuPreviewGrid: React.StatelessComponent<{width: number; height: number
         const makeBold = [3, 6].includes(i);
         return <GridLineX makeBold={makeBold} key={i} width={width} top={(i * height) / 9} />;
       })}
-      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => {
+      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => {
         const hide = [0, 9].includes(i);
         if (hideLeftRight && hide) {
           return null;
@@ -117,7 +117,7 @@ export default class SudokuPreview extends React.PureComponent<{
   id: number;
   darken?: boolean;
   size?: number;
-  onClick?: () => void;
+  onClick: () => void;
 }> {
   render() {
     const {sudoku, id, onClick, size = 150} = this.props;

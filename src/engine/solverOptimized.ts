@@ -3,23 +3,23 @@ import {SUDOKU_NUMBERS, SQUARE_TABLE, squareIndex, duplicates} from "./utility";
 import {SimpleSudoku} from "./types";
 
 function isFilled(grid: SimpleSudoku): boolean {
-  return grid.every(row => row.every(n => n !== 0));
+  return grid.every((row) => row.every((n) => n !== 0));
 }
 
 function isCorrect(rows: SimpleSudoku, columns: SimpleSudoku, squares: SimpleSudoku): boolean {
-  const duplicatesInRow = rows.some(row => {
+  const duplicatesInRow = rows.some((row) => {
     return duplicates(row) !== 0;
   });
   if (duplicatesInRow) {
     return false;
   }
-  const duplicatesInColumns = columns.some(column => {
+  const duplicatesInColumns = columns.some((column) => {
     return duplicates(column) !== 0;
   });
   if (duplicatesInColumns) {
     return false;
   }
-  const duplicatesInSquares = squares.some(square => {
+  const duplicatesInSquares = squares.some((square) => {
     return duplicates(square) !== 0;
   });
   if (duplicatesInSquares) {
@@ -77,7 +77,7 @@ function getMinimumRemainingValue(
         const column = columns[x];
         const square = squares[squareIndex(x, y)];
         const numbers = row.concat(column).concat(square);
-        const remainingValues = SUDOKU_NUMBERS.filter(i => {
+        const remainingValues = SUDOKU_NUMBERS.filter((i) => {
           return numbers.indexOf(i) === -1;
         });
         numberOfRemainingValuesForEveryCell.push({
@@ -89,12 +89,12 @@ function getMinimumRemainingValue(
     }
   }
 
-  const sortedRemainingValues = _.sortBy(numberOfRemainingValuesForEveryCell, c => c.remainingValues.length);
+  const sortedRemainingValues = _.sortBy(numberOfRemainingValuesForEveryCell, (c) => c.remainingValues.length);
   return sortedRemainingValues[0];
 }
 
 function createNewGrids(grid: SimpleSudoku, x: number, y: number, values) {
-  const newGrids = values.map(number => {
+  const newGrids = values.map((number) => {
     return grid.map((row, i) => {
       // save some memory
       if (y === i) {

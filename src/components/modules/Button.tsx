@@ -20,7 +20,7 @@ const Button = styled.button<{
     outline: none;
   }
 
-  ${props =>
+  ${(props) =>
     props.active &&
     css`
       filter: brightness(90%);

@@ -1,9 +1,9 @@
 import * as React from "react";
-import * as Modal from "react-aria-modal";
 
-import {connect} from "react-redux";
+import {connect, ConnectedProps} from "react-redux";
 import {GameStateMachine, continueGame} from "src/state/game";
 import {chooseGame, playGame, ApplicationStateMachine} from "src/state/application";
+import {Dialog} from "@headlessui/react";
 
 import THEME from "src/theme";
 import styled from "styled-components";
@@ -44,7 +44,7 @@ const ModalInner = styled.div`
   border-radius: ${THEME.borderRadius}px;
 `;
 
-const WonGame = ({chooseGame}) => {
+const WonGame = ({chooseGame}: {chooseGame: () => void}) => {
   return (
     <AbsoluteContainer>
       <GameMenuCenter>
@@ -58,6 +58,7 @@ const WonGame = ({chooseGame}) => {
 };
 
 const GameMenuSelection = () => {
+  console.log("gome menu selection");
   return (
     <ModalInner>
       <GameSelect />
@@ -65,18 +66,12 @@ const GameMenuSelection = () => {
   );
 };
 
-interface GameMenuDispatchProps {
-  chooseGame: typeof chooseGame;
-  playGame: typeof playGame;
-  continueGame: typeof continueGame;
-}
-
 interface GameMenuStateProps {
   applicationState: ApplicationStateMachine;
   gameState: GameStateMachine;
 }
 
-const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
+const connector = connect(
   (state: RootState) => {
     return {
       gameState: state.game.state,
@@ -88,40 +83,59 @@ const GameMenu = connect<GameMenuStateProps, GameMenuDispatchProps>(
     playGame,
     continueGame,
   },
-)(
-  class GameMenu extends React.Component<GameMenuStateProps & GameMenuDispatchProps> {
-    getApplicationNode = () => {
-      return document.getElementById("#root");
-    };
-    render() {
-      if (this.props.applicationState === ApplicationStateMachine.chooseGame) {
-        const onExit = () => {
-          this.props.playGame();
-          this.props.continueGame();
-        };
-
-        return (
-          <Modal
-            underlayStyle={{paddingTop: THEME.spacer.x3}}
-            initialFocus="#tab-easy"
-            titleText="Select a game."
-            getApplicationNode={this.getApplicationNode}
-            onExit={onExit}
-          >
-            <GameMenuSelection />
-          </Modal>
-        );
-      }
-      if (this.props.gameState === GameStateMachine.wonGame) {
-        return (
-          <Modal initialFocus="#demo-one-deactivate" titleText="You won!" getApplicationNode={this.getApplicationNode}>
-            <WonGame chooseGame={this.props.chooseGame} />
-          </Modal>
-        );
-      }
-      return null;
-    }
-  },
 );
 
-export default GameMenu;
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+class GameMenu extends React.Component<GameMenuStateProps & PropsFromRedux, {isOpen: boolean}> {
+  constructor(props: GameMenuStateProps & PropsFromRedux) {
+    super(props);
+    this.state = {
+      isOpen: true,
+    };
+  }
+  setOpen = (open: boolean) => {
+    this.setState({isOpen: open});
+  };
+  getApplicationNode = () => {
+    return document.getElementById("#root");
+  };
+  render() {
+    console.log("render", this.props.applicationState);
+    if (this.props.applicationState === ApplicationStateMachine.chooseGame) {
+      const onExit = () => {
+        console.log("on exit");
+        this.props.playGame();
+        this.props.continueGame();
+      };
+
+      return (
+        <div>
+          <Dialog
+            className="fixed inset-0 z-30 overflow-y-auto"
+            open={this.props.applicationState === ApplicationStateMachine.chooseGame}
+            onClose={onExit}
+          >
+            <Dialog.Overlay
+              className="fixed inset-0 bg-white bg-opacity-30 transition-opacity"
+              style={{
+                zIndex: -1,
+              }}
+            />
+            <Dialog.Panel className="z-10 h-screen w-screen p-4">
+              <GameMenuSelection />
+            </Dialog.Panel>
+          </Dialog>
+          <Dialog open={this.props.gameState === GameStateMachine.wonGame} onClose={() => this.setOpen(false)}>
+            <Dialog.Panel>
+              <WonGame chooseGame={this.props.chooseGame} />
+            </Dialog.Panel>
+          </Dialog>
+        </div>
+      );
+    }
+    return null;
+  }
+}
+
+export default connector(GameMenu);

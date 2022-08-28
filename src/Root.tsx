@@ -1,7 +1,6 @@
 import * as React from "react";
 
-import {Root, Routes} from "react-static";
-import {Router} from "@reach/router";
+import {Link, MakeGenerics, Outlet, ReactLocation, Router, useMatch} from "@tanstack/react-location";
 
 import {Provider} from "react-redux";
 
@@ -9,53 +8,44 @@ import {createGlobalStyle} from "styled-components";
 import THEME from "src/theme";
 import Header from "./components/modules/Header";
 import store from "./state/store";
+import Game from "./components/pages/Game";
+import Playground from "./components/pages/Playground";
+import About from "./components/pages/About";
+import NotFound from "./components/pages/NotFound";
 
-const GlobalStyle = createGlobalStyle`
+const routes = [
+  {
+    path: "/",
+    element: <Game />,
+  },
+  {
+    path: "/playground",
+    element: <Playground />,
+  },
+  {
+    path: "/about",
+    element: <About />,
+  },
+  {
+    path: "404",
+    template: <NotFound />,
+  },
+];
 
-  * {
-    box-sizing: border-box;
-  }
-
-  body {
-    padding: 0;
-    padding-bottom: ${THEME.spacer.x4}px;
-    margin: 0;
-    font-family: ${THEME.fontFamily};
-    background: ${THEME.colors.background};
-    font-size: ${THEME.fontSize.base}px;
-    /* overflow-x: hidden; */
-    /* overflow-y: scroll; */
-    /* -webkit-overflow-scrolling: touch; */
-    /* -webkit-touch-callout: none; */
-    -webkit-tap-highlight-color: rgba(0,0,0,0);
-
-  }
-  html, body, #root {
-    min-height: 100%;
-  }
-
-  html {
-    line-height: ${THEME.lineHeight}em;
-    /* position: fixed; */
-    /* overflow: hidden; */
-    /* touch-action: manipulation; */
-    height: 100%;
-  }
-`;
+const location = new ReactLocation();
 
 const App: React.StatelessComponent = () => {
   return (
-    <Root>
-      <Provider store={store}>
-        <Header />
-        <React.Suspense fallback={<em>Loading...</em>}>
-          <Router style={{height: "100%"}}>
-            <Routes path="*" />
-          </Router>
-        </React.Suspense>
-        <GlobalStyle />
-      </Provider>
-    </Root>
+    <Provider store={store}>
+      <Header />
+      <React.Suspense fallback={<em>Loading...</em>}>
+        <Router location={location} routes={routes}>
+          <div>
+            <Outlet />
+          </div>
+        </Router>
+      </React.Suspense>
+    </Provider>
   );
 };
 

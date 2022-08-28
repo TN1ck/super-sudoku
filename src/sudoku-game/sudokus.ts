@@ -1,4 +1,4 @@
-import { SimpleSudoku } from "src/engine/types";
+import {SimpleSudoku} from "src/engine/types";
 
 export interface SudokuRaw {
   iterations: number;
@@ -8,10 +8,10 @@ export interface SudokuRaw {
 }
 
 const SUDOKUS: {
-  easy: SudokuRaw[],
-  medium: SudokuRaw[],
-  hard: SudokuRaw[],
-  evil: SudokuRaw[],
+  easy: SudokuRaw[];
+  medium: SudokuRaw[];
+  hard: SudokuRaw[];
+  evil: SudokuRaw[];
 } = {
   easy: [
     {

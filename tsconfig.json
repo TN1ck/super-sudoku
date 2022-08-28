@@ -1,45 +1,33 @@
 {
-  "buildOnSave": false,
-  "compileOnSave": false,
   "compilerOptions": {
+    "target": "ESNext",
     "lib": [
       "dom",
-      "es2017"
+      "dom.iterable",
+      "esnext"
     ],
-    "typeRoots": [
-      "./node_modules/@types"
-    ],
+    "types": ["vite/client"],
     "allowJs": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "noImplicitAny": false,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "removeComments": false,
-    "preserveConstEnums": true,
-    "sourceMap": true,
     "skipLibCheck": true,
-    "strictNullChecks": false,
-    "outDir": "dist/",
-    "baseUrl": ".",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
     "paths": {
       "src/*": [
         "./src/*"
       ]
     },
-    "target": "es6",
-    "module": "commonjs",
-    "jsx": "preserve",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "inlineSourceMap": false
   },
-  "awesomeTypescriptLoaderOptions": {
-    "errorsAsWarnings": true
-  },
-  "exclude": [
-    "dist/**/*",
-    "public/**/*",
-    "node_modules"
+  "include": [
+    "src",
+    "vite.config.ts"
   ]
 }

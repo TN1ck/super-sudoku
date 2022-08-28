@@ -125,7 +125,7 @@ function generateCoordinateList(sudoku: SimpleSudoku) {
   const coordinates = sudoku.map((row, i) => {
     return row.map((n, c) => (n !== undefined ? [i, c] : undefined));
   });
-  const coordinatesWithNumbers = lodash.flatten(coordinates).filter(c => c !== undefined);
+  const coordinatesWithNumbers = lodash.flatten(coordinates).filter((c) => c !== undefined);
   return coordinatesWithNumbers;
 }
 
@@ -187,7 +187,7 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
 
   while (!isFinished(bestSudoku, bestCost)) {
     // clone the bestSudoku
-    const newSudoku = [...bestSudoku.map(r => [...r])];
+    const newSudoku = [...bestSudoku.map((r) => [...r])];
 
     // make the sudoku and apply the cost function
     if (bestCost > iterationGoal) {
@@ -202,7 +202,7 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
         return bestSudoku;
       }
       const sample = lodash.sample(coordinateList);
-      coordinateList = coordinateList.filter(d => d !== sample);
+      coordinateList = coordinateList.filter((d) => d !== sample);
       const [x, y] = sample;
       // console.log(`set ${x}/${y} to undefined`);
       newSudoku[x][y] = undefined;

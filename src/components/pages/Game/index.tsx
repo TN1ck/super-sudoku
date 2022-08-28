@@ -1,19 +1,16 @@
 import * as React from "react";
 
-import {connect} from "react-redux";
+import {connect, ConnectedProps} from "react-redux";
 import {
   pauseGame,
   continueGame,
   newGame,
-  GameState,
   wonGame,
   hideMenu,
   showMenu,
   selectCell,
   GameStateMachine,
   toggleShowHints,
-  activateNotesMode,
-  deactivateNotesMode,
   toggleShowCircleMenu,
 } from "src/state/game";
 
@@ -31,33 +28,13 @@ import styled from "styled-components";
 import THEME from "src/theme";
 import {RootState} from "src/state/rootReducer";
 import SudokuGame from "src/sudoku-game/SudokuGame";
-import {Cell} from "src/engine/types";
-import SudokuMenuNumbers, {
-  SudokuMenuNumbersStateProps,
-  SudokuMenuNumbersDispatchProps,
-} from "src/components/pages/Game/GameControls/GameControlNumbers";
-import SudokuMenuControls, {
-  SudokuMenuControlsStateProps,
-  SudokuMenuControlsDispatchProps,
-} from "src/components/pages/Game/GameControls/GameControlActions";
+import SudokuMenuNumbers from "src/components/pages/Game/GameControls/GameControlNumbers";
+import SudokuMenuControls from "src/components/pages/Game/GameControls/GameControlActions";
 import {Container} from "src/components/modules/Layout";
 import Shortcuts from "./shortcuts/Shortcuts";
 import Checkbox from "src/components/modules/Checkbox";
 
-const SudokuMenuControlsConnected = connect<SudokuMenuControlsStateProps, SudokuMenuControlsDispatchProps>(
-  (state: RootState) => ({
-    notesMode: state.game.notesMode,
-    activeCell: state.game.activeCellCoordinates,
-  }),
-  {
-    clearCell,
-    deactivateNotesMode,
-    activateNotesMode,
-    getHint,
-  },
-)(SudokuMenuControls);
-
-const SudokuMenuNumbersConnected = connect<SudokuMenuNumbersStateProps, SudokuMenuNumbersDispatchProps>(
+const sudokuMenuNummbersConnector = connect(
   (state: RootState) => ({
     notesMode: state.game.notesMode,
     activeCell: state.game.activeCellCoordinates,
@@ -66,9 +43,18 @@ const SudokuMenuNumbersConnected = connect<SudokuMenuNumbersStateProps, SudokuMe
     setNumber,
     setNote,
   },
-)(SudokuMenuNumbers);
+);
+const SudokuMenuNumbersConnected = sudokuMenuNummbersConnector(SudokuMenuNumbers);
 
-function PauseButton({running, pauseGame, continueGame}) {
+function PauseButton({
+  running,
+  pauseGame,
+  continueGame,
+}: {
+  running: boolean;
+  pauseGame: () => void;
+  continueGame: () => void;
+}) {
   return (
     <Button
       onClick={running ? pauseGame : continueGame}
@@ -82,7 +68,7 @@ function PauseButton({running, pauseGame, continueGame}) {
   );
 }
 
-function NewGameButton({newGame}) {
+function NewGameButton({newGame}: {newGame: () => void}) {
   return (
     <Button
       onClick={newGame}
@@ -118,7 +104,7 @@ const ContinueIcon = styled.div`
 `;
 
 const CenteredContinueButton = styled.div<{visible: boolean}>`
-  display: ${p => (p.visible ? "flex" : "none")};
+  display: ${(p) => (p.visible ? "flex" : "none")};
   justify-content: center;
   align-items: center;
   width: 100%;
@@ -244,16 +230,31 @@ interface GameDispatchProps {
   toggleShowCircleMenu: typeof toggleShowCircleMenu;
 }
 
-interface GameStateProps {
-  game: GameState;
-  application: ApplicationState;
-  sudoku: Cell[];
-}
+const connector = connect(
+  (state: RootState) => {
+    return {
+      game: state.game,
+      application: state.application,
+      sudoku: state.sudoku,
+    };
+  },
+  {
+    continueGame,
+    pauseGame,
+    chooseGame,
+    wonGame,
+    showMenu,
+    selectCell,
+    hideMenu,
+    toggleShowHints,
+    toggleShowCircleMenu,
+  },
+);
 
-type GameProps = GameStateProps & GameDispatchProps;
+type PropsFromRedux = ConnectedProps<typeof connector>;
 
-class Game extends React.Component<GameProps> {
-  componentDidUpdate(prevProps: GameProps) {
+class Game extends React.Component<PropsFromRedux> {
+  componentDidUpdate(prevProps: PropsFromRedux) {
     // check if won
     const wasSolved = SudokuGame.isSolved(prevProps.sudoku);
     const isSolved = SudokuGame.isSolved(this.props.sudoku);
@@ -290,10 +291,10 @@ class Game extends React.Component<GameProps> {
       chooseGame();
     };
     const activeCell = game.activeCellCoordinates
-      ? sudoku.find(s => {
-          return s.x === game.activeCellCoordinates.x && s.y === game.activeCellCoordinates.y;
+      ? sudoku.find((s) => {
+          return s.x === game.activeCellCoordinates!.x && s.y === game.activeCellCoordinates!.y;
         })
-      : null;
+      : undefined;
     return (
       <GameContainer>
         <GameMenu />
@@ -335,7 +336,7 @@ class Game extends React.Component<GameProps> {
             </GameMainArea>
             <GameFooterArea>
               <SudokuMenuNumbersConnected />
-              <SudokuMenuControlsConnected />
+              <SudokuMenuControls />
               <h1>Settings</h1>
               <Checkbox id="generated_notes" checked={game.showHints} onChange={this.props.toggleShowHints}>
                 {"Show auto generated notes"}
@@ -351,23 +352,4 @@ class Game extends React.Component<GameProps> {
   }
 }
 
-export default connect(
-  (state: RootState) => {
-    return {
-      game: state.game,
-      application: state.application,
-      sudoku: state.sudoku,
-    };
-  },
-  {
-    continueGame,
-    pauseGame,
-    chooseGame,
-    wonGame,
-    showMenu,
-    selectCell,
-    hideMenu,
-    toggleShowHints,
-    toggleShowCircleMenu,
-  },
-)(Game);
+export default connector(Game);

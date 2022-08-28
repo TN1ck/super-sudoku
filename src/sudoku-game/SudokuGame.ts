@@ -35,7 +35,7 @@ export default class SudokuGame {
   height: number;
 
   static uniquePaths(paths: ConflictingPath[]) {
-    return _.uniqBy(paths, p => {
+    return _.uniqBy(paths, (p) => {
       const fromCell = p.from;
       const toCell = p.to;
       const str = [`${fromCell.x}-${fromCell.y}`, `${toCell.x}-${toCell.y}`].sort().join("-");
@@ -94,7 +94,7 @@ export default class SudokuGame {
       return false;
     }
     const noConflicts = this.correct(sudoku);
-    const set = sudoku.filter(c => c.number !== 0);
+    const set = sudoku.filter((c) => c.number !== 0);
     const allSet = set.length === sudoku.length;
     return allSet && noConflicts;
   }
@@ -112,44 +112,44 @@ export default class SudokuGame {
   }
 
   static positionedCells(sudoku: Cell[], width: number, height: number): PositionedCell[] {
-    return sudoku.map(c => this.getCellPosition(c, width, height));
+    return sudoku.map((c) => this.getCellPosition(c, width, height));
   }
 
   static correct(sudoku: Cell[]): Boolean {
     if (!sudoku) {
       return false;
     }
-    const sudokuFiltered = sudoku.filter(c => c.number !== 0);
+    const sudokuFiltered = sudoku.filter((c) => c.number !== 0);
     const rows = Object.values(
-      _.groupBy(sudokuFiltered, c => {
+      _.groupBy(sudokuFiltered, (c) => {
         return c.x;
       }),
     );
     const columns = Object.values(
-      _.groupBy(sudokuFiltered, c => {
+      _.groupBy(sudokuFiltered, (c) => {
         return c.y;
       }),
     );
     const squares = Object.values(
-      _.groupBy(sudokuFiltered, c => {
+      _.groupBy(sudokuFiltered, (c) => {
         return `${Math.floor(c.x / 3)}-${Math.floor(c.y / 3)}`;
       }),
     );
-    const correctRows = rows.every(row => _.uniqBy(row, r => r.number).length === row.length);
-    const correctColumns = columns.every(row => _.uniqBy(row, r => r.number).length === row.length);
-    const correctSquares = squares.every(row => _.uniqBy(row, r => r.number).length === row.length);
+    const correctRows = rows.every((row) => _.uniqBy(row, (r) => r.number).length === row.length);
+    const correctColumns = columns.every((row) => _.uniqBy(row, (r) => r.number).length === row.length);
+    const correctSquares = squares.every((row) => _.uniqBy(row, (r) => r.number).length === row.length);
     return correctRows && correctColumns && correctSquares;
   }
 
   static sameNumber(cell: Cell, sudoku: Cell[]): Cell[] {
-    return sudoku.filter(c => c.number === cell.number);
+    return sudoku.filter((c) => c.number === cell.number);
   }
 
   static sameSquareColumnRow(cell: Cell, sudoku: Cell[]): Cell[] {
-    const column = sudoku.filter(c => cell.y === c.y);
-    const row = sudoku.filter(c => cell.x === c.x);
+    const column = sudoku.filter((c) => cell.y === c.y);
+    const row = sudoku.filter((c) => cell.x === c.x);
     const square = sudoku.filter(
-      c => Math.floor(c.x / 3) === Math.floor(cell.x / 3) && Math.floor(c.y / 3) === Math.floor(cell.y / 3),
+      (c) => Math.floor(c.x / 3) === Math.floor(cell.x / 3) && Math.floor(c.y / 3) === Math.floor(cell.y / 3),
     );
     return [...column, ...row, ...square];
   }
@@ -160,26 +160,26 @@ export default class SudokuGame {
       index: i,
     }));
 
-    return sudokuWithIndex.map(cell => {
-      const rowCells = sudokuWithIndex.filter(c => c.x === cell.x);
-      const columnCells = sudokuWithIndex.filter(c => c.y === cell.y);
+    return sudokuWithIndex.map((cell) => {
+      const rowCells = sudokuWithIndex.filter((c) => c.x === cell.x);
+      const columnCells = sudokuWithIndex.filter((c) => c.y === cell.y);
       const squares = Object.values(
-        _.groupBy(sudokuWithIndex, c => {
+        _.groupBy(sudokuWithIndex, (c) => {
           return `${Math.floor(c.x / 3)}-${Math.floor(c.y / 3)}`;
         }),
       );
-      const squareCells = squares.filter(square => {
+      const squareCells = squares.filter((square) => {
         return square.indexOf(cell) !== -1;
       })[0];
 
       const all = rowCells
         .concat(columnCells)
         .concat(squareCells)
-        .filter(c => c.index !== cell.index)
-        .filter(c => c.number !== 0);
+        .filter((c) => c.index !== cell.index)
+        .filter((c) => c.number !== 0);
 
-      const otherNumbers = _.uniq(all.map(c => c.number));
-      const possibilities = SUDOKU_NUMBERS.filter(n => !otherNumbers.includes(n));
+      const otherNumbers = _.uniq(all.map((c) => c.number));
+      const possibilities = SUDOKU_NUMBERS.filter((n) => !otherNumbers.includes(n));
 
       return {
         cell,
@@ -192,7 +192,7 @@ export default class SudokuGame {
   static getPathsFromConflicting(conflictingCell: ConflictingCell, sudoku: Cell[]): ConflictingPath[] {
     const {conflicting, cell} = conflictingCell;
     const paths: ConflictingPath[] = [];
-    conflicting.forEach(c => {
+    conflicting.forEach((c) => {
       const targetPosition = sudoku[c.index];
       const fromPosition = sudoku[cell.index];
       if (c.number === cell.number && c.index !== cell.index) {

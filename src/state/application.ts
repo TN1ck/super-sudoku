@@ -1,3 +1,5 @@
+import {AnyAction} from "redux";
+
 export enum ApplicationStateMachine {
   chooseGame = "CHOSE_GAME",
   playGame = "PLAY_GAME",
@@ -27,7 +29,7 @@ const INITIAL_APPLICATION_STATE: ApplicationState = {
   state: ApplicationStateMachine.chooseGame,
 };
 
-export default function application(state: ApplicationState = INITIAL_APPLICATION_STATE, action) {
+export default function application(state: ApplicationState = INITIAL_APPLICATION_STATE, action: AnyAction) {
   switch (action.type) {
     case SET_APPLICATION_STATE:
       return {...state, state: action.state};

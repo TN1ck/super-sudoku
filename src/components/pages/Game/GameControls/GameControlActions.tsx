@@ -4,7 +4,8 @@ import THEME from "src/theme";
 import styled from "styled-components";
 import {activateNotesMode, deactivateNotesMode} from "src/state/game";
 import Button from "../../../modules/Button";
-import {CellCoordinates} from "src/engine/types";
+import {connect, ConnectedProps} from "react-redux";
+import {RootState} from "src/state/rootReducer";
 
 const ControlsButton = styled(Button)`
   width: 100%;
@@ -26,21 +27,21 @@ const SudokuMenuControlsContainer = styled.div`
   margin-top: ${THEME.spacer.x3}px;
 `;
 
-export interface SudokuMenuControlsStateProps {
-  notesMode: boolean;
-  activeCell: CellCoordinates;
-}
+const connector = connect(
+  (state: RootState) => ({
+    notesMode: state.game.notesMode,
+    activeCell: state.game.activeCellCoordinates,
+  }),
+  {
+    clearCell,
+    deactivateNotesMode,
+    activateNotesMode,
+    getHint,
+  },
+);
+type PropsFromRedux = ConnectedProps<typeof connector>;
 
-export interface SudokuMenuControlsDispatchProps {
-  clearCell: typeof clearCell;
-  activateNotesMode: typeof activateNotesMode;
-  deactivateNotesMode: typeof deactivateNotesMode;
-  getHint: typeof getHint;
-}
-
-export default class SudokuMenuControls extends React.Component<
-  SudokuMenuControlsStateProps & SudokuMenuControlsDispatchProps
-> {
+class SudokuMenuControls extends React.Component<PropsFromRedux> {
   render() {
     return (
       <SudokuMenuControlsContainer>
@@ -49,13 +50,15 @@ export default class SudokuMenuControls extends React.Component<
         >
           <ControlsButton>{`Notes ${this.props.notesMode ? "ON" : "OFF"}`}</ControlsButton>
         </ControlContainer>
-        <ControlContainer onClick={() => this.props.clearCell(this.props.activeCell)}>
+        <ControlContainer onClick={() => this.props.clearCell(this.props.activeCell!)}>
           <ControlsButton>{"Erase"}</ControlsButton>
         </ControlContainer>
         <ControlContainer>
-          <ControlsButton onClick={() => this.props.getHint(this.props.activeCell)}>{"Hint"}</ControlsButton>
+          <ControlsButton onClick={() => this.props.getHint(this.props.activeCell!)}>{"Hint"}</ControlsButton>
         </ControlContainer>
       </SudokuMenuControlsContainer>
     );
   }
 }
+
+export default connector(SudokuMenuControls);

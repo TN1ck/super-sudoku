@@ -13,6 +13,7 @@ const CLEAR_NUMBER = "sudoku/CLEAR_NUMBER";
 
 import {simpleSudokuToCells} from "src/engine/utility";
 import {Cell, SimpleSudoku, CellCoordinates} from "src/engine/types";
+import {AnyAction} from "redux";
 
 //
 // Actions
@@ -105,7 +106,7 @@ export const emptyGrid: SudokuState = simpleSudokuToCells([
 
 const initialState = emptyGrid;
 
-export default function sudokuReducer(state: SudokuState = initialState, action) {
+export default function sudokuReducer(state: SudokuState = initialState, action: AnyAction) {
   if (
     ![SET_NOTE, SET_SUDOKU, CLEAR_NOTE, SET_NUMBER, CLEAR_NUMBER, CLEAR_CELL, GET_HINT, SET_SUDOKU_STATE].includes(
       action.type,
@@ -121,16 +122,16 @@ export default function sudokuReducer(state: SudokuState = initialState, action)
   }
 
   const {x, y} = (action as SudokuAction).cellCoordinates;
-  const newGrid = state.map(cell => {
+  const newGrid = state.map((cell) => {
     const isCell = cell.x === x && cell.y === y;
     if (isCell && !cell.initial) {
       switch (action.type) {
         case SET_NOTE: {
-          const notes = cell.notes.filter(n => n !== action.note).concat(action.note);
+          const notes = cell.notes.filter((n) => n !== action.note).concat(action.note);
           return {...cell, notes};
         }
         case CLEAR_NOTE: {
-          const notes = cell.notes.filter(n => n !== action.note);
+          const notes = cell.notes.filter((n) => n !== action.note);
           return {...cell, notes};
         }
         case CLEAR_CELL:

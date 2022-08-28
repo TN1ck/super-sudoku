@@ -21,16 +21,16 @@ function removeValuesFromDomain(domain1: number[], domain2: number[]): [number[]
 }
 
 function toSimpleSudoku(grid: DomainSudoku): SimpleSudoku {
-  return grid.map(row => {
-    return row.map(cells => {
+  return grid.map((row) => {
+    return row.map((cells) => {
       return cells.length === 1 ? cells[0] : 0;
     });
   });
 }
 
 function toDomainSudoku(grid: SimpleSudoku): DomainSudoku {
-  return grid.map(row => {
-    return row.map(c => {
+  return grid.map((row) => {
+    return row.map((c) => {
       return c === 0 ? SUDOKU_NUMBERS : [c];
     });
   });
@@ -125,8 +125,8 @@ export function _solveGridAC3(
     }
   }
 
-  const isFilled = grid.every(row => {
-    return row.every(cells => {
+  const isFilled = grid.every((row) => {
+    return row.every((cells) => {
       return cells.length === 1;
     });
   });
@@ -149,7 +149,7 @@ export function _solveGridAC3(
     // minimum remaining value
     const [rowIndex, cellIndex] = sortedPossibleRowAndCells[0];
     const cell = grid[rowIndex][cellIndex];
-    const newGrids = cell.map(n => {
+    const newGrids = cell.map((n) => {
       return grid.map((row, r) => {
         if (r === rowIndex) {
           return row.map((cells, c) => {
@@ -172,9 +172,7 @@ export function _solveGridAC3(
   };
 }
 
-export function solve(
-  grid: SimpleSudoku,
-): {
+export function solve(grid: SimpleSudoku): {
   sudoku: SimpleSudoku;
   iterations: number;
 } {
