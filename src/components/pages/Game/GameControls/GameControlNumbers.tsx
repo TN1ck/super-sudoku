@@ -2,30 +2,18 @@ import * as React from "react";
 import {setNumber, setNote} from "src/state/sudoku";
 import {SUDOKU_NUMBERS} from "src/engine/utility";
 import {CellCoordinates} from "src/engine/types";
-import THEME from "src/theme";
 import styled from "styled-components";
 import Button from "src/components/modules/Button";
 import {connect, ConnectedProps} from "react-redux";
 import {RootState} from "src/state/rootReducer";
 
 const SudokuMenuNumbersContainer = styled.div.attrs({
-  className: "grid w-full overflow-hidden justify-center gap-2"
-})`
-  grid-template-columns: 1fr 1fr 1fr;
+  className: "grid w-full overflow-hidden justify-center gap-2 md:grid-cols-3 grid-cols-9 md:mt-0 mt-4"
+})``;
 
-  @media (max-width: 800px) {
-    margin-top: ${16}px;
-    grid-template-columns: repeat(9, 1fr);
-  }
-`;
-
-const NumberButton = styled(Button)`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-left: 0;
-  padding-right: 0;
-`;
+const NumberButton = styled(Button).attrs({
+  className: "flex justify-center items-center px-0"
+})`` as typeof Button;
 
 export interface SudokuMenuNumbersStateProps {
   notesMode: boolean;

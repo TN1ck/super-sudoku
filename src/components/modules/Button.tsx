@@ -9,7 +9,6 @@ const Button = styled.button.attrs({
   border-radius: ${THEME.borderRadius}px;
   background: ${THEME.colors.foreground};
   color: ${THEME.colors.background};
-  font-size: ${THEME.fontSize.base}px;
   box-shadow: ${THEME.boxShadow};
   border: none;
   transition: transform 0.3s ease-out;

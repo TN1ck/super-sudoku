@@ -7,11 +7,9 @@ import Button from "../../../modules/Button";
 import {connect, ConnectedProps} from "react-redux";
 import {RootState} from "src/state/rootReducer";
 
-const ControlsButton = styled(Button)`
-  width: 100%;
-  padding-left: 0;
-  padding-right: 0;
-`;
+const ControlsButton = styled(Button).attrs({
+  className: "w-full px-0"
+})`` as typeof Button;
 
 const ControlContainer = styled.div.attrs({className: "relative justify-center flex"})``;
 

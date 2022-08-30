@@ -28,12 +28,6 @@ const THEME = {
     noteAlternate: "#76B5DA",
     noteAlternate2: "#69a1c2",
   },
-  fontFamily: `'Source Sans Pro', sans-serif`,
-  fontSize: {
-    base: 16,
-    menu: 20,
-    h1: 48,
-  },
   boxShadow: "none",
   boxShadowSmall: "none",
   borderRadius: 2,
@@ -43,9 +37,14 @@ const THEME = {
   },
   widths: {
     hideCircleMenu: 700,
-    maxMobile: 600,
-    maxDesktop: 1200,
   },
+  responsive: {
+    sm: 640,
+    md: 768,
+    lg: 1024,
+    xl: 1280,
+    '2xl': 1536,
+  }
 };
 
 export default THEME;

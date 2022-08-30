@@ -114,66 +114,57 @@ const CenteredContinueButton = styled.div<{visible: boolean}>`
 
 const DifficultyShow = styled.div.attrs({
   className: "text-white capitalize"
-})`
-  font-size: ${THEME.fontSize.menu}px;
-  @media (max-width: 800px) {
-    font-size: ${THEME.fontSize.base}px;
-  }
-`;
+})``;
 
 const GameGrid = styled.div.attrs({
   className: "grid justify-center text-white relative pb-4 gap-4 mx-auto"
 })`
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto 1fr auto;
-
   grid-template-areas:
-    "game-header game-header"
-    "game-main game-controls"
-    "game-main game-controls";
+    "game-header"
+    "game-main"
+    "game-controls";
+  max-width: ${THEME.responsive.sm}px;
+  grid-template-columns: 1fr;
+  padding-bottom: 0;
 
-  @media (max-width: 800px) {
+  @media (min-width: ${THEME.responsive.md}px) {
     grid-template-areas:
-      "game-header"
-      "game-main"
-      "game-controls";
-    max-width: ${THEME.widths.maxMobile - 20}px;
-    grid-template-columns: 1fr;
-    grid-column-gap: 0;
-    padding-bottom: 0;
+      "game-header game-header"
+      "game-main game-controls"
+      "game-main game-controls";
+    max-width: 100%;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr auto;
   }
 
-  @media (max-width: ${THEME.widths.maxMobile}px) {
+  @media (max-width: ${THEME.responsive.sm}px) {
   }
 `;
 
 const GameMainArea = styled.div.attrs({
-  className: "relative flex flex-wrap shrink-0 grow-0 rounded-sm"
+  className: "relative flex flex-wrap shrink-0 grow-0 rounded-sm "
 })`
   grid-area: game-main;
   box-shadow: ${THEME.boxShadow};
-  width: ${THEME.widths.maxMobile}px;
-  height: ${THEME.widths.maxMobile}px;
+  /* As we need a value for the height, we need to make it it 100vw */
+  width: calc(100vw - 16px);
+  height: calc(100vw - 16px);
+  max-width: ${THEME.responsive.sm};
+  max-height: ${THEME.responsive.sm};
 
-  @media (min-width: 800px) and (max-width: 900px) {
-    width: 400px;
-    height: 400px;
-  }
-
-  @media (min-width: 900px) and (max-width: 1000px) {
+  @media (min-width: ${THEME.responsive.md}px) {
     width: 500px;
     height: 500px;
   }
 
-  @media (max-width: ${THEME.widths.maxMobile}px) {
-    /* As we need a value for the height, we need to make it it 100vw */
-    width: calc(100vw - 20px);
-    height: calc(100vw - 20px);
+  @media (min-width: ${THEME.responsive.lg}px) {
+    width: 600px;
+    height: 600px;
   }
 `;
 
 const GameHeaderArea = styled.div.attrs({
-  className: 'flex justify-between items-center mt-4',
+  className: 'flex justify-between items-end mt-4',
 })`
   grid-area: game-header;
 `;
