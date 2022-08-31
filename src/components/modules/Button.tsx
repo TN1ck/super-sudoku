@@ -26,10 +26,6 @@ const Button = styled.button.attrs({
       filter: brightness(90%);
       transform: scale(1.1);
     `}
-
-  @media (max-width: 800px) {
-    padding: ${8}px ${4}px;
-  }
 `;
 
 export default Button;

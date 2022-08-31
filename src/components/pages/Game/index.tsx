@@ -146,8 +146,8 @@ const GameMainArea = styled.div.attrs({
 })`
   grid-area: game-main;
   box-shadow: ${THEME.boxShadow};
-  /* As we need a value for the height, we need to make it it 100vw */
-  width: calc(100vw - 16px);
+  /* Not perfect, but close enough. */
+  width: 100%;
   height: calc(100vw - 16px);
   max-width: ${THEME.responsive.sm};
   max-height: ${THEME.responsive.sm};
