@@ -82,16 +82,8 @@ const SudokuCell: React.StatelessComponent<{
         highlight={highlight}
         highlightNumber={highlightNumber}
         bounds={bounds}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          onClick();
-        }}
-        onContextMenu={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          onRightClick();
-        }}
+        onClick={onClick}
+        onRightClick={onRightClick}
       />
       <GridCellNumber left={left} top={top} initial={initial} highlight={highlightNumber}>
         {number !== 0 ? number : ""}

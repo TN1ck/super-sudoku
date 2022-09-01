@@ -10,6 +10,9 @@ module.exports = {
         sans: ["Source Sans Pro", "sans-serif"],
       },
     },
+    transitionDuration: {
+      '0': '0ms',
+    },
     colors: {
       inherit: 'inherit',
       current: 'currentColor',

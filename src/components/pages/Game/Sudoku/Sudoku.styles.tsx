@@ -1,166 +1,165 @@
 import styled, {css} from "styled-components";
 import THEME from "src/theme";
 import {Bounds} from "src/utils/types";
+import clsx from "clsx";
 
-export const SudokuContainer = styled.div`
-  position: absolute;
-  height: 100%;
-  width: 100%;
+export const SudokuContainer = styled.div.attrs({
+  className: "absolute h-full w-full rounded-sm",
+})`
   background-color: ${THEME.sudokuColors.background};
-  border-radius: ${THEME.borderRadius}px;
 `;
 
-export const GridLineX = styled.div<{
-  top: number;
-  width: number;
-  makeBold: boolean;
-}>`
-  position: absolute;
-  left: 0;
-  width: ${(props) => props.width}%;
-  top: ${(props) => props.top}%;
-  transform: translateY(-50%);
-  height: 1px;
-  background: ${THEME.sudokuColors.gridLine};
-  ${(props) =>
-    props.makeBold &&
-    css`
-      background: ${THEME.sudokuColors.gridLineBold};
-      height: 2px;
-      z-index: 1;
-    `};
-`;
+export const GridLineX = ({top, width, makeBold}: {top: number; width: number; makeBold: boolean}) => {
+  return (
+    <div
+      style={{
+        width: `${width}%`,
+        top: `${top}%`,
+        height: makeBold ? 2 : 1,
+        background: makeBold ? THEME.sudokuColors.gridLineBold : THEME.sudokuColors.gridLine,
+      }}
+      className={clsx("absolute left-0 -translate-y-1/2", {
+        "z-10": makeBold,
+      })}
+    />
+  );
+};
 
-export const GridLineY = styled.div<{
-  left: number;
-  height: number;
-  makeBold: boolean;
-}>`
-  position: absolute;
-  top: 0;
-  height: ${(props) => props.height}%;
-  left: ${(props) => props.left}%;
-  background: ${THEME.sudokuColors.gridLine};
-  width: 1px;
-  transform: translateX(-50%);
-  ${(props) =>
-    props.makeBold &&
-    css`
-      background: ${THEME.sudokuColors.gridLineBold};
-      width: 2px;
-    `};
-`;
+export const GridLineY = ({left, height, makeBold}: {left: number; height: number; makeBold: boolean}) => {
+  return (
+    <div
+      style={{
+        height: `${height}%`,
+        left: `${left}%`,
+        width: makeBold ? 2 : 1,
+        background: makeBold ? THEME.sudokuColors.gridLineBold : THEME.sudokuColors.gridLine,
+      }}
+      className={clsx("absolute left-0 -translate-x-1/2", {
+        "z-10": makeBold,
+      })}
+    />
+  );
+};
 
-export const CellNote = styled.div<{
-  left: number;
-  top: number;
-}>`
-  top: ${(props) => props.top}%;
-  left: ${(props) => props.left}%;
-  font-size: 12px;
-  color: ${THEME.sudokuColors.note};
-  position: absolute;
-  transform: translate(-50%, -50%);
+export const CellNote = ({left, top, children}: {left: number; top: number; children: React.ReactNode}) => {
+  return (
+    <div
+      style={{color: THEME.sudokuColors.note, top: `${top}%`, left: `${left}%`}}
+      className="absolute -translate-x-1/2 -translate-y-1/2 text-xs sm:text-sm"
+    >
+      {children}
+    </div>
+  );
+};
 
-  @media (max-width: 600px) {
-    font-size: 10px;
-  }
-  @media (max-width: 450px) {
-    font-size: 8px;
-  }
-`;
-
-export const CellNoteContainer = styled.div<{
+export const CellNoteContainer = ({
+  initial,
+  bounds,
+  children,
+}: {
   initial: boolean;
   bounds: Bounds;
-}>`
-  position: absolute;
-  pointer-events: none;
-  font-weight: ${(props) => (props.initial ? "bold" : "normal")};
+  children: React.ReactNode;
+}) => {
+  return (
+    <div
+      style={{
+        width: `${bounds.width}%`,
+        height: `${bounds.height}%`,
+        top: `${bounds.top}%`,
+        left: `${bounds.left}%`,
+      }}
+      className={clsx("pointer-events-none absolute", {
+        "font-bold": initial,
+      })}
+    >
+      {children}
+    </div>
+  );
+};
 
-  width: ${(props) => props.bounds.width}%;
-  height: ${(props) => props.bounds.height}%;
-  top: ${(props) => props.bounds.top}%;
-  left: ${(props) => props.bounds.left}%;
-`;
-
-export const GridCell = styled.div<{
+export const GridCell = ({
+  conflict,
+  highlight,
+  highlightNumber,
+  bounds,
+  active,
+  notesMode,
+  onClick,
+  onRightClick,
+  children,
+}: {
   conflict: boolean;
   highlight: boolean;
   highlightNumber: boolean;
   bounds: Bounds;
   active: boolean;
   notesMode: boolean;
-}>`
-  position: absolute;
-  z-index: 0;
-  background-color: transparent;
-  transition: background-color 0s ease;
-  &:hover {
-    transition: background-color 0s ease;
-    border: 1px solid ${THEME.sudokuColors.gridLineBold};
-    background: ${THEME.sudokuColors.cellBackgroundHover};
-  }
+  children: React.ReactNode;
+  onClick: () => void;
+  onRightClick: () => void;
+}) => {
+  return (
+    <div
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onClick();
+      }}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onRightClick();
+      }}
+      style={{
+        width: `${bounds.width}%`,
+        height: `${bounds.height}%`,
+        top: `${bounds.top}%`,
+        left: `${bounds.left}%`,
+      }}
+      className={clsx(
+        "absolute z-0 bg-transparent transition-colors duration-0 hover:border-2 hover:border-gray-300 hover:bg-gray-100",
+        {
+          "duration-300 bg-gray-300": highlightNumber && !conflict,
+          "duration-300 bg-gray-200": highlight && !conflict,
+          "border-2 border-gray-400 bg-gray-300": active,
+          "duration-300 bg-red-200": conflict,
+        },
+      )}
+    >
+      {children}
+    </div>
+  );
+};
 
-  width: ${(props) => props.bounds.width}%;
-  height: ${(props) => props.bounds.height}%;
-  top: ${(props) => props.bounds.top}%;
-  left: ${(props) => props.bounds.left}%;
-
-  ${(props) =>
-    props.highlightNumber &&
-    css`
-      transition: background-color 0.3s ease;
-      background-color: ${THEME.sudokuColors.cellHighlightNumber};
-    `}
-
-  ${(props) =>
-    props.highlight &&
-    css`
-      background-color: ${THEME.sudokuColors.cellHighlight};
-    `}
-
-  &, &:hover {
-    ${(props) =>
-      props.active &&
-      css`
-        border: 2px solid
-          ${props.notesMode ? THEME.sudokuColors.cellBorderHighlightNote : THEME.sudokuColors.cellBorderHighlight};
-        background: ${THEME.sudokuColors.cellBackgroundHighlight};
-      `}
-  }
-
-  ${(props) =>
-    props.conflict &&
-    css`
-      transition: background-color 0.3s ease;
-      background-color: ${THEME.sudokuColors.cellConflict};
-    `}
-`;
-
-export const GridCellNumber = styled.div<{
+export const GridCellNumber = ({
+  initial,
+  highlight,
+  left,
+  top,
+  children,
+}: {
   initial: boolean;
   highlight: boolean;
   left: number;
   top: number;
-}>`
-  position: absolute;
-  left: ${(props) => props.left}%;
-  top: ${(props) => props.top}%;
-  color: ${THEME.sudokuColors.number};
-  font-size: 20px;
-  font-weight: bold;
-  ${(props) =>
-    props.initial &&
-    css`
-      color: ${THEME.sudokuColors.numberInitial};
-    `}
-  ${(props) =>
-    props.highlight &&
-    css`
-      color: ${THEME.sudokuColors.numberHighlighted};
-    `}
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-`;
+  children: React.ReactNode;
+}) => {
+  return (
+    <div
+      style={{
+        left: `${left}%`,
+        top: `${top}%`,
+      }}
+      className={clsx(
+        "text-md pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2 font-bold text-orange-600",
+        {
+          "text-black": initial,
+          "text-teal-600": highlight,
+        },
+      )}
+    >
+      {children}
+    </div>
+  );
+};
