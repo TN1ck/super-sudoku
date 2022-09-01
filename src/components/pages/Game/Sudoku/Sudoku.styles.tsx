@@ -116,11 +116,11 @@ export const GridCell = ({
         left: `${bounds.left}%`,
       }}
       className={clsx(
-        "absolute z-0 bg-transparent bg-opacity-50 transition-colors duration-0 hover:border-2 hover:border-gray-300 hover:bg-gray-100",
+        "absolute z-0 bg-transparent bg-opacity-50 transition-colors duration-0 hover:z-20 hover:border-2 hover:border-gray-400 hover:bg-gray-300 hover:bg-opacity-50",
         {
           "duration-300 bg-gray-400": highlightNumber && !conflict && !active,
           "duration-300 bg-gray-300": highlight && !conflict && !active,
-          "z-20 border-2 border-gray-500 bg-gray-400": active,
+          "z-20 border-2 border-gray-400 bg-gray-300": active,
           "duration-300 bg-red-300": conflict,
         },
       )}

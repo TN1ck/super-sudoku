@@ -10,7 +10,6 @@ import {Bounds} from "src/utils/types";
 import {RootState} from "src/state/rootReducer";
 
 const MenuCircleContainer = styled.svg`
-  z-index: 7;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
@@ -50,12 +49,12 @@ export const MenuContainer = styled.div<{bounds: Bounds}>`
   left: ${(props) => props.bounds.left}%;
 `;
 
-export const MenuWrapper = styled.div`
-  position: relative;
+export const MenuWrapper = styled.div.attrs({
+  className: "relative z-50",
+})`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 3;
 
   /* We just hide it on mobile, as it's not useful there */
   @media (max-width: ${THEME.widths.hideCircleMenu}px) {
