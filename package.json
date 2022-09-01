@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "vite build",
+    "preview": "vite preview",
     "clean": "rm -rf dist/",
     "test": "jest",
     "test-watch": "jest --watch",
