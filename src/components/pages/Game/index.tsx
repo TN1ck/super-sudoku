@@ -266,15 +266,29 @@ class Game extends React.Component<PropsFromRedux> {
             <GameFooterArea>
               <SudokuMenuNumbersConnected />
               <SudokuMenuControls />
-              <div className="mt-4">
-                <h1 className="mb-2 text-3xl font-bold">Settings</h1>
-                <div className="grid gap-2">
-                  <Checkbox id="generated_notes" checked={game.showHints} onChange={this.props.toggleShowHints}>
-                    {"Show auto generated notes"}
-                  </Checkbox>
-                  <Checkbox id="circle_menu" checked={game.showCircleMenu} onChange={this.props.toggleShowCircleMenu}>
-                    {"Show circle menu when a cell is selected"}
-                  </Checkbox>
+              <div className="mt-4 grid gap-4">
+                <div>
+                  <h1 className="mb-2 text-3xl font-bold">Shortcuts</h1>
+                  <div className="grid gap-2">
+                    <ul className="list-disc pl-6">
+                      <li>Arrow keys: Move around the board</li>
+                      <li>H: Hint</li>
+                      <li>N: Enter/exit note mode</li>
+                      <li>Number keys: Write a note or set the sudoku number</li>
+                      <li>Escape: Pause/Unpause the game</li>
+                    </ul>
+                  </div>
+                </div>
+                <div>
+                  <h1 className="mb-2 text-3xl font-bold">Settings</h1>
+                  <div className="grid gap-2">
+                    <Checkbox id="generated_notes" checked={game.showHints} onChange={this.props.toggleShowHints}>
+                      {"Show auto generated notes"}
+                    </Checkbox>
+                    <Checkbox id="circle_menu" checked={game.showCircleMenu} onChange={this.props.toggleShowCircleMenu}>
+                      {"Show circle menu when a cell is selected"}
+                    </Checkbox>
+                  </div>
                 </div>
               </div>
             </GameFooterArea>

@@ -87,7 +87,6 @@ export const GridCell = ({
   notesMode,
   onClick,
   onRightClick,
-  children,
 }: {
   conflict: boolean;
   highlight: boolean;
@@ -95,7 +94,6 @@ export const GridCell = ({
   bounds: Bounds;
   active: boolean;
   notesMode: boolean;
-  children: React.ReactNode;
   onClick: () => void;
   onRightClick: () => void;
 }) => {
@@ -120,15 +118,13 @@ export const GridCell = ({
       className={clsx(
         "absolute z-0 bg-transparent bg-opacity-50 transition-colors duration-0 hover:border-2 hover:border-gray-300 hover:bg-gray-100",
         {
-          "duration-300 bg-gray-400": highlightNumber && !conflict,
-          "duration-300 bg-gray-300": highlight && !conflict,
-          "border-2 border-gray-500 bg-gray-400": active,
+          "duration-300 bg-gray-400": highlightNumber && !conflict && !active,
+          "duration-300 bg-gray-300": highlight && !conflict && !active,
+          "z-20 border-2 border-gray-500 bg-gray-400": active,
           "duration-300 bg-red-300": conflict,
         },
       )}
-    >
-      {children}
-    </div>
+    />
   );
 };
 
