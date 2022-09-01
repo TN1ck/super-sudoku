@@ -16,10 +16,10 @@ export const GridLineX = ({top, width, makeBold}: {top: number; width: number; m
         width: `${width}%`,
         top: `${top}%`,
         height: makeBold ? 2 : 1,
-        background: makeBold ? THEME.sudokuColors.gridLineBold : THEME.sudokuColors.gridLine,
       }}
       className={clsx("absolute left-0 -translate-y-1/2", {
-        "z-10": makeBold,
+        "z-10 bg-gray-300": makeBold,
+        "bg-gray-200": !makeBold,
       })}
     />
   );
@@ -32,10 +32,10 @@ export const GridLineY = ({left, height, makeBold}: {left: number; height: numbe
         height: `${height}%`,
         left: `${left}%`,
         width: makeBold ? 2 : 1,
-        background: makeBold ? THEME.sudokuColors.gridLineBold : THEME.sudokuColors.gridLine,
       }}
       className={clsx("absolute left-0 -translate-x-1/2", {
-        "z-10": makeBold,
+        "z-10 bg-gray-300": makeBold,
+        "bg-gray-200": !makeBold,
       })}
     />
   );
@@ -118,12 +118,12 @@ export const GridCell = ({
         left: `${bounds.left}%`,
       }}
       className={clsx(
-        "absolute z-0 bg-transparent transition-colors duration-0 hover:border-2 hover:border-gray-300 hover:bg-gray-100",
+        "absolute z-0 bg-transparent bg-opacity-50 transition-colors duration-0 hover:border-2 hover:border-gray-300 hover:bg-gray-100",
         {
-          "duration-300 bg-gray-300": highlightNumber && !conflict,
-          "duration-300 bg-gray-200": highlight && !conflict,
-          "border-2 border-gray-400 bg-gray-300": active,
-          "duration-300 bg-red-200": conflict,
+          "duration-300 bg-gray-400": highlightNumber && !conflict,
+          "duration-300 bg-gray-300": highlight && !conflict,
+          "border-2 border-gray-500 bg-gray-400": active,
+          "duration-300 bg-red-300": conflict,
         },
       )}
     >

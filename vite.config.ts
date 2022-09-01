@@ -4,11 +4,14 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "tailwindcss";
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({command}) => ({
   plugins: [react(), tsconfigPaths()],
-  define: {
-    "global.": "({}).",
-  },
+  define:
+    command === "build"
+      ? {
+          "global.": "({}).",
+        }
+      : {global: {}},
   server: {
     open: true,
     port: 3000,
@@ -16,4 +19,4 @@ export default defineConfig({
   preview: {
     port: 3000,
   },
-});
+}));
