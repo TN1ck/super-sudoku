@@ -34,6 +34,7 @@
     ]
   },
   "devDependencies": {
+    "@tailwindcss/forms": "^0.5.2",
     "@types/d3-path": "1.0.8",
     "@types/jest": "25.1.4",
     "@types/keymaster": "1.6.28",
@@ -65,6 +66,7 @@
     "@types/react-lazyload": "^2.6.0",
     "@vitejs/plugin-react": "^2.0.1",
     "autoprefixer": "^10.4.8",
+    "clsx": "^1.2.1",
     "history": "4.10.1",
     "keymaster": "1.6.2",
     "lodash": "4.17.15",

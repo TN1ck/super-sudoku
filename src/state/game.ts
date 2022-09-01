@@ -18,6 +18,7 @@ const TOGGLE_SHOW_HINTS = "game/TOGGLE_SHOW_HINTS";
 const TOGGLE_SHOW_CIRCLE_MENU = "game/TOGGLE_SHOW_CIRCLE_MENU";
 const ACTIVATE_NOTES_MODE = "game/ACTIVATE_NOTES_MODE";
 const DEACTIVATE_NOTES_MODE = "game/DEACTIVATE_NOTES_MODE";
+export const UPDATE_TIMER = "game/UPDATE_TIME";
 
 export function activateNotesMode() {
   return {
@@ -37,6 +38,13 @@ export function newGame(sudokuId: number, sudokuIndex: number, difficulty: DIFFI
     sudokuId,
     sudokuIndex,
     difficulty,
+  };
+}
+
+export function updateTimer(secondsPlayed: number) {
+  return {
+    type: UPDATE_TIMER,
+    secondsPlayed,
   };
 }
 
@@ -100,12 +108,11 @@ export interface GameState {
   showHints: boolean;
   showMenu: boolean;
   showNotes: boolean; // local overwrite
-  startTime: number;
   state: GameStateMachine;
-  stopTime: number;
   sudokuId: number;
   sudokuIndex: number;
   won: boolean;
+  secondsPlayed: number;
 }
 
 const INITIAL_GAME_STATE: GameState = {
@@ -117,11 +124,10 @@ const INITIAL_GAME_STATE: GameState = {
   showHints: false,
   showMenu: false,
   showNotes: false,
-  startTime: 0,
   state: GameStateMachine.paused,
-  stopTime: 0,
   sudokuId: -1,
   sudokuIndex: -1,
+  secondsPlayed: 0,
   won: false,
 };
 
@@ -130,17 +136,6 @@ export function setGameState(state: GameState) {
     type: SET_GAME_STATE,
     state,
   };
-}
-
-export function getTime(startTime: number, offsetTime: number, stopTime: number) {
-  const now = +new Date();
-  if (startTime === 0) {
-    return 0;
-  }
-  if (stopTime !== 0) {
-    return Math.floor(stopTime - startTime - offsetTime);
-  }
-  return Math.floor(now - startTime - offsetTime);
 }
 
 export default function gameReducer(state: GameState = INITIAL_GAME_STATE, action: AnyAction): GameState {
@@ -176,37 +171,29 @@ export default function gameReducer(state: GameState = INITIAL_GAME_STATE, actio
         ...state,
         notesMode: false,
       };
+    case UPDATE_TIMER:
+      return {
+        ...state,
+        secondsPlayed: action.secondsPlayed,
+      };
 
     case SET_GAME_STATE_MACHINE:
       switch (action.state) {
         case GameStateMachine.paused: {
           return {
             ...state,
-            stopTime: +new Date(),
             state: GameStateMachine.paused,
           };
         }
         case GameStateMachine.running: {
-          let offsetTime = state.offsetTime;
-          let startTime = state.startTime;
-          if (state.startTime === 0) {
-            startTime = +new Date();
-          }
-          if (state.stopTime > 0) {
-            offsetTime = state.offsetTime + (+new Date() - state.stopTime);
-          }
           return {
             ...state,
             state: GameStateMachine.running,
-            startTime,
-            offsetTime,
-            stopTime: 0,
           };
         }
         case GameStateMachine.wonGame: {
           return {
             ...state,
-            stopTime: +new Date(),
             state: GameStateMachine.wonGame,
           };
         }

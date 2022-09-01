@@ -8,11 +8,11 @@ import {connect, ConnectedProps} from "react-redux";
 import {RootState} from "src/state/rootReducer";
 
 const SudokuMenuNumbersContainer = styled.div.attrs({
-  className: "grid w-full overflow-hidden justify-center gap-2 md:grid-cols-3 grid-cols-9 md:mt-0 mt-4"
+  className: "grid w-full overflow-hidden justify-center gap-2 md:grid-cols-3 grid-cols-9 md:mt-0 mt-4",
 })``;
 
 const NumberButton = styled(Button).attrs({
-  className: "flex justify-center items-center px-0"
+  className: "flex justify-center items-center px-0",
 })`` as typeof Button;
 
 export interface SudokuMenuNumbersStateProps {

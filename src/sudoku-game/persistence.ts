@@ -3,8 +3,7 @@ import {GameState, GameStateMachine} from "src/state/game";
 import {SudokuState} from "src/state/sudoku";
 import {ApplicationState} from "src/state/application";
 
-const STORAGE_KEY = "super_sudoku_1_0_use_this_file_if_you_want_to_cheat";
-const STORAGE_KEY_STOP_TIME = "super_sudoku_1_0_use_this_file_if_you_want_to_cheat_stop_time";
+const STORAGE_KEY = "super_sudoku_1_1_use_this_file_if_you_want_to_cheat";
 
 interface StoredState {
   active: number;
@@ -13,15 +12,6 @@ interface StoredState {
     [key: number]: {game: GameState; sudoku: SudokuState};
   };
 }
-
-export const saveStopTimeToLocalStorage = (date: Date) => {
-  localStorage.setItem(STORAGE_KEY_STOP_TIME, JSON.stringify(date.getTime()));
-};
-
-const loadStopTimeFromLocalStorage = (): Date | undefined => {
-  const unixTime = Number.parseInt(localStorage.getItem(STORAGE_KEY_STOP_TIME));
-  return isNaN(unixTime) ? undefined : new Date(unixTime);
-};
 
 const loadFromLocalStorage = (): StoredState => {
   const empty = {
@@ -36,15 +26,6 @@ const loadFromLocalStorage = (): StoredState => {
   if (text !== null) {
     try {
       const result = JSON.parse(text) as StoredState;
-      if (result.active !== -1) {
-        const activeSudoku = result.sudokus[result.active];
-        // load the last time the user had the app running
-        const stopTime = loadStopTimeFromLocalStorage();
-        if (stopTime && ![GameStateMachine.paused, GameStateMachine.wonGame].includes(activeSudoku.game.state)) {
-          activeSudoku.game.stopTime = stopTime.getTime();
-          activeSudoku.game.state = GameStateMachine.paused;
-        }
-      }
       return result;
     } catch (e) {
       // delete entry but save it as corrupted, so one might be able to restore it

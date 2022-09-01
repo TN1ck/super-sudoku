@@ -4,7 +4,6 @@ import {connect, ConnectedProps} from "react-redux";
 import {
   pauseGame,
   continueGame,
-  newGame,
   wonGame,
   hideMenu,
   showMenu,
@@ -55,23 +54,11 @@ function PauseButton({
   pauseGame: () => void;
   continueGame: () => void;
 }) {
-  return (
-    <Button
-      onClick={running ? pauseGame : continueGame}
-    >
-      {running ? "Pause" : "Continue"}
-    </Button>
-  );
+  return <Button onClick={running ? pauseGame : continueGame}>{running ? "Pause" : "Continue"}</Button>;
 }
 
 function NewGameButton({newGame}: {newGame: () => void}) {
-  return (
-    <Button
-      onClick={newGame}
-    >
-      {"New"}
-    </Button>
-  );
+  return <Button onClick={newGame}>{"New"}</Button>;
 }
 
 const ContinueIcon = styled.div`
@@ -113,11 +100,11 @@ const CenteredContinueButton = styled.div<{visible: boolean}>`
 `;
 
 const DifficultyShow = styled.div.attrs({
-  className: "text-white capitalize"
+  className: "text-white capitalize",
 })``;
 
 const GameGrid = styled.div.attrs({
-  className: "grid justify-center text-white relative pb-4 gap-4 mx-auto"
+  className: "grid justify-center text-white relative pb-4 gap-4 mx-auto",
 })`
   grid-template-areas:
     "game-header"
@@ -136,13 +123,10 @@ const GameGrid = styled.div.attrs({
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto 1fr auto;
   }
-
-  @media (max-width: ${THEME.responsive.sm}px) {
-  }
 `;
 
 const GameMainArea = styled.div.attrs({
-  className: "relative flex flex-wrap shrink-0 grow-0 rounded-sm "
+  className: "relative flex flex-wrap shrink-0 grow-0 rounded-sm ",
 })`
   grid-area: game-main;
   box-shadow: ${THEME.boxShadow};
@@ -164,7 +148,7 @@ const GameMainArea = styled.div.attrs({
 `;
 
 const GameHeaderArea = styled.div.attrs({
-  className: 'flex justify-between items-end mt-4',
+  className: "flex justify-between items-end mt-4",
 })`
   grid-area: game-header;
 `;
@@ -239,7 +223,7 @@ class Game extends React.Component<PropsFromRedux> {
         })
       : undefined;
     return (
-      <div className="max-w-full min-h-full relative">
+      <div className="relative min-h-full max-w-full">
         <GameMenu />
         <Container>
           <GameGrid>
@@ -250,7 +234,7 @@ class Game extends React.Component<PropsFromRedux> {
                 <div className="w-4" />
                 {"|"}
                 <div className="w-4" />
-                <GameTimer startTime={game.startTime} stopTime={game.stopTime} offsetTime={game.offsetTime} />
+                <GameTimer />
               </div>
               <div className="flex">
                 <div className="mr-2">
@@ -283,13 +267,15 @@ class Game extends React.Component<PropsFromRedux> {
               <SudokuMenuNumbersConnected />
               <SudokuMenuControls />
               <div className="mt-4">
-                <h1 className="text-3xl font-bold mb-2">Settings</h1>
-                <Checkbox id="generated_notes" checked={game.showHints} onChange={this.props.toggleShowHints}>
-                  {"Show auto generated notes"}
-                </Checkbox>
-                <Checkbox id="circle_menu" checked={game.showCircleMenu} onChange={this.props.toggleShowCircleMenu}>
-                  {"Show circle menu when a cell is selected"}
-                </Checkbox>
+                <h1 className="mb-2 text-3xl font-bold">Settings</h1>
+                <div className="grid gap-2">
+                  <Checkbox id="generated_notes" checked={game.showHints} onChange={this.props.toggleShowHints}>
+                    {"Show auto generated notes"}
+                  </Checkbox>
+                  <Checkbox id="circle_menu" checked={game.showCircleMenu} onChange={this.props.toggleShowCircleMenu}>
+                    {"Show circle menu when a cell is selected"}
+                  </Checkbox>
+                </div>
               </div>
             </GameFooterArea>
           </GameGrid>

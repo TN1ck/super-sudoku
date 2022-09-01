@@ -1,61 +1,4 @@
 import React from "react";
-import styled from "styled-components";
-import THEME from "src/theme";
-
-const StyledCheckbox = styled.input.attrs({
-  className: "mt-4 mr-8"
-})`
-  position: relative;
-  width: 0;
-  height: 0;
-  opacity: 0;
-  display: inline-block;
-
-  &:hover {
-    cursor: pointer;
-  }
-`;
-
-const StyledCheckboxSquare = styled.div<{
-  checked: boolean;
-}>`
-  border-radius: ${THEME.borderRadius}px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 20px;
-  height: 20px;
-  background: ${THEME.colors.background};
-  border: 1px solid ${THEME.colors.foreground};
-  transform: translate(0, 3px);
-
-  &:after {
-    color: ${THEME.colors.foreground};
-    display: block;
-    content: ${(props) => (props.checked ? "'L'" : "''")};
-    position: absolute;
-    top: -3px;
-    left: 7px;
-    font-size: 17px;
-    transform: translate(-1px, -2px) scaleY(-1) rotate(-221deg);
-  }
-
-  &:hover {
-    cursor: pointer;
-  }
-`;
-
-const StyledLabel = styled.label`
-  color: ${THEME.colors.foreground};
-  user-select: none;
-  &:hover {
-    cursor: pointer;
-  }
-`;
-
-const StyledCheckboxContainer = styled.div`
-  position: relative;
-`;
 
 const Checkbox: React.StatelessComponent<{
   id: string;
@@ -63,11 +6,20 @@ const Checkbox: React.StatelessComponent<{
   onChange: () => any;
 }> = ({id, onChange, checked, children}) => {
   return (
-    <StyledCheckboxContainer>
-      <StyledCheckbox type="checkbox" id={id} checked={checked} onChange={onChange} />
-      <StyledCheckboxSquare checked={checked} onClick={onChange} />
-      <StyledLabel htmlFor={id}>{children}</StyledLabel>
-    </StyledCheckboxContainer>
+    <div className="relative flex items-center">
+      <div className="flex h-5 items-center">
+        <input
+          checked={checked}
+          onChange={onChange}
+          id="comments"
+          aria-describedby="comments-description"
+          name="comments"
+          type="checkbox"
+          className="h-6 w-6 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+        />
+      </div>
+      <div className="ml-3">{children}</div>
+    </div>
   );
 };
 

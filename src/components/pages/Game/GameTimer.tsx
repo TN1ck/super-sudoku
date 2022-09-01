@@ -1,39 +1,52 @@
 import * as React from "react";
 import * as _ from "lodash";
 
-import {getTime} from "src/state/game";
-import styled from "styled-components";
-import {saveStopTimeToLocalStorage} from "src/sudoku-game/persistence";
+import {connect, ConnectedProps} from "react-redux";
+import {RootState} from "src/state/rootReducer";
+import {GameStateMachine, updateTimer} from "src/state/game";
 
-// so we don't write to localStorage every 1/60 second
-const throttledSaveStopTime = _.throttle(saveStopTimeToLocalStorage, 500);
+const connector = connect(
+  (state: RootState) => {
+    return {
+      secondsPlayed: state.game.secondsPlayed,
+      state: state.game.state,
+    };
+  },
+  {updateTimer},
+);
 
-export default class GameTimer extends React.Component<{
-  startTime: number;
-  offsetTime: number;
-  stopTime: number;
-}> {
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+class GameTimer extends React.Component<PropsFromRedux> {
   _isMounted: boolean = false;
+  _startTime: number = 0;
   componentDidMount() {
+    const seconds = this.props.secondsPlayed;
+    this._startTime = Number(new Date()) - seconds * 10 * 60;
     this._isMounted = true;
-    const timer = () => {
+    const timer = _.throttle(() => {
       requestAnimationFrame(() => {
+        const now = Number(new Date());
+        if (this.props.state !== GameStateMachine.running) {
+          this._startTime = now - this.props.secondsPlayed * 10 * 60;
+        }
+        const diff = now - this._startTime;
+        const seconds = diff / 10 / 60;
+        this.props.updateTimer(seconds);
         this.forceUpdate();
-        throttledSaveStopTime(new Date());
         if (this._isMounted) {
           timer();
         }
       });
-    };
+    }, 100);
     timer();
   }
   componentWillUnmount() {
     this._isMounted = false;
   }
   render() {
-    const {startTime, offsetTime, stopTime} = this.props;
-    const milliseconds = getTime(startTime, offsetTime, stopTime);
-    const seconds = Math.round(milliseconds / 1000);
+    const {secondsPlayed} = this.props;
+    const seconds = Math.floor(secondsPlayed);
     const minutes = Math.floor(seconds / 60);
     const secondRest = seconds % 60;
 
@@ -42,6 +55,8 @@ export default class GameTimer extends React.Component<{
 
     const timerString = minuteString + ":" + secondString + " min";
 
-    return <div className="text-white text-center">{timerString}</div>;
+    return <div className="text-center text-white">{timerString}</div>;
   }
 }
+
+export default connector(GameTimer);
