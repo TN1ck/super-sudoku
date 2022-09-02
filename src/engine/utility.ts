@@ -39,6 +39,30 @@ export const solvableSudoku2 = [
   "_________",
 ].join("\n");
 
+export const solvableSudoku3 = [
+  "____3____",
+  "__1_65___",
+  "5__2___3_",
+  "__869_2__",
+  "__74_2__5",
+  "13__7__6_",
+  "______927",
+  "_8_______",
+  "_4_9_____",
+].join("\n");
+
+export const solvedSudoku3 = [
+  "894731652",
+  "321865794",
+  "576249138",
+  "458693271",
+  "967412385",
+  "132578469",
+  "615384927",
+  "789126543",
+  "243957816",
+].join("\n");
+
 // SQUARE TABLE
 /*
     _x = 0       _x = 1     _x = 2
@@ -77,13 +101,13 @@ export function squareIndex(x, y) {
 export function printSimpleSudoku(grid: SimpleSudoku) {
   return grid
     .map((row) => {
-      return row.map((c) => (c === undefined ? "_" : "" + c)).join("");
+      return row.map((c) => (c === 0 ? "_" : "" + c)).join("");
     })
     .join("\n");
 }
 
 export function duplicates(array: number[]): number {
-  const filtered = array.filter((c) => c !== undefined);
+  const filtered = array.filter((c) => c !== 0);
   const grouped = _.groupBy(filtered, (c) => c);
   const picked = _.pickBy(grouped, (x) => x.length > 1);
   return _.values(picked).length;
@@ -157,7 +181,7 @@ export function parseSudoku(sudoku: string): SimpleSudoku {
 }
 
 export function printComplexSudoku(grid: ComplexSudoku) {
-  return _(grid)
+  return _.chain(grid)
     .groupBy((c) => {
       return c.y;
     })

@@ -160,6 +160,7 @@ export default function gameReducer(state: GameState = INITIAL_GAME_STATE, actio
         sudokuId: action.sudokuId,
         sudokuIndex: action.sudokuIndex,
         difficulty: action.difficulty,
+        secondsPlayed: 0,
       };
     case ACTIVATE_NOTES_MODE:
       return {

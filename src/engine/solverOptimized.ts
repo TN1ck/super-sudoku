@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import {SUDOKU_NUMBERS, SQUARE_TABLE, squareIndex, duplicates} from "./utility";
+import {SUDOKU_NUMBERS, SQUARE_TABLE, squareIndex, duplicates, printSimpleSudoku} from "./utility";
 import {SimpleSudoku} from "./types";
 
 function isFilled(grid: SimpleSudoku): boolean {
@@ -108,7 +108,7 @@ function createNewGrids(grid: SimpleSudoku, x: number, y: number, values) {
   return newGrids;
 }
 
-const MAX_ITERATIONS = 4000;
+const MAX_ITERATIONS = 3000;
 
 export function _solveGrid(
   stack: SimpleSudoku[] = [],
@@ -133,7 +133,6 @@ export function _solveGrid(
   const completelyFilled = isFilled(grid);
   if (completelyFilled) {
     if (isCorrect(rows, columns, squares)) {
-      // console.log('iterations: ' + iterations);
       return {
         sudoku: grid,
         iterations,

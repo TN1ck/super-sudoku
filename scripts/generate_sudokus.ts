@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import * as program from "commander";
+import {program} from "commander";
 import * as generate from "../src/engine/generate";
 import * as solverAC3 from "../src/engine/solverAC3";
 import {printSimpleSudoku} from "../src/engine/utility";
@@ -7,11 +7,11 @@ import {DIFFICULTY} from "../src/engine/types";
 
 program
   .version("0.0.1")
-  .option("-n, --number <n>", "Number of sudokus to generate", n => parseInt(n, 10), 20)
+  .option("-n, --number <n>", "Number of sudokus to generate", (n) => parseInt(n, 10), 20)
   .option(
     "-d, --difficulty [type]",
-    "Difficulty [easy], [medium], [hard], [evil]",
-    /^(easy|medium|hard|evil)$/i,
+    "Difficulty [easy], [medium], [hard], [expert], [evil]",
+    /^(easy|medium|hard|expert|evil)$/i,
     "medium",
   )
   .parse(process.argv);
@@ -20,6 +20,7 @@ const mapping = {
   easy: DIFFICULTY.EASY,
   medium: DIFFICULTY.MEDIUM,
   hard: DIFFICULTY.HARD,
+  expert: DIFFICULTY.EXPERT,
   evil: DIFFICULTY.EVIL,
 };
 

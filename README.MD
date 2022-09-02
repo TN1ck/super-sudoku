@@ -19,6 +19,12 @@ This project aims to be a sudoku app with everything included. An open source su
 - [ ] Provide motivating animations when finishing a line/square
 - [ ] Offer users to generate their own unique sudokus
 - [ ] Creating a challenge mode so two people can solve the same Sudoku side by side
+- [ ] Add option to disable number highlights
+- [ ] If a number is set, remove the notes that conflict with that number. Also when a hint is used.
+- [ ] Keep the notes, even if a number is set
+- [ ] If tabs are switched, scroll to top
+- [ ] When you scroll all the way to the bottom the modal itself scrolled and the tab bar got hidden. Make sure that the modal is never higher than 100vh.
+- [ ] Time keeps going when you select a new game.
 
 ## Setup
 

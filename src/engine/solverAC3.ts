@@ -59,9 +59,8 @@ export function _solveGridAC3(
 
   iterations++;
   // evil puzzles have an average of about 500, everything more than 1000 that is actually solvable
-  // will be too difficult for the normal user
-  if (iterations > 1000) {
-    // console.log('COMPUTATION TIME OUT', iterations);
+  // will be too impossible for the normal user
+  if (iterations > 500) {
     return {
       sudoku: toSimpleSudoku(grid),
       iterations: Infinity,
