@@ -40,6 +40,7 @@ const NewGameButton = styled(Button)`
 
 const ModalInner = styled.div`
   width: 80vw;
+  height: 100%;
   background: ${THEME.colors.background};
   margin: 0 auto;
   border-radius: ${THEME.borderRadius}px;
@@ -59,7 +60,6 @@ const WonGame = ({chooseGame}: {chooseGame: () => void}) => {
 };
 
 const GameMenuSelection = () => {
-  console.log("gome menu selection");
   return (
     <ModalInner>
       <GameSelect />
@@ -123,7 +123,7 @@ class GameMenu extends React.Component<GameMenuStateProps & PropsFromRedux, {isO
                 zIndex: -1,
               }}
             />
-            <Dialog.Panel className="z-10 h-screen w-screen p-4">
+            <Dialog.Panel style={{height: `calc(100vh - 28px)`}} className="z-10 w-screen p-4">
               <GameMenuSelection />
             </Dialog.Panel>
           </Dialog>

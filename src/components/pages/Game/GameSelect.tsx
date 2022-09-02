@@ -15,33 +15,30 @@ import {getState} from "src/sudoku-game/persistence";
 import {playGame} from "src/state/application";
 
 const TabBar = styled.div.attrs({
-  className: "flex text-white pb-4 justify-center border-b-0"
+  className: "flex text-white py-4 justify-center border-b-0 bg-gray-900",
 })``;
 
 const TabItem = styled.button.attrs({
-  className: "px-4 py-2 pointer capitalize"
+  className: "px-2 sm:px-4 text-sm sm:text-base py-2 pointer capitalize rounded-sm border-none",
 })<{
   active: boolean;
 }>`
-  background: ${(p) => (p.active ? THEME.colors.foreground : THEME.colors.background)};
+  background: ${(p) => (p.active ? THEME.colors.foreground : "transparent")};
   color: ${(p) => (p.active ? THEME.colors.background : THEME.colors.foreground)};
-  border: none;
-  border-bottom-left-radius: ${THEME.borderRadius}px;
-  border-bottom-right-radius: ${THEME.borderRadius}px;
 `;
 
 const SudokusContainer = styled.div.attrs({
-  className: "flex flex-wrap justify-center relative w-full overflow-scroll"
+  className: "flex flex-wrap justify-center relative w-full overflow-scroll pt-2",
 })`
-  height: calc(100vh - ${20 * 2 + 60}px);
+  height: calc(100% - 88px);
 `;
 
 const SudokuContainer = styled.div.attrs({
-  className: "p-4 relative",
+  className: "p-2 relative",
 })``;
 
 const SudokuPreviewButton = styled.div.attrs({
-  className: "px-4 py-2 left-4 bottom-4 absolute"
+  className: "px-4 py-2 left-4 bottom-4 absolute",
 })`
   background: ${THEME.colors.background};
   color: ${THEME.colors.foreground};
@@ -49,7 +46,7 @@ const SudokuPreviewButton = styled.div.attrs({
 `;
 
 const GameSelectContainer = styled.div.attrs({
-  className: "h-full max-h-full p-4"
+  className: "h-full max-h-full",
 })``;
 
 const SudokuPreviewPlaceholder: React.StatelessComponent<{size: number}> = ({size}) => (
@@ -64,7 +61,7 @@ interface GameIndexProps {
 }
 
 class GameIndex extends React.Component<GameIndexProps, {elementWidth: number}> {
-  dom: HTMLDivElement | null = null;
+  _isMounted: boolean = false;
   constructor(props: GameIndexProps) {
     super(props);
     this.state = {
@@ -72,40 +69,47 @@ class GameIndex extends React.Component<GameIndexProps, {elementWidth: number}> 
     };
   }
   componentDidMount() {
-    this.calcWidth();
+    this._isMounted = true;
+    setTimeout(() => {
+      this.calcWidth();
+    });
     if (typeof window !== "undefined") {
       window.addEventListener("resize", this.calcWidth);
     }
   }
   componentWillUnmount() {
+    this._isMounted = false;
     window.removeEventListener("resize", this.calcWidth);
   }
   calcWidth = () => {
-    if (this.dom === null) {
+    const dom = document.getElementById("lazyload-container");
+    if (dom === null || !this._isMounted) {
       return;
     }
-    const width = this.dom.getBoundingClientRect().width;
-    const MIN_SIZE = 150;
-    const MAX_SIZE = 260;
+    const width = dom.getBoundingClientRect().width - 16;
+    const MIN_SIZE = 140;
+    const MAX_SIZE = 300;
     const MAX_COLUMNS = 4;
 
+    const calculate = (numberOfItems: number) => {
+      return Math.floor((width - numberOfItems * 8 * 2) / numberOfItems);
+    };
+
     let numberOfItems = 1;
-    let elementWidth = Infinity;
+    let elementWidth = calculate(numberOfItems);
     while (true) {
       const numberOfItemsNew = numberOfItems + 1;
-      const elementWidthNew = Math.floor((width - numberOfItemsNew * 20) / numberOfItemsNew);
+      const elementWidthNew = calculate(numberOfItems);
       if (elementWidthNew < MIN_SIZE || numberOfItemsNew > MAX_COLUMNS) {
         break;
       }
       numberOfItems = numberOfItemsNew;
       elementWidth = elementWidthNew;
     }
+    elementWidth = Math.min(width, Math.min(MAX_SIZE, elementWidth));
     this.setState({
-      elementWidth: Math.min(MAX_SIZE, elementWidth),
+      elementWidth,
     });
-  };
-  setRef = (dom: HTMLDivElement) => {
-    this.dom = dom;
   };
   render() {
     const {elementWidth} = this.state;
@@ -116,7 +120,7 @@ class GameIndex extends React.Component<GameIndexProps, {elementWidth: number}> 
     const localState = getState();
 
     return (
-      <SudokusContainer ref={this.setRef} id="lazyload-container">
+      <SudokusContainer id="lazyload-container">
         {this.state.elementWidth !== -1
           ? sudokus.map((sudoku, i) => {
               const local = localState.sudokus[sudoku.id];
