@@ -12,12 +12,19 @@ const lineReader = readline.createInterface({
   input: fs.createReadStream(inFile),
 });
 
-const sudokus = [];
+interface SudokuSolution {
+  iterations: number;
+  sudoku: number[][];
+  solution: number[][];
+  id: number;
+}
+
+const sudokus: SudokuSolution[] = [];
 let index = 0;
 let currentIterations = 0;
-let currentSudoku = [];
+let currentSudoku: string[] = [];
 
-lineReader.on("line", line => {
+lineReader.on("line", (line) => {
   if (index === 0) {
     currentIterations = parseInt(line, 10);
   }
@@ -40,16 +47,22 @@ lineReader.on("line", line => {
   }
 });
 
-const difficultyMapping = [[0, 17, "easy"], [20, 40, "medium"], [70, 120, "hard"], [300, 1000, "evil"]];
+const difficultyMapping = [
+  [0, 10, "easy"],
+  [11, 20, "medium"],
+  [21, 70, "hard"],
+  [71, 299, "expert"],
+  [300, 1000, "evil"],
+];
 
 lineReader.on("close", () => {
-  const groupedSudokus = groupBy(sudokus, s => {
-    const difficulty = difficultyMapping.find(d => {
+  const groupedSudokus = groupBy(sudokus, (s) => {
+    const difficulty = difficultyMapping.find((d) => {
       return s.iterations >= d[0] && s.iterations < d[1];
     });
     return difficulty ? difficulty[2] : "not_grouped";
   });
-  console.log(Object.keys(groupedSudokus).map(k => [k, groupedSudokus[k].length]));
+  console.log(Object.keys(groupedSudokus).map((k) => [k, groupedSudokus[k].length]));
   // sort the groups
   const outputJson = {
     easy: groupedSudokus.easy,
