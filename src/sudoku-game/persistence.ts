@@ -3,7 +3,7 @@ import {GameState, GameStateMachine} from "src/state/game";
 import {SudokuState} from "src/state/sudoku";
 import {ApplicationState} from "src/state/application";
 
-const STORAGE_KEY = "super_sudoku_1_1_use_this_file_if_you_want_to_cheat";
+const STORAGE_KEY = "super_sudoku_1_2_use_this_file_if_you_want_to_cheat";
 
 interface StoredState {
   active: number;

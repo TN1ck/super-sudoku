@@ -68,6 +68,7 @@ lineReader.on("close", () => {
     easy: groupedSudokus.easy,
     medium: groupedSudokus.medium,
     hard: groupedSudokus.hard,
+    expert: groupedSudokus.expert,
     evil: groupedSudokus.evil,
   };
   fs.writeFileSync(outFile, JSON.stringify(outputJson));

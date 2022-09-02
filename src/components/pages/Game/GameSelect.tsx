@@ -202,7 +202,7 @@ const GameSelect: React.StatelessComponent<GameSelectProps & PropsFromRedux> = (
   return (
     <GameSelectContainer>
       <TabBar>
-        {[DIFFICULTY.EASY, DIFFICULTY.MEDIUM, DIFFICULTY.HARD, DIFFICULTY.EVIL].map((d, i) => {
+        {[DIFFICULTY.EASY, DIFFICULTY.MEDIUM, DIFFICULTY.HARD, DIFFICULTY.EXPERT, DIFFICULTY.EVIL].map((d, i) => {
           return (
             <TabItem
               tabIndex={i + 1}

@@ -165,13 +165,13 @@ export function parseSudoku(sudoku: string): SimpleSudoku {
   const lines = sudoku.split("\n");
 
   if (lines.length !== 9) {
-    throw new Error("Wrong number of lines! Only 9 allowed");
+    throw new Error(`Wrong number of lines! Only 9 allowed: ${sudoku}`);
   }
 
   return lines.map((line) => {
     const characters = line.split("");
     if (characters.length !== 9) {
-      throw new Error("Wrong number of characters in line! Only 9 allowed");
+      throw new Error(`Wrong number of characters in line! Only 9 allowed: ${line} - ${sudoku}`);
     }
     return characters.map((c) => {
       const number = c === "_" ? 0 : Number(c);

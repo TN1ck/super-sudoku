@@ -16,7 +16,8 @@
     "generate-medium-sudokus": "ts-node --project ./tsconfig.json ./scripts/generate_sudokus.ts -d medium -n 500",
     "generate-hard-sudokus": "ts-node --project ./tsconfig.json ./scripts/generate_sudokus.ts -d hard -n 500",
     "generate-expert-sudokus": "ts-node --project ./tsconfig.json ./scripts/generate_sudokus.ts -d expert -n 500",
-    "generate-evil-sudokus": "ts-node --project ./tsconfig.json ./scripts/generate_sudokus.ts -d evil -n 500"
+    "generate-evil-sudokus": "ts-node --project ./tsconfig.json ./scripts/generate_sudokus.ts -d evil -n 500",
+    "read-sudokus": "ts-node --project ./tsconfig.json ./scripts/read_sudokus.ts"
   },
   "keywords": [
     "super sudoku",
