@@ -39,6 +39,8 @@ const loadFromLocalStorage = (): StoredState => {
   return empty;
 };
 
+// TODO: this is problematic with multiple open windows, as the .active gets overwritten.
+// We should have a tab based storage for that stuff as well, so a reload does not open the other sudoku.
 export const saveToLocalStorage = (application: ApplicationState, game: GameState, sudoku: SudokuState) => {
   const cached = loadFromLocalStorage();
   cached.active = game.sudokuId;
