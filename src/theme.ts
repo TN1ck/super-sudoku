@@ -288,9 +288,9 @@ const THEME = {
     cellConflict: "rgba(240, 54, 22, 0.2)",
   },
   menuColors: {
-    normal: COLORS.orange[500],
-    alternate: COLORS.orange[600],
-    alternate2: COLORS.orange[400],
+    normal: COLORS.teal[500],
+    alternate: COLORS.teal[600],
+    alternate2: COLORS.teal[400],
     noteNormal: COLORS.sky[500],
     noteAlternate: COLORS.sky[600],
     noteAlternate2: COLORS.sky[400],
