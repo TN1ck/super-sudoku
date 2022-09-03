@@ -46,10 +46,6 @@ const SudokuPreviewButton = styled.div.attrs({
   z-index: 2;
 `;
 
-const GameSelectContainer = styled.div.attrs({
-  className: "h-full max-h-full",
-})``;
-
 const SudokuPreviewPlaceholder: React.StatelessComponent<{size: number}> = ({size}) => (
   <SudokuContainer>
     <div style={{height: size, width: size, background: "grey"}} />
@@ -218,7 +214,39 @@ const GameSelect: React.StatelessComponent<GameSelectProps & PropsFromRedux> = (
   };
 
   return (
-    <GameSelectContainer>
+    <div className="relative h-full max-h-full">
+      {/* TODO: make this nicer */}
+      <button
+        onClick={() => {
+          playGame();
+          continueGame();
+        }}
+        className="absolute top-2 right-2 rounded-sm bg-transparent py-2 px-4 font-bold text-white hover:bg-white hover:bg-opacity-10"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" viewBox="0 0 256 256">
+          <rect width="256" height="256" fill="none"></rect>
+          <line
+            x1="200"
+            y1="56"
+            x2="56"
+            y2="200"
+            stroke="#fff"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="16"
+          ></line>
+          <line
+            x1="200"
+            y1="200"
+            x2="56"
+            y2="56"
+            stroke="#fff"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="16"
+          ></line>
+        </svg>
+      </button>
       <TabBar>
         {[DIFFICULTY.EASY, DIFFICULTY.MEDIUM, DIFFICULTY.HARD, DIFFICULTY.EXPERT, DIFFICULTY.EVIL].map((d, i) => {
           return (
@@ -235,7 +263,7 @@ const GameSelect: React.StatelessComponent<GameSelectProps & PropsFromRedux> = (
         })}
       </TabBar>
       <GameIndex difficulty={difficulty} chooseSudoku={chooseSudoku} />
-    </GameSelectContainer>
+    </div>
   );
 };
 

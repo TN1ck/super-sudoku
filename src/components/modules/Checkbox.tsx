@@ -20,7 +20,7 @@ const Checkbox: React.StatelessComponent<{
           aria-describedby="comments-description"
           name="comments"
           type="checkbox"
-          className="h-6 w-6 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+          className="h-6 w-6 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
         />
       </div>
       <div className="ml-3">{children}</div>
