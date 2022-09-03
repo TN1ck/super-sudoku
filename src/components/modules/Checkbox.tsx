@@ -11,9 +11,9 @@ const Checkbox: React.StatelessComponent<{
         <input
           checked={checked}
           onChange={(e) => {
-            e.preventDefault();
             onChange(e.target.checked);
             // So the keyboard works again.
+            // TODO: find a better solution for this.
             (document.activeElement as any).blur();
           }}
           id="comments"
