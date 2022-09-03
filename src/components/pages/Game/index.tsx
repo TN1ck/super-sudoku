@@ -283,10 +283,11 @@ class Game extends React.Component<PropsFromRedux> {
                   <div className="grid gap-2">
                     <ul className="list-disc pl-6">
                       <li>Arrow keys: Move around the board</li>
+                      <li>Number keys: Write a note or set the sudoku number</li>
+                      <li>Backspace: Delete a number</li>
+                      <li>Escape: Pause/unpause the game</li>
                       <li>H: Hint</li>
                       <li>N: Enter/exit note mode</li>
-                      <li>Number keys: Write a note or set the sudoku number</li>
-                      <li>Escape: Pause/Unpause the game</li>
                     </ul>
                   </div>
                 </div>
