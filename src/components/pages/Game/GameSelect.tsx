@@ -119,7 +119,6 @@ class GameIndex extends React.Component<GameIndexProps, {elementWidth: number}> 
 
     const size = elementWidth;
     const localState = getState();
-    console.log("render menu");
 
     return (
       <SudokusContainer id="lazyload-container">
@@ -131,7 +130,7 @@ class GameIndex extends React.Component<GameIndexProps, {elementWidth: number}> 
               const choose = () => {
                 if (finished) {
                   // TODO: make nice.
-                  const areYouSure = confirm("Are you sure, this will reset the sudoku.");
+                  const areYouSure = confirm("Are you sure? This will reset the sudoku.");
                   if (!areYouSure) {
                     return;
                   }
@@ -208,8 +207,8 @@ const GameSelect: React.StatelessComponent<GameSelectProps & PropsFromRedux> = (
     const local = localState.sudokus[sudoku.id];
     playGame();
     if (!local || local.game.state === GameStateMachine.wonGame) {
-      setSudoku(sudoku.sudoku, sudoku.solution);
       newGame(sudoku.id, index, difficulty);
+      setSudoku(sudoku.sudoku, sudoku.solution);
       continueGame();
     } else {
       setGameState(local.game);

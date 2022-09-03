@@ -11,7 +11,7 @@ const rootReducer = (state: RootState, action: AnyAction) => {
   const gameState = game(state.game, action);
   const chooseState = choose(state.choose, action);
   // Only calculate sudoku state if not in the won state.
-  const sudokuState = state.game.state === GameStateMachine.wonGame ? state.sudoku : sudoku(state.sudoku, action);
+  const sudokuState = state.game?.state === GameStateMachine.wonGame ? state.sudoku : sudoku(state.sudoku, action);
 
   return {
     application: applicationState,
@@ -41,7 +41,6 @@ const throttledSaved = throttle(saveToLocalStorage, 1000);
 const rootReducerWithPersistence = (state: RootState, action: AnyAction) => {
   state = rootReducer(state, action);
   if (state.application && state.game && state.sudoku && !doNotPersistOnTheseActions.includes(action.type)) {
-    console.log(state.game.sudokuId);
     throttledSaved(state.application, state.game, state.sudoku);
   }
   return state;

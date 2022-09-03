@@ -269,23 +269,8 @@ const COLORS = {
 
 const THEME = {
   colors: {
-    primary: COLORS.orange[500],
     foreground: "#FFFFFF",
     background: COLORS.gray[900],
-  },
-  sudokuColors: {
-    numberInitial: "#000000",
-    numberHighlighted: COLORS.teal[600],
-    cellHighlightNumber: "rgba(150, 150, 150, 0.3)",
-    number: COLORS.orange[600],
-    note: COLORS.sky[400],
-    background: "#FFFFFF",
-    cellBackgroundHover: "#eeeeee",
-    cellBackgroundHighlight: "#eeeeee",
-    cellBorderHighlight: COLORS.orange[500],
-    cellBorderHighlightNote: COLORS.sky[500],
-    cellHighlight: "rgba(150, 150, 150, 0.2)",
-    cellConflict: "rgba(240, 54, 22, 0.2)",
   },
   menuColors: {
     normal: COLORS.teal[500],

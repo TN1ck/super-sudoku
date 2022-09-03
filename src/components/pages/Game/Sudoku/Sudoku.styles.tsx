@@ -5,10 +5,8 @@ import {Bounds} from "src/utils/types";
 import clsx from "clsx";
 
 export const SudokuContainer = styled.div.attrs({
-  className: "absolute h-full w-full rounded-sm",
-})`
-  background-color: ${THEME.sudokuColors.background};
-`;
+  className: "absolute h-full w-full rounded-sm bg-white",
+})``;
 
 export const GridLineX = ({top, width, makeBold}: {top: number; width: number; makeBold: boolean}) => {
   return (
@@ -45,8 +43,8 @@ export const GridLineY = ({left, height, makeBold}: {left: number; height: numbe
 export const CellNote = ({left, top, children}: {left: number; top: number; children: React.ReactNode}) => {
   return (
     <div
-      style={{color: THEME.sudokuColors.note, top: `${top}%`, left: `${left}%`}}
-      className="absolute -translate-x-1/2 -translate-y-1/2 text-xs sm:text-sm"
+      style={{top: `${top}%`, left: `${left}%`}}
+      className="absolute -translate-x-1/2 -translate-y-1/2 text-xs text-sky-400 sm:text-sm"
     >
       {children}
     </div>

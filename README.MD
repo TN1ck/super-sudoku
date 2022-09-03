@@ -11,20 +11,21 @@ This project aims to be a sudoku app with everything included. An open source su
 - [x] Creating a responsive web-app that works on mobile as good as on desktop
 - [x] Providing hints to actually provide a real value over paper based sudokus
 - [x] Shortcuts
+- [x] Save results of the user
+- [x] Time keeps going when you select a new game.
+- [x] When you scroll all the way to the bottom the modal itself scrolled and the tab bar got hidden. Make sure that the modal is never higher than 100vh.
+- [x] Show a message when the user won
 
 ### Features Todo:
 
-- [ ] Save results of users
-- [ ] Create a nice animation when the user won
 - [ ] Provide motivating animations when finishing a line/square
 - [ ] Offer users to generate their own unique sudokus
-- [ ] Creating a challenge mode so two people can solve the same Sudoku side by side
 - [ ] Add option to disable number highlights
 - [ ] If a number is set, remove the notes that conflict with that number. Also when a hint is used.
 - [ ] Keep the notes, even if a number is set
 - [ ] If tabs are switched, scroll to top
-- [ ] When you scroll all the way to the bottom the modal itself scrolled and the tab bar got hidden. Make sure that the modal is never higher than 100vh.
-- [ ] Time keeps going when you select a new game.
+
+
 
 ## Setup
 

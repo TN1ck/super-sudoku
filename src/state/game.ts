@@ -196,7 +196,6 @@ export default function gameReducer(state: GameState = INITIAL_GAME_STATE, actio
     case SET_GAME_STATE_MACHINE:
       switch (action.state) {
         case GameStateMachine.paused: {
-          console.log("PAUSED");
           if (state.state === GameStateMachine.running) {
             return {
               ...state,

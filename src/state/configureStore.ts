@@ -1,4 +1,5 @@
 import {createStore, applyMiddleware, compose} from "redux";
+// import logger from "redux-logger";
 import thunkMiddleWare from "redux-thunk";
 import rootReducer, {RootState} from "src/state/rootReducer";
 // import {createLogger} from "redux-logger";

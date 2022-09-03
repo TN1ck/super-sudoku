@@ -10,29 +10,6 @@ import styled from "styled-components";
 import {RootState} from "src/state/rootReducer";
 
 import GameSelect from "./GameSelect";
-import Button from "src/components/modules/Button";
-
-const AbsoluteContainer = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-`;
-
-const GameMenuCenter = styled.div`
-  height: 100%;
-  align-items: center;
-  justify-content: center;
-  display: flex;
-  flex-direction: column;
-`;
-
-const GameWonText = styled.div.attrs({
-  className: "pb-8",
-})`
-  color: ${THEME.colors.foreground};
-  font-size: 32px;
-`;
 
 const ModalInner = styled.div`
   width: 80vw;
@@ -41,17 +18,6 @@ const ModalInner = styled.div`
   margin: 0 auto;
   border-radius: ${THEME.borderRadius}px;
 `;
-
-const WonGame = ({chooseGame}: {chooseGame: () => void}) => {
-  return (
-    <AbsoluteContainer>
-      <GameMenuCenter>
-        <GameWonText>{"Congratulations, You won!"}</GameWonText>
-        <Button onClick={chooseGame}>{"New Game"}</Button>
-      </GameMenuCenter>
-    </AbsoluteContainer>
-  );
-};
 
 const GameMenuSelection = () => {
   return (
@@ -96,10 +62,8 @@ class GameMenu extends React.Component<GameMenuStateProps & PropsFromRedux, {isO
     return document.getElementById("#root");
   };
   render() {
-    console.log("render", this.props.applicationState);
     if (this.props.applicationState === ApplicationStateMachine.chooseGame) {
       const onExit = () => {
-        console.log("on exit");
         this.props.playGame();
         this.props.continueGame();
       };
@@ -119,11 +83,6 @@ class GameMenu extends React.Component<GameMenuStateProps & PropsFromRedux, {isO
             />
             <Dialog.Panel style={{height: `calc(100vh - 28px)`}} className="z-10 w-screen p-4">
               <GameMenuSelection />
-            </Dialog.Panel>
-          </Dialog>
-          <Dialog open={this.props.gameState === GameStateMachine.wonGame} onClose={() => this.setOpen(false)}>
-            <Dialog.Panel>
-              <WonGame chooseGame={this.props.chooseGame} />
             </Dialog.Panel>
           </Dialog>
         </div>

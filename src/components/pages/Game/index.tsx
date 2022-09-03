@@ -69,8 +69,9 @@ function NewGameButton({newGame}: {newGame: () => void}) {
   return <Button onClick={newGame}>{"New"}</Button>;
 }
 
-const ContinueIcon = styled.div`
-  background: ${THEME.colors.primary};
+const ContinueIcon = styled.div.attrs({
+  className: "bg-teal-500",
+})`
   border-radius: 100%;
   width: 80px;
   height: 80px;
