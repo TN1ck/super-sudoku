@@ -180,7 +180,7 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
     return (
       <SudokuContainer>
         {wonGame && (
-          <div className="absolute top-0 bottom-0 right-0 left-0 z-30 flex items-center justify-center bg-white bg-opacity-80 text-2xl text-black">
+          <div className="absolute top-0 bottom-0 right-0 left-0 z-30 flex items-center justify-center rounded-sm bg-white bg-opacity-80 text-2xl text-black">
             {"🎉 Congrats, you won! 🎉"}
           </div>
         )}
