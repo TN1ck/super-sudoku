@@ -3753,6 +3753,11 @@ table@^5.2.3:
     slice-ansi "^2.1.0"
     string-width "^3.0.0"
 
+tailwind-override@^0.6.1:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/tailwind-override/-/tailwind-override-0.6.1.tgz#6a672d96fb2b8756aba739796d2b0c5046765e73"
+  integrity sha512-FOxLFcXTe9eqC85SNCREyWw/CG8hyNSBJNrp+rjMDV7m63UoJzpkNJtXNrA0y3tE9m0d3ccNj8HBVQG/hfmNxA==
+
 tailwindcss@^3.1.8:
   version "3.1.8"
   resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-3.1.8.tgz#4f8520550d67a835d32f2f4021580f9fddb7b741"

@@ -118,6 +118,7 @@ class GameIndex extends React.Component<GameIndexProps, {elementWidth: number}> 
 
     const size = elementWidth;
     const localState = getState();
+    console.log("render menu");
 
     return (
       <SudokusContainer id="lazyload-container">

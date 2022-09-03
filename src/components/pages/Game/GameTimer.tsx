@@ -34,15 +34,17 @@ class GameTimer extends React.Component<PropsFromRedux> {
           this._startTime = now - this.props.secondsPlayed * 1000;
           this._sudokuId = this.props.sudokuId;
         }
-        const diff = now - this._startTime;
-        const seconds = diff / 1000;
-        this.props.updateTimer(seconds);
-        this.forceUpdate();
+        if (this.props.state === GameStateMachine.running) {
+          const diff = now - this._startTime;
+          const seconds = diff / 1000;
+          this.props.updateTimer(seconds);
+          this.forceUpdate();
+        }
         if (this._isMounted) {
           timer();
         }
       });
-    }, 100);
+    }, 200);
     timer();
   }
   componentWillUnmount() {

@@ -34,10 +34,6 @@ const GameWonText = styled.div.attrs({
   font-size: 32px;
 `;
 
-const NewGameButton = styled(Button)`
-  display: block;
-`;
-
 const ModalInner = styled.div`
   width: 80vw;
   height: 100%;
@@ -51,9 +47,7 @@ const WonGame = ({chooseGame}: {chooseGame: () => void}) => {
     <AbsoluteContainer>
       <GameMenuCenter>
         <GameWonText>{"Congratulations, You won!"}</GameWonText>
-        <NewGameButton onClick={chooseGame} key="reset-game">
-          {"New Game"}
-        </NewGameButton>
+        <Button onClick={chooseGame}>{"New Game"}</Button>
       </GameMenuCenter>
     </AbsoluteContainer>
   );

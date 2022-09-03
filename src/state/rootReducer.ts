@@ -4,6 +4,7 @@ import game, {GameState, SET_GAME_STATE, NEW_GAME, UPDATE_TIMER} from "./game";
 import application, {ApplicationState} from "./application";
 import choose, {ChooseState} from "./choose";
 import {saveToLocalStorage} from "src/sudoku-game/persistence";
+import {throttle} from "lodash";
 
 const rootReducer = combineReducers({
   sudoku,
@@ -27,11 +28,15 @@ export interface RootState {
   application: ApplicationState;
 }
 
-const persistReducer = (state: RootState, action: AnyAction) => {
+const throttledSaved = throttle(saveToLocalStorage, 1000);
+
+const rootReducerWithPersistence = (state: RootState, action: AnyAction) => {
+  state = rootReducer(state, action);
   if (state.application && state.game && state.sudoku && !doNotPersistOnTheseActions.includes(action.type)) {
-    saveToLocalStorage(state.application, state.game, state.sudoku);
+    console.log(state.game.sudokuId);
+    throttledSaved(state.application, state.game, state.sudoku);
   }
-  return rootReducer(state, action);
+  return state;
 };
 
-export default persistReducer;
+export default rootReducerWithPersistence;

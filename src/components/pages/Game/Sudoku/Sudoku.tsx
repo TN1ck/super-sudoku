@@ -1,5 +1,5 @@
 import * as React from "react";
-import {showMenu, selectCell, hideMenu} from "src/state/game";
+import {showMenu, selectCell, hideMenu, GameStateMachine} from "src/state/game";
 
 import SudokuMenuCircle, {MenuWrapper, MenuContainer} from "./SudokuMenuCircle";
 import {emptyGrid} from "src/state/sudoku";
@@ -114,7 +114,7 @@ interface SudokuProps {
   showMenu: typeof showMenu;
   hideMenu: typeof hideMenu;
   selectCell: typeof selectCell;
-  paused: boolean;
+  state: GameStateMachine;
 }
 
 export class Sudoku extends React.PureComponent<SudokuProps> {
@@ -132,7 +132,9 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
   }
 
   render() {
-    const {sudoku: passedSudoku, showHints, paused, activeCell: passedActiveCell} = this.props;
+    const {sudoku: passedSudoku, showHints, state, activeCell: passedActiveCell} = this.props;
+    const paused = state === GameStateMachine.paused;
+    const wonGame = state === GameStateMachine.wonGame;
     const sudoku = paused ? emptyGrid : passedSudoku;
 
     const height = 100;
@@ -177,6 +179,11 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
 
     return (
       <SudokuContainer>
+        {wonGame && (
+          <div className="absolute top-0 bottom-0 right-0 left-0 z-30 flex items-center justify-center bg-white bg-opacity-80 text-2xl text-black">
+            {"🎉 Congrats, you won! 🎉"}
+          </div>
+        )}
         <SudokuGrid width={width} height={height} hideLeftRight />
         {sudoku.map((c, i) => {
           const onClick = () => {
@@ -211,12 +218,14 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
             top: ySection * c.y,
           };
 
-          const isActive = activeCell ? c.x === activeCell.x && c.y === activeCell.y : false;
-          const highlight = friendsOfActiveCell.some((cc) => {
-            return cc.x === c.x && cc.y === c.y;
-          });
-          const isWrong = this.props.showWrongEntries && (c.number === 0 ? false : c.solution !== c.number);
-          const highlightNumber = activeCell && c.number !== 0 ? activeCell.number === c.number : false;
+          const isActive = !wonGame && activeCell ? c.x === activeCell.x && c.y === activeCell.y : false;
+          const highlight =
+            !wonGame &&
+            friendsOfActiveCell.some((cc) => {
+              return cc.x === c.x && cc.y === c.y;
+            });
+          const isWrong = !wonGame && this.props.showWrongEntries && (c.number === 0 ? false : c.solution !== c.number);
+          const highlightNumber = !wonGame && activeCell && c.number !== 0 ? activeCell.number === c.number : false;
 
           return (
             <SudokuCell
@@ -237,7 +246,7 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
             />
           );
         })}
-        {activeCell && this.props.shouldShowMenu ? (
+        {!wonGame && activeCell && this.props.shouldShowMenu ? (
           <MenuContainer
             onContextMenu={(e) => onRightClickOnOpenMenu}
             bounds={{

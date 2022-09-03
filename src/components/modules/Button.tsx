@@ -1,31 +1,37 @@
-import THEME from "src/theme";
-import styled, {css} from "styled-components";
+import clsx from "clsx";
+import React from "react";
+import {overrideTailwindClasses} from "tailwind-override";
 
-const Button = styled.button.attrs({
-  className: "px-4 py-2",
-})<{
+const Button = ({
+  children,
+  className,
+  disabled,
+  active,
+  onClick,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  disabled?: boolean;
   active?: boolean;
-}>`
-  border-radius: ${THEME.borderRadius}px;
-  background: ${THEME.colors.foreground};
-  color: ${THEME.colors.background};
-  box-shadow: ${THEME.boxShadow};
-  border: none;
-  transition: transform 0.3s ease-out;
-  &:hover {
-    filter: brightness(90%);
-  }
-
-  &:focus {
-    outline: none;
-  }
-
-  ${(props) =>
-    props.active &&
-    css`
-      filter: brightness(90%);
-      transform: scale(1.1);
-    `}
-`;
+  onClick: () => void;
+}) => {
+  return (
+    <button
+      onClick={onClick}
+      className={overrideTailwindClasses(
+        clsx(
+          "rounded-sm border-none bg-white px-4 py-2 text-black shadow-sm transition-transform hover:brightness-90 focus:outline-none disabled:brightness-75",
+          className,
+          {
+            "scale-110 brightness-90": active,
+          },
+        ),
+      )}
+      disabled={disabled}
+    >
+      {children}
+    </button>
+  );
+};
 
 export default Button;

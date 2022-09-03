@@ -4,8 +4,6 @@ import {Outlet, ReactLocation, Router} from "@tanstack/react-location";
 
 import {Provider} from "react-redux";
 
-import {createGlobalStyle} from "styled-components";
-import THEME from "src/theme";
 import Header from "./components/modules/Header";
 import store from "./state/store";
 import Game from "./components/pages/Game";

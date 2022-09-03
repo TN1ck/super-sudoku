@@ -3,7 +3,7 @@ import {GameState, GameStateMachine} from "src/state/game";
 import {SudokuState} from "src/state/sudoku";
 import {ApplicationState} from "src/state/application";
 
-const STORAGE_KEY = "super_sudoku_1_2_use_this_file_if_you_want_to_cheat";
+const STORAGE_KEY = "super_sudoku_1_3_use_this_file_if_you_want_to_cheat";
 
 interface StoredState {
   active: number;
@@ -25,6 +25,7 @@ const loadFromLocalStorage = (): StoredState => {
   const text = localStorage.getItem(STORAGE_KEY);
   if (text !== null) {
     try {
+      // TODO: add validation
       const result = JSON.parse(text) as StoredState;
       return result;
     } catch (e) {
@@ -38,20 +39,20 @@ const loadFromLocalStorage = (): StoredState => {
   return empty;
 };
 
-let cached: StoredState = loadFromLocalStorage();
-
 export const saveToLocalStorage = (application: ApplicationState, game: GameState, sudoku: SudokuState) => {
+  const cached = loadFromLocalStorage();
   cached.active = game.sudokuId;
   cached.application = application;
   cached.sudokus[game.sudokuId] = {game, sudoku};
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cached));
-  } catch {
-    console.error("LocalStorage is not supported! No Saving possible.");
+  } catch (e) {
+    console.error("LocalStorage is not supported! No Saving possible.", e);
   }
 };
 
 export const getState = () => {
+  const cached = loadFromLocalStorage();
   return cached;
 };
 

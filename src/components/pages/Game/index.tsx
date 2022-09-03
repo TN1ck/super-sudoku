@@ -14,9 +14,9 @@ import {
   toggleShowWrongEntries,
 } from "src/state/game";
 
-import {chooseGame, ApplicationState} from "src/state/application";
+import {chooseGame} from "src/state/application";
 
-import {setNumber, setNote, clearCell, getHint} from "src/state/sudoku";
+import {setNumber, setNote} from "src/state/sudoku";
 
 import {Sudoku} from "src/components/pages/Game/Sudoku/Sudoku";
 
@@ -47,15 +47,22 @@ const sudokuMenuNummbersConnector = connect(
 const SudokuMenuNumbersConnected = sudokuMenuNummbersConnector(SudokuMenuNumbers);
 
 function PauseButton({
-  running,
+  state,
   pauseGame,
   continueGame,
 }: {
-  running: boolean;
+  state: GameStateMachine;
   pauseGame: () => void;
   continueGame: () => void;
 }) {
-  return <Button onClick={running ? pauseGame : continueGame}>{running ? "Pause" : "Continue"}</Button>;
+  return (
+    <Button
+      disabled={state === GameStateMachine.wonGame}
+      onClick={state === GameStateMachine.paused ? continueGame : pauseGame}
+    >
+      {state === GameStateMachine.paused ? "Continue" : "Pause"}
+    </Button>
+  );
 }
 
 function NewGameButton({newGame}: {newGame: () => void}) {
@@ -195,6 +202,7 @@ class Game extends React.Component<PropsFromRedux> {
   componentDidMount() {
     if (typeof document !== "undefined") {
       document.addEventListener("visibilitychange", this.onVisibilityChange, false);
+      document.addEventListener("visibilitychange", this.onVisibilityChange, false);
     }
   }
 
@@ -205,11 +213,14 @@ class Game extends React.Component<PropsFromRedux> {
   }
 
   onVisibilityChange = () => {
-    if (document.visibilityState === "hidden" && this.props.game.state === GameStateMachine.running) {
-      this.props.pauseGame();
-    } else if (this.props.game.state === GameStateMachine.paused) {
-      this.props.continueGame();
-    }
+    setTimeout(() => {
+      if (document.visibilityState === "hidden") {
+        this.props.pauseGame();
+      } else if (this.props.game.state === GameStateMachine.paused) {
+        this.props.continueGame();
+      }
+      // TODO: THere is some caching somewhere that breaks this.
+    }, 500);
   };
 
   render() {
@@ -240,11 +251,7 @@ class Game extends React.Component<PropsFromRedux> {
               </div>
               <div className="flex">
                 <div className="mr-2">
-                  <PauseButton
-                    continueGame={continueGame}
-                    pauseGame={pauseGame}
-                    running={game.state === GameStateMachine.running}
-                  />
+                  <PauseButton state={game.state} continueGame={continueGame} pauseGame={pauseGame} />
                 </div>
                 <NewGameButton newGame={pauseAndChoose} />
               </div>
@@ -254,7 +261,7 @@ class Game extends React.Component<PropsFromRedux> {
                 <ContinueIcon />
               </CenteredContinueButton>
               <Sudoku
-                paused={pausedGame}
+                state={this.props.game.state}
                 showWrongEntries={this.props.game.showWrongEntries}
                 notesMode={this.props.game.notesMode}
                 shouldShowMenu={this.props.game.showMenu && this.props.game.showCircleMenu}

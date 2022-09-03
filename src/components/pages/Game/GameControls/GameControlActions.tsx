@@ -6,9 +6,10 @@ import {activateNotesMode, deactivateNotesMode} from "src/state/game";
 import Button from "../../../modules/Button";
 import {connect, ConnectedProps} from "react-redux";
 import {RootState} from "src/state/rootReducer";
+import clsx from "clsx";
 
 const ControlsButton = styled(Button).attrs({
-  className: "w-full px-0"
+  className: "w-full px-0",
 })`` as typeof Button;
 
 const ControlContainer = styled.div.attrs({className: "relative justify-center flex"})``;
@@ -30,11 +31,16 @@ type PropsFromRedux = ConnectedProps<typeof connector>;
 class SudokuMenuControls extends React.Component<PropsFromRedux> {
   render() {
     return (
-      <div className="grid grid-cols-3 gap-2 w-full mt-4">
+      <div className="mt-4 grid w-full grid-cols-3 gap-2">
         <ControlContainer
           onClick={() => (this.props.notesMode ? this.props.deactivateNotesMode() : this.props.activateNotesMode())}
         >
-          <ControlsButton>{`Notes ${this.props.notesMode ? "ON" : "OFF"}`}</ControlsButton>
+          <ControlsButton
+            className={clsx({
+              "bg-teal-700 text-white": !this.props.notesMode,
+              "bg-sky-700 text-white": this.props.notesMode,
+            })}
+          >{`${this.props.notesMode ? "Notes ON" : "Notes OFF"}`}</ControlsButton>
         </ControlContainer>
         <ControlContainer onClick={() => this.props.clearCell(this.props.activeCell!)}>
           <ControlsButton>{"Erase"}</ControlsButton>

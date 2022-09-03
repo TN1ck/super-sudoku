@@ -196,16 +196,23 @@ export default function gameReducer(state: GameState = INITIAL_GAME_STATE, actio
     case SET_GAME_STATE_MACHINE:
       switch (action.state) {
         case GameStateMachine.paused: {
-          return {
-            ...state,
-            state: GameStateMachine.paused,
-          };
+          console.log("PAUSED");
+          if (state.state === GameStateMachine.running) {
+            return {
+              ...state,
+              state: GameStateMachine.paused,
+            };
+          }
+          return state;
         }
         case GameStateMachine.running: {
-          return {
-            ...state,
-            state: GameStateMachine.running,
-          };
+          if (state.state === GameStateMachine.paused) {
+            return {
+              ...state,
+              state: GameStateMachine.running,
+            };
+          }
+          return state;
         }
         case GameStateMachine.wonGame: {
           return {
