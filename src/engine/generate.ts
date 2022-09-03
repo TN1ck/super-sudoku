@@ -26,7 +26,7 @@ import {SUDOKU_NUMBERS, SUDOKU_COORDINATES, printSimpleSudoku, SQUARE_TABLE} fro
 import {DIFFICULTY, SimpleSudoku} from "./types";
 
 const DIFFICULTY_MAPPING = {
-  [DIFFICULTY.EASY]: 2,
+  [DIFFICULTY.EASY]: 3,
   [DIFFICULTY.MEDIUM]: 20,
   [DIFFICULTY.HARD]: 50,
   [DIFFICULTY.EXPERT]: 200,
@@ -34,24 +34,6 @@ const DIFFICULTY_MAPPING = {
 };
 
 const sudokuSolver = solverAC3.solve;
-
-/**
- * The cost function is rather simple
- * It takes a sudoku and returns the cost, which is calculated like this:
- * if solvable - return the iterations needed to solve it
- * if not solvable - return infinity
- */
-function costFunction(sudoku: SimpleSudoku): number {
-  const result = sudokuSolver(sudoku);
-  if (result.iterations < Infinity) {
-    return checkForUniqueness(sudoku) ? result.iterations : Infinity;
-  }
-  return result.iterations;
-}
-
-function costFunctionSimple(sudoku: SimpleSudoku): number {
-  return sudokuSolver(sudoku).iterations;
-}
 
 function getRandomSudokuNumber(): number {
   return lodash.random(10) > 8 ? lodash.random(1, 9) : 0;
@@ -82,7 +64,7 @@ export function checkForUniqueness(sudoku: SimpleSudoku): boolean {
             });
           });
 
-          const iterations = costFunctionSimple(newSudoku);
+          const iterations = sudokuSolver(newSudoku).iterations;
           if (iterations !== Infinity) {
             timesSolved++;
           }
@@ -104,18 +86,19 @@ export function checkForUniqueness(sudoku: SimpleSudoku): boolean {
  * Basically set a number that is not set yet.
  */
 function simplifySudoku(sudoku: SimpleSudoku): SimpleSudoku {
-  const solvedSudoku = sudokuSolver(sudoku);
+  const solvedSudoku = sudokuSolver(sudoku).sudoku;
   const randomRows = randomIndexes();
-  const newSudoku = cloneSudoku(sudoku);
   for (const row of randomRows) {
     const randomColumns = randomIndexes();
     for (const column of randomColumns) {
-      if (newSudoku[row][column] === 0) {
+      if (sudoku[row][column] === 0) {
+        const newSudoku = cloneSudoku(sudoku);
         newSudoku[row][column] = solvedSudoku[row][column];
+        return newSudoku;
       }
     }
   }
-  return newSudoku;
+  return sudoku;
 }
 
 /**
@@ -123,6 +106,8 @@ function simplifySudoku(sudoku: SimpleSudoku): SimpleSudoku {
  *
  * Whenever a number is encountered that would lead to two different solution,
  * one number is set and the new sudoku is returned.
+ *
+ * When uniqueness could not be increased, returns the same sudoku.
  */
 function enhanceUniqueness(sudoku: SimpleSudoku): SimpleSudoku {
   const randomRows = randomIndexes();
@@ -142,7 +127,7 @@ function enhanceUniqueness(sudoku: SimpleSudoku): SimpleSudoku {
             });
           });
 
-          const iterations = costFunctionSimple(newSudoku);
+          const iterations = sudokuSolver(newSudoku).iterations;
           if (iterations !== Infinity) {
             timesSolved++;
             if (timesSolved > 1) {
@@ -251,13 +236,57 @@ const RELATIVE_DRIFT = 20;
 // are too low that the relative drift would do anything
 const ABSOLUTE_DRIFT = 3;
 
+export function increaseDifficultyOfSudoku(sudoku: SimpleSudoku): SimpleSudoku {
+  const costs = sudokuSolver(sudoku).iterations;
+  let coordinateList = generateCoordinateList(sudoku);
+  while (coordinateList.length > 0) {
+    const sample = lodash.sample(coordinateList);
+    const [x, y] = sample;
+    coordinateList = coordinateList.filter(([cx, cy]) => cx !== x && cy !== y);
+    const newSudoku = cloneSudoku(sudoku);
+    newSudoku[x][y] = 0;
+    const newCosts = sudokuSolver(newSudoku).iterations;
+    if (newCosts > costs && checkForUniqueness(newSudoku)) {
+      return newSudoku;
+    }
+  }
+  return sudoku;
+}
+
+function createSolvableSudoku(): SimpleSudoku {
+  let sudoku = generateRandomSudoku();
+
+  while (sudokuSolver(sudoku).iterations === Infinity) {
+    const randomX = randomSudokuIndex();
+    const randomY = randomSudokuIndex();
+    sudoku[randomX][randomY] = getRandomSudokuNumber();
+    fixSudoku(sudoku);
+  }
+
+  return sudoku;
+}
+
+function makeSudokuUnique(sudoku: SimpleSudoku): [SimpleSudoku, boolean] {
+  sudoku = cloneSudoku(sudoku);
+  while (!checkForUniqueness(sudoku)) {
+    const newBestSudoku = enhanceUniqueness(sudoku);
+    if (newBestSudoku === undefined) {
+      console.log("Max uniqueness reached");
+      break;
+    }
+    sudoku = newBestSudoku;
+  }
+
+  return [sudoku, checkForUniqueness(sudoku)];
+}
+
 export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
   const iterationGoal = DIFFICULTY_MAPPING[difficulty];
 
   /**
    * returns the percentage of how close we are to the iteration goal
    */
-  function rateCostsPercentage(cost: number): number {
+  function rateIterationsRelative(cost: number): number {
     if (cost === Infinity) {
       return cost;
     }
@@ -274,83 +303,40 @@ export function generateSudoku(difficulty: DIFFICULTY): SimpleSudoku {
   /**
    * returns if the costs are close enough to the requested difficulty level
    */
-  function validCosts(cost: number): boolean {
-    return rateCostsPercentage(cost) < RELATIVE_DRIFT || rateCostsAbsolute(cost) < ABSOLUTE_DRIFT;
+  function validIterations(cost: number): boolean {
+    return rateIterationsRelative(cost) < RELATIVE_DRIFT || rateCostsAbsolute(cost) < ABSOLUTE_DRIFT;
   }
 
-  // 1. create a random sudoku
-  const randomSudoku = generateRandomSudoku();
-
-  let bestSudoku = randomSudoku;
-  let bestCost = costFunction(bestSudoku);
-  let coordinateList: number[][] = [];
-
-  /**
-   * Check if sudoku is unique and has valid costs
-   */
-  function isFinished(sudoku, cost) {
-    if (!validCosts(cost)) {
-      return false;
-    }
-    if (!checkForUniqueness(sudoku)) {
-      return false;
-    }
-    return true;
+  let unique = false;
+  let sudoku: SimpleSudoku;
+  while (!unique) {
+    // 1. create a random, solvable sudoku.
+    sudoku = createSolvableSudoku();
+    // 2. make it unique.
+    [sudoku, unique] = makeSudokuUnique(sudoku);
   }
 
-  // TODO: Split this into 2 steps, first we generate a valid sudoku and then we change its difficulty.
-  while (!isFinished(bestSudoku, bestCost)) {
-    // clone the bestSudoku
-    const newSudoku = cloneSudoku(bestSudoku);
-
-    // Make the sudoku and apply the cost function.
-    if (bestCost > iterationGoal) {
-      const randomX = randomSudokuIndex();
-      const randomY = randomSudokuIndex();
-      newSudoku[randomX][randomY] = getRandomSudokuNumber();
-      fixSudoku(newSudoku);
-    } else {
-      // we can be a bit more specific to speed up the generation
-      if (coordinateList.length === 0) {
-        console.log("we tried everything with this version, it is at maximum difficulty");
-        console.log(`Needed ${bestCost} to generate this sudoku. Goal was ${iterationGoal}.`);
-        return bestSudoku;
-      }
-      const sample = lodash.sample(coordinateList);
-      coordinateList = coordinateList.filter((d) => d !== sample);
-      const [x, y] = sample;
-      newSudoku[x][y] = 0;
+  let currentIterations = sudokuSolver(sudoku).iterations;
+  while (!validIterations(currentIterations)) {
+    let newSudoku: SimpleSudoku;
+    // Too difficult, make it easier.
+    if (currentIterations > iterationGoal) {
+      newSudoku = simplifySudoku(sudoku);
     }
-
-    // If the current sudoku is not solvable or the
-    // the costs are higher than from the new, we set the new one as the new best one
-    // this is the hill climbing part.
-    if (bestCost === Infinity) {
-      const newCostSimple = costFunctionSimple(newSudoku);
-      if (newCostSimple < Infinity) {
-        bestSudoku = newSudoku;
-        while (!checkForUniqueness(bestSudoku)) {
-          const newBestSudoku = enhanceUniqueness(bestSudoku);
-          if (newBestSudoku === bestSudoku) {
-            console.log("Max uniqueness reached");
-            break;
-          }
-          bestSudoku = newBestSudoku;
-          bestCost = costFunctionSimple(bestSudoku);
-        }
-      }
-      coordinateList = generateCoordinateList(newSudoku);
-    } else {
-      const newCost = costFunction(newSudoku);
-      if (rateCostsAbsolute(newCost) < rateCostsAbsolute(bestCost)) {
-        bestSudoku = newSudoku;
-        bestCost = newCost;
-        coordinateList = generateCoordinateList(newSudoku);
-      }
+    // Too easy, make it more difficult.
+    if (currentIterations < iterationGoal) {
+      newSudoku = increaseDifficultyOfSudoku(sudoku);
     }
+    const newIterations = sudokuSolver(newSudoku).iterations;
+    if (currentIterations === newIterations) {
+      console.log("Reached maximum simplicity / difficulty with this sudoku.");
+      break;
+    }
+    sudoku = newSudoku;
+    currentIterations = newIterations;
   }
-  console.log(`Needed ${bestCost} to generate this sudoku. Goal was ${iterationGoal}.`);
-  return bestSudoku;
+  console.log(`Needed ${currentIterations} to generate this sudoku. Goal was ${iterationGoal}.`);
+  return sudoku;
 }
 
 export default generateSudoku;

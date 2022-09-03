@@ -44,12 +44,12 @@ export interface ChooseState {
   difficulty: DIFFICULTY;
 }
 
-const initialState: ChooseState = {
+export const initialChooseState: ChooseState = {
   sudokuIndex: 0,
   difficulty: DIFFICULTY.EASY,
 };
 
-export default function chooseReducer(state: ChooseState = initialState, action): ChooseState {
+export default function chooseReducer(state: ChooseState = initialChooseState, action): ChooseState {
   const currentSudokus = SUDOKUS[state.difficulty];
   switch (action.type) {
     case NEXT_SUDOKU:

@@ -1,16 +1,9 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as readline from "readline";
-import {groupBy} from "lodash";
+import _, {groupBy} from "lodash";
 import {parseSudoku} from "../src/engine/utility";
 import {solve} from "../src/engine/solverAC3";
-
-const inFile = path.join(__dirname, "../sudokus.txt");
-const outFile = path.join(__dirname, "../sudokus.json");
-
-const lineReader = readline.createInterface({
-  input: fs.createReadStream(inFile),
-});
 
 interface SudokuSolution {
   iterations: number;
@@ -18,6 +11,17 @@ interface SudokuSolution {
   solution: number[][];
   id: number;
 }
+
+function sortSudokus(solutions: SudokuSolution[]) {
+  return _.sortBy(solutions, (d) => d.iterations);
+}
+
+const inFile = path.join(__dirname, "../sudokus.txt");
+const outFile = path.join(__dirname, "../sudokus.json");
+
+const lineReader = readline.createInterface({
+  input: fs.createReadStream(inFile),
+});
 
 const sudokus: SudokuSolution[] = [];
 let index = 0;
@@ -48,8 +52,8 @@ lineReader.on("line", (line) => {
 });
 
 const difficultyMapping = [
-  [0, 10, "easy"],
-  [11, 20, "medium"],
+  [0, 7, "easy"],
+  [8, 20, "medium"],
   [21, 70, "hard"],
   [71, 299, "expert"],
   [300, 1000, "evil"],
@@ -65,11 +69,11 @@ lineReader.on("close", () => {
   console.log(Object.keys(groupedSudokus).map((k) => [k, groupedSudokus[k].length]));
   // sort the groups
   const outputJson = {
-    easy: groupedSudokus.easy,
-    medium: groupedSudokus.medium,
-    hard: groupedSudokus.hard,
-    expert: groupedSudokus.expert,
-    evil: groupedSudokus.evil,
+    easy: sortSudokus(groupedSudokus.easy).slice(0, 100),
+    medium: sortSudokus(groupedSudokus.medium).slice(0, 100),
+    hard: sortSudokus(groupedSudokus.hard).slice(0, 100),
+    expert: sortSudokus(groupedSudokus.expert).slice(0, 100),
+    evil: sortSudokus(groupedSudokus.evil).slice(0, 100),
   };
   fs.writeFileSync(outFile, JSON.stringify(outputJson));
 });
