@@ -228,17 +228,26 @@ export default function gameReducer(state: GameState = INITIAL_GAME_STATE, actio
         }
       }
     case SELECT_CELL:
+      if (state.state === GameStateMachine.wonGame) {
+        return state;
+      }
       return {
         ...state,
         activeCellCoordinates: action.cellCoordinates,
       };
     case SHOW_MENU:
+      if (state.state === GameStateMachine.wonGame) {
+        return state;
+      }
       return {
         ...state,
         showMenu: true,
         showNotes: action.showNotes,
       };
     case HIDE_MENU:
+      if (state.state === GameStateMachine.wonGame) {
+        return state;
+      }
       return {
         ...state,
         showMenu: false,

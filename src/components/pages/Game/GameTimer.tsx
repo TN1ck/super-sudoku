@@ -4,6 +4,7 @@ import * as _ from "lodash";
 import {connect, ConnectedProps} from "react-redux";
 import {RootState} from "src/state/rootReducer";
 import {GameStateMachine, updateTimer} from "src/state/game";
+import {formatDuration} from "src/utils/format";
 
 const connector = connect(
   (state: RootState) => {
@@ -52,16 +53,8 @@ class GameTimer extends React.Component<PropsFromRedux> {
   }
   render() {
     const {secondsPlayed} = this.props;
-    const seconds = Math.floor(secondsPlayed);
-    const minutes = Math.floor(seconds / 60);
-    const secondRest = seconds % 60;
 
-    const minuteString: string = minutes < 10 ? "0" + minutes : String(minutes);
-    const secondString: string = secondRest < 10 ? "0" + secondRest : String(secondRest);
-
-    const timerString = minuteString + ":" + secondString + " min";
-
-    return <div className="text-center text-white">{timerString}</div>;
+    return <div className="text-center text-white">{formatDuration(secondsPlayed)}</div>;
   }
 }
 

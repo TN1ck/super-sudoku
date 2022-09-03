@@ -13,6 +13,7 @@ import {setSudoku, setSudokuState} from "src/state/sudoku";
 import THEME from "src/theme";
 import {getState} from "src/sudoku-game/persistence";
 import {playGame} from "src/state/application";
+import {formatDuration} from "src/utils/format";
 
 const TabBar = styled.div.attrs({
   className: "flex text-white py-4 justify-center border-b-0 bg-gray-900",
@@ -128,6 +129,13 @@ class GameIndex extends React.Component<GameIndexProps, {elementWidth: number}> 
               const unfinished = local && local.game.state === GameStateMachine.paused;
               const finished = local && local.game.state === GameStateMachine.wonGame;
               const choose = () => {
+                if (finished) {
+                  // TODO: make nice.
+                  const areYouSure = confirm("Are you sure, this will reset the sudoku.");
+                  if (!areYouSure) {
+                    return;
+                  }
+                }
                 chooseSudoku(sudoku, i);
               };
               return (
@@ -140,8 +148,18 @@ class GameIndex extends React.Component<GameIndexProps, {elementWidth: number}> 
                 >
                   <SudokuContainer>
                     {unfinished ? <SudokuPreviewButton>{"Continue"}</SudokuPreviewButton> : null}
-                    {finished ? <SudokuPreviewButton>{"Finished. Restart?"}</SudokuPreviewButton> : null}
-                    <SudokuPreview onClick={choose} size={size} id={i + 1} sudoku={sudoku.sudoku} darken />
+                    {finished ? (
+                      <SudokuPreviewButton>{`Finished in ${formatDuration(
+                        local.game.secondsPlayed,
+                      )}. Restart?`}</SudokuPreviewButton>
+                    ) : null}
+                    <SudokuPreview
+                      onClick={choose}
+                      size={size}
+                      id={i + 1}
+                      sudoku={finished ? sudoku.solution : sudoku.sudoku}
+                      darken
+                    />
                   </SudokuContainer>
                 </LazyLoad>
               );
