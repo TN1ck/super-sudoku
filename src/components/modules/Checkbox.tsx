@@ -3,14 +3,19 @@ import React from "react";
 const Checkbox: React.StatelessComponent<{
   id: string;
   checked: boolean;
-  onChange: () => any;
+  onChange: (checked: boolean) => void;
 }> = ({id, onChange, checked, children}) => {
   return (
     <div className="relative flex items-center">
       <div className="flex h-5 items-center">
         <input
           checked={checked}
-          onChange={onChange}
+          onChange={(e) => {
+            e.preventDefault();
+            onChange(e.target.checked);
+            // So the keyboard works again.
+            (document.activeElement as any).blur();
+          }}
           id="comments"
           aria-describedby="comments-description"
           name="comments"

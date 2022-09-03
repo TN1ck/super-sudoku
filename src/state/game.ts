@@ -16,6 +16,7 @@ const HIDE_MENU = "game/HIDE_MENU";
 const SELECT_CELL = "game/SELECT_MENU";
 const TOGGLE_SHOW_HINTS = "game/TOGGLE_SHOW_HINTS";
 const TOGGLE_SHOW_CIRCLE_MENU = "game/TOGGLE_SHOW_CIRCLE_MENU";
+const TOGGLE_SHOW_WRONG_ENTRIES = "game/TOGGLE_SHOW_WRONG_ENTRIES";
 const ACTIVATE_NOTES_MODE = "game/ACTIVATE_NOTES_MODE";
 const DEACTIVATE_NOTES_MODE = "game/DEACTIVATE_NOTES_MODE";
 export const UPDATE_TIMER = "game/UPDATE_TIME";
@@ -93,6 +94,12 @@ export function toggleShowHints() {
   };
 }
 
+export function toggleShowWrongEntries() {
+  return {
+    type: TOGGLE_SHOW_WRONG_ENTRIES,
+  };
+}
+
 export function toggleShowCircleMenu() {
   return {
     type: TOGGLE_SHOW_CIRCLE_MENU,
@@ -107,6 +114,7 @@ export interface GameState {
   showCircleMenu: boolean;
   showHints: boolean;
   showMenu: boolean;
+  showWrongEntries: boolean;
   showNotes: boolean; // local overwrite
   state: GameStateMachine;
   sudokuId: number;
@@ -122,6 +130,7 @@ const INITIAL_GAME_STATE: GameState = {
   offsetTime: 0,
   showCircleMenu: true,
   showHints: false,
+  showWrongEntries: true,
   showMenu: false,
   showNotes: false,
   state: GameStateMachine.paused,
@@ -152,6 +161,12 @@ export default function gameReducer(state: GameState = INITIAL_GAME_STATE, actio
       return {
         ...state,
         showCircleMenu: !state.showCircleMenu,
+      };
+    }
+    case TOGGLE_SHOW_WRONG_ENTRIES: {
+      return {
+        ...state,
+        showWrongEntries: !state.showWrongEntries,
       };
     }
     case NEW_GAME:

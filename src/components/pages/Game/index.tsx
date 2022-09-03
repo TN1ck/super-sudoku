@@ -11,6 +11,7 @@ import {
   GameStateMachine,
   toggleShowHints,
   toggleShowCircleMenu,
+  toggleShowWrongEntries,
 } from "src/state/game";
 
 import {chooseGame, ApplicationState} from "src/state/application";
@@ -175,6 +176,7 @@ const connector = connect(
     hideMenu,
     toggleShowHints,
     toggleShowCircleMenu,
+    toggleShowWrongEntries,
   },
 );
 
@@ -231,9 +233,9 @@ class Game extends React.Component<PropsFromRedux> {
             <GameHeaderArea>
               <div className="flex">
                 <DifficultyShow>{`${game.difficulty} - ${game.sudokuIndex + 1}`}</DifficultyShow>
-                <div className="w-4" />
+                <div className="w-2 sm:w-4" />
                 {"|"}
-                <div className="w-4" />
+                <div className="w-2 sm:w-4" />
                 <GameTimer />
               </div>
               <div className="flex">
@@ -253,6 +255,7 @@ class Game extends React.Component<PropsFromRedux> {
               </CenteredContinueButton>
               <Sudoku
                 paused={pausedGame}
+                showWrongEntries={this.props.game.showWrongEntries}
                 notesMode={this.props.game.notesMode}
                 shouldShowMenu={this.props.game.showMenu && this.props.game.showCircleMenu}
                 sudoku={this.props.sudoku}
@@ -285,8 +288,15 @@ class Game extends React.Component<PropsFromRedux> {
                     <Checkbox id="generated_notes" checked={game.showHints} onChange={this.props.toggleShowHints}>
                       {"Show auto generated notes"}
                     </Checkbox>
+                    <Checkbox
+                      id="highlight_wrong_entries"
+                      checked={game.showWrongEntries}
+                      onChange={this.props.toggleShowWrongEntries}
+                    >
+                      {"Highlight wrong entries"}
+                    </Checkbox>
                     <Checkbox id="circle_menu" checked={game.showCircleMenu} onChange={this.props.toggleShowCircleMenu}>
-                      {"Show circle menu when a cell is selected"}
+                      {"Show circle menu when a cell is selected (desktop only)"}
                     </Checkbox>
                   </div>
                 </div>

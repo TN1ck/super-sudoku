@@ -1,3 +1,4 @@
+import * as React from "react";
 import styled, {css} from "styled-components";
 import THEME from "src/theme";
 import {Bounds} from "src/utils/types";
@@ -121,7 +122,8 @@ export const GridCell = ({
           "duration-300 bg-gray-400": highlightNumber && !conflict && !active,
           "duration-300 bg-gray-300": highlight && !conflict && !active,
           "z-20 border-2 border-gray-400 bg-gray-300": active,
-          "duration-300 bg-red-300": conflict,
+          "z-20 border-2 border-red-400 bg-red-300": active && conflict,
+          "duration-300 bg-red-300 hover:border-red-400 hover:bg-red-300": conflict,
         },
       )}
     />
@@ -134,9 +136,12 @@ export const GridCellNumber = ({
   left,
   top,
   children,
+  // TODO: distinguish between wrong and conflicted.
+  conflict,
 }: {
   initial: boolean;
   highlight: boolean;
+  conflict: boolean;
   left: number;
   top: number;
   children: React.ReactNode;
@@ -147,13 +152,12 @@ export const GridCellNumber = ({
         left: `${left}%`,
         top: `${top}%`,
       }}
-      className={clsx(
-        "text-md pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2 font-bold text-orange-600",
-        {
-          "text-black": initial,
-          "text-teal-600": highlight,
-        },
-      )}
+      className={clsx("pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2 text-lg font-bold", {
+        "text-black": initial,
+        "text-teal-500": highlight && !conflict && !conflict,
+        "text-teal-600": !initial && !highlight && !conflict,
+        "text-red-600": conflict && !initial,
+      })}
     >
       {children}
     </div>

@@ -85,7 +85,7 @@ const SudokuCell: React.StatelessComponent<{
         onClick={onClick}
         onRightClick={onRightClick}
       />
-      <GridCellNumber left={left} top={top} initial={initial} highlight={highlightNumber}>
+      <GridCellNumber left={left} top={top} initial={initial} highlight={highlightNumber} conflict={conflict}>
         {number !== 0 ? number : ""}
       </GridCellNumber>
       <CellNoteContainer initial={initial} bounds={bounds}>
@@ -108,6 +108,7 @@ interface SudokuProps {
   activeCell?: CellCoordinates;
   sudoku: Cell[];
   showHints: boolean;
+  showWrongEntries: boolean;
   shouldShowMenu: boolean;
   notesMode: boolean;
   showMenu: typeof showMenu;
@@ -125,7 +126,6 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
     this._isMounted = true;
     window.addEventListener("click", () => {
       if (this.props.activeCell !== null) {
-        console.log("on click hide menu");
         this.props.hideMenu();
       }
     });
@@ -215,6 +215,7 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
           const highlight = friendsOfActiveCell.some((cc) => {
             return cc.x === c.x && cc.y === c.y;
           });
+          const isWrong = this.props.showWrongEntries && (c.number === 0 ? false : c.solution !== c.number);
           const highlightNumber = activeCell && c.number !== 0 ? activeCell.number === c.number : false;
 
           return (
@@ -223,7 +224,7 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
               active={isActive}
               highlight={highlight}
               highlightNumber={highlightNumber && !isActive}
-              conflict={inConflictPath}
+              conflict={inConflictPath || isWrong}
               bounds={bounds}
               onClick={onClick}
               onRightClick={onRightClick}
