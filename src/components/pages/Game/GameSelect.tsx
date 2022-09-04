@@ -46,11 +46,11 @@ const SudokuPreviewButton = styled.div.attrs({
   z-index: 2;
 `;
 
-const SudokuPreviewPlaceholder: React.StatelessComponent<{size: number}> = ({size}) => (
+const SudokuPreviewPlaceholder = React.memo(({size}: {size: number}) => (
   <SudokuContainer>
     <div style={{height: size, width: size, background: "grey"}} />
   </SudokuContainer>
-);
+));
 
 interface GameIndexProps {
   difficulty: DIFFICULTY;
@@ -188,83 +188,85 @@ const connector = connect(
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 
-const GameSelect: React.StatelessComponent<GameSelectProps & PropsFromRedux> = ({
-  difficulty,
-  setDifficulty,
-  newGame,
-  setSudoku,
-  setGameState,
-  setSudokuState,
-  continueGame,
-  playGame,
-}) => {
-  const chooseSudoku = (sudoku: SudokuRaw, index: number) => {
-    const localState = getState();
-    const local = localState.sudokus[sudoku.id];
-    playGame();
-    if (!local || local.game.state === GameStateMachine.wonGame) {
-      newGame(sudoku.id, index, difficulty);
-      setSudoku(sudoku.sudoku, sudoku.solution);
-      continueGame();
-    } else {
-      setGameState(local.game);
-      setSudokuState(local.sudoku);
-      continueGame();
-    }
-  };
+const GameSelect = React.memo(
+  ({
+    difficulty,
+    setDifficulty,
+    newGame,
+    setSudoku,
+    setGameState,
+    setSudokuState,
+    continueGame,
+    playGame,
+  }: GameSelectProps & PropsFromRedux) => {
+    const chooseSudoku = (sudoku: SudokuRaw, index: number) => {
+      const localState = getState();
+      const local = localState.sudokus[sudoku.id];
+      playGame();
+      if (!local || local.game.state === GameStateMachine.wonGame) {
+        newGame(sudoku.id, index, difficulty);
+        setSudoku(sudoku.sudoku, sudoku.solution);
+        continueGame();
+      } else {
+        setGameState(local.game);
+        setSudokuState(local.sudoku);
+        continueGame();
+      }
+    };
 
-  return (
-    <div className="relative h-full max-h-full">
-      {/* TODO: make this nicer */}
-      <button
-        onClick={() => {
-          playGame();
-          continueGame();
-        }}
-        className="absolute top-2 right-2 rounded-sm bg-transparent py-2 px-4 font-bold text-white hover:bg-white hover:bg-opacity-10"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" viewBox="0 0 256 256">
-          <rect width="256" height="256" fill="none"></rect>
-          <line
-            x1="200"
-            y1="56"
-            x2="56"
-            y2="200"
-            stroke="#fff"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="16"
-          ></line>
-          <line
-            x1="200"
-            y1="200"
-            x2="56"
-            y2="56"
-            stroke="#fff"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="16"
-          ></line>
-        </svg>
-      </button>
-      <TabBar>
-        {[DIFFICULTY.EASY, DIFFICULTY.MEDIUM, DIFFICULTY.HARD, DIFFICULTY.EXPERT, DIFFICULTY.EVIL].map((d, i) => {
-          return (
-            <TabItem
-              tabIndex={i + 1}
-              id={`tab-${d}`}
-              key={d}
-              active={d === difficulty}
-              onClick={() => setDifficulty(d)}
-            >
-              {d}
-            </TabItem>
-          );
-        })}
-      </TabBar>
-      <GameIndex difficulty={difficulty} chooseSudoku={chooseSudoku} />
-    </div>
-  );
-};
+    return (
+      <div className="relative h-full max-h-full">
+        {/* TODO: make this nicer */}
+        <button
+          onClick={() => {
+            playGame();
+            continueGame();
+          }}
+          className="absolute top-2 right-2 rounded-sm bg-transparent py-2 px-4 font-bold text-white hover:bg-white hover:bg-opacity-10"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" viewBox="0 0 256 256">
+            <rect width="256" height="256" fill="none"></rect>
+            <line
+              x1="200"
+              y1="56"
+              x2="56"
+              y2="200"
+              stroke="#fff"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="16"
+            ></line>
+            <line
+              x1="200"
+              y1="200"
+              x2="56"
+              y2="56"
+              stroke="#fff"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="16"
+            ></line>
+          </svg>
+        </button>
+        <TabBar>
+          {[DIFFICULTY.EASY, DIFFICULTY.MEDIUM, DIFFICULTY.HARD, DIFFICULTY.EXPERT, DIFFICULTY.EVIL].map((d, i) => {
+            return (
+              <TabItem
+                tabIndex={i + 1}
+                id={`tab-${d}`}
+                key={d}
+                active={d === difficulty}
+                onClick={() => setDifficulty(d)}
+              >
+                {d}
+              </TabItem>
+            );
+          })}
+        </TabBar>
+        <GameIndex difficulty={difficulty} chooseSudoku={chooseSudoku} />
+      </div>
+    );
+  },
+);
 
 export default connector(GameSelect);

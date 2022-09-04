@@ -17,92 +17,92 @@ import {Bounds} from "src/utils/types";
 import {Cell, CellCoordinates} from "src/engine/types";
 import {flatten} from "src/utils/collection";
 
-const SudokuGrid: React.StatelessComponent<{width: number; height: number; hideLeftRight?: boolean}> = ({
-  width,
-  height,
-  hideLeftRight = false,
-}) => {
-  return (
-    <div>
-      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => {
-        const hide = [0, 9].includes(i);
-        if (hideLeftRight && hide) {
-          return null;
-        }
-        const makeBold = [3, 6].includes(i);
-        return <GridLineX makeBold={makeBold} key={i} width={width} top={(i * height) / 9} />;
-      })}
-      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => {
-        const hide = [0, 9].includes(i);
-        if (hideLeftRight && hide) {
-          return null;
-        }
-        const makeBold = [3, 6].includes(i);
-        return <GridLineY makeBold={makeBold} key={i} height={height} left={(i * height) / 9} />;
-      })}
-    </div>
-  );
-};
+const SudokuGrid = React.memo(
+  ({width, height, hideLeftRight = false}: {width: number; height: number; hideLeftRight?: boolean}) => {
+    return (
+      <div>
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => {
+          const hide = [0, 9].includes(i);
+          if (hideLeftRight && hide) {
+            return null;
+          }
+          const makeBold = [3, 6].includes(i);
+          return <GridLineX makeBold={makeBold} key={i} width={width} top={(i * height) / 9} />;
+        })}
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => {
+          const hide = [0, 9].includes(i);
+          if (hideLeftRight && hide) {
+            return null;
+          }
+          const makeBold = [3, 6].includes(i);
+          return <GridLineY makeBold={makeBold} key={i} height={height} left={(i * height) / 9} />;
+        })}
+      </div>
+    );
+  },
+);
 
-const SudokuCell: React.StatelessComponent<{
-  number: number;
-  active: boolean;
-  highlightNumber: boolean;
-  highlight: boolean;
-  conflict: boolean;
-  bounds: Bounds;
-  onClick: () => void;
-  onRightClick: () => void;
-  top: number;
-  left: number;
-  initial: boolean;
-  notes: number[];
-  notesMode: boolean;
-}> = ({
-  number,
-  active,
-  highlight,
-  bounds,
-  onClick,
-  onRightClick,
-  left,
-  top,
-  initial,
-  notes,
-  notesMode,
-  conflict,
-  highlightNumber,
-}) => {
-  return (
-    <div>
-      <GridCell
-        notesMode={notesMode}
-        active={active}
-        conflict={conflict}
-        highlight={highlight}
-        highlightNumber={highlightNumber}
-        bounds={bounds}
-        onClick={onClick}
-        onRightClick={onRightClick}
-      />
-      <GridCellNumber left={left} top={top} initial={initial} highlight={highlightNumber} conflict={conflict}>
-        {number !== 0 ? number : ""}
-      </GridCellNumber>
-      <CellNoteContainer initial={initial} bounds={bounds}>
-        {initial || number
-          ? null
-          : notes.map((n) => {
-              const notePosition = SudokuGame.getNotePosition(n);
-              return (
-                <CellNote key={n} left={notePosition.x} top={notePosition.y}>
-                  {n !== 0 ? n : ""}
-                </CellNote>
-              );
-            })}
-      </CellNoteContainer>
-    </div>
-  );
-};
+const SudokuCell = React.memo(
+  ({
+    number,
+    active,
+    highlight,
+    bounds,
+    onClick,
+    onRightClick,
+    left,
+    top,
+    initial,
+    notes,
+    notesMode,
+    conflict,
+    highlightNumber,
+  }: {
+    number: number;
+    active: boolean;
+    highlightNumber: boolean;
+    highlight: boolean;
+    conflict: boolean;
+    bounds: Bounds;
+    onClick: () => void;
+    onRightClick: () => void;
+    top: number;
+    left: number;
+    initial: boolean;
+    notes: number[];
+    notesMode: boolean;
+  }) => {
+    return (
+      <div>
+        <GridCell
+          notesMode={notesMode}
+          active={active}
+          conflict={conflict}
+          highlight={highlight}
+          highlightNumber={highlightNumber}
+          bounds={bounds}
+          onClick={onClick}
+          onRightClick={onRightClick}
+        />
+        <GridCellNumber left={left} top={top} initial={initial} highlight={highlightNumber} conflict={conflict}>
+          {number !== 0 ? number : ""}
+        </GridCellNumber>
+        <CellNoteContainer initial={initial} bounds={bounds}>
+          {initial || number
+            ? null
+            : notes.map((n) => {
+                const notePosition = SudokuGame.getNotePosition(n);
+                return (
+                  <CellNote key={n} left={notePosition.x} top={notePosition.y}>
+                    {n !== 0 ? n : ""}
+                  </CellNote>
+                );
+              })}
+        </CellNoteContainer>
+      </div>
+    );
+  },
+);
 
 interface SudokuProps {
   activeCell?: CellCoordinates;

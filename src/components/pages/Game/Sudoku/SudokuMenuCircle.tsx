@@ -68,59 +68,70 @@ const TAU = Math.PI * 2;
 // Menu
 //
 
-const MenuCirclePart: React.StatelessComponent<{
-  radius: number;
-  notesMode: boolean;
-  isActive: boolean;
-  onClick: (e: any) => void;
-  minRad: number;
-  maxRad: number;
-  children?: React.ReactChild;
-  stroke: string;
-}> = ({radius, notesMode, isActive, onClick, minRad, maxRad, children, stroke}) => {
-  const yOffset = 7;
-  const textRadius = radius + 8;
-  const circumCircle = TAU * radius;
-  const step = Math.abs(maxRad - minRad);
+const MenuCirclePart = React.memo(
+  ({
+    radius,
+    notesMode,
+    isActive,
+    onClick,
+    minRad,
+    maxRad,
+    children,
+    stroke,
+  }: {
+    radius: number;
+    notesMode: boolean;
+    isActive: boolean;
+    onClick: (e: any) => void;
+    minRad: number;
+    maxRad: number;
+    children?: React.ReactChild;
+    stroke: string;
+  }) => {
+    const yOffset = 7;
+    const textRadius = radius + 8;
+    const circumCircle = TAU * radius;
+    const step = Math.abs(maxRad - minRad);
 
-  const center = radius * 2;
-  const x = textRadius * Math.cos(minRad + step * 0.5) + center;
-  const y = textRadius * Math.sin(minRad + step * 0.5) + center + yOffset;
+    const center = radius * 2;
+    const x = textRadius * Math.cos(minRad + step * 0.5) + center;
+    const y = textRadius * Math.sin(minRad + step * 0.5) + center + yOffset;
 
-  const strokeDashoffset = -((minRad / TAU) * circumCircle) % circumCircle;
-  const strokeDasharray = `${(step / TAU) * circumCircle} ${circumCircle}`;
+    const strokeDashoffset = -((minRad / TAU) * circumCircle) % circumCircle;
+    const strokeDasharray = `${(step / TAU) * circumCircle} ${circumCircle}`;
 
-  return (
-    <g>
-      <MenuCirclePartComponent
-        notesMode={notesMode}
-        isActive={isActive}
-        r={radius}
-        cx={radius * 2}
-        cy={radius * 2}
-        fill="none"
-        onClick={onClick}
-        style={{
-          strokeDashoffset,
-          strokeDasharray,
-          stroke,
-        }}
-      />
-      <text
-        x={x}
-        y={y}
-        style={{
-          fill: "white",
-          textAnchor: "middle",
-          zIndex: 100,
-          pointerEvents: "none",
-        }}
-      >
-        {children}
-      </text>
-    </g>
-  );
-};
+    return (
+      <g>
+        <MenuCirclePartComponent
+          notesMode={notesMode}
+          isActive={isActive}
+          r={radius}
+          cx={radius * 2}
+          cy={radius * 2}
+          fill="none"
+          onClick={onClick}
+          style={{
+            strokeDashoffset,
+            strokeDasharray,
+            stroke,
+          }}
+        />
+        <text
+          x={x}
+          y={y}
+          style={{
+            fill: "white",
+            textAnchor: "middle",
+            zIndex: 100,
+            pointerEvents: "none",
+          }}
+        >
+          {children}
+        </text>
+      </g>
+    );
+  },
+);
 
 interface MenuCircleOwnProps {
   cell: Cell;

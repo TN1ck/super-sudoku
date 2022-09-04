@@ -2,7 +2,7 @@ import * as React from "react";
 import {Container} from "src/components/modules/Layout";
 import {CardBody, Card} from "src/components/modules/Card";
 
-const About: React.StatelessComponent<{}> = function () {
+const About = function () {
   return (
     <Container>
       <Card>

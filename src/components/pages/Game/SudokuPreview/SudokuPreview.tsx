@@ -85,32 +85,30 @@ const GridLineY = styled.div<{
     `};
 `;
 
-const SudokuPreviewGrid: React.StatelessComponent<{width: number; height: number; hideLeftRight?: boolean}> = ({
-  width,
-  height,
-  hideLeftRight = false,
-}) => {
-  return (
-    <div>
-      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => {
-        const hide = [0, 9].includes(i);
-        if (hideLeftRight && hide) {
-          return null;
-        }
-        const makeBold = [3, 6].includes(i);
-        return <GridLineX makeBold={makeBold} key={i} width={width} top={(i * height) / 9} />;
-      })}
-      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => {
-        const hide = [0, 9].includes(i);
-        if (hideLeftRight && hide) {
-          return null;
-        }
-        const makeBold = [3, 6].includes(i);
-        return <GridLineY makeBold={makeBold} key={i} height={height} left={(i * height) / 9} />;
-      })}
-    </div>
-  );
-};
+const SudokuPreviewGrid = React.memo(
+  ({width, height, hideLeftRight = false}: {width: number; height: number; hideLeftRight?: boolean}) => {
+    return (
+      <div>
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => {
+          const hide = [0, 9].includes(i);
+          if (hideLeftRight && hide) {
+            return null;
+          }
+          const makeBold = [3, 6].includes(i);
+          return <GridLineX makeBold={makeBold} key={i} width={width} top={(i * height) / 9} />;
+        })}
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => {
+          const hide = [0, 9].includes(i);
+          if (hideLeftRight && hide) {
+            return null;
+          }
+          const makeBold = [3, 6].includes(i);
+          return <GridLineY makeBold={makeBold} key={i} height={height} left={(i * height) / 9} />;
+        })}
+      </div>
+    );
+  },
+);
 
 export default class SudokuPreview extends React.PureComponent<{
   sudoku: SimpleSudoku;
