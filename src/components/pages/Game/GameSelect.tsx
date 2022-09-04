@@ -15,12 +15,8 @@ import {getState} from "src/sudoku-game/persistence";
 import {playGame} from "src/state/application";
 import {formatDuration} from "src/utils/format";
 
-const TabBar = styled.div.attrs({
-  className: "flex text-white py-4 justify-center border-b-0 bg-gray-900",
-})``;
-
 const TabItem = styled.button.attrs({
-  className: "px-2 sm:px-4 text-sm sm:text-base py-2 pointer capitalize rounded-sm border-none",
+  className: "px-1 xs:px-2 sm:px-4 text-xs sm:text-sm md:text-base py-2 pointer capitalize rounded-sm border-none",
 })<{
   active: boolean;
 }>`
@@ -37,14 +33,6 @@ const SudokusContainer = styled.div.attrs({
 const SudokuContainer = styled.div.attrs({
   className: "p-2 relative",
 })``;
-
-const SudokuPreviewButton = styled.div.attrs({
-  className: "px-4 py-2 left-4 bottom-4 absolute",
-})`
-  background: ${THEME.colors.background};
-  color: ${THEME.colors.foreground};
-  z-index: 2;
-`;
 
 const SudokuPreviewPlaceholder = React.memo(({size}: {size: number}) => (
   <SudokuContainer>
@@ -84,7 +72,7 @@ class GameIndex extends React.Component<GameIndexProps, {elementWidth: number}> 
       return;
     }
     const width = dom.getBoundingClientRect().width - 16;
-    const MIN_SIZE = 140;
+    const MIN_SIZE = 190;
     const MAX_SIZE = 300;
     const MAX_COLUMNS = 4;
 
@@ -142,11 +130,18 @@ class GameIndex extends React.Component<GameIndexProps, {elementWidth: number}> 
                   placeholder={<SudokuPreviewPlaceholder size={size} />}
                 >
                   <SudokuContainer>
-                    {unfinished ? <SudokuPreviewButton>{"Continue"}</SudokuPreviewButton> : null}
-                    {finished ? (
-                      <SudokuPreviewButton>{`Finished in ${formatDuration(
-                        local.game.secondsPlayed,
-                      )}. Restart?`}</SudokuPreviewButton>
+                    {unfinished || finished ? (
+                      <div className="pointer-events-none absolute left-4 bottom-4 z-10 max-w-min bg-gray-900 px-4 py-2 text-sm text-white md:text-base">
+                        {unfinished && "Continue"}
+                        {finished && (
+                          <div>
+                            <span className="whitespace-nowrap">{`Finished in ${formatDuration(
+                              local.game.secondsPlayed,
+                            )}.`}</span>
+                            <span>{` Restart?`}</span>
+                          </div>
+                        )}
+                      </div>
                     ) : null}
                     <SudokuPreview
                       onClick={choose}
@@ -222,9 +217,9 @@ const GameSelect = React.memo(
             playGame();
             continueGame();
           }}
-          className="absolute top-2 right-2 rounded-sm bg-transparent py-2 px-4 font-bold text-white hover:bg-white hover:bg-opacity-10"
+          className="absolute top-2 right-2 rounded-sm bg-transparent py-2 px-2 font-bold text-white hover:bg-white hover:bg-opacity-10"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" viewBox="0 0 256 256">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#fff" viewBox="0 0 256 256">
             <rect width="256" height="256" fill="none"></rect>
             <line
               x1="200"
@@ -248,7 +243,7 @@ const GameSelect = React.memo(
             ></line>
           </svg>
         </button>
-        <TabBar>
+        <div className="justify-left flex border-b-0 bg-gray-900 py-4 px-4 text-white sm:justify-center">
           {[DIFFICULTY.EASY, DIFFICULTY.MEDIUM, DIFFICULTY.HARD, DIFFICULTY.EXPERT, DIFFICULTY.EVIL].map((d, i) => {
             return (
               <TabItem
@@ -262,7 +257,7 @@ const GameSelect = React.memo(
               </TabItem>
             );
           })}
-        </TabBar>
+        </div>
         <GameIndex difficulty={difficulty} chooseSudoku={chooseSudoku} />
       </div>
     );

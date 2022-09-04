@@ -291,6 +291,7 @@ const THEME = {
     hideCircleMenu: 700,
   },
   responsive: {
+    xs: 380,
     sm: 640,
     md: 768,
     lg: 1024,
