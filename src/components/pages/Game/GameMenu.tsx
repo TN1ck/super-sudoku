@@ -35,6 +35,7 @@ interface GameMenuStateProps {
 const connector = connect(
   (state: RootState) => {
     return {
+      currentSudokuIndex: state.game.sudokuIndex,
       gameState: state.game.state,
       applicationState: state.application.state,
     };
@@ -64,6 +65,11 @@ class GameMenu extends React.Component<GameMenuStateProps & PropsFromRedux, {isO
   render() {
     if (this.props.applicationState === ApplicationStateMachine.chooseGame) {
       const onExit = () => {
+        // TODO: Improve and remove duplication with GameSelect.
+        if (this.props.currentSudokuIndex === -1) {
+          alert("You cannot close. You have to select a sudoku first!");
+          return;
+        }
         this.props.playGame();
         this.props.continueGame();
       };

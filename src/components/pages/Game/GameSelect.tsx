@@ -167,6 +167,7 @@ interface GameSelectProps {
 const connector = connect(
   (state: RootState) => {
     return {
+      currentSudokuIndex: state.game.sudokuIndex,
       difficulty: state.choose.difficulty,
     };
   },
@@ -185,6 +186,7 @@ type PropsFromRedux = ConnectedProps<typeof connector>;
 
 const GameSelect = React.memo(
   ({
+    currentSudokuIndex,
     difficulty,
     setDifficulty,
     newGame,
@@ -201,12 +203,11 @@ const GameSelect = React.memo(
       if (!local || local.game.state === GameStateMachine.wonGame) {
         newGame(sudoku.id, index, difficulty);
         setSudoku(sudoku.sudoku, sudoku.solution);
-        continueGame();
       } else {
         setGameState(local.game);
         setSudokuState(local.sudoku);
-        continueGame();
       }
+      continueGame();
     };
 
     return (
@@ -214,6 +215,11 @@ const GameSelect = React.memo(
         {/* TODO: make this nicer */}
         <button
           onClick={() => {
+            // TODO: Remove duplication with
+            if (currentSudokuIndex === -1) {
+              alert("You cannot close. You have to select a sudoku first!");
+              return;
+            }
             playGame();
             continueGame();
           }}
