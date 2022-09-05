@@ -1,6 +1,9 @@
 # Super Sudoku
 
-Currently hosted at [https://supersudoku.netlify.com](https://supersudoku.netlify.com). Still WIP and a domain will be bought if it's finished.
+Currently hosted at [https://sudoku.tn1ck.com](https://sudoku.tn1ck.com). It's still WIP, but almost there.
+
+![Screenshot 2022-09-05 at 19 15 08](https://user-images.githubusercontent.com/2116347/188494040-0a7b4512-c5b8-4073-bc4a-b78e469ad90e.png)
+
 
 This project aims to be a sudoku app with everything included. An open source sudoku that is on par with all commercial applications. Why? Because my Grandma wanted to play a Sudoku once and I didn't like all the available offers. This has changed since then, but having an open source version will hopefully help people in the future.
 
