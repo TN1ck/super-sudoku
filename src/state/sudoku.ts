@@ -11,7 +11,7 @@ const CLEAR_NOTE = "sudoku/CLEAR_NOTE";
 const SET_NUMBER = "sudoku/SET_NUMBER";
 const CLEAR_NUMBER = "sudoku/CLEAR_NUMBER";
 
-import {simpleSudokuToCells} from "src/engine/utility";
+import {simpleSudokuToCells, squareIndex} from "src/engine/utility";
 import {Cell, SimpleSudoku, CellCoordinates} from "src/engine/types";
 import {AnyAction} from "redux";
 
@@ -106,6 +106,39 @@ export const emptyGrid: SudokuState = simpleSudokuToCells([
 
 const initialState = emptyGrid;
 
+// When a number is set, remove conflicting notes.
+function fixSudokuNotes(sudoku: SudokuState, newCell: Cell) {
+  sudoku = sudoku.map((cell) => {
+    if (cell.x === newCell.x) {
+      return {
+        ...cell,
+        notes: cell.notes.filter((n) => n !== newCell.number),
+      };
+    }
+    return cell;
+  });
+
+  sudoku = sudoku.map((cell) => {
+    if (cell.y === newCell.y) {
+      return {
+        ...cell,
+        notes: cell.notes.filter((n) => n !== newCell.number),
+      };
+    }
+    return cell;
+  });
+
+  return sudoku.map((cell) => {
+    if (squareIndex(cell.x, cell.y) === squareIndex(newCell.x, newCell.y)) {
+      return {
+        ...cell,
+        notes: cell.notes.filter((n) => n !== newCell.number),
+      };
+    }
+    return cell;
+  });
+}
+
 export default function sudokuReducer(state: SudokuState = initialState, action: AnyAction) {
   if (
     ![SET_NOTE, SET_SUDOKU, CLEAR_NOTE, SET_NUMBER, CLEAR_NUMBER, CLEAR_CELL, GET_HINT, SET_SUDOKU_STATE].includes(
@@ -127,8 +160,8 @@ export default function sudokuReducer(state: SudokuState = initialState, action:
     if (isCell && !cell.initial) {
       switch (action.type) {
         case SET_NOTE: {
-          if (cell.notes.find(n => n === action.note)) {
-            return {...cell, notes: cell.notes.filter((n) => n !== action.note)}
+          if (cell.notes.find((n) => n === action.note)) {
+            return {...cell, notes: cell.notes.filter((n) => n !== action.note)};
           }
           return {...cell, notes: cell.notes.concat([action.note])};
         }
@@ -153,6 +186,12 @@ export default function sudokuReducer(state: SudokuState = initialState, action:
     }
     return cell;
   });
+
+  if (action.type === SET_NUMBER) {
+    const {x, y} = (action as SudokuAction).cellCoordinates;
+    const newCell = newGrid.find((cell) => cell.x === x && cell.y === y);
+    return fixSudokuNotes(newGrid, newCell);
+  }
 
   return newGrid;
 }
