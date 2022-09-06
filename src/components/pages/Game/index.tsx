@@ -279,7 +279,7 @@ class Game extends React.Component<PropsFromRedux> {
               <SudokuMenuControls />
               <div className="mt-4 grid gap-4">
                 <div>
-                  <h1 className="mb-2 text-3xl font-bold">Shortcuts</h1>
+                  <h2 className="mb-2 text-3xl font-bold">Shortcuts</h2>
                   <div className="grid gap-2">
                     <ul className="list-disc pl-6">
                       <li>Arrow keys: Move around the board</li>
@@ -292,7 +292,7 @@ class Game extends React.Component<PropsFromRedux> {
                   </div>
                 </div>
                 <div>
-                  <h1 className="mb-2 text-3xl font-bold">Settings</h1>
+                  <h2 className="mb-2 text-3xl font-bold">Settings</h2>
                   <div className="grid gap-2">
                     <Checkbox id="generated_notes" checked={game.showHints} onChange={this.props.toggleShowHints}>
                       {"Show auto generated notes"}
@@ -308,6 +308,17 @@ class Game extends React.Component<PropsFromRedux> {
                       {"Show circle menu when a cell is selected (desktop only)"}
                     </Checkbox>
                   </div>
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-white">About</h2>
+                  <p className="text-white">
+                    This sudoku app is and will be free of charge, free of ads and free of tracking. Its source code is
+                    available at{" "}
+                    <a target="_blank" className="underline" href="https://github.com/TN1ck/super-sudoku">
+                      Github
+                    </a>
+                    .
+                  </p>
                 </div>
               </div>
             </GameFooterArea>

@@ -20,7 +20,10 @@
     "read-sudokus": "ts-node --project ./tsconfig.json ./scripts/read_sudokus.ts"
   },
   "keywords": [
-    "super sudoku",
+    "sudoku",
+    "sudoku generator",
+    "sudoku solver",
+    "sudoku game",
     "online sudoku",
     "sudoku",
     "game"
