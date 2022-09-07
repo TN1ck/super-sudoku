@@ -130,7 +130,7 @@ const INITIAL_GAME_STATE: GameState = {
   offsetTime: 0,
   showCircleMenu: true,
   showHints: false,
-  showWrongEntries: true,
+  showWrongEntries: false,
   showMenu: false,
   showNotes: false,
   state: GameStateMachine.paused,
