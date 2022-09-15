@@ -135,13 +135,12 @@ const GameGrid = styled.div.attrs({
 `;
 
 const GameMainArea = styled.div.attrs({
-  className: "relative flex flex-wrap shrink-0 grow-0 rounded-sm ",
+  className: "relative flex flex-wrap shrink-0 grow-0 rounded-sm pt-[100%] mt-[-100%]",
 })`
   grid-area: game-main;
   box-shadow: ${THEME.boxShadow};
   /* Not perfect, but close enough. */
   width: 100%;
-  height: calc(100vw - 16px);
   max-width: ${THEME.responsive.sm};
   max-height: ${THEME.responsive.sm};
 
@@ -162,7 +161,9 @@ const GameHeaderArea = styled.div.attrs({
   grid-area: game-header;
 `;
 
-const GameFooterArea = styled.div`
+const GameFooterArea = styled.div.attrs({
+  className: "mt-[100%] md:mt-0"
+})`
   grid-area: game-controls;
 `;
 

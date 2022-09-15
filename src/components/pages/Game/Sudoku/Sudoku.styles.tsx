@@ -6,7 +6,9 @@ import clsx from "clsx";
 
 export const SudokuContainer = styled.div.attrs({
   className: "absolute h-full w-full rounded-sm bg-white",
-})``;
+})`
+  max-height: calc(100vh - 138px);
+`;
 
 export const GridLineX = ({top, width, makeBold}: {top: number; width: number; makeBold: boolean}) => {
   return (
