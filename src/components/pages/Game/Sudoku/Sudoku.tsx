@@ -199,9 +199,9 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
                   }`}</div>
                   <div className="flex justify-center">
                     <div>
-                      <div>{`Best time: ${formatDuration(
-                        Math.min(...this.props.previousTimes, this.props.secondsPlayed),
-                      )}`}</div>
+                      {this.props.previousTimes.length > 0 && (
+                        <div>{`Best time: ${formatDuration(Math.min(...this.props.previousTimes))}`}</div>
+                      )}
                       <div>{`This time: ${formatDuration(this.props.secondsPlayed)}`}</div>
                     </div>
                   </div>

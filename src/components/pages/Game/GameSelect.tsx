@@ -136,9 +136,11 @@ class GameIndex extends React.Component<GameIndexProps, {elementWidth: number}> 
                           <div className="whitespace-nowrap">{`${
                             unfinished ? "Current" : "Last"
                           } time: ${formatDuration(local.game.secondsPlayed)}.`}</div>
-                          <div className="whitespace-nowrap">{`Best time: ${formatDuration(
-                            Math.min(...local.game.previousTimes),
-                          )}.`}</div>
+                          {local.game.previousTimes.length > 0 && (
+                            <div className="whitespace-nowrap">{`Best time: ${formatDuration(
+                              Math.min(...local.game.previousTimes),
+                            )}.`}</div>
+                          )}
                           <div>{`Solved ${local.game.timesSolved} ${
                             local.game.timesSolved === 1 ? "time" : "times"
                           }`}</div>
