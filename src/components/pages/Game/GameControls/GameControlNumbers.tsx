@@ -63,7 +63,7 @@ class SudokuMenuNumbers extends React.Component<PropsFromRedux> {
               onClick={setNumberOrNote}
               key={n}
             >
-              <div className="absolute right-1 bottom-1 h-4 w-4 rounded-xl bg-teal-700 text-xs text-white opacity-70">
+              <div className="absolute right-1 bottom-1 h-3 w-3 rounded-xl bg-teal-700 text-xxs text-white opacity-70 sm:h-4 sm:w-4 sm:text-xs ">
                 {occurrences}
               </div>
               {n}

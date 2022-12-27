@@ -10,6 +10,9 @@ module.exports = {
       screens: {
         xs: "380px",
       },
+      fontSize: {
+        xxs: "0.5rem",
+      },
     },
     transitionDuration: {
       "0": "0ms",
