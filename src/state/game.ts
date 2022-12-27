@@ -11,6 +11,7 @@ export const NEW_GAME = "game/NEW_GAME";
 export const SET_GAME_STATE = "game/SET_GAME_STATE";
 
 const SET_GAME_STATE_MACHINE = "game/SET_GAME_STATE_MACHINE";
+const RESTART_GAME = "game/RESTART_GAME";
 const SHOW_MENU = "game/SHOW_MENU";
 const HIDE_MENU = "game/HIDE_MENU";
 const SELECT_CELL = "game/SELECT_MENU";
@@ -88,6 +89,25 @@ export function setGameStateMachine(state: GameStateMachine) {
   };
 }
 
+export function restartGame(
+  sudokuId: number,
+  sudokuIndex: number,
+  difficulty: DIFFICULTY,
+  timesSolved: number,
+  secondsPlayed: number,
+  previousTimes: number[],
+) {
+  return {
+    type: RESTART_GAME,
+    sudokuId,
+    sudokuIndex,
+    difficulty,
+    timesSolved,
+    secondsPlayed,
+    previousTimes,
+  };
+}
+
 export function toggleShowHints() {
   return {
     type: TOGGLE_SHOW_HINTS,
@@ -110,7 +130,6 @@ export interface GameState {
   activeCellCoordinates?: CellCoordinates;
   difficulty: DIFFICULTY;
   notesMode: boolean; // global notes mode
-  offsetTime: number;
   showCircleMenu: boolean;
   showHints: boolean;
   showMenu: boolean;
@@ -120,6 +139,8 @@ export interface GameState {
   sudokuId: number;
   sudokuIndex: number;
   won: boolean;
+  timesSolved: number;
+  previousTimes: number[];
   secondsPlayed: number;
 }
 
@@ -127,7 +148,6 @@ const INITIAL_GAME_STATE: GameState = {
   activeCellCoordinates: undefined,
   difficulty: DIFFICULTY.EASY,
   notesMode: false,
-  offsetTime: 0,
   showCircleMenu: true,
   showHints: false,
   showWrongEntries: false,
@@ -137,6 +157,8 @@ const INITIAL_GAME_STATE: GameState = {
   sudokuId: -1,
   sudokuIndex: -1,
   secondsPlayed: 0,
+  timesSolved: 0,
+  previousTimes: [],
   won: false,
 };
 
@@ -151,6 +173,16 @@ export default function gameReducer(state: GameState = INITIAL_GAME_STATE, actio
   switch (action.type) {
     case SET_GAME_STATE:
       return action.state;
+    case RESTART_GAME:
+      return {
+        ...INITIAL_GAME_STATE,
+        sudokuId: action.sudokuId,
+        sudokuIndex: action.sudokuIndex,
+        difficulty: action.difficulty,
+        secondsPlayed: 0,
+        timesSolved: action.timesSolved,
+        previousTimes: action.previousTimes,
+      };
     case TOGGLE_SHOW_HINTS: {
       return {
         ...state,
@@ -174,8 +206,8 @@ export default function gameReducer(state: GameState = INITIAL_GAME_STATE, actio
         ...INITIAL_GAME_STATE,
         sudokuId: action.sudokuId,
         sudokuIndex: action.sudokuIndex,
-        difficulty: action.difficulty,
         secondsPlayed: 0,
+        difficulty: action.difficulty,
       };
     case ACTIVATE_NOTES_MODE:
       return {
@@ -217,6 +249,8 @@ export default function gameReducer(state: GameState = INITIAL_GAME_STATE, actio
           return {
             ...state,
             state: GameStateMachine.wonGame,
+            timesSolved: state.timesSolved + 1,
+            previousTimes: [...state.previousTimes, state.secondsPlayed],
           };
         }
         default: {

@@ -8,7 +8,7 @@ import {DIFFICULTY} from "src/engine/types";
 import styled from "styled-components";
 import SudokuPreview from "./SudokuPreview/SudokuPreview";
 import {setDifficulty} from "src/state/choose";
-import {newGame, setGameState, continueGame, GameStateMachine} from "src/state/game";
+import {newGame, setGameState, continueGame, GameStateMachine, restartGame} from "src/state/game";
 import {setSudoku, setSudokuState} from "src/state/sudoku";
 import THEME from "src/theme";
 import {getState} from "src/sudoku-game/persistence";
@@ -109,7 +109,7 @@ class GameIndex extends React.Component<GameIndexProps, {elementWidth: number}> 
         {this.state.elementWidth !== -1
           ? sudokus.map((sudoku, i) => {
               const local = localState.sudokus[sudoku.id];
-              const unfinished = local && local.game.state === GameStateMachine.paused;
+              const unfinished = local && local.game.state !== GameStateMachine.wonGame;
               const finished = local && local.game.state === GameStateMachine.wonGame;
               const choose = () => {
                 if (finished) {
@@ -132,15 +132,19 @@ class GameIndex extends React.Component<GameIndexProps, {elementWidth: number}> 
                   <SudokuContainer>
                     {unfinished || finished ? (
                       <div className="pointer-events-none absolute left-4 bottom-4 z-10 max-w-min bg-gray-900 px-4 py-2 text-sm text-white md:text-base">
-                        {unfinished && "Continue"}
-                        {finished && (
-                          <div>
-                            <span className="whitespace-nowrap">{`Finished in ${formatDuration(
-                              local.game.secondsPlayed,
-                            )}.`}</span>
-                            <span>{` Restart?`}</span>
-                          </div>
-                        )}
+                        <div>
+                          <div className="whitespace-nowrap">{`${
+                            unfinished ? "Current" : "Last"
+                          } time: ${formatDuration(local.game.secondsPlayed)}.`}</div>
+                          <div className="whitespace-nowrap">{`Best time: ${formatDuration(
+                            Math.min(...local.game.previousTimes),
+                          )}.`}</div>
+                          <div>{`Solved ${local.game.timesSolved} ${
+                            local.game.timesSolved === 1 ? "time" : "times"
+                          }`}</div>
+                          {unfinished && <div>{"Continue"}</div>}
+                          {finished && <div>{`Restart?`}</div>}
+                        </div>
                       </div>
                     ) : null}
                     <SudokuPreview
@@ -174,6 +178,7 @@ const connector = connect(
   {
     setDifficulty,
     newGame,
+    restartGame,
     continueGame,
     playGame,
     setSudoku,
@@ -190,6 +195,7 @@ const GameSelect = React.memo(
     difficulty,
     setDifficulty,
     newGame,
+    restartGame,
     setSudoku,
     setGameState,
     setSudokuState,
@@ -200,8 +206,18 @@ const GameSelect = React.memo(
       const localState = getState();
       const local = localState.sudokus[sudoku.id];
       playGame();
-      if (!local || local.game.state === GameStateMachine.wonGame) {
+      if (!local) {
         newGame(sudoku.id, index, difficulty);
+        setSudoku(sudoku.sudoku, sudoku.solution);
+      } else if (local.game.state === GameStateMachine.wonGame) {
+        restartGame(
+          sudoku.id,
+          index,
+          difficulty,
+          local.game.timesSolved,
+          local.game.secondsPlayed,
+          local.game.previousTimes,
+        );
         setSudoku(sudoku.sudoku, sudoku.solution);
       } else {
         setGameState(local.game);
@@ -233,9 +249,9 @@ const GameSelect = React.memo(
               x2="56"
               y2="200"
               stroke="#fff"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="16"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="16"
             ></line>
             <line
               x1="200"
@@ -243,9 +259,9 @@ const GameSelect = React.memo(
               x2="56"
               y2="56"
               stroke="#fff"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="16"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="16"
             ></line>
           </svg>
         </button>

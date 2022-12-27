@@ -14,8 +14,10 @@ import {
 } from "src/components/pages/Game/Sudoku/Sudoku.styles";
 import SudokuGame from "src/sudoku-game/SudokuGame";
 import {Bounds} from "src/utils/types";
-import {Cell, CellCoordinates} from "src/engine/types";
+import {Cell, CellCoordinates, DIFFICULTY} from "src/engine/types";
 import {flatten} from "src/utils/collection";
+import Button from "src/components/modules/Button";
+import {formatDuration} from "src/utils/format";
 
 const SudokuGrid = React.memo(
   ({width, height, hideLeftRight = false}: {width: number; height: number; hideLeftRight?: boolean}) => {
@@ -106,14 +108,21 @@ const SudokuCell = React.memo(
 
 interface SudokuProps {
   activeCell?: CellCoordinates;
+  sudokuId: number;
+  sudokuIndex: number;
+  difficulty: DIFFICULTY;
   sudoku: Cell[];
   showHints: boolean;
   showWrongEntries: boolean;
+  timesSolved: number;
+  secondsPlayed: number;
+  previousTimes: number[];
   shouldShowMenu: boolean;
   notesMode: boolean;
   showMenu: typeof showMenu;
   hideMenu: typeof hideMenu;
   selectCell: typeof selectCell;
+  restartGame: () => void;
   state: GameStateMachine;
 }
 
@@ -180,8 +189,28 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
     return (
       <SudokuContainer>
         {wonGame && (
-          <div className="absolute top-0 bottom-0 right-0 left-0 z-30 flex items-center justify-center rounded-sm bg-white bg-opacity-80 text-2xl text-black">
-            {"🎉 Congrats, you won! 🎉"}
+          <div className="absolute top-0 bottom-0 right-0 left-0 z-30 flex items-center justify-center rounded-sm bg-white bg-opacity-80 text-black">
+            <div className="grid gap-8">
+              <div className="flex justify-center bg-white text-2xl">{"🎉 Congrats, you won! 🎉"}</div>
+              <div className="text-md flex justify-center bg-white">
+                <div className="grid">
+                  <div className="flex justify-center">{`You solved this sudoku ${this.props.timesSolved} ${
+                    this.props.timesSolved === 1 ? "time" : "times"
+                  }`}</div>
+                  <div className="flex justify-center">
+                    <div>
+                      <div>{`Best time: ${formatDuration(
+                        Math.min(...this.props.previousTimes, this.props.secondsPlayed),
+                      )}`}</div>
+                      <div>{`This time: ${formatDuration(this.props.secondsPlayed)}`}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <Button className="bg-teal-700 text-white" onClick={() => this.props.restartGame()}>
+                Play again
+              </Button>
+            </div>
           </div>
         )}
         <SudokuGrid width={width} height={height} hideLeftRight />

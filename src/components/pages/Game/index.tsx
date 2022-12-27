@@ -8,6 +8,7 @@ import {
   hideMenu,
   showMenu,
   selectCell,
+  restartGame,
   GameStateMachine,
   toggleShowHints,
   toggleShowCircleMenu,
@@ -16,7 +17,7 @@ import {
 
 import {chooseGame} from "src/state/application";
 
-import {setNumber, setNote} from "src/state/sudoku";
+import {setNumber, setNote, setSudoku} from "src/state/sudoku";
 
 import {Sudoku} from "src/components/pages/Game/Sudoku/Sudoku";
 
@@ -33,6 +34,7 @@ import SudokuMenuControls from "src/components/pages/Game/GameControls/GameContr
 import {Container} from "src/components/modules/Layout";
 import Shortcuts from "./shortcuts/Shortcuts";
 import Checkbox from "src/components/modules/Checkbox";
+import SUDOKUS from "src/sudoku-game/sudokus";
 
 const sudokuMenuNummbersConnector = connect(
   (state: RootState) => ({
@@ -180,6 +182,8 @@ const connector = connect(
     chooseGame,
     wonGame,
     showMenu,
+    restartGame,
+    setSudoku,
     selectCell,
     hideMenu,
     toggleShowHints,
@@ -262,11 +266,31 @@ class Game extends React.Component<PropsFromRedux> {
                 <ContinueIcon />
               </CenteredContinueButton>
               <Sudoku
+                sudokuId={this.props.game.sudokuId}
+                sudokuIndex={this.props.game.sudokuIndex}
+                difficulty={this.props.game.difficulty}
+                secondsPlayed={this.props.game.secondsPlayed}
+                previousTimes={this.props.game.previousTimes}
                 state={this.props.game.state}
                 showWrongEntries={this.props.game.showWrongEntries}
                 notesMode={this.props.game.notesMode}
                 shouldShowMenu={this.props.game.showMenu && this.props.game.showCircleMenu}
                 sudoku={this.props.sudoku}
+                timesSolved={this.props.game.timesSolved}
+                restartGame={() => {
+                  this.props.restartGame(
+                    this.props.game.sudokuId,
+                    this.props.game.sudokuIndex,
+                    this.props.game.difficulty,
+                    this.props.game.timesSolved,
+                    this.props.game.secondsPlayed,
+                    this.props.game.previousTimes,
+                  );
+                  // Could also recreate it from this.props.sudoku.
+                  const sudoku = SUDOKUS[this.props.game.difficulty][this.props.game.sudokuIndex];
+                  this.props.setSudoku(sudoku.sudoku, sudoku.solution);
+                  this.props.continueGame();
+                }}
                 showMenu={this.props.showMenu}
                 hideMenu={this.props.hideMenu}
                 selectCell={this.props.selectCell}
