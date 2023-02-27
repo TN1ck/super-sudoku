@@ -8,7 +8,6 @@ import {
   hideMenu,
   showMenu,
   selectCell,
-  clearGame,
   restartGame,
   GameStateMachine,
   toggleShowHints,
@@ -195,7 +194,6 @@ const connector = connect(
     chooseGame,
     wonGame,
     showMenu,
-    clearGame,
     restartGame,
     setSudoku,
     selectCell,
@@ -250,15 +248,6 @@ class Game extends React.Component<PropsFromRedux> {
       chooseGame();
     };
     const clear = () => {
-      console.log("clearing");
-      this.props.clearGame(
-        this.props.game.sudokuId,
-        this.props.game.sudokuIndex,
-        this.props.game.difficulty,
-        this.props.game.timesSolved,
-        this.props.game.secondsPlayed,
-        this.props.game.previousTimes,
-      );
       // Could also recreate it from this.props.sudoku.
       const sudoku = SUDOKUS[this.props.game.difficulty][this.props.game.sudokuIndex];
       this.props.setSudoku(sudoku.sudoku, sudoku.solution);

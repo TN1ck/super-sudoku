@@ -11,7 +11,6 @@ export const NEW_GAME = "game/NEW_GAME";
 export const SET_GAME_STATE = "game/SET_GAME_STATE";
 
 const SET_GAME_STATE_MACHINE = "game/SET_GAME_STATE_MACHINE";
-const CLEAR_GAME = "game/CLEAR_GAME";
 const RESTART_GAME = "game/RESTART_GAME";
 const SHOW_MENU = "game/SHOW_MENU";
 const HIDE_MENU = "game/HIDE_MENU";
@@ -87,25 +86,6 @@ export function setGameStateMachine(state: GameStateMachine) {
   return {
     type: SET_GAME_STATE_MACHINE,
     state,
-  };
-}
-
-export function clearGame(
-  sudokuId: number,
-  sudokuIndex: number,
-  difficulty: DIFFICULTY,
-  timesSolved: number,
-  secondsPlayed: number,
-  previousTimes: number[],
-) {
-  return {
-    type: CLEAR_GAME,
-    sudokuId,
-    sudokuIndex,
-    difficulty,
-    timesSolved,
-    secondsPlayed,
-    previousTimes,
   };
 }
 
@@ -193,16 +173,6 @@ export default function gameReducer(state: GameState = INITIAL_GAME_STATE, actio
   switch (action.type) {
     case SET_GAME_STATE:
       return action.state;
-    case CLEAR_GAME:
-      return {
-        ...INITIAL_GAME_STATE,
-        sudokuId: action.sudokuId,
-        sudokuIndex: action.sudokuIndex,
-        difficulty: action.difficulty,
-        secondsPlayed: action.secondsPlayed,
-        timesSolved: action.timesSolved,
-        previousTimes: action.previousTimes,
-      };
     case RESTART_GAME:
       return {
         ...INITIAL_GAME_STATE,
