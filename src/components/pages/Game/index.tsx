@@ -51,7 +51,7 @@ const SudokuMenuNumbersConnected = sudokuMenuNummbersConnector(SudokuMenuNumbers
 function ClearButton({state, clearGame} : {state: GameStateMachine, clearGame: () => void}) {
   return (
     <Button
-      disabled={state === GameStateMachine.wonGame}
+      disabled={state === GameStateMachine.wonGame || state === GameStateMachine.paused}
       onClick={clearGame}
     >
       {"Clear"}
