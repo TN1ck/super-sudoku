@@ -48,6 +48,18 @@ const sudokuMenuNummbersConnector = connect(
 );
 const SudokuMenuNumbersConnected = sudokuMenuNummbersConnector(SudokuMenuNumbers);
 
+function ClearButton({state, clearGame} : {state: GameStateMachine, clearGame: () => void}) {
+  return (
+    <Button
+      disabled={state === GameStateMachine.wonGame || state === GameStateMachine.paused}
+      onClick={clearGame}
+    >
+      {"Clear"}
+    </Button>
+  );
+
+}
+
 function PauseButton({
   state,
   pauseGame,
@@ -235,6 +247,12 @@ class Game extends React.Component<PropsFromRedux> {
       pauseGame();
       chooseGame();
     };
+    const clear = () => {
+      // Could also recreate it from this.props.sudoku.
+      const sudoku = SUDOKUS[this.props.game.difficulty][this.props.game.sudokuIndex];
+      this.props.setSudoku(sudoku.sudoku, sudoku.solution);
+      this.props.continueGame();
+    };
     const activeCell = game.activeCellCoordinates
       ? sudoku.find((s) => {
           return s.x === game.activeCellCoordinates!.x && s.y === game.activeCellCoordinates!.y;
@@ -257,6 +275,9 @@ class Game extends React.Component<PropsFromRedux> {
               <div className="flex">
                 <div className="mr-2">
                   <PauseButton state={game.state} continueGame={continueGame} pauseGame={pauseGame} />
+                </div>
+                <div className="mr-2">
+                  <ClearButton state={game.state} clearGame={clear} />
                 </div>
                 <NewGameButton newGame={pauseAndChoose} />
               </div>
