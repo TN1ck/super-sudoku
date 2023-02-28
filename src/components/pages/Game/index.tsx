@@ -13,6 +13,7 @@ import {
   toggleShowHints,
   toggleShowCircleMenu,
   toggleShowWrongEntries,
+  toggleShowConflicts,
 } from "src/state/game";
 
 import {chooseGame} from "src/state/application";
@@ -197,6 +198,7 @@ const connector = connect(
     toggleShowHints,
     toggleShowCircleMenu,
     toggleShowWrongEntries,
+    toggleShowConflicts,
   },
 );
 
@@ -294,6 +296,7 @@ class Game extends React.Component<PropsFromRedux> {
                 previousTimes={this.props.game.previousTimes}
                 state={this.props.game.state}
                 showWrongEntries={this.props.game.showWrongEntries}
+                showConflicts={this.props.game.showConflicts}
                 notesMode={this.props.game.notesMode}
                 shouldShowMenu={this.props.game.showMenu && this.props.game.showCircleMenu}
                 sudoku={this.props.sudoku}
@@ -348,6 +351,13 @@ class Game extends React.Component<PropsFromRedux> {
                       onChange={this.props.toggleShowWrongEntries}
                     >
                       {"Highlight wrong entries"}
+                    </Checkbox>
+                    <Checkbox
+                      id="highlight_conflicts"
+                      checked={game.showConflicts}
+                      onChange={this.props.toggleShowConflicts}
+                    >
+                      {"Highlight conflicts"}
                     </Checkbox>
                     <Checkbox id="circle_menu" checked={game.showCircleMenu} onChange={this.props.toggleShowCircleMenu}>
                       {"Show circle menu when a cell is selected (desktop only)"}

@@ -114,6 +114,7 @@ interface SudokuProps {
   sudoku: Cell[];
   showHints: boolean;
   showWrongEntries: boolean;
+  showConflicts: boolean;
   timesSolved: number;
   secondsPlayed: number;
   previousTimes: number[];
@@ -236,9 +237,11 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
 
           const notes = showHints ? conflicted.possibilities : c.notes;
 
-          const inConflictPath = pathCells.some((d) => {
-            return d.x === c.x && d.y === c.y;
-          });
+          const inConflictPath =
+            this.props.showConflicts &&
+            pathCells.some((d) => {
+              return d.x === c.x && d.y === c.y;
+            });
 
           const bounds: Bounds = {
             width: xSection,

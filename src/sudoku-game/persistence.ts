@@ -50,6 +50,16 @@ const loadFromLocalStorage = (): StoredState => {
         }
       }
 
+      // Make sure that conflicts are shown by default. Doesn't warrant a new persistance key.
+      const keys = Object.keys(result.sudokus);
+      for (const key of keys) {
+        const sudoku = result.sudokus[key as any as number];
+        if (sudoku.game.showConflicts === undefined) {
+          sudoku.game.showConflicts = true;
+        }
+        result.sudokus[key] = sudoku;
+      }
+
       return result;
     } catch (e) {
       // delete entry but save it as corrupted, so one might be able to restore it
