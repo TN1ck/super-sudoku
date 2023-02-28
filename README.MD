@@ -1,41 +1,43 @@
 # Super Sudoku
 
-Currently hosted at [https://sudoku.tn1ck.com](https://sudoku.tn1ck.com). It's still WIP, but almost there.
+Currently hosted at [https://sudoku.tn1ck.com](https://sudoku.tn1ck.com).
 
 ![Screenshot 2022-09-05 at 19 15 08](https://user-images.githubusercontent.com/2116347/188494040-0a7b4512-c5b8-4073-bc4a-b78e469ad90e.png)
 
 
 This project aims to be a sudoku app with everything included. An open source sudoku that is on par with all commercial applications. Why? Because my Grandma wanted to play a Sudoku once and I didn't like all the available offers. This has changed since then, but having an open source version will hopefully help people in the future.
 
-### Features Done:
-
-- [x] Solving of sudokus
-- [x] Generation of sudokus in different difficulties
-- [x] Creating a responsive web-app that works on mobile as good as on desktop
-- [x] Providing hints to actually provide a real value over paper based sudokus
-- [x] Shortcuts
-- [x] Save results of the user
-- [x] Time keeps going when you select a new game.
-- [x] When you scroll all the way to the bottom the modal itself scrolled and the tab bar got hidden. Make sure that the modal is never higher than 100vh.
-- [x] Show a message when the user won
-- [x] If a number is set, remove the notes that conflict with that number. Also when a hint is used.
-- [x] Keep the notes, even if a number is set
-
-### Features Todo:
-
-- [ ] Provide motivating animations when finishing a line/square
-- [ ] Offer users to generate their own unique sudokus
-- [ ] Add option to disable number highlights
-- [ ] If tabs are switched, scroll to top
 
 ## Setup
 
+You need nodejs to run this project. Check [here](https://nodejs.org/en/download/package-manager/) on how to install nodejs if you haven't done it yet. This project was tested with version 16.
+
+If you have node installed, execute in a terminal:
+
 ```
-yarn install
-yarn start
+npm install
+npm start
 ```
 
-The app should be available on `https://localhost:3000`.
+The app should be available on `https://127.0.0.1:3000`.
+
+To build the project, execute `npm run build`, the generated files are in the `dist` directory.
+
+## Features include:
+
+- Solving of sudokus
+- Generation of sudokus in different difficulties
+- Responsive, works on desktop as well as mobile
+- Providing hints to actually provide a real value over paper based sudokus
+- Shortcuts
+    - Arrow keys: Move around the board
+    - Number keys: Write a note or set the sudoku number
+    - Backspace: Delete a number
+    - Escape: Pause/unpause the game
+    - H: Hint
+    - N: Enter/exit note mode
+- Save the users progress
+- Options to disable helper highlights like wrong entry or conflict
 
 ## Solve & Generate Sudokus
 
@@ -50,4 +52,4 @@ There are two scripts included in this project:
 
 ## Contribution
 
-Every contribution is welcome! Simply fork the project and create a PR.
+Every contribution is welcome! Simply fork the project and create a PR. You can also create an issue and ask for a feature.
