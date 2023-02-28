@@ -1,5 +1,5 @@
 import React from "react";
-import key from "keymaster";
+import hotkeys from "hotkeys-js";
 import {GameStateMachine} from "src/state/game";
 import MenuShortcuts from "./MenuShortcuts";
 import GridShortcuts from "./GridShortcuts";
@@ -23,13 +23,13 @@ export default class Shortcuts extends React.Component<ShortcutsProps> {
 
   selectShortcutState() {
     if (this.props.gameState === GameStateMachine.paused) {
-      key.setScope(ShortcutScope.Menu);
+      hotkeys.setScope(ShortcutScope.Menu);
     }
     if (this.props.gameState === GameStateMachine.running) {
-      key.setScope(ShortcutScope.Game);
+      hotkeys.setScope(ShortcutScope.Game);
     }
     if (this.props.applicationState === ApplicationStateMachine.chooseGame) {
-      key.setScope(ShortcutScope.SelectSudoku);
+      hotkeys.setScope(ShortcutScope.SelectSudoku);
     }
   }
   render() {

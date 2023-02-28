@@ -1,5 +1,5 @@
 import * as React from "react";
-import key from "keymaster";
+import hotkeys from "hotkeys-js";
 import {ShortcutScope} from "./ShortcutScope";
 import {continueGame} from "src/state/game";
 import {connect} from "react-redux";
@@ -11,25 +11,25 @@ interface GameMenuShortcutsDispatchProps {
 // TODO
 class GameMenuShortcuts extends React.Component<GameMenuShortcutsDispatchProps> {
   componentDidMount() {
-    key("esc", ShortcutScope.Menu, () => {
+    hotkeys("esc", ShortcutScope.Menu, () => {
       this.props.continueGame();
       return false;
     });
-    key("up", ShortcutScope.Menu, () => {
+    hotkeys("up", ShortcutScope.Menu, () => {
       console.log("up");
       return false;
     });
-    key("down", ShortcutScope.Menu, () => {
+    hotkeys("down", ShortcutScope.Menu, () => {
       console.log("down");
       return false;
     });
-    key("enter", ShortcutScope.Menu, () => {
+    hotkeys("enter", ShortcutScope.Menu, () => {
       console.log("enter");
       return false;
     });
   }
   componentWillUnmount() {
-    key.deleteScope(ShortcutScope.Menu);
+    hotkeys.deleteScope(ShortcutScope.Menu);
   }
   render() {
     return null;

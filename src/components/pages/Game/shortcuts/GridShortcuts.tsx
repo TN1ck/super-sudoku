@@ -1,5 +1,6 @@
 import * as React from "react";
 import key from "keymaster";
+import hotkeys from "hotkeys-js";
 import {SUDOKU_COORDINATES, SUDOKU_NUMBERS} from "src/engine/utility";
 import {Cell} from "src/engine/types";
 import {showMenu, hideMenu, selectCell, pauseGame, activateNotesMode, deactivateNotesMode} from "src/state/game";
@@ -45,12 +46,12 @@ class GameKeyboardShortcuts extends React.Component<
     const minCoordinate = SUDOKU_COORDINATES[0];
     const maxCoordinate = SUDOKU_COORDINATES[SUDOKU_COORDINATES.length - 1];
 
-    key("escape", ShortcutScope.Game, () => {
+    hotkeys("escape", ShortcutScope.Game, () => {
       this.props.pauseGame();
       return false;
     });
 
-    key("n", ShortcutScope.Game, () => {
+    hotkeys("n", ShortcutScope.Game, () => {
       if (this.props.notesMode) {
         this.props.deactivateNotesMode();
       } else {
@@ -59,7 +60,7 @@ class GameKeyboardShortcuts extends React.Component<
       return false;
     });
 
-    key("up", ShortcutScope.Game, () => {
+    hotkeys("up", ShortcutScope.Game, () => {
       const currentCell = this.props.activeCell;
       if (currentCell === null) {
         return setDefault();
@@ -71,7 +72,7 @@ class GameKeyboardShortcuts extends React.Component<
       return false;
     });
 
-    key("down", ShortcutScope.Game, () => {
+    hotkeys("down", ShortcutScope.Game, () => {
       const currentCell = this.props.activeCell;
       if (currentCell === null) {
         return setDefault();
@@ -83,7 +84,7 @@ class GameKeyboardShortcuts extends React.Component<
       return false;
     });
 
-    key("right", ShortcutScope.Game, () => {
+    hotkeys("right", ShortcutScope.Game, () => {
       const currentCell = this.props.activeCell;
       if (currentCell === null) {
         return setDefault();
@@ -95,7 +96,7 @@ class GameKeyboardShortcuts extends React.Component<
       return false;
     });
 
-    key("left", ShortcutScope.Game, () => {
+    hotkeys("left", ShortcutScope.Game, () => {
       const currentCell = this.props.activeCell;
       if (currentCell === null) {
         return setDefault();
@@ -108,7 +109,7 @@ class GameKeyboardShortcuts extends React.Component<
     });
 
     SUDOKU_NUMBERS.forEach((n) => {
-      key(String(n), ShortcutScope.Game, () => {
+      hotkeys(String(n), ShortcutScope.Game, () => {
         if (!this.props.activeCell.initial) {
           if (this.props.notesMode) {
             if (this.props.activeCell.notes.includes(n)) {
@@ -123,13 +124,13 @@ class GameKeyboardShortcuts extends React.Component<
       });
     });
 
-    key("backspace", ShortcutScope.Game, () => {
+    hotkeys("backspace", ShortcutScope.Game, () => {
       if (!this.props.activeCell.initial) {
         this.props.clearNumber(this.props.activeCell);
       }
       return false;
     });
-    key("h", ShortcutScope.Game, () => {
+    hotkeys("h", ShortcutScope.Game, () => {
       if (!this.props.activeCell.initial) {
         this.props.getHint(this.props.activeCell);
       }
@@ -137,7 +138,7 @@ class GameKeyboardShortcuts extends React.Component<
   }
 
   componentWillUnmount() {
-    key.deleteScope(ShortcutScope.Game);
+    hotkeys.deleteScope(ShortcutScope.Game);
   }
   render() {
     return null;

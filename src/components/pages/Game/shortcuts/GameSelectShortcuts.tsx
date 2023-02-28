@@ -1,5 +1,5 @@
 import * as React from "react";
-import key from "keymaster";
+import hotkeys from "hotkeys-js";
 import {DIFFICULTY} from "src/engine/types";
 import {setSudoku} from "src/state/sudoku";
 import {nextSudoku, previousSudoku} from "src/state/choose";
@@ -24,28 +24,28 @@ interface GameSelectShortcutsStateProps {
 
 class GameSelectShortcuts extends React.Component<GameSelectShortcutsDispatchProps & GameSelectShortcutsStateProps> {
   componentWillMount() {
-    key("up", ShortcutScope.SelectSudoku, () => {
+    hotkeys("up", ShortcutScope.SelectSudoku, () => {
       return false;
     });
-    key("down", ShortcutScope.SelectSudoku, () => {
+    hotkeys("down", ShortcutScope.SelectSudoku, () => {
       return false;
     });
-    key("left", ShortcutScope.SelectSudoku, () => {
+    hotkeys("left", ShortcutScope.SelectSudoku, () => {
       this.props.previousSudoku();
       return false;
     });
-    key("right", ShortcutScope.SelectSudoku, () => {
+    hotkeys("right", ShortcutScope.SelectSudoku, () => {
       this.props.nextSudoku();
       return false;
     });
-    key("enter", ShortcutScope.SelectSudoku, () => {
+    hotkeys("enter", ShortcutScope.SelectSudoku, () => {
       const sudoku = SUDOKUS[this.props.difficulty][this.props.sudokuIndex];
       this.props.setSudoku(sudoku.sudoku, sudoku.solution);
       this.props.continueGame();
     });
   }
   componentWillUnmount() {
-    key.deleteScope(ShortcutScope.SelectSudoku);
+    hotkeys.deleteScope(ShortcutScope.SelectSudoku);
   }
   render() {
     return null;
