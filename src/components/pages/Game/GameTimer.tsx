@@ -1,5 +1,5 @@
 import * as React from "react";
-import * as _ from "lodash";
+import {throttle} from "lodash";
 
 import {connect, ConnectedProps} from "react-redux";
 import {RootState} from "src/state/rootReducer";
@@ -30,7 +30,7 @@ class GameTimer extends React.Component<PropsFromRedux> {
     this._isMounted = true;
     this._sudokuId = this.props.sudokuId;
     this._state = this.props.state;
-    const timer = _.throttle(() => {
+    const timer = throttle(() => {
       requestAnimationFrame(() => {
         const now = Number(new Date());
         if (

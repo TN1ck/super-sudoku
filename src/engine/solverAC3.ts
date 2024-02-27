@@ -1,6 +1,6 @@
-import * as _ from "lodash";
 import {SQUARE_TABLE, SUDOKU_NUMBERS, squareIndex} from "./utility";
 import {DomainSudoku, SimpleSudoku} from "./types";
+import { sortBy } from "lodash";
 
 function removeValuesFromDomain(domain1: number[], domain2: number[]): [number[], boolean] {
   let change = false;
@@ -140,7 +140,7 @@ export function _solveGridAC3(
       }, []);
       return current.concat(possibleCells);
     }, []);
-    const sortedPossibleRowAndCells = _.sortBy(possibleRowAndCells, ([rowIndex, cellIndex]) => {
+    const sortedPossibleRowAndCells = sortBy(possibleRowAndCells, ([rowIndex, cellIndex]) => {
       return grid[rowIndex][cellIndex].length;
     });
     // use a random variable

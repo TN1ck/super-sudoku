@@ -18,12 +18,12 @@
  *
  */
 
-import _, * as lodash from "lodash";
 import * as solverAC3 from "./solverAC3";
 import * as solverOptimized from "./solverOptimized";
 
 import {SUDOKU_NUMBERS, SUDOKU_COORDINATES, printSimpleSudoku, SQUARE_TABLE} from "./utility";
 import {DIFFICULTY, SimpleSudoku} from "./types";
+import { flatten, random, sample, shuffle } from "lodash";
 
 const DIFFICULTY_MAPPING = {
   [DIFFICULTY.EASY]: 3,
@@ -36,7 +36,7 @@ const DIFFICULTY_MAPPING = {
 const sudokuSolver = solverAC3.solve;
 
 function getRandomSudokuNumber(): number {
-  return lodash.random(10) > 8 ? lodash.random(1, 9) : 0;
+  return random(10) > 8 ? random(1, 9) : 0;
 }
 
 /**
@@ -145,16 +145,16 @@ function generateCoordinateList(sudoku: SimpleSudoku) {
   const coordinates = sudoku.map((row, i) => {
     return row.map((n, c) => (n !== 0 ? [i, c] : undefined));
   });
-  const coordinatesWithNumbers = lodash.flatten(coordinates).filter((c) => c !== undefined);
+  const coordinatesWithNumbers = flatten(coordinates).filter((c) => c !== undefined);
   return coordinatesWithNumbers;
 }
 
 function randomSudokuIndex() {
-  return _.sample(SUDOKU_COORDINATES);
+  return sample(SUDOKU_COORDINATES);
 }
 
 function randomIndexes() {
-  return _.shuffle(SUDOKU_COORDINATES);
+  return shuffle(SUDOKU_COORDINATES);
 }
 
 function fixRows(sudoku: SimpleSudoku) {
@@ -217,9 +217,9 @@ function fixSudoku(sudoku: SimpleSudoku) {
  */
 function generateRandomSudoku(): SimpleSudoku {
   const randomSudoku = SUDOKU_NUMBERS.map(() => {
-    return lodash.shuffle(
+    return shuffle(
       SUDOKU_NUMBERS.map((n) => {
-        return lodash.random(10) > 8 ? n : 0;
+        return random(10) > 8 ? n : 0;
       }),
     );
   });
@@ -240,8 +240,8 @@ export function increaseDifficultyOfSudoku(sudoku: SimpleSudoku): SimpleSudoku {
   const costs = sudokuSolver(sudoku).iterations;
   let coordinateList = generateCoordinateList(sudoku);
   while (coordinateList.length > 0) {
-    const sample = lodash.sample(coordinateList);
-    const [x, y] = sample;
+    const sampleXY = sample(coordinateList);
+    const [x, y] = sampleXY;
     coordinateList = coordinateList.filter(([cx, cy]) => cx !== x && cy !== y);
     const newSudoku = cloneSudoku(sudoku);
     newSudoku[x][y] = 0;

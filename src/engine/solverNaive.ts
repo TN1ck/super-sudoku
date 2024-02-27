@@ -1,11 +1,11 @@
-import * as _ from "lodash";
+import {groupBy, pickBy, sortBy, uniqBy, values} from "lodash";
 import {SUDOKU_NUMBERS} from "./utility";
 import {SimpleCell, ComplexSudoku} from "./types";
 
 function duplicates(array: ComplexSudoku): ComplexSudoku {
-  const grouped = _.groupBy(array, (c) => String(c.number));
-  const picked = _.pickBy(grouped, (x) => x.length > 1);
-  return [].concat(..._.values(picked));
+  const grouped = groupBy(array, (c) => String(c.number));
+  const picked = pickBy(grouped, (x) => x.length > 1);
+  return [].concat(...values(picked));
 }
 
 // A sudoku has 3 constraints
@@ -23,8 +23,8 @@ function checkColumn(grid: ComplexSudoku, cell: SimpleCell): ComplexSudoku {
 }
 
 function checkSquare(grid: ComplexSudoku, cell: SimpleCell): ComplexSudoku {
-  const squares: ComplexSudoku[] = _.values(
-    _.groupBy(grid, (c: SimpleCell) => {
+  const squares: ComplexSudoku[] = values(
+    groupBy(grid, (c: SimpleCell) => {
       return `${Math.floor(c.x / 3)}-${Math.floor(c.y / 3)}`;
     }),
   );
@@ -40,7 +40,7 @@ export function checkCellForDuplicates(grid: ComplexSudoku, cell: SimpleCell): C
   const row = duplicates(checkRow(grid, cell));
   const column = duplicates(checkColumn(grid, cell));
   const square = duplicates(checkSquare(grid, cell));
-  const uniques = _.uniqBy(row.concat(column).concat(square), function (c: SimpleCell) {
+  const uniques = uniqBy(row.concat(column).concat(square), function (c: SimpleCell) {
     return `${c.x}-${c.y}`;
   });
   return uniques;
@@ -62,13 +62,13 @@ function getMinimumRemainingValue(grid: ComplexSudoku) {
     .filter((c) => !c.number)
     .map((c) => {
       const cells = checkRow(grid, c).concat(checkColumn(grid, c)).concat(checkSquare(grid, c));
-      const uniqCells = _.uniqBy(cells, (c) => c.number);
+      const uniqCells = uniqBy(cells, (c) => c.number);
       return {
         cell: c,
         cells: uniqCells,
       };
     });
-  const sortedRemainingValues = _.sortBy(remainingValues, ({cells}) => -cells.length);
+  const sortedRemainingValues = sortBy(remainingValues, ({cells}) => -cells.length);
   const emptyCell = sortedRemainingValues[0].cell;
   return emptyCell;
 }

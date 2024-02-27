@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as readline from "readline";
-import _, {groupBy} from "lodash";
+import {groupBy, sortBy} from "lodash";
 import {parseSudoku} from "../src/engine/utility";
 import {solve} from "../src/engine/solverAC3";
 
@@ -13,7 +13,7 @@ interface SudokuSolution {
 }
 
 function sortSudokus(solutions: SudokuSolution[]) {
-  return _.sortBy(solutions, (d) => d.iterations);
+  return sortBy(solutions, (d) => d.iterations);
 }
 
 const inFile = path.join(__dirname, "../sudokus.txt");

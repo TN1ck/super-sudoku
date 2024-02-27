@@ -1,4 +1,4 @@
-import * as _ from "lodash";
+import {chain, groupBy, keys, pickBy, sortBy, values} from "lodash";
 import {SimpleSudoku, ComplexSudoku, Cell} from "./types";
 export const SUDOKU_COORDINATES = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 export const SUDOKU_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -86,11 +86,11 @@ export const SQUARE_TABLE = (function () {
       });
     }),
   );
-  const grouped = _.groupBy(cells, ([x, y]) => {
+  const grouped = groupBy(cells, ([x, y]) => {
     return Math.floor(y / 3) * 3 + Math.floor(x / 3);
   });
   // we sort them, so we can use an optimization
-  const squares = _.sortBy(_.keys(grouped), (k) => k).map((k) => _.sortBy(grouped[k], ([x, y]) => `${y}-${x}`));
+  const squares = sortBy(keys(grouped), (k) => k).map((k) => sortBy(grouped[k], ([x, y]) => `${y}-${x}`));
   return squares;
 })();
 
@@ -108,9 +108,9 @@ export function printSimpleSudoku(grid: SimpleSudoku) {
 
 export function duplicates(array: number[]): number {
   const filtered = array.filter((c) => c !== 0);
-  const grouped = _.groupBy(filtered, (c) => c);
-  const picked = _.pickBy(grouped, (x) => x.length > 1);
-  return _.values(picked).length;
+  const grouped = groupBy(filtered, (c) => c);
+  const picked = pickBy(grouped, (x) => x.length > 1);
+  return values(picked).length;
 }
 
 export function simpleSudokuToComplexSudoku(grid: SimpleSudoku): ComplexSudoku {
@@ -181,14 +181,14 @@ export function parseSudoku(sudoku: string): SimpleSudoku {
 }
 
 export function printComplexSudoku(grid: ComplexSudoku) {
-  return _.chain(grid)
+  return chain(grid)
     .groupBy((c) => {
       return c.y;
     })
     .toPairs()
     .sortBy(([, k]) => k)
     .map(([, cells]: [string, ComplexSudoku]) => {
-      return _.sortBy(cells, (c) => c.x)
+      return sortBy(cells, (c) => c.x)
         .map((c) => {
           return c.number === 0 ? "_" : String(c.number);
         })

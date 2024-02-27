@@ -1,4 +1,4 @@
-import * as _ from "lodash";
+import {groupBy, uniq, uniqBy} from "lodash";
 import {SUDOKU_NUMBERS} from "src/engine/utility";
 import {Cell} from "src/engine/types";
 
@@ -35,7 +35,7 @@ export default class SudokuGame {
   height: number;
 
   static uniquePaths(paths: ConflictingPath[]) {
-    return _.uniqBy(paths, (p) => {
+    return uniqBy(paths, (p) => {
       const fromCell = p.from;
       const toCell = p.to;
       const str = [`${fromCell.x}-${fromCell.y}`, `${toCell.x}-${toCell.y}`].sort().join("-");
@@ -121,23 +121,23 @@ export default class SudokuGame {
     }
     const sudokuFiltered = sudoku.filter((c) => c.number !== 0);
     const rows = Object.values(
-      _.groupBy(sudokuFiltered, (c) => {
+      groupBy(sudokuFiltered, (c) => {
         return c.x;
       }),
     );
     const columns = Object.values(
-      _.groupBy(sudokuFiltered, (c) => {
+      groupBy(sudokuFiltered, (c) => {
         return c.y;
       }),
     );
     const squares = Object.values(
-      _.groupBy(sudokuFiltered, (c) => {
+      groupBy(sudokuFiltered, (c) => {
         return `${Math.floor(c.x / 3)}-${Math.floor(c.y / 3)}`;
       }),
     );
-    const correctRows = rows.every((row) => _.uniqBy(row, (r) => r.number).length === row.length);
-    const correctColumns = columns.every((row) => _.uniqBy(row, (r) => r.number).length === row.length);
-    const correctSquares = squares.every((row) => _.uniqBy(row, (r) => r.number).length === row.length);
+    const correctRows = rows.every((row) => uniqBy(row, (r) => r.number).length === row.length);
+    const correctColumns = columns.every((row) => uniqBy(row, (r) => r.number).length === row.length);
+    const correctSquares = squares.every((row) => uniqBy(row, (r) => r.number).length === row.length);
     return correctRows && correctColumns && correctSquares;
   }
 
@@ -164,7 +164,7 @@ export default class SudokuGame {
       const rowCells = sudokuWithIndex.filter((c) => c.x === cell.x);
       const columnCells = sudokuWithIndex.filter((c) => c.y === cell.y);
       const squares = Object.values(
-        _.groupBy(sudokuWithIndex, (c) => {
+        groupBy(sudokuWithIndex, (c) => {
           return `${Math.floor(c.x / 3)}-${Math.floor(c.y / 3)}`;
         }),
       );
@@ -178,7 +178,7 @@ export default class SudokuGame {
         .filter((c) => c.index !== cell.index)
         .filter((c) => c.number !== 0);
 
-      const otherNumbers = _.uniq(all.map((c) => c.number));
+      const otherNumbers = uniq(all.map((c) => c.number));
       const possibilities = SUDOKU_NUMBERS.filter((n) => !otherNumbers.includes(n));
 
       return {
