@@ -16,6 +16,7 @@ const SHOW_MENU = "game/SHOW_MENU";
 const HIDE_MENU = "game/HIDE_MENU";
 const SELECT_CELL = "game/SELECT_MENU";
 const TOGGLE_SHOW_HINTS = "game/TOGGLE_SHOW_HINTS";
+const TOGGLE_SHOW_OCCURRENCES = "game/TOGGLE_SHOW_OCCURRENCES";
 const TOGGLE_SHOW_CONFLICTS = "game/TOGGLE_SHOW_CONFLICTS";
 const TOGGLE_SHOW_CIRCLE_MENU = "game/TOGGLE_SHOW_CIRCLE_MENU";
 const TOGGLE_SHOW_WRONG_ENTRIES = "game/TOGGLE_SHOW_WRONG_ENTRIES";
@@ -115,6 +116,12 @@ export function toggleShowHints() {
   };
 }
 
+export function toggleShowOccurrences() {
+  return {
+    type: TOGGLE_SHOW_OCCURRENCES,
+  };
+}
+
 export function toggleShowWrongEntries() {
   return {
     type: TOGGLE_SHOW_WRONG_ENTRIES,
@@ -140,6 +147,7 @@ export interface GameState {
   showCircleMenu: boolean;
   showHints: boolean;
   showMenu: boolean;
+  showOccurrences: boolean;
   showWrongEntries: boolean;
   showConflicts: boolean;
   showNotes: boolean; // local overwrite
@@ -159,6 +167,7 @@ const INITIAL_GAME_STATE: GameState = {
   showCircleMenu: true,
   showHints: false,
   showConflicts: true,
+  showOccurrences: false,
   showWrongEntries: false,
   showMenu: false,
   showNotes: false,
@@ -196,6 +205,12 @@ export default function gameReducer(state: GameState = INITIAL_GAME_STATE, actio
       return {
         ...state,
         showHints: !state.showHints,
+      };
+    }
+    case TOGGLE_SHOW_OCCURRENCES: {
+      return {
+        ...state,
+        showOccurrences: !state.showOccurrences,
       };
     }
     case TOGGLE_SHOW_CIRCLE_MENU: {

@@ -14,6 +14,7 @@ import {
   toggleShowCircleMenu,
   toggleShowWrongEntries,
   toggleShowConflicts,
+  toggleShowOccurrences,
 } from "src/state/game";
 
 import {chooseGame} from "src/state/application";
@@ -196,6 +197,7 @@ const connector = connect(
     selectCell,
     hideMenu,
     toggleShowHints,
+    toggleShowOccurrences,
     toggleShowCircleMenu,
     toggleShowWrongEntries,
     toggleShowConflicts,
@@ -360,7 +362,14 @@ class Game extends React.Component<PropsFromRedux> {
                       {"Highlight conflicts"}
                     </Checkbox>
                     <Checkbox id="circle_menu" checked={game.showCircleMenu} onChange={this.props.toggleShowCircleMenu}>
-                      {"Show circle menu when a cell is selected (desktop only)"}
+                      {"Show circle menu when a cell is clicked (desktop only)"}
+                    </Checkbox>
+                    <Checkbox
+                      id="show_occurrences"
+                      checked={game.showOccurrences}
+                      onChange={this.props.toggleShowOccurrences}
+                    >
+                      {"Show occurrences of numbers in number buttons"}
                     </Checkbox>
                   </div>
                 </div>
