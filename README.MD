@@ -19,7 +19,7 @@ npm install
 npm start
 ```
 
-The app should be available on `https://127.0.0.1:3000`.
+The app should be available on [http://127.0.0.1:3000](http://127.0.0.1:3000).
 
 To build the project, execute `npm run build`, the generated files are in the `dist` directory.
 
@@ -29,6 +29,8 @@ A docker image is provided to build the application and serve it using NGINX at 
 
 Build the image: `docker build -t super-sudoku:latest .`
 Run the image: `docker run -p 8081:80 super-sudoku:latest` (Change 8081 for the port you want to map it to locally).
+
+Automatically build images are available at [https://github.com/tn1ck/super-sudoku/pkgs/container/super-sudoku](https://github.com/tn1ck/super-sudoku/pkgs/container/super-sudoku).
 
 ## Features include:
 
