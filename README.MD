@@ -8,9 +8,9 @@ Currently hosted at [https://sudoku.tn1ck.com](https://sudoku.tn1ck.com).
 This project aims to be a sudoku app with everything included. An open source sudoku that is on par with all commercial applications. Why? Because my Grandma wanted to play a Sudoku once and I didn't like all the available offers. This has changed since then, but having an open source version will hopefully help people in the future.
 
 
-## Setup
+## Development Setup
 
-You need nodejs to run this project. Check [here](https://nodejs.org/en/download/package-manager/) on how to install nodejs if you haven't done it yet. This project was tested with version 16.
+You need nodejs to run this project. Check [here](https://nodejs.org/en/download/package-manager/) on how to install nodejs if you haven't done it yet. This project was tested with version 20.
 
 If you have node installed, execute in a terminal:
 
@@ -22,6 +22,13 @@ npm start
 The app should be available on `https://127.0.0.1:3000`.
 
 To build the project, execute `npm run build`, the generated files are in the `dist` directory.
+
+## Run it using Docker
+
+A docker image is provided to build the application and serve it using NGINX at port 80.
+
+Build the image: `docker build -t super-sudoku:latest .`
+Run the image: `docker run -p 8081:80 super-sudoku:latest` (Change 8081 for the port you want to map it to locally).
 
 ## Features include:
 
