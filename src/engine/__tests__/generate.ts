@@ -1,6 +1,7 @@
 import generateSudoku, {checkForUniqueness} from "../generate";
 import {createSeededRandom} from "../seededRandom";
 import {solve} from "../solverAC3";
+import {EMPTY_SUDOKU, SOLVED_SUDOKUS} from "../testutils";
 import {DIFFICULTY} from "../types";
 import {printSimpleSudoku} from "../utility";
 
@@ -24,5 +25,17 @@ ____2____
     expect(checkForUniqueness(sudoku)).toBe(true);
     // Check if it can be solved.
     expect(solve(sudoku).iterations).toBe(4);
+  });
+});
+
+describe("checkForUniqueness", () => {
+  it("empty sudoku is not unique", () => {
+    expect(checkForUniqueness(EMPTY_SUDOKU)).toBe(false);
+  });
+
+  it("test sudokus are unique", () => {
+    SOLVED_SUDOKUS.forEach((s) => {
+      expect(checkForUniqueness(s.unsolved)).toBe(true);
+    });
   });
 });

@@ -21,7 +21,7 @@
 import * as solverAC3 from "./solverAC3";
 import * as solverOptimized from "./solverOptimized";
 
-import {SUDOKU_NUMBERS, SUDOKU_COORDINATES, printSimpleSudoku, SQUARE_TABLE} from "./utility";
+import {SUDOKU_NUMBERS, SUDOKU_COORDINATES, SQUARE_TABLE} from "./utility";
 import {DIFFICULTY, SimpleSudoku} from "./types";
 import {flatten} from "lodash";
 import {sample, shuffle} from "./seededRandom";
@@ -47,19 +47,13 @@ export function checkForUniqueness(sudoku: SimpleSudoku): boolean {
   for (const row of sudoku) {
     let colIndex = 0;
     for (const col of row) {
-      // if it's 0, we try every number and if it's still solveable
+      // if it's 0, we try every number and if it's still solvable
       // with two different numbers it's not unique
       if (col === 0) {
         let timesSolved = 0;
         for (const num of SUDOKU_NUMBERS) {
-          const newSudoku = sudoku.map((r, ri) => {
-            return r.map((c, ci) => {
-              if (rowIndex === ri && colIndex === ci) {
-                return num;
-              }
-              return c;
-            });
-          });
+          const newSudoku = cloneSudoku(sudoku);
+          newSudoku[rowIndex][colIndex] = num;
 
           const iterations = sudokuSolver(newSudoku).iterations;
           if (iterations !== Infinity) {
@@ -78,6 +72,41 @@ export function checkForUniqueness(sudoku: SimpleSudoku): boolean {
 }
 
 /**
+ * Enhances the uniqueness of a sudoku.
+ *
+ * Whenever a number is encountered that would lead to two different solutions,
+ * one number is set and the new sudoku is returned.
+ *
+ * When uniqueness could not be increased, returns the same sudoku.
+ */
+function enhanceUniqueness(sudoku: SimpleSudoku, randomFn: () => number): SimpleSudoku {
+  const randomRows = randomIndexes(randomFn);
+  for (const row of randomRows) {
+    const randomColumns = randomIndexes(randomFn);
+    for (const col of randomColumns) {
+      const num = sudoku[row][col];
+      // We hit a 0, that means we can check for how many sudoku numbers it could be solved.
+      if (num === 0) {
+        let timesSolved = 0;
+        for (const num of SUDOKU_NUMBERS) {
+          const newSudoku = cloneSudoku(sudoku);
+          newSudoku[row][col] = num;
+
+          const iterations = sudokuSolver(newSudoku).iterations;
+          if (iterations !== Infinity) {
+            timesSolved++;
+            if (timesSolved > 1) {
+              return newSudoku;
+            }
+          }
+        }
+      }
+    }
+  }
+  return sudoku;
+}
+
+/**
  * Simplify the sudoku.
  *
  * Basically set a number that is not set yet.
@@ -92,48 +121,6 @@ function simplifySudoku(sudoku: SimpleSudoku, randomFn: () => number): SimpleSud
         const newSudoku = cloneSudoku(sudoku);
         newSudoku[row][column] = solvedSudoku[row][column];
         return newSudoku;
-      }
-    }
-  }
-  return sudoku;
-}
-
-/**
- * Enhances the uniqueness of a sudoku.
- *
- * Whenever a number is encountered that would lead to two different solutions,
- * one number is set and the new sudoku is returned.
- *
- * When uniqueness could not be increased, returns the same sudoku.
- */
-function enhanceUniqueness(sudoku: SimpleSudoku, randomFn: () => number): SimpleSudoku {
-  const randomRows = randomIndexes(randomFn);
-  for (const row of randomRows) {
-    const randomColumns = randomIndexes(randomFn);
-    for (const col of randomColumns) {
-      const num = sudoku[row][col];
-      if (num === 0) {
-        let timesSolved = 0;
-        for (const num of SUDOKU_NUMBERS) {
-          // TODO: We could already calculate which numbers would be valid for
-          // each cell, that would speed up this process.
-          const newSudoku = sudoku.map((r, ri) => {
-            return r.map((c, ci) => {
-              if (row === ri && col === ci) {
-                return num;
-              }
-              return c;
-            });
-          });
-
-          const iterations = sudokuSolver(newSudoku).iterations;
-          if (iterations !== Infinity) {
-            timesSolved++;
-            if (timesSolved > 1) {
-              return newSudoku;
-            }
-          }
-        }
       }
     }
   }
