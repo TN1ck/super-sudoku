@@ -3,11 +3,11 @@ name: Run unit tests
 on:
   workflow_dispatch:
   push:
-    branches:
-    - '**'
+    branches: '**'
 
 jobs:
   unit-test:
+    runs-on: ubuntu-latest
     steps:
     - name: Check out code
       uses: actions/checkout@v4
