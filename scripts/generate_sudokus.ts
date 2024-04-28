@@ -4,6 +4,7 @@ import * as generate from "../src/engine/generate";
 import * as solverAC3 from "../src/engine/solverAC3";
 import {printSimpleSudoku} from "../src/engine/utility";
 import {DIFFICULTY} from "../src/engine/types";
+import {createSeededRandom} from "../src/engine/seededRandom";
 
 program
   .version("0.0.1")
@@ -42,7 +43,9 @@ ${printedSudoku}
 
 const number = options.number;
 console.log(`Generate ${number} sudokus with difficulty ` + difficulty);
+
+const randomFn = createSeededRandom(Math.random() * +new Date());
 new Array(number).fill(0).forEach((_, i) => {
   console.log("Generate sudoku " + (i + 1));
-  writeSudoku(generate.generateSudoku(sudokuDifficulty));
+  writeSudoku(generate.generateSudoku(sudokuDifficulty, randomFn));
 });
