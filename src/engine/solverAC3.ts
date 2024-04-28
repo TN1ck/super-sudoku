@@ -1,6 +1,6 @@
 import {SQUARE_TABLE, SUDOKU_NUMBERS, squareIndex} from "./utility";
 import {DomainSudoku, SimpleSudoku} from "./types";
-import { sortBy } from "lodash";
+import {sortBy} from "lodash";
 
 function removeValuesFromDomain(domain1: number[], domain2: number[]): [number[], boolean] {
   let change = false;
@@ -130,45 +130,49 @@ export function _solveGridAC3(
     });
   });
 
-  if (!isFilled) {
-    const possibleRowAndCells = grid.reduce((current: Array<[number, number]>, row, index) => {
-      const possibleCells = row.reduce((currentCells: Array<[number, number]>, cells, cellIndex) => {
-        if (cells.length > 1) {
-          return currentCells.concat([[index, cellIndex]]);
-        }
-        return currentCells;
-      }, []);
-      return current.concat(possibleCells);
-    }, []);
-    const sortedPossibleRowAndCells = sortBy(possibleRowAndCells, ([rowIndex, cellIndex]) => {
-      return grid[rowIndex][cellIndex].length;
-    });
-    // use a random variable
-    // let [rowIndex, cellIndex] = possibleRowAndCells[_.random(0, possibleRowAndCells.length - 1)];
-    // minimum remaining value
-    const [rowIndex, cellIndex] = sortedPossibleRowAndCells[0];
-    const cell = grid[rowIndex][cellIndex];
-    const newGrids = cell.map((n) => {
-      return grid.map((row, r) => {
-        if (r === rowIndex) {
-          return row.map((cells, c) => {
-            if (c === cellIndex) {
-              return [n];
-            }
-            return [].concat(cells);
-          });
-        }
-        return [].concat(row);
-      });
-    });
-    const newStack = newGrids.concat(rest);
-    return _solveGridAC3(newStack, iterations);
+  // Every domain is length 1, we found a solution!
+  if (isFilled) {
+    return {
+      sudoku: toSimpleSudoku(grid),
+      iterations,
+    };
   }
 
-  return {
-    sudoku: toSimpleSudoku(grid),
-    iterations,
-  };
+  // No solution found yet. We create a list of all cells that have more than 1 solution as x/y coordinates.
+  const possibleRowAndCells = grid.reduce((current: Array<[number, number]>, row, index) => {
+    const possibleCells = row.reduce((currentCells: Array<[number, number]>, cells, cellIndex) => {
+      if (cells.length > 1) {
+        return currentCells.concat([[index, cellIndex]]);
+      }
+      return currentCells;
+    }, []);
+    return current.concat(possibleCells);
+  }, []);
+  // We sort the possible cells to have the ones with the least possibilities be first.
+  // This is called "Minimum remaining value" and is a very good heuristic. It is similar to how
+  // humans solve Sudokus.
+  const sortedPossibleRowAndCells = sortBy(possibleRowAndCells, ([rowIndex, cellIndex]) => {
+    return grid[rowIndex][cellIndex].length;
+  });
+  // Take the best cell and create a new grid for every possibility the cell has.
+  const [rowIndex, cellIndex] = sortedPossibleRowAndCells[0];
+  const cell = grid[rowIndex][cellIndex];
+  const newGrids = cell.map((n) => {
+    return grid.map((row, r) => {
+      if (r === rowIndex) {
+        return row.map((cells, c) => {
+          if (c === cellIndex) {
+            return [n];
+          }
+          return [].concat(cells);
+        });
+      }
+      return [].concat(row);
+    });
+  });
+  // The new stack is put first and we recursively descend.
+  const newStack = newGrids.concat(rest);
+  return _solveGridAC3(newStack, iterations);
 }
 
 export function solve(grid: SimpleSudoku): {

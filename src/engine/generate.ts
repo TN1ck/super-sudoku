@@ -23,7 +23,7 @@ import * as solverOptimized from "./solverOptimized";
 
 import {SUDOKU_NUMBERS, SUDOKU_COORDINATES, printSimpleSudoku, SQUARE_TABLE} from "./utility";
 import {DIFFICULTY, SimpleSudoku} from "./types";
-import { flatten, random, sample, shuffle } from "lodash";
+import {flatten, random, sample, shuffle} from "lodash";
 
 const DIFFICULTY_MAPPING = {
   [DIFFICULTY.EASY]: 3,
@@ -104,7 +104,7 @@ function simplifySudoku(sudoku: SimpleSudoku): SimpleSudoku {
 /**
  * Enhances the uniqueness of a sudoku.
  *
- * Whenever a number is encountered that would lead to two different solution,
+ * Whenever a number is encountered that would lead to two different solutions,
  * one number is set and the new sudoku is returned.
  *
  * When uniqueness could not be increased, returns the same sudoku.
@@ -118,6 +118,8 @@ function enhanceUniqueness(sudoku: SimpleSudoku): SimpleSudoku {
       if (num === 0) {
         let timesSolved = 0;
         for (const num of SUDOKU_NUMBERS) {
+          // TODO: We could already calculate which numbers would be valid for
+          // each cell, that would speed up this process.
           const newSudoku = sudoku.map((r, ri) => {
             return r.map((c, ci) => {
               if (row === ri && col === ci) {

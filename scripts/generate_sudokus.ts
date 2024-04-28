@@ -24,7 +24,8 @@ const mapping = {
   evil: DIFFICULTY.EVIL,
 };
 
-const difficulty = program.difficulty;
+const options = program.opts();
+const difficulty = options.difficulty;
 const sudokuDifficulty = mapping[difficulty];
 
 function writeSudoku(sudoku) {
@@ -39,7 +40,7 @@ ${printedSudoku}
   fs.appendFileSync("sudokus.txt", stringToAppend);
 }
 
-const number = program.number;
+const number = options.number;
 console.log(`Generate ${number} sudokus with difficulty ` + difficulty);
 new Array(number).fill(0).forEach((_, i) => {
   console.log("Generate sudoku " + (i + 1));
