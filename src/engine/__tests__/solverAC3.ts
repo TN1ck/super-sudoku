@@ -27,3 +27,13 @@ describe("solve", () => {
     );
   });
 });
+
+describe("iterations match", () => {
+  const solvedSudokusIterations = [5, 5, 40, 726];
+  SOLVED_SUDOKUS.forEach((s, i) => {
+    it(`iterations match for ${i}`, () => {
+      const result = solve(s.unsolved);
+      expect(result.iterations).toBe(solvedSudokusIterations[i]);
+    });
+  });
+});

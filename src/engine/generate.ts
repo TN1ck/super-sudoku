@@ -5,7 +5,7 @@
  * Constraint Satisfaction Problems
  *
  * This method will use the AC3-Solver
- * to generate sudokus with different difficulties
+ * to generate Sudokus with different difficulties
  * according to the amount of times the Solver
  * had to be called
  *
@@ -16,10 +16,16 @@
  * Hard   - 98.2093
  * Evil   - 527.4318
  *
+ * They used Sudokus from websudoku.com for their research. So I checked myself, and I got these numbers (see __tests__/difficulties.ts):
+ *
+ * Easy   - 7
+ * Medium - 19
+ * Hard   - 33
+ * Expert - 113
+ *
  */
 
 import * as solverAC3 from "./solverAC3";
-import * as solverOptimized from "./solverOptimized";
 
 import {SUDOKU_NUMBERS, SUDOKU_COORDINATES, SQUARE_TABLE} from "./utility";
 import {DIFFICULTY, SimpleSudoku} from "./types";

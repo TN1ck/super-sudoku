@@ -22,7 +22,7 @@ export const SQUARE_TABLE = (function () {
   const cells: Array<[number, number]> = [].concat(
     ...SUDOKU_COORDINATES.map((x) => {
       return SUDOKU_COORDINATES.map((y) => {
-        return [x, y];
+        return [x, y] as [number, number];
       });
     }),
   );
