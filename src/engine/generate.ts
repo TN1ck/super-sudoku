@@ -119,6 +119,9 @@ function enhanceUniqueness(sudoku: SimpleSudoku, randomFn: () => number): Simple
  */
 function simplifySudoku(sudoku: SimpleSudoku, randomFn: () => number): SimpleSudoku {
   const solvedSudoku = sudokuSolver(sudoku).sudoku;
+  if (solvedSudoku === null) {
+    throw new Error("Sudoku is not solvable.");
+  }
   const randomRows = randomIndexes(randomFn);
   for (const row of randomRows) {
     const randomColumns = randomIndexes(randomFn);
@@ -133,11 +136,15 @@ function simplifySudoku(sudoku: SimpleSudoku, randomFn: () => number): SimpleSud
   return sudoku;
 }
 
-function generateCoordinateList(sudoku: SimpleSudoku) {
+const isCoordinate = (item: number[] | undefined): item is number[] => {
+  return item !== undefined;
+};
+
+function generateCoordinateList(sudoku: SimpleSudoku): number[][] {
   const coordinates = sudoku.map((row, i) => {
     return row.map((n, c) => (n !== 0 ? [i, c] : undefined));
   });
-  const coordinatesWithNumbers = flatten(coordinates).filter((c) => c !== undefined);
+  const coordinatesWithNumbers = flatten(coordinates).filter(isCoordinate);
   return coordinatesWithNumbers;
 }
 
@@ -297,7 +304,7 @@ export function generateSudoku(difficulty: DIFFICULTY, randomFn: () => number): 
   }
 
   let unique = false;
-  let sudoku: SimpleSudoku;
+  let sudoku: SimpleSudoku = [];
   while (!unique) {
     // 1. create a random, solvable sudoku.
     sudoku = createSolvableSudoku(randomFn);
@@ -307,7 +314,7 @@ export function generateSudoku(difficulty: DIFFICULTY, randomFn: () => number): 
 
   let currentIterations = sudokuSolver(sudoku).iterations;
   while (!validIterations(currentIterations)) {
-    let newSudoku: SimpleSudoku;
+    let newSudoku: SimpleSudoku = [];
     // Too difficult, make it easier.
     if (currentIterations > iterationGoal) {
       newSudoku = simplifySudoku(sudoku, randomFn);

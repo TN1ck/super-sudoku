@@ -5,7 +5,7 @@ import {SimpleCell, ComplexSudoku} from "./types";
 function duplicates(array: ComplexSudoku): ComplexSudoku {
   const grouped = groupBy(array, (c) => String(c.number));
   const picked = pickBy(grouped, (x) => x.length > 1);
-  return [].concat(...values(picked));
+  return ([] as SimpleCell[]).concat(...values(picked));
 }
 
 // A sudoku has 3 constraints

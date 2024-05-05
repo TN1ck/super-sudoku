@@ -12,7 +12,7 @@ function removeValuesFromDomain(domain1: number[], domain2: number[]): [number[]
   if (domain2.length <= 1) {
     const index = domain1.indexOf(domain2[0]);
     if (index !== -1) {
-      domain1 = [].concat(domain1);
+      domain1 = domain1.slice();
       domain1.splice(index, 1);
       change = true;
     }
@@ -45,7 +45,7 @@ export function _solveGridAC3(
   stack: DomainSudoku[] = [],
   iterations: number,
 ): {
-  sudoku: SimpleSudoku;
+  sudoku: SimpleSudoku | null;
   iterations: number;
 } {
   if (stack.length === 0) {
@@ -185,7 +185,7 @@ export function _solveGridAC3(
 }
 
 export function solve(grid: SimpleSudoku): {
-  sudoku: SimpleSudoku;
+  sudoku: SimpleSudoku | null;
   iterations: number;
 } {
   const stack = [toDomainSudoku(grid)];

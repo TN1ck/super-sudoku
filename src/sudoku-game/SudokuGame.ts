@@ -31,9 +31,6 @@ export interface ConflictingPath {
 }
 
 export default class SudokuGame {
-  width: number;
-  height: number;
-
   static uniquePaths(paths: ConflictingPath[]) {
     return uniqBy(paths, (p) => {
       const fromCell = p.from;

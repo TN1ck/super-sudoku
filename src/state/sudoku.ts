@@ -104,7 +104,7 @@ export const emptyGrid: SudokuState = simpleSudokuToCells([
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
 ]);
 
-const initialState = emptyGrid;
+export const INITIAL_SUDOKU_STATE = emptyGrid;
 
 // When a number is set, remove conflicting notes.
 function fixSudokuNotes(sudoku: SudokuState, newCell: Cell) {
@@ -139,7 +139,7 @@ function fixSudokuNotes(sudoku: SudokuState, newCell: Cell) {
   });
 }
 
-export default function sudokuReducer(state: SudokuState = initialState, action: AnyAction) {
+export default function sudokuReducer(state: SudokuState = INITIAL_SUDOKU_STATE, action: AnyAction) {
   if (
     ![SET_NOTE, SET_SUDOKU, CLEAR_NOTE, SET_NUMBER, CLEAR_NUMBER, CLEAR_CELL, GET_HINT, SET_SUDOKU_STATE].includes(
       action.type,
@@ -190,7 +190,7 @@ export default function sudokuReducer(state: SudokuState = initialState, action:
   if (action.type === SET_NUMBER) {
     const {x, y} = (action as SudokuAction).cellCoordinates;
     const newCell = newGrid.find((cell) => cell.x === x && cell.y === y);
-    return fixSudokuNotes(newGrid, newCell);
+    return fixSudokuNotes(newGrid, newCell!);
   }
 
   return newGrid;

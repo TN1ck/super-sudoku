@@ -7,7 +7,7 @@ import {saveToLocalStorage} from "src/sudoku-game/persistence";
 import {throttle} from "lodash";
 
 const rootReducer = (state: RootState, action: AnyAction) => {
-  const applicationState = application(state.application, action);
+  const applicationState = application(state.application, action as any);
   const gameState = game(state.game, action);
   const chooseState = choose(state.choose, action);
   // Only calculate sudoku state if not in the won state.

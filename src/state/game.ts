@@ -160,7 +160,7 @@ export interface GameState {
   secondsPlayed: number;
 }
 
-const INITIAL_GAME_STATE: GameState = {
+export const INITIAL_GAME_STATE: GameState = {
   activeCellCoordinates: undefined,
   difficulty: DIFFICULTY.EASY,
   notesMode: false,

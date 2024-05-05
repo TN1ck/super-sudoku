@@ -10,6 +10,7 @@ import {connect} from "react-redux";
 import {RootState} from "src/state/rootReducer";
 
 interface GameKeyboardShortcutsStateProps {
+  // TODO: This can actually be null
   activeCell: Cell;
   sudoku: Cell[];
   notesMode: boolean;
@@ -33,10 +34,10 @@ class GameKeyboardShortcuts extends React.Component<
   GameKeyboardShortcutsStateProps & GameKeyboardShortcutsDispatchProps
 > {
   componentDidMount() {
-    const getCellByXY = (x, y) => {
+    const getCellByXY = (x: number, y: number) => {
       return this.props.sudoku.find((cell) => {
         return cell.x === x && cell.y === y;
-      });
+      })!;
     };
 
     const setDefault = () => {
@@ -145,16 +146,16 @@ class GameKeyboardShortcuts extends React.Component<
   }
 }
 
-export default connect<GameKeyboardShortcutsStateProps, GameKeyboardShortcutsDispatchProps>(
+export default connect<GameKeyboardShortcutsStateProps, GameKeyboardShortcutsDispatchProps, {}, RootState>(
   (state: RootState) => {
     const activeCell = state.game.activeCellCoordinates
       ? state.sudoku.find((s) => {
-          return s.x === state.game.activeCellCoordinates.x && s.y === state.game.activeCellCoordinates.y;
+          return s.x === state.game.activeCellCoordinates?.x && s.y === state.game.activeCellCoordinates.y;
         })
       : null;
     return {
       sudoku: state.sudoku,
-      activeCell,
+      activeCell: activeCell!,
       notesMode: state.game.notesMode,
     };
   },

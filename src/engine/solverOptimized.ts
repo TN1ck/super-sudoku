@@ -93,12 +93,12 @@ function getMinimumRemainingValue(
   return sortedRemainingValues[0];
 }
 
-function createNewGrids(grid: SimpleSudoku, x: number, y: number, values) {
+function createNewGrids(grid: SimpleSudoku, x: number, y: number, values: number[]) {
   const newGrids = values.map((number) => {
     return grid.map((row, i) => {
       // save some memory
       if (y === i) {
-        const newRow = [].concat(row);
+        const newRow = row.slice();
         newRow[x] = number;
         return newRow;
       }
@@ -114,7 +114,7 @@ export function _solveGrid(
   stack: SimpleSudoku[] = [],
   iterations: number,
 ): {
-  sudoku: SimpleSudoku;
+  sudoku: SimpleSudoku | null;
   iterations: number;
 } {
   if (stack.length === 0 || iterations > MAX_ITERATIONS) {

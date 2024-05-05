@@ -1,6 +1,4 @@
 import * as React from "react";
-import styled from "styled-components";
-import THEME from "src/theme";
 import {connect} from "react-redux";
 
 const Header = ({}) => {

@@ -49,5 +49,8 @@ export function shuffle<T>(array: T[], randomFn: () => number): T[] {
 
 export function sample<T>(array: T[], randomFn: () => number): T {
   const length = array == null ? 0 : array.length;
-  return length ? array[Math.floor(randomFn() * length)] : undefined;
+  if (!length) {
+    throw new Error("Cannot sample from an empty array");
+  }
+  return array[Math.floor(randomFn() * length)];
 }

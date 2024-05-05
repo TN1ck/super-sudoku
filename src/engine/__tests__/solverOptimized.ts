@@ -6,13 +6,13 @@ describe("solve", () => {
   SOLVED_SUDOKUS.forEach((s, i) => {
     it(`solves correctly sudoku ${i}`, () => {
       const result = solve(s.unsolved);
-      expect(printSimpleSudoku(result.sudoku)).toBe(printSimpleSudoku(s.solved));
+      expect(printSimpleSudoku(result.sudoku!)).toBe(printSimpleSudoku(s.solved));
     });
   });
 
   it(`finds a solution for an empty sudoku`, () => {
     const result = solve(EMPTY_SUDOKU);
-    expect(printSimpleSudoku(result.sudoku)).toBe(
+    expect(printSimpleSudoku(result.sudoku!)).toBe(
       [
         "123456789",
         "456789123",

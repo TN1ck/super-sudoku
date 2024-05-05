@@ -1,9 +1,10 @@
 import React from "react";
 
-const Checkbox: React.StatelessComponent<{
+const Checkbox: React.FC<{
   id: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
+  children: React.ReactNode;
 }> = ({id, onChange, checked, children}) => {
   return (
     <div className="relative flex items-center">

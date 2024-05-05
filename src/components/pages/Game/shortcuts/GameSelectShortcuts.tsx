@@ -5,7 +5,7 @@ import {setSudoku} from "src/state/sudoku";
 import {nextSudoku, previousSudoku} from "src/state/choose";
 import {continueGame} from "src/state/game";
 import {RootState} from "src/state/rootReducer";
-import {connect} from "react-redux";
+import {connect, MapStateToPropsParam} from "react-redux";
 
 import SUDOKUS from "src/sudoku-game/sudokus";
 import {ShortcutScope} from "./ShortcutScope";
@@ -52,7 +52,7 @@ class GameSelectShortcuts extends React.Component<GameSelectShortcutsDispatchPro
   }
 }
 
-export default connect<GameSelectShortcutsStateProps, GameSelectShortcutsDispatchProps>(
+export default connect<GameSelectShortcutsStateProps, GameSelectShortcutsDispatchProps, {}, RootState>(
   (state: RootState) => ({
     sudokuIndex: state.choose.sudokuIndex,
     difficulty: state.choose.difficulty,

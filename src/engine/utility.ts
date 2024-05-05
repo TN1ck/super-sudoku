@@ -19,7 +19,7 @@ export const SUDOKU_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 square = _y * 3 + _x;
 */
 export const SQUARE_TABLE = (function () {
-  const cells: Array<[number, number]> = [].concat(
+  const cells: Array<[number, number]> = ([] as Array<[number, number]>).concat(
     ...SUDOKU_COORDINATES.map((x) => {
       return SUDOKU_COORDINATES.map((y) => {
         return [x, y] as [number, number];
@@ -34,7 +34,7 @@ export const SQUARE_TABLE = (function () {
   return squares;
 })();
 
-export function squareIndex(x, y) {
+export function squareIndex(x: number, y: number): number {
   return Math.floor(y / 3) * 3 + Math.floor(x / 3);
 }
 
@@ -54,7 +54,7 @@ export function duplicates(array: number[]): number {
 }
 
 export function simpleSudokuToComplexSudoku(grid: SimpleSudoku): ComplexSudoku {
-  return [].concat(
+  return ([] as ComplexSudoku).concat(
     ...grid.map((row, y) => {
       return row.map((n, x) => {
         return {
@@ -68,7 +68,7 @@ export function simpleSudokuToComplexSudoku(grid: SimpleSudoku): ComplexSudoku {
 }
 
 export function simpleSudokuToCells(grid: SimpleSudoku, solution?: SimpleSudoku): Cell[] {
-  return [].concat(
+  return ([] as Cell[]).concat(
     ...grid.map((row, y) => {
       return row.map((n, x) => {
         return {
@@ -84,8 +84,17 @@ export function simpleSudokuToCells(grid: SimpleSudoku, solution?: SimpleSudoku)
   );
 }
 
-export function complexSudokuToSimpleSudoku(sudoku: ComplexSudoku): number[][] {
-  const simple = [[], [], [], [], [], [], [], [], []];
+export function complexSudokuToSimpleSudoku(sudoku: ComplexSudoku): SimpleSudoku {
+  const simple: number[][] = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ];
   sudoku.forEach((cell) => {
     simple[cell.y][cell.x] = cell.number;
   });

@@ -6,14 +6,14 @@ import * as solverOptimized from "./solverOptimized";
 import * as solverNaive from "./solverNaive";
 
 function measureTime<T>(fn: () => T, times: number): T {
-  let result;
+  let result: T | undefined = undefined;
   const t0 = performance.now();
   for (let i = times; i > 0; i--) {
     result = fn();
   }
   const t1 = performance.now();
   console.log("Call to function took " + (t1 - t0) / times + " milliseconds.");
-  return result;
+  return result!;
 }
 
 export function benchmark(grid: SimpleSudoku): SimpleSudoku {
@@ -31,8 +31,8 @@ export function benchmark(grid: SimpleSudoku): SimpleSudoku {
   }, TIMES);
 
   console.log(printSimpleSudoku(complexSudokuToSimpleSudoku(naiveResult.sudoku)));
-  console.log(printSimpleSudoku(AC3Result.sudoku));
-  console.log(printSimpleSudoku(optimizedResult.sudoku));
+  console.log(printSimpleSudoku(AC3Result.sudoku!));
+  console.log(printSimpleSudoku(optimizedResult.sudoku!));
 
-  return optimizedResult.sudoku;
+  return optimizedResult.sudoku!;
 }

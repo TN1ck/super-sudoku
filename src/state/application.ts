@@ -1,4 +1,4 @@
-import {AnyAction} from "redux";
+import {UnknownAction} from "redux";
 
 export enum ApplicationStateMachine {
   chooseGame = "CHOSE_GAME",
@@ -7,14 +7,19 @@ export enum ApplicationStateMachine {
 
 const SET_APPLICATION_STATE = "application/SET_APPLICATION_STATE";
 
-export function chooseGame() {
+interface SetApplicationStateAction {
+  type: typeof SET_APPLICATION_STATE;
+  state: ApplicationStateMachine;
+}
+
+export function chooseGame(): SetApplicationStateAction {
   return {
     type: SET_APPLICATION_STATE,
     state: ApplicationStateMachine.chooseGame,
   };
 }
 
-export function playGame() {
+export function playGame(): SetApplicationStateAction {
   return {
     type: SET_APPLICATION_STATE,
     state: ApplicationStateMachine.playGame,
@@ -25,11 +30,14 @@ export interface ApplicationState {
   state: ApplicationStateMachine;
 }
 
-const INITIAL_APPLICATION_STATE: ApplicationState = {
+export const INITIAL_APPLICATION_STATE: ApplicationState = {
   state: ApplicationStateMachine.chooseGame,
 };
 
-export default function application(state: ApplicationState = INITIAL_APPLICATION_STATE, action: AnyAction) {
+export default function application(
+  state: ApplicationState = INITIAL_APPLICATION_STATE,
+  action: SetApplicationStateAction,
+) {
   switch (action.type) {
     case SET_APPLICATION_STATE:
       return {...state, state: action.state};

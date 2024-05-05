@@ -38,7 +38,11 @@ const loadFromLocalStorage = (): StoredState => {
       if (usedKey === STORAGE_KEY_V_1_3) {
         const keys = Object.keys(result.sudokus);
         for (const key of keys) {
-          const sudoku = result.sudokus[key as any as number];
+          const numberKey = parseInt(key, 10);
+          if (isNaN(numberKey)) {
+            continue;
+          }
+          const sudoku = result.sudokus[numberKey];
           if (sudoku.game.state === GameStateMachine.wonGame) {
             sudoku.game.timesSolved = 1;
             sudoku.game.previousTimes = [sudoku.game.secondsPlayed];
@@ -46,18 +50,22 @@ const loadFromLocalStorage = (): StoredState => {
             sudoku.game.timesSolved = 0;
             sudoku.game.previousTimes = [];
           }
-          result.sudokus[key] = sudoku;
+          result.sudokus[numberKey] = sudoku;
         }
       }
 
       // Make sure that conflicts are shown by default. Doesn't warrant a new persistance key.
       const keys = Object.keys(result.sudokus);
       for (const key of keys) {
-        const sudoku = result.sudokus[key as any as number];
+        const numberKey = parseInt(key, 10);
+        if (isNaN(numberKey)) {
+          continue;
+        }
+        const sudoku = result.sudokus[numberKey];
         if (sudoku.game.showConflicts === undefined) {
           sudoku.game.showConflicts = true;
         }
-        result.sudokus[key] = sudoku;
+        result.sudokus[numberKey] = sudoku;
       }
 
       return result;
