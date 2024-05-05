@@ -12,7 +12,7 @@
     "test-watchAll": "jest --watchAll",
     "start": "vite",
     "prettier:write": "prettier --write './src/**/*.ts' './src/**/*.tsx'",
-    "fetch-sudokus": "ts-node --project ./tsconfig.json ./scripts/fetch_sudokus.ts -l 2 -n 100",
+    "fetch-sudokus": "ts-node --project ./tsconfig.json ./scripts/fetch_sudokus.ts -l 6 -n 100 -p sudokuDotCom",
     "generate-easy-sudokus": "ts-node --project ./tsconfig.json ./scripts/generate_sudokus.ts -d easy -n 500",
     "generate-medium-sudokus": "ts-node --project ./tsconfig.json ./scripts/generate_sudokus.ts -d medium -n 500",
     "generate-hard-sudokus": "ts-node --project ./tsconfig.json ./scripts/generate_sudokus.ts -d hard -n 500",
