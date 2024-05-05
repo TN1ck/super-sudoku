@@ -26,6 +26,28 @@ ____2____
     // Check if it can be solved.
     expect(solve(sudoku).iterations).toBe(4);
   });
+
+  it("generates the difficult sudoku using a seed", () => {
+    const randomFn = createSeededRandom(10);
+    const sudoku = generateSudoku(DIFFICULTY.EVIL, randomFn);
+    const stringified = printSimpleSudoku(sudoku);
+    // Check if it is unique.
+    expect(checkForUniqueness(sudoku)).toBe(true);
+    // Check if it can be solved.
+    // The difficulty is capped, as we don't do to many changes.
+    expect(solve(sudoku).iterations).toBe(32);
+  });
+
+  it("generates the difficult sudoku using a seed", () => {
+    const randomFn = createSeededRandom(4);
+    const sudoku = generateSudoku(DIFFICULTY.EVIL, randomFn);
+    const stringified = printSimpleSudoku(sudoku);
+    // Check if it is unique.
+    expect(checkForUniqueness(sudoku)).toBe(true);
+    // Check if it can be solved.
+    // The difficulty is capped, as we don't do to many changes.
+    expect(solve(sudoku).iterations).toBe(248);
+  });
 });
 
 describe("checkForUniqueness", () => {

@@ -48,140 +48,141 @@ export function _solveGridAC3(
   sudoku: SimpleSudoku | null;
   iterations: number;
 } {
-  if (stack.length === 0) {
-    return {
-      sudoku: null,
-      iterations: Infinity,
-    };
-  }
+  loop: while (stack.length > 0) {
+    const [grid, ...rest] = stack;
 
-  const [grid, ...rest] = stack;
-
-  iterations++;
-  // evil puzzles have an average of about 500, everything more than 1000 that is actually solvable
-  // will be too impossible for the normal user
-  if (iterations > 4000) {
-    return {
-      sudoku: toSimpleSudoku(grid),
-      iterations: Infinity,
-    };
-  }
-
-  const rows = grid;
-
-  // Loop until no changes are made to any domain of any cell.
-  // The original paper did not do this, as the iteration counts do not match.
-  // I still leave it here, but do not use it.
-  while (true) {
-    let change = false;
-    // We don't keep an actual set of constraints as some AC3 algorithm explanations do it.
-    // Sudoku has very well defined constraints, we can use loops to check the constraints.
-    for (let y = 0; y < 9; y++) {
-      const row = rows[y];
-      for (let x = 0; x < 9; x++) {
-        let domainCell1 = row[x];
-        // Note: I once tried to be clever and tried not to compare cells twice but this is will falsify the algorithm.
-
-        // Cells in the same row
-        for (let xx = 0; xx < 9; xx++) {
-          if (xx === x) {
-            continue;
-          }
-          const domainCell2 = row[xx];
-          const result = removeValuesFromDomain(domainCell1, domainCell2);
-          domainCell1 = result[0];
-          change = change || result[1];
-          row[x] = domainCell1;
-        }
-
-        // Cells in the same column
-        for (let yy = 0; yy < 9; yy++) {
-          if (yy === y) {
-            continue;
-          }
-          const domainCell2 = rows[yy][x];
-          const result = removeValuesFromDomain(domainCell1, domainCell2);
-          domainCell1 = result[0];
-          change = change || result[1];
-          row[x] = domainCell1;
-        }
-
-        // Cells in the same square
-        const square = SQUARE_TABLE[squareIndex(x, y)];
-        for (let c = 0; c < 9; c++) {
-          const s = square[c];
-          const [xx, yy] = s;
-          if (xx === x && yy === y) {
-            continue;
-          }
-          const domainCell2 = rows[yy][xx];
-          const result = removeValuesFromDomain(domainCell1, domainCell2);
-          domainCell1 = result[0];
-          change = change || result[1];
-          row[x] = domainCell1;
-        }
-
-        // A domain became empty (e.g. no value works for a cell), we can't solve this Sudoku, continue with the next one.
-        if (domainCell1.length === 0) {
-          return _solveGridAC3(rest, iterations);
-        }
-      }
+    iterations++;
+    // evil puzzles have an average of about 500, everything more than 1000 that is actually solvable
+    // will be too impossible for the normal user
+    if (iterations > 4000) {
+      return {
+        sudoku: toSimpleSudoku(grid),
+        iterations: Infinity,
+      };
     }
-    // The paper which we base on our difficulty ratings did not do this, so we simply always break right now.
-    // Note: For "proper" AC3, we wouldn't simply just loop, but only add the constraints to check again if a change was made.
-    // The result is the same, we might do a few more comparisons, but it is easier to implement.
-    break;
-  }
 
-  const isFilled = grid.every((row) => {
-    return row.every((cells) => {
-      return cells.length === 1;
-    });
-  });
+    const rows = grid;
 
-  // Every domain is length 1, we found a solution!
-  if (isFilled) {
-    return {
-      sudoku: toSimpleSudoku(grid),
-      iterations,
-    };
-  }
+    // Loop until no changes are made to any domain of any cell.
+    // The original paper did not do this, as the iteration counts do not match.
+    // I still leave it here, but do not use it.
+    while (true) {
+      let change = false;
+      // We don't keep an actual set of constraints as some AC3 algorithm explanations do it.
+      // Sudoku has very well defined constraints, we can use loops to check the constraints.
+      for (let y = 0; y < 9; y++) {
+        const row = rows[y];
+        for (let x = 0; x < 9; x++) {
+          let domainCell1 = row[x];
+          // Note: I once tried to be clever and tried not to compare cells twice but this is will falsify the algorithm.
 
-  // No solution found yet. We create a list of all cells that have more than 1 solution as x/y coordinates.
-  const possibleRowAndCells = grid.reduce((current: Array<[number, number]>, row, index) => {
-    const possibleCells = row.reduce((currentCells: Array<[number, number]>, cells, cellIndex) => {
-      if (cells.length > 1) {
-        return currentCells.concat([[index, cellIndex]]);
-      }
-      return currentCells;
-    }, []);
-    return current.concat(possibleCells);
-  }, []);
-  // We sort the possible cells to have the ones with the least possibilities be first.
-  // This is called "Minimum remaining value" and is a very good heuristic. It is similar to how
-  // humans solve Sudokus.
-  const sortedPossibleRowAndCells = sortBy(possibleRowAndCells, ([rowIndex, cellIndex]) => {
-    return grid[rowIndex][cellIndex].length;
-  });
-  // Take the best cell and create a new grid for every possibility the cell has.
-  const [rowIndex, cellIndex] = sortedPossibleRowAndCells[0];
-  const cell = grid[rowIndex][cellIndex];
-  const newGrids = cell.map((n) => {
-    return grid.map((row, r) => {
-      if (r === rowIndex) {
-        return row.map((cells, c) => {
-          if (c === cellIndex) {
-            return [n];
+          // Cells in the same row
+          for (let xx = 0; xx < 9; xx++) {
+            if (xx === x) {
+              continue;
+            }
+            const domainCell2 = row[xx];
+            const result = removeValuesFromDomain(domainCell1, domainCell2);
+            domainCell1 = result[0];
+            change = change || result[1];
+            row[x] = domainCell1;
           }
-          return cells.slice();
-        });
+
+          // Cells in the same column
+          for (let yy = 0; yy < 9; yy++) {
+            if (yy === y) {
+              continue;
+            }
+            const domainCell2 = rows[yy][x];
+            const result = removeValuesFromDomain(domainCell1, domainCell2);
+            domainCell1 = result[0];
+            change = change || result[1];
+            row[x] = domainCell1;
+          }
+
+          // Cells in the same square
+          const square = SQUARE_TABLE[squareIndex(x, y)];
+          for (let c = 0; c < 9; c++) {
+            const s = square[c];
+            const [xx, yy] = s;
+            if (xx === x && yy === y) {
+              continue;
+            }
+            const domainCell2 = rows[yy][xx];
+            const result = removeValuesFromDomain(domainCell1, domainCell2);
+            domainCell1 = result[0];
+            change = change || result[1];
+            row[x] = domainCell1;
+          }
+
+          // A domain became empty (e.g. no value works for a cell), we can't solve this Sudoku, continue with the next one.
+          if (domainCell1.length === 0) {
+            stack = rest;
+            continue loop;
+          }
+        }
       }
-      return row.slice();
+      // The paper which we base on our difficulty ratings did not do this, so we simply always break right now.
+      // Note: For "proper" AC3, we wouldn't simply just loop, but only add the constraints to check again if a change was made.
+      // The result is the same, we might do a few more comparisons, but it is easier to implement.
+      break;
+    }
+
+    const isFilled = grid.every((row) => {
+      return row.every((cells) => {
+        return cells.length === 1;
+      });
     });
-  });
-  // The new stack is put first and we recursively descend.
-  const newStack = newGrids.concat(rest);
-  return _solveGridAC3(newStack, iterations);
+
+    // Every domain is length 1, we found a solution!
+    if (isFilled) {
+      return {
+        sudoku: toSimpleSudoku(grid),
+        iterations,
+      };
+    }
+
+    // No solution found yet. We create a list of all cells that have more than 1 solution as x/y coordinates.
+    const possibleRowAndCells = grid.reduce((current: Array<[number, number]>, row, index) => {
+      const possibleCells = row.reduce((currentCells: Array<[number, number]>, cells, cellIndex) => {
+        if (cells.length > 1) {
+          return currentCells.concat([[index, cellIndex]]);
+        }
+        return currentCells;
+      }, []);
+      return current.concat(possibleCells);
+    }, []);
+    // We sort the possible cells to have the ones with the least possibilities be first.
+    // This is called "Minimum remaining value" and is a very good heuristic. It is similar to how
+    // humans solve Sudokus.
+    const sortedPossibleRowAndCells = sortBy(possibleRowAndCells, ([rowIndex, cellIndex]) => {
+      return grid[rowIndex][cellIndex].length;
+    });
+    // Take the best cell and create a new grid for every possibility the cell has.
+    const [rowIndex, cellIndex] = sortedPossibleRowAndCells[0];
+    const cell = grid[rowIndex][cellIndex];
+    const newGrids = cell.map((n) => {
+      return grid.map((row, r) => {
+        if (r === rowIndex) {
+          return row.map((cells, c) => {
+            if (c === cellIndex) {
+              return [n];
+            }
+            return cells.slice();
+          });
+        }
+        return row.slice();
+      });
+    });
+    // The new stack is put first and we recursively descend.
+    const newStack = newGrids.concat(rest);
+    stack = newStack;
+  }
+
+  return {
+    sudoku: null,
+    iterations: Infinity,
+  };
 }
 
 export function solve(grid: SimpleSudoku): {
