@@ -4,16 +4,18 @@ import hotkeys from "hotkeys-js";
 import {SUDOKU_COORDINATES, SUDOKU_NUMBERS} from "src/engine/utility";
 import {Cell} from "src/engine/types";
 import {showMenu, hideMenu, selectCell, pauseGame, activateNotesMode, deactivateNotesMode} from "src/state/game";
-import {setNumber, clearNumber, getHint, setNote, clearNote} from "src/state/sudoku";
+import {setNumber, clearNumber, getHint, setNotes} from "src/state/sudoku";
 import {ShortcutScope} from "./ShortcutScope";
 import {connect} from "react-redux";
 import {RootState} from "src/state/rootReducer";
+import SudokuGame from "src/sudoku-game/SudokuGame";
 
 interface GameKeyboardShortcutsStateProps {
   // TODO: This can actually be null
   activeCell: Cell;
   sudoku: Cell[];
   notesMode: boolean;
+  showHints: boolean;
 }
 
 interface GameKeyboardShortcutsDispatchProps {
@@ -21,9 +23,8 @@ interface GameKeyboardShortcutsDispatchProps {
   hideMenu: typeof hideMenu;
   selectCell: typeof selectCell;
   setNumber: typeof setNumber;
-  setNote: typeof setNote;
+  setNotes: typeof setNotes;
   clearNumber: typeof clearNumber;
-  clearNote: typeof clearNote;
   pauseGame: typeof pauseGame;
   getHint: typeof getHint;
   activateNotesMode: typeof activateNotesMode;
@@ -113,11 +114,14 @@ class GameKeyboardShortcuts extends React.Component<
       hotkeys(String(n), ShortcutScope.Game, () => {
         if (!this.props.activeCell.initial) {
           if (this.props.notesMode) {
-            if (this.props.activeCell.notes.includes(n)) {
-              this.props.clearNote(this.props.activeCell, n);
-            } else {
-              this.props.setNote(this.props.activeCell, n);
-            }
+            const conflicting = SudokuGame.conflictingFields(this.props.sudoku);
+            const userNotes = this.props.activeCell.notes;
+            const conflictingCell = conflicting[this.props.activeCell!.y * 9 + this.props.activeCell!.x];
+            const autoNotes = this.props.showHints ? conflictingCell.possibilities : [];
+            const notesToUse = userNotes.length === 0 && autoNotes.length > 0 ? autoNotes : userNotes;
+
+            const newNotes = notesToUse.includes(n) ? notesToUse.filter((note) => note !== n) : [...userNotes, n];
+            this.props.setNotes(this.props.activeCell, newNotes);
           } else {
             this.props.setNumber(this.props.activeCell, n);
           }
@@ -157,13 +161,13 @@ export default connect<GameKeyboardShortcutsStateProps, GameKeyboardShortcutsDis
       sudoku: state.sudoku,
       activeCell: activeCell!,
       notesMode: state.game.notesMode,
+      showHints: state.game.showHints,
     };
   },
   {
     setNumber,
-    setNote,
+    setNotes,
     clearNumber,
-    clearNote,
     selectCell,
     hideMenu,
     showMenu,

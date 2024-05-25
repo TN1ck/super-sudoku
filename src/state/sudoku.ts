@@ -6,8 +6,7 @@ export const SET_SUDOKU = "sudoku/SET_SUDOKU";
 export const SET_SUDOKU_STATE = "sudoku/SET_SUDOKU_STATE";
 const GET_HINT = "sudoku/GET_HINT";
 const CLEAR_CELL = "sudoku/CLEAR_CELL";
-const SET_NOTE = "sudoku/SET_NOTE";
-const CLEAR_NOTE = "sudoku/CLEAR_NOTE";
+const SET_NOTES = "sudoku/SET_NOTES";
 const SET_NUMBER = "sudoku/SET_NUMBER";
 const CLEAR_NUMBER = "sudoku/CLEAR_NUMBER";
 
@@ -25,7 +24,7 @@ interface SudokuAction {
 }
 
 interface NoteAction extends SudokuAction {
-  note: number;
+  notes: number[];
 }
 
 export function getHint(cellCoordinates: CellCoordinates) {
@@ -42,19 +41,11 @@ export function clearCell(cellCoordinates: CellCoordinates) {
   };
 }
 
-export function setNote(cellCoordinates: CellCoordinates, note: number): NoteAction {
+export function setNotes(cellCoordinates: CellCoordinates, notes: number[]): NoteAction {
   return {
-    type: SET_NOTE,
+    type: SET_NOTES,
     cellCoordinates,
-    note,
-  };
-}
-
-export function clearNote(cellCoordinates: CellCoordinates, note: number): NoteAction {
-  return {
-    type: CLEAR_NOTE,
-    cellCoordinates,
-    note,
+    notes,
   };
 }
 
@@ -141,9 +132,7 @@ function fixSudokuNotes(sudoku: SudokuState, newCell: Cell) {
 
 export default function sudokuReducer(state: SudokuState = INITIAL_SUDOKU_STATE, action: AnyAction) {
   if (
-    ![SET_NOTE, SET_SUDOKU, CLEAR_NOTE, SET_NUMBER, CLEAR_NUMBER, CLEAR_CELL, GET_HINT, SET_SUDOKU_STATE].includes(
-      action.type,
-    )
+    ![SET_NOTES, SET_SUDOKU, SET_NUMBER, CLEAR_NUMBER, CLEAR_CELL, GET_HINT, SET_SUDOKU_STATE].includes(action.type)
   ) {
     return state;
   }
@@ -159,14 +148,8 @@ export default function sudokuReducer(state: SudokuState = INITIAL_SUDOKU_STATE,
     const isCell = cell.x === x && cell.y === y;
     if (isCell && !cell.initial) {
       switch (action.type) {
-        case SET_NOTE: {
-          if (cell.notes.find((n) => n === action.note)) {
-            return {...cell, notes: cell.notes.filter((n) => n !== action.note)};
-          }
-          return {...cell, notes: cell.notes.concat([action.note])};
-        }
-        case CLEAR_NOTE: {
-          const notes = cell.notes.filter((n) => n !== action.note);
+        case SET_NOTES: {
+          const notes = (action as NoteAction).notes;
           return {...cell, notes};
         }
         case CLEAR_CELL:

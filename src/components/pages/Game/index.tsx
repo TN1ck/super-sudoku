@@ -19,7 +19,7 @@ import {
 
 import {chooseGame} from "src/state/application";
 
-import {setNumber, setNote, setSudoku} from "src/state/sudoku";
+import {setNumber, setNotes, setSudoku} from "src/state/sudoku";
 
 import {Sudoku} from "src/components/pages/Game/Sudoku/Sudoku";
 
@@ -38,17 +38,17 @@ import Shortcuts from "./shortcuts/Shortcuts";
 import Checkbox from "src/components/modules/Checkbox";
 import SUDOKUS from "src/sudoku-game/sudokus";
 
-const sudokuMenuNummbersConnector = connect(
+const sudokuMenuNumbersConnector = connect(
   (state: RootState) => ({
     notesMode: state.game.notesMode,
     activeCell: state.game.activeCellCoordinates,
   }),
   {
     setNumber,
-    setNote,
+    setNotes,
   },
 );
-const SudokuMenuNumbersConnected = sudokuMenuNummbersConnector(SudokuMenuNumbers);
+const SudokuMenuNumbersConnected = sudokuMenuNumbersConnector(SudokuMenuNumbers);
 
 function ClearButton({state, clearGame}: {state: GameStateMachine; clearGame: () => void}) {
   return (

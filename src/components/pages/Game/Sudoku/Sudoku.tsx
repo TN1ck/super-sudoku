@@ -235,7 +235,7 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
           const position = positionedCells[i];
           const conflicted = conflicting[i];
 
-          const notes = showHints ? conflicted.possibilities : c.notes;
+          const notes = showHints && c.notes.length === 0 ? conflicted.possibilities : c.notes;
 
           const inConflictPath =
             this.props.showConflicts &&
