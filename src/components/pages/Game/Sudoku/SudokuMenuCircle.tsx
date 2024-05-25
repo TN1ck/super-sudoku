@@ -1,6 +1,6 @@
 import * as React from "react";
 import {connect, ConnectedProps} from "react-redux";
-import {setNumber, clearNumber, setNote, clearNote} from "src/state/sudoku";
+import {setNumber, clearNumber, setNotes} from "src/state/sudoku";
 import {SUDOKU_NUMBERS} from "src/engine/utility";
 import {Cell} from "src/engine/types";
 import styled, {css} from "styled-components";
@@ -8,6 +8,7 @@ import THEME from "src/theme";
 import {showMenu} from "src/state/game";
 import {Bounds} from "src/utils/types";
 import {RootState} from "src/state/rootReducer";
+import SudokuGame from "src/sudoku-game/SudokuGame";
 
 const MenuCircleContainer = styled.svg`
   left: 50%;
@@ -141,13 +142,14 @@ const connector = connect(
   (state: RootState) => {
     return {
       notesMode: state.game.notesMode,
+      sudoku: state.sudoku,
+      showHints: state.game.showHints,
     };
   },
   {
     showMenu,
     setNumber,
-    setNote,
-    clearNote,
+    setNotes,
     clearNumber,
   },
 );
@@ -196,8 +198,14 @@ class MenuCircle extends React.Component<MenuCircleOwnProps & PropsFromRedux, {}
           const currentMaxRad = currentMinRad + radPerStep;
           let isActive = number === cell.number;
 
+          const conflicting = SudokuGame.conflictingFields(this.props.sudoku);
+          const userNotes = this.props.sudoku[this.props.cell.y * 9 + this.props.cell.x].notes;
+          const conflictingCell = conflicting[this.props.cell.y * 9 + this.props.cell.x];
+          const autoNotes = this.props.showHints ? conflictingCell.possibilities : [];
+          const notesToUse = userNotes.length === 0 && autoNotes.length > 0 ? autoNotes : userNotes;
+
           if (this.props.notesMode) {
-            isActive = cell.notes.includes(number);
+            isActive = notesToUse.includes(number);
           }
 
           const colors = this.props.notesMode
@@ -220,18 +228,17 @@ class MenuCircle extends React.Component<MenuCircleOwnProps & PropsFromRedux, {}
                   e.preventDefault();
                   e.stopPropagation();
                 }
-                if (isActive) {
-                  if (this.props.notesMode) {
-                    this.props.clearNote(cell, number);
-                  } else {
-                    this.props.clearNumber(cell);
-                  }
-                  return;
-                }
+                const newNotes = notesToUse.includes(number)
+                  ? notesToUse.filter((note) => note !== number)
+                  : [...userNotes, number];
                 if (this.props.notesMode) {
-                  this.props.setNote(cell, number);
+                  this.props.setNotes(cell, newNotes);
                 } else {
-                  this.props.setNumber(cell, number);
+                  if (isActive) {
+                    this.props.clearNumber(cell);
+                  } else {
+                    this.props.setNumber(cell, number);
+                  }
                 }
               }}
             >
