@@ -36,6 +36,95 @@ function toDomainSudoku(grid: SimpleSudoku): DomainSudoku {
   });
 }
 
+function ac3(sudoku: DomainSudoku): {
+  sudoku: DomainSudoku;
+  solvable: boolean;
+} {
+  sudoku = sudoku.map((r) => r.map((c) => c.slice()));
+  // Loop until no changes are made to any domain of any cell.
+  // The original paper did not do this, as the iteration counts do not match.
+  // I still leave it here, but do not use it.
+  while (true) {
+    let change = false;
+    // We don't keep an actual set of constraints as some AC3 algorithm explanations do it.
+    // Sudoku has very well defined constraints, we can use loops to check the constraints.
+    for (let y = 0; y < 9; y++) {
+      const row = sudoku[y];
+      for (let x = 0; x < 9; x++) {
+        let domain1 = row[x];
+
+        // The coordinates of the cells that have a constraint with the
+        // the current cell.
+        const coordinates: [number, number][] = [];
+        // Cells in the same row.
+        for (let xx = 0; xx < 9; xx++) {
+          if (xx === x) {
+            continue;
+          }
+          coordinates.push([y, xx]);
+        }
+
+        // Cells in the same column.
+        for (let yy = 0; yy < 9; yy++) {
+          if (yy === y) {
+            continue;
+          }
+          coordinates.push([yy, x]);
+        }
+
+        // Cells in the same square.
+        const square = SQUARE_TABLE[squareIndex(x, y)];
+        for (let c = 0; c < 9; c++) {
+          const s = square[c];
+          const [xx, yy] = s;
+          if (xx === x && yy === y) {
+            continue;
+          }
+          coordinates.push([yy, xx]);
+        }
+
+        for (const [yy, xx] of coordinates) {
+          const domain2 = sudoku[yy][xx];
+
+          // If domain2 consists of only one number, remove it from domain1.
+          //
+          // This is an optimization of AC3:
+          // AC3 checks if there is a value in domain1 that
+          // does not comply the constraint with at least one value in domain2.
+          // But because the constraint for sudoku is inequality, the case happens only
+          // when the domain2 is just one variable.
+          let changed = false;
+          if (domain2.length === 1) {
+            const index = domain1.indexOf(domain2[0]);
+            if (index !== -1) {
+              domain1.splice(index, 1);
+              changed = true;
+            }
+          }
+
+          change = change || changed;
+          sudoku[y][x] = domain1;
+        }
+
+        // A domain became empty (e.g. no value works for a cell), we can't solve this Sudoku,
+        // continue with the next one.
+        if (domain1.length === 0) {
+          return {sudoku, solvable: false};
+        }
+      }
+    }
+    // Note: For "proper" AC3, we wouldn't simply just loop, but only add the constraints to check again if a change was made.
+    // The result is the same, we might do a few more comparisons, but it is easier to implement.
+    // TODO: I initially didn't count the ac3 iterations as proposed by the paper.
+    // But using them now falsifies the tests.
+    change = false;
+    if (!change) {
+      break;
+    }
+  }
+  return {sudoku, solvable: true};
+}
+
 /**
  * For more information see the paper
  * Rating and Generating Sudoku Puzzles Based On Constraint Satisfaction Problems
@@ -48,8 +137,8 @@ export function _solveGridAC3(
   sudoku: SimpleSudoku | null;
   iterations: number;
 } {
-  loop: while (stack.length > 0) {
-    const [grid, ...rest] = stack;
+  while (stack.length > 0) {
+    let [grid, ...rest] = stack;
 
     iterations++;
     // evil puzzles have an average of about 500, everything more than 1000 that is actually solvable
@@ -61,72 +150,12 @@ export function _solveGridAC3(
       };
     }
 
-    const rows = grid;
-
-    // Loop until no changes are made to any domain of any cell.
-    // The original paper did not do this, as the iteration counts do not match.
-    // I still leave it here, but do not use it.
-    while (true) {
-      let change = false;
-      // We don't keep an actual set of constraints as some AC3 algorithm explanations do it.
-      // Sudoku has very well defined constraints, we can use loops to check the constraints.
-      for (let y = 0; y < 9; y++) {
-        const row = rows[y];
-        for (let x = 0; x < 9; x++) {
-          let domainCell1 = row[x];
-          // Note: I once tried to be clever and tried not to compare cells twice but this is will falsify the algorithm.
-
-          // Cells in the same row
-          for (let xx = 0; xx < 9; xx++) {
-            if (xx === x) {
-              continue;
-            }
-            const domainCell2 = row[xx];
-            const result = removeValuesFromDomain(domainCell1, domainCell2);
-            domainCell1 = result[0];
-            change = change || result[1];
-            row[x] = domainCell1;
-          }
-
-          // Cells in the same column
-          for (let yy = 0; yy < 9; yy++) {
-            if (yy === y) {
-              continue;
-            }
-            const domainCell2 = rows[yy][x];
-            const result = removeValuesFromDomain(domainCell1, domainCell2);
-            domainCell1 = result[0];
-            change = change || result[1];
-            row[x] = domainCell1;
-          }
-
-          // Cells in the same square
-          const square = SQUARE_TABLE[squareIndex(x, y)];
-          for (let c = 0; c < 9; c++) {
-            const s = square[c];
-            const [xx, yy] = s;
-            if (xx === x && yy === y) {
-              continue;
-            }
-            const domainCell2 = rows[yy][xx];
-            const result = removeValuesFromDomain(domainCell1, domainCell2);
-            domainCell1 = result[0];
-            change = change || result[1];
-            row[x] = domainCell1;
-          }
-
-          // A domain became empty (e.g. no value works for a cell), we can't solve this Sudoku, continue with the next one.
-          if (domainCell1.length === 0) {
-            stack = rest;
-            continue loop;
-          }
-        }
-      }
-      // The paper which we base on our difficulty ratings did not do this, so we simply always break right now.
-      // Note: For "proper" AC3, we wouldn't simply just loop, but only add the constraints to check again if a change was made.
-      // The result is the same, we might do a few more comparisons, but it is easier to implement.
-      break;
+    const {sudoku: newGrid, solvable} = ac3(grid);
+    if (!solvable) {
+      stack = rest;
+      continue;
     }
+    grid = newGrid;
 
     const isFilled = grid.every((row) => {
       return row.every((cells) => {
