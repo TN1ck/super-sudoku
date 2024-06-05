@@ -52,10 +52,15 @@ class SudokuMenuNumbers extends React.Component<PropsFromRedux> {
           const occurrences = this.props.sudoku.filter((c) => c.number === n).length;
 
           const conflicting = SudokuGame.conflictingFields(this.props.sudoku);
-          const activeCell = this.props.sudoku[this.props.activeCell!.y * 9 + this.props.activeCell!.x];
-          const userNotes = activeCell.notes;
-          const conflictingCell = conflicting[this.props.activeCell!.y * 9 + this.props.activeCell!.x];
-          const autoNotes = this.props.showHints ? conflictingCell.possibilities : [];
+
+          const activeCell = this.props.activeCell
+            ? this.props.sudoku[this.props.activeCell.y * 9 + this.props.activeCell.x]
+            : undefined;
+          const userNotes = activeCell?.notes ?? [];
+          const conflictingCell = this.props.activeCell
+            ? conflicting[this.props.activeCell.y * 9 + this.props.activeCell.x]
+            : undefined;
+          const autoNotes = (this.props.showHints ? conflictingCell?.possibilities : []) ?? [];
 
           const setNumberOrNote = () => {
             if (this.props.notesMode) {
@@ -81,7 +86,7 @@ class SudokuMenuNumbers extends React.Component<PropsFromRedux> {
                   userNotes.length === 0 &&
                   autoNotes.includes(n) &&
                   !userNotes.includes(n) &&
-                  activeCell.number === 0,
+                  activeCell?.number === 0,
               })}
               onClick={setNumberOrNote}
               key={n}
