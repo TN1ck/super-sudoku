@@ -155,7 +155,7 @@ export const GridCellNumber = ({
       }}
       className={clsx("pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2 text-lg font-bold", {
         "text-black": initial,
-        "text-teal-500": highlight && !conflict && !conflict,
+        "text-amber-600": highlight && !conflict && !conflict,
         "text-teal-600": !initial && !highlight && !conflict,
         "text-red-600": conflict && !initial,
       })}

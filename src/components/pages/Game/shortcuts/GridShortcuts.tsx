@@ -111,7 +111,8 @@ class GameKeyboardShortcuts extends React.Component<
     });
 
     SUDOKU_NUMBERS.forEach((n) => {
-      hotkeys(String(n), ShortcutScope.Game, () => {
+      const keys = [String(n), `num_${n}`].join(",");
+      hotkeys(keys, ShortcutScope.Game, () => {
         if (!this.props.activeCell.initial) {
           if (this.props.notesMode) {
             const conflicting = SudokuGame.conflictingFields(this.props.sudoku);
@@ -129,7 +130,7 @@ class GameKeyboardShortcuts extends React.Component<
       });
     });
 
-    hotkeys("backspace", ShortcutScope.Game, () => {
+    hotkeys("backspace,num_subtract", ShortcutScope.Game, () => {
       if (!this.props.activeCell.initial) {
         this.props.clearNumber(this.props.activeCell);
       }
