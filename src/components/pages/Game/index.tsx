@@ -50,13 +50,33 @@ const sudokuMenuNumbersConnector = connect(
 );
 const SudokuMenuNumbersConnected = sudokuMenuNumbersConnector(SudokuMenuNumbers);
 
-function UndoButton({state, undoAction}: {state: GameStateMachine; undoAction: () => void}) {
+const undoButtonConnector = connect(
+  (state: RootState) => {
+    return {
+      state: state.game.state,
+      sudoku: state.sudoku,
+    };
+  },
+  {
+    undo,
+  },
+);
+
+type UndoButtonProps = ConnectedProps<typeof undoButtonConnector>;
+
+const UndoButton: React.FC<UndoButtonProps> = ({state, undo, sudoku}) => {
+  const canUndo = sudoku.historyIndex < sudoku.history.length - 1;
   return (
-    <Button disabled={state === GameStateMachine.wonGame || state === GameStateMachine.paused} onClick={undoAction}>
+    <Button
+      disabled={state === GameStateMachine.wonGame || state === GameStateMachine.paused || !canUndo}
+      onClick={undo}
+    >
       {"Undo"}
     </Button>
   );
-}
+};
+
+const ConnectedUndoButton = undoButtonConnector(UndoButton);
 
 function PauseButton({
   state,
@@ -197,7 +217,6 @@ const connector = connect(
     toggleShowCircleMenu,
     toggleShowWrongEntries,
     toggleShowConflicts,
-    undo,
   },
 );
 
@@ -238,7 +257,7 @@ class Game extends React.Component<PropsFromRedux> {
   };
 
   render() {
-    const {game, application, pauseGame, continueGame, chooseGame, sudoku, undo} = this.props;
+    const {game, application, pauseGame, continueGame, chooseGame, sudoku} = this.props;
     const pausedGame = game.state === GameStateMachine.paused;
     const activeCell = game.activeCellCoordinates
       ? sudoku.find((s) => {
@@ -264,7 +283,7 @@ class Game extends React.Component<PropsFromRedux> {
                   <PauseButton state={game.state} continueGame={continueGame} pauseGame={pauseGame} />
                 </div>
                 <div>
-                  <UndoButton state={game.state} undoAction={undo} />
+                  <ConnectedUndoButton />
                 </div>
               </div>
             </GameHeaderArea>
