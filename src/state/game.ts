@@ -23,6 +23,7 @@ const TOGGLE_SHOW_WRONG_ENTRIES = "game/TOGGLE_SHOW_WRONG_ENTRIES";
 const ACTIVATE_NOTES_MODE = "game/ACTIVATE_NOTES_MODE";
 const DEACTIVATE_NOTES_MODE = "game/DEACTIVATE_NOTES_MODE";
 export const UPDATE_TIMER = "game/UPDATE_TIME";
+const RESET_GAME = "game/RESET_GAME";
 
 export function activateNotesMode() {
   return {
@@ -140,6 +141,12 @@ export function toggleShowCircleMenu() {
   };
 }
 
+export function resetGame() {
+  return {
+    type: RESET_GAME,
+  };
+}
+
 export interface GameState {
   activeCellCoordinates?: CellCoordinates;
   difficulty: DIFFICULTY;
@@ -254,7 +261,12 @@ export default function gameReducer(state: GameState = INITIAL_GAME_STATE, actio
         ...state,
         secondsPlayed: action.secondsPlayed,
       };
-
+    case RESET_GAME:
+      return {
+        ...state,
+        secondsPlayed: 0,
+        state: GameStateMachine.paused,
+      };
     case SET_GAME_STATE_MACHINE:
       switch (action.state) {
         case GameStateMachine.paused: {

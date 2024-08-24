@@ -10,7 +10,13 @@ const savedState = getState();
 const currentSudoku = savedState.sudokus[savedState.active];
 const initialState: RootState = {
   game: currentSudoku ? currentSudoku.game : INITIAL_GAME_STATE,
-  sudoku: currentSudoku ? currentSudoku.sudoku : INITIAL_SUDOKU_STATE,
+  sudoku: currentSudoku
+    ? {
+        history: [],
+        historyIndex: 0,
+        current: currentSudoku.sudoku,
+      }
+    : INITIAL_SUDOKU_STATE,
   application: savedState.application ?? INITIAL_APPLICATION_STATE,
   choose: INITIAL_CHOOSE_STATE,
 };

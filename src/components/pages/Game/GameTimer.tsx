@@ -59,7 +59,7 @@ class GameTimer extends React.Component<PropsFromRedux> {
     this._isMounted = false;
   }
   render() {
-    const {secondsPlayed, state} = this.props;
+    const {secondsPlayed} = this.props;
 
     return <div className="text-center text-white">{formatDuration(secondsPlayed)}</div>;
   }

@@ -223,7 +223,7 @@ const GameSelect = React.memo(
         setSudoku(sudoku.sudoku, sudoku.solution);
       } else {
         setGameState(local.game);
-        setSudokuState(local.sudoku);
+        setSudokuState({current: local.sudoku, history: [], historyIndex: 0});
       }
       continueGame();
     };

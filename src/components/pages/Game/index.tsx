@@ -19,7 +19,7 @@ import {
 
 import {chooseGame} from "src/state/application";
 
-import {setNumber, setNotes, setSudoku} from "src/state/sudoku";
+import {setNumber, setNotes, setSudoku, undo} from "src/state/sudoku";
 
 import {Sudoku} from "src/components/pages/Game/Sudoku/Sudoku";
 
@@ -50,10 +50,10 @@ const sudokuMenuNumbersConnector = connect(
 );
 const SudokuMenuNumbersConnected = sudokuMenuNumbersConnector(SudokuMenuNumbers);
 
-function ClearButton({state, clearGame}: {state: GameStateMachine; clearGame: () => void}) {
+function UndoButton({state, undoAction}: {state: GameStateMachine; undoAction: () => void}) {
   return (
-    <Button disabled={state === GameStateMachine.wonGame || state === GameStateMachine.paused} onClick={clearGame}>
-      {"Clear"}
+    <Button disabled={state === GameStateMachine.wonGame || state === GameStateMachine.paused} onClick={undoAction}>
+      {"Undo"}
     </Button>
   );
 }
@@ -75,10 +75,6 @@ function PauseButton({
       {state === GameStateMachine.paused ? "Continue" : "Pause"}
     </Button>
   );
-}
-
-function NewGameButton({newGame}: {newGame: () => void}) {
-  return <Button onClick={newGame}>{"New"}</Button>;
 }
 
 const ContinueIcon = styled.div.attrs({
@@ -183,7 +179,7 @@ const connector = connect(
     return {
       game: state.game,
       application: state.application,
-      sudoku: state.sudoku,
+      sudoku: state.sudoku.current,
     };
   },
   {
@@ -201,6 +197,7 @@ const connector = connect(
     toggleShowCircleMenu,
     toggleShowWrongEntries,
     toggleShowConflicts,
+    undo,
   },
 );
 
@@ -241,22 +238,8 @@ class Game extends React.Component<PropsFromRedux> {
   };
 
   render() {
-    const {game, application, pauseGame, continueGame, chooseGame, sudoku} = this.props;
+    const {game, application, pauseGame, continueGame, chooseGame, sudoku, undo} = this.props;
     const pausedGame = game.state === GameStateMachine.paused;
-    const pauseAndChoose = () => {
-      pauseGame();
-      chooseGame();
-    };
-    const clear = () => {
-      // TODO: make nice.
-      const areYouSure = confirm("Are you sure? This will clear the sudoku.");
-      if (!areYouSure) {
-        return;
-      }
-      const sudoku = SUDOKUS[this.props.game.difficulty][this.props.game.sudokuIndex];
-      this.props.setSudoku(sudoku.sudoku, sudoku.solution);
-      this.props.continueGame();
-    };
     const activeCell = game.activeCellCoordinates
       ? sudoku.find((s) => {
           return s.x === game.activeCellCoordinates!.x && s.y === game.activeCellCoordinates!.y;
@@ -280,10 +263,9 @@ class Game extends React.Component<PropsFromRedux> {
                 <div className="mr-2">
                   <PauseButton state={game.state} continueGame={continueGame} pauseGame={pauseGame} />
                 </div>
-                <div className="mr-2">
-                  <ClearButton state={game.state} clearGame={clear} />
+                <div>
+                  <UndoButton state={game.state} undoAction={undo} />
                 </div>
-                <NewGameButton newGame={pauseAndChoose} />
               </div>
             </GameHeaderArea>
             <GameMainArea>
@@ -328,7 +310,7 @@ class Game extends React.Component<PropsFromRedux> {
               <SudokuMenuNumbersConnected />
               <SudokuMenuControls />
               <div className="mt-4 grid gap-4">
-                <div>
+                <div className="md:block hidden">
                   <h2 className="mb-2 text-3xl font-bold">Shortcuts</h2>
                   <div className="grid gap-2">
                     <ul className="list-disc pl-6">
@@ -338,6 +320,8 @@ class Game extends React.Component<PropsFromRedux> {
                       <li>Escape: Pause/unpause the game</li>
                       <li>H: Hint</li>
                       <li>N: Enter/exit note mode</li>
+                      <li>CTRL + Z: Undo</li>
+                      <li>CTRL + Y: Redo</li>
                     </ul>
                   </div>
                 </div>
@@ -381,7 +365,10 @@ class Game extends React.Component<PropsFromRedux> {
                     <a target="_blank" className="underline" href="https://github.com/TN1ck/super-sudoku">
                       Github
                     </a>
-                    .
+                    .{" "}
+                    <a href="https://tn1ck.com" target="_blank" className="hover:underline">
+                      {"Created by Tom Nick."}
+                    </a>
                   </p>
                 </div>
               </div>

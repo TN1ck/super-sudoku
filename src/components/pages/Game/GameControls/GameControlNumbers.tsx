@@ -34,7 +34,7 @@ const connector = connect(
     notesMode: state.game.notesMode,
     showOccurrences: state.game.showOccurrences,
     activeCell: state.game.activeCellCoordinates,
-    sudoku: state.sudoku,
+    sudoku: state.sudoku.current,
     showHints: state.game.showHints,
   }),
   {

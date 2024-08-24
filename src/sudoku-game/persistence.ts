@@ -2,15 +2,21 @@ import SUDOKUS from "src/sudoku-game/sudokus";
 import {GameState, GameStateMachine} from "src/state/game";
 import {SudokuState} from "src/state/sudoku";
 import {ApplicationState} from "src/state/application";
+import {Cell} from "src/engine/types";
 
 const STORAGE_KEY_V_1_3 = "super_sudoku_1_3_use_this_file_if_you_want_to_cheat";
 const STORAGE_KEY_V_1_4 = "super_sudoku_1_4_use_this_file_if_you_want_to_cheat";
+
+interface StoredSudokuState {
+  game: GameState;
+  sudoku: Cell[];
+}
 
 interface StoredState {
   active: number;
   application: ApplicationState | undefined;
   sudokus: {
-    [key: number]: {game: GameState; sudoku: SudokuState};
+    [key: number]: StoredSudokuState;
   };
 }
 
@@ -86,7 +92,9 @@ export const saveToLocalStorage = (application: ApplicationState, game: GameStat
   const cached = loadFromLocalStorage();
   cached.active = game.sudokuId;
   cached.application = application;
-  cached.sudokus[game.sudokuId] = {game, sudoku};
+  // We do not save the history as it would take too much space.
+  // Also we don't need to to migrate the existing data.
+  cached.sudokus[game.sudokuId] = {game, sudoku: sudoku.current};
   try {
     localStorage.setItem(STORAGE_KEY_V_1_4, JSON.stringify(cached));
   } catch (e) {
