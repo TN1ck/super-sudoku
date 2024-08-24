@@ -4,7 +4,7 @@ import hotkeys from "hotkeys-js";
 import {SUDOKU_COORDINATES, SUDOKU_NUMBERS} from "src/engine/utility";
 import {Cell} from "src/engine/types";
 import {showMenu, hideMenu, selectCell, pauseGame, activateNotesMode, deactivateNotesMode} from "src/state/game";
-import {setNumber, clearNumber, getHint, setNotes} from "src/state/sudoku";
+import {setNumber, clearNumber, getHint, setNotes, undo, redo} from "src/state/sudoku";
 import {ShortcutScope} from "./ShortcutScope";
 import {connect} from "react-redux";
 import {RootState} from "src/state/rootReducer";
@@ -29,6 +29,8 @@ interface GameKeyboardShortcutsDispatchProps {
   getHint: typeof getHint;
   activateNotesMode: typeof activateNotesMode;
   deactivateNotesMode: typeof deactivateNotesMode;
+  undo: typeof undo;
+  redo: typeof redo;
 }
 
 class GameKeyboardShortcuts extends React.Component<
@@ -141,6 +143,16 @@ class GameKeyboardShortcuts extends React.Component<
         this.props.getHint(this.props.activeCell);
       }
     });
+
+    hotkeys("ctrl+z,cmd+z", ShortcutScope.Game, () => {
+      this.props.undo();
+      return false;
+    });
+
+    hotkeys("ctrl+y,cmd+y", ShortcutScope.Game, () => {
+      this.props.redo();
+      return false;
+    });
   }
 
   componentWillUnmount() {
@@ -154,12 +166,12 @@ class GameKeyboardShortcuts extends React.Component<
 export default connect<GameKeyboardShortcutsStateProps, GameKeyboardShortcutsDispatchProps, {}, RootState>(
   (state: RootState) => {
     const activeCell = state.game.activeCellCoordinates
-      ? state.sudoku.find((s) => {
+      ? state.sudoku.current.find((s) => {
           return s.x === state.game.activeCellCoordinates?.x && s.y === state.game.activeCellCoordinates.y;
         })
       : null;
     return {
-      sudoku: state.sudoku,
+      sudoku: state.sudoku.current,
       activeCell: activeCell!,
       notesMode: state.game.notesMode,
       showHints: state.game.showHints,
@@ -176,5 +188,7 @@ export default connect<GameKeyboardShortcutsStateProps, GameKeyboardShortcutsDis
     getHint,
     deactivateNotesMode,
     activateNotesMode,
+    undo,
+    redo,
   },
 )(GameKeyboardShortcuts);

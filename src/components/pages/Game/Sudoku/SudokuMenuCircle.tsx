@@ -142,7 +142,7 @@ const connector = connect(
   (state: RootState) => {
     return {
       notesMode: state.game.notesMode,
-      sudoku: state.sudoku,
+      sudoku: state.sudoku.current,
       showHints: state.game.showHints,
     };
   },

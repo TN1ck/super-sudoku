@@ -9,6 +9,8 @@ const CLEAR_CELL = "sudoku/CLEAR_CELL";
 const SET_NOTES = "sudoku/SET_NOTES";
 const SET_NUMBER = "sudoku/SET_NUMBER";
 const CLEAR_NUMBER = "sudoku/CLEAR_NUMBER";
+const UNDO = "sudoku/UNDO";
+const REDO = "sudoku/REDO";
 
 import {simpleSudokuToCells, squareIndex} from "src/engine/utility";
 import {Cell, SimpleSudoku, CellCoordinates} from "src/engine/types";
@@ -75,16 +77,32 @@ export function setSudoku(sudoku: SimpleSudoku, solution: SimpleSudoku) {
   };
 }
 
-export type SudokuState = Cell[];
+export interface SudokuState {
+  current: Cell[];
+  history: Cell[][];
+  historyIndex: number;
+}
 
 export function setSudokuState(sudokuState: SudokuState) {
   return {
     type: SET_SUDOKU_STATE,
-    sudoku: sudokuState,
+    sudokuState: sudokuState,
   };
 }
 
-export const emptyGrid: SudokuState = simpleSudokuToCells([
+export function undo() {
+  return {
+    type: UNDO,
+  };
+}
+
+export function redo() {
+  return {
+    type: REDO,
+  };
+}
+
+export const emptyGrid: Cell[] = simpleSudokuToCells([
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -95,10 +113,14 @@ export const emptyGrid: SudokuState = simpleSudokuToCells([
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
 ]);
 
-export const INITIAL_SUDOKU_STATE = emptyGrid;
+export const INITIAL_SUDOKU_STATE: SudokuState = {
+  current: emptyGrid,
+  history: [emptyGrid],
+  historyIndex: 0,
+};
 
 // When a number is set, remove conflicting notes.
-function fixSudokuNotes(sudoku: SudokuState, newCell: Cell) {
+function fixSudokuNotes(sudoku: Cell[], newCell: Cell) {
   sudoku = sudoku.map((cell) => {
     if (cell.x === newCell.x) {
       return {
@@ -130,21 +152,46 @@ function fixSudokuNotes(sudoku: SudokuState, newCell: Cell) {
   });
 }
 
-export default function sudokuReducer(state: SudokuState = INITIAL_SUDOKU_STATE, action: AnyAction) {
+export default function sudokuReducer(state = INITIAL_SUDOKU_STATE, action: AnyAction): SudokuState {
   if (
-    ![SET_NOTES, SET_SUDOKU, SET_NUMBER, CLEAR_NUMBER, CLEAR_CELL, GET_HINT, SET_SUDOKU_STATE].includes(action.type)
+    ![SET_NOTES, SET_SUDOKU, SET_NUMBER, CLEAR_NUMBER, CLEAR_CELL, GET_HINT, SET_SUDOKU_STATE, UNDO, REDO].includes(
+      action.type,
+    )
   ) {
     return state;
   }
 
   switch (action.type) {
-    case SET_SUDOKU:
     case SET_SUDOKU_STATE:
-      return action.sudoku;
+      return action.sudokuState;
+    case SET_SUDOKU:
+      return {
+        current: action.sudoku,
+        history: [action.sudoku],
+        historyIndex: 0,
+      };
+    case UNDO:
+      if (state.historyIndex < state.history.length - 1) {
+        return {
+          ...state,
+          current: state.history[state.historyIndex + 1],
+          historyIndex: state.historyIndex + 1,
+        };
+      }
+      return state;
+    case REDO:
+      if (state.historyIndex > 0) {
+        return {
+          ...state,
+          current: state.history[state.historyIndex - 1],
+          historyIndex: state.historyIndex - 1,
+        };
+      }
+      return state;
   }
 
   const {x, y} = (action as SudokuAction).cellCoordinates;
-  const newGrid = state.map((cell) => {
+  let newGrid = state.current.map((cell) => {
     const isCell = cell.x === x && cell.y === y;
     if (isCell && !cell.initial) {
       switch (action.type) {
@@ -155,7 +202,7 @@ export default function sudokuReducer(state: SudokuState = INITIAL_SUDOKU_STATE,
         case CLEAR_CELL:
           return {...cell, notes: [], number: 0};
         case SET_NUMBER:
-          return {...cell, number: action.number};
+          return {...cell, number: (action as SetNumberAction).number};
         case CLEAR_NUMBER:
           return {...cell, number: 0};
         case GET_HINT:
@@ -171,10 +218,13 @@ export default function sudokuReducer(state: SudokuState = INITIAL_SUDOKU_STATE,
   });
 
   if (action.type === SET_NUMBER) {
-    const {x, y} = (action as SudokuAction).cellCoordinates;
     const newCell = newGrid.find((cell) => cell.x === x && cell.y === y);
-    return fixSudokuNotes(newGrid, newCell!);
+    newGrid = fixSudokuNotes(newGrid, newCell!);
   }
 
-  return newGrid;
+  return {
+    current: newGrid,
+    history: [newGrid, ...state.history.slice(state.historyIndex)],
+    historyIndex: 0,
+  };
 }
