@@ -115,7 +115,7 @@ export const GridCell = ({
         left: `${bounds.left}%`,
       }}
       className={clsx(
-        "absolute z-0 bg-transparent bg-opacity-50 transition-colors duration-0 hover:z-20 hover:border-2 hover:bg-opacity-50",
+        "absolute z-0 bg-opacity-50 transition-colors duration-0 hover:z-20 hover:border-2 hover:bg-opacity-50",
         {
           "hover:border-sky-400 hover:bg-gray-300": notesMode,
           "hover:border-teal-400 hover:bg-gray-300": !notesMode,
@@ -154,7 +154,7 @@ export const GridCellNumber = ({
         top: `${top}%`,
       }}
       className={clsx("pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2 text-lg font-bold", {
-        "text-black": initial && !highlight && !conflict,
+        "text-black": initial,
         "text-amber-600": highlight && !conflict && !conflict,
         "text-teal-600": !initial && !highlight && !conflict,
         "text-red-600": conflict && !initial,
