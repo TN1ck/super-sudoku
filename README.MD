@@ -2,11 +2,30 @@
 
 Currently hosted at [https://sudoku.tn1ck.com](https://sudoku.tn1ck.com).
 
-![Screenshot 2022-09-05 at 19 15 08](https://user-images.githubusercontent.com/2116347/188494040-0a7b4512-c5b8-4073-bc4a-b78e469ad90e.png)
+![Screenshot of the sudoku app](./docs/screenshot-app-2024-08-25.png)
 
 
 This project aims to be a sudoku app with everything included. An open source sudoku that is on par with all commercial applications. Why? Because my Grandma wanted to play a Sudoku once and I didn't like all the available offers. This has changed since then, but having an open source version will hopefully help people in the future.
 
+## Features include:
+
+- 100 sudokus for 5 different difficulties
+- Save the users progress
+- Generate Notes, custom notes
+- Undo & hints
+- Highlighting of conflicts and wrong entries
+- Show occurrences of numbers in the buttons
+- Shortcuts
+    - Arrow keys: Move around the board
+    - Number keys: Write a note or set the sudoku number
+    - Backspace: Delete a number
+    - Escape: Pause/unpause the game
+    - H: Hint
+    - N: Enter/exit note mode
+    - Undo/Redo: CMD/CTRL + Z & CMD/CTRL + Y
+
+
+If something is missing, open an issue!
 
 ## Development Setup
 
@@ -31,22 +50,6 @@ Build the image: `docker build -t super-sudoku:latest .`
 Run the image: `docker run -p 8081:80 super-sudoku:latest` (Change 8081 for the port you want to map it to locally).
 
 Automatically build images are available at [https://github.com/tn1ck/super-sudoku/pkgs/container/super-sudoku](https://github.com/tn1ck/super-sudoku/pkgs/container/super-sudoku).
-
-## Features include:
-
-- Solving of sudokus
-- Generation of sudokus in different difficulties
-- Responsive, works on desktop as well as mobile
-- Providing hints to actually provide a real value over paper based sudokus
-- Shortcuts
-    - Arrow keys: Move around the board
-    - Number keys: Write a note or set the sudoku number
-    - Backspace: Delete a number
-    - Escape: Pause/unpause the game
-    - H: Hint
-    - N: Enter/exit note mode
-- Save the users progress
-- Options to disable helper highlights like wrong entry or conflict
 
 ## Solve & Generate Sudokus
 
