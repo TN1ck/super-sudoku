@@ -57,13 +57,7 @@ class SudokuMenuControls extends React.Component<PropsFromRedux> {
     return (
       <div className="mt-4 grid w-full grid-cols-4 gap-2">
         <ControlContainer>
-          <Button
-            onClick={() => (this.props.notesMode ? this.props.deactivateNotesMode() : this.props.activateNotesMode())}
-            className={clsx("w-full", {
-              "bg-teal-700 text-white": !this.props.notesMode,
-              "bg-sky-700 text-white": this.props.notesMode,
-            })}
-          >{`${this.props.notesMode ? "Notes ON" : "Notes OFF"}`}</Button>
+          <ConnectedUndoButton />
         </ControlContainer>
         <ControlContainer>
           <Button className="w-full" onClick={() => this.props.clearCell(this.props.activeCell!)}>
@@ -71,12 +65,23 @@ class SudokuMenuControls extends React.Component<PropsFromRedux> {
           </Button>
         </ControlContainer>
         <ControlContainer>
-          <Button className="w-full" onClick={() => this.props.getHint(this.props.activeCell!)}>
-            {"Hint"}
+          <Button
+            onClick={() => (this.props.notesMode ? this.props.deactivateNotesMode() : this.props.activateNotesMode())}
+            className={clsx("w-full relative")}
+          >
+            <div
+              className={clsx("absolute -bottom-4 left-1/2 -translate-x-1/2 rounded-full px-2 text-sm md:text-base", {
+                "bg-teal-700 text-white": !this.props.notesMode,
+                "bg-sky-700 text-white": this.props.notesMode,
+              })}
+            >{`${this.props.notesMode ? "ON" : "OFF"}`}</div>
+            <div>{"Notes"}</div>
           </Button>
         </ControlContainer>
         <ControlContainer>
-          <ConnectedUndoButton />
+          <Button className="w-full" onClick={() => this.props.getHint(this.props.activeCell!)}>
+            {"Hint"}
+          </Button>
         </ControlContainer>
       </div>
     );
