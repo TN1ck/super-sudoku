@@ -50,34 +50,6 @@ const sudokuMenuNumbersConnector = connect(
 );
 const SudokuMenuNumbersConnected = sudokuMenuNumbersConnector(SudokuMenuNumbers);
 
-const undoButtonConnector = connect(
-  (state: RootState) => {
-    return {
-      state: state.game.state,
-      sudoku: state.sudoku,
-    };
-  },
-  {
-    undo,
-  },
-);
-
-type UndoButtonProps = ConnectedProps<typeof undoButtonConnector>;
-
-const UndoButton: React.FC<UndoButtonProps> = ({state, undo, sudoku}) => {
-  const canUndo = sudoku.historyIndex < sudoku.history.length - 1;
-  return (
-    <Button
-      disabled={state === GameStateMachine.wonGame || state === GameStateMachine.paused || !canUndo}
-      onClick={undo}
-    >
-      {"Undo"}
-    </Button>
-  );
-};
-
-const ConnectedUndoButton = undoButtonConnector(UndoButton);
-
 function PauseButton({
   state,
   pauseGame,
@@ -279,11 +251,8 @@ class Game extends React.Component<PropsFromRedux> {
                 <GameTimer />
               </div>
               <div className="flex">
-                <div className="mr-2">
-                  <PauseButton state={game.state} continueGame={continueGame} pauseGame={pauseGame} />
-                </div>
                 <div>
-                  <ConnectedUndoButton />
+                  <PauseButton state={game.state} continueGame={continueGame} pauseGame={pauseGame} />
                 </div>
               </div>
             </GameHeaderArea>
