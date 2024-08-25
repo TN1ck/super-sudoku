@@ -83,11 +83,13 @@ const ConnectedNewGameButton = newGameConnector(NewGameButton);
 
 const Header = () => {
   return (
-    <div className="flex justify-between items-center bg-gray-900 p-4 text-white">
-      <div>{"Super Sudoku"}</div>
-      <div className="flex space-x-2">
-        <ConnectedClearGameButton />
-        <ConnectedNewGameButton />
+    <div className="flex justify-center bg-gray-900 py-4 text-white">
+      <div className="flex justify-between items-center max-w-screen-xl w-full px-4">
+        <div>{"Super Sudoku"}</div>
+        <div className="flex space-x-2">
+          <ConnectedClearGameButton />
+          <ConnectedNewGameButton />
+        </div>
       </div>
     </div>
   );
