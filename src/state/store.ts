@@ -12,7 +12,7 @@ const initialState: RootState = {
   game: currentSudoku ? currentSudoku.game : INITIAL_GAME_STATE,
   sudoku: currentSudoku
     ? {
-        history: [],
+        history: [currentSudoku.sudoku],
         historyIndex: 0,
         current: currentSudoku.sudoku,
       }
