@@ -32,7 +32,7 @@ const routes = [
 
 const location = new ReactLocation();
 
-const App: React.StatelessComponent = () => {
+const App = () => {
   return (
     <Provider store={store}>
       <Header />

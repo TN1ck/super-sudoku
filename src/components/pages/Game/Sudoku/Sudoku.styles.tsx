@@ -1,12 +1,6 @@
 import * as React from "react";
-import styled, {css} from "styled-components";
-import THEME from "src/theme";
 import {Bounds} from "src/utils/types";
 import clsx from "clsx";
-
-export const SudokuContainer = styled.div.attrs({
-  className: "absolute h-full w-full rounded-sm bg-white",
-})``;
 
 export const GridLineX = ({top, width, makeBold}: {top: number; width: number; makeBold: boolean}) => {
   return (
@@ -17,8 +11,8 @@ export const GridLineX = ({top, width, makeBold}: {top: number; width: number; m
         height: makeBold ? 2 : 1,
       }}
       className={clsx("absolute left-0 -translate-y-1/2", {
-        "z-10 bg-gray-300": makeBold,
-        "bg-gray-200": !makeBold,
+        "z-10 bg-gray-400 dark:bg-gray-500": makeBold,
+        "z-10 bg-gray-300 dark:bg-gray-600": !makeBold,
       })}
     />
   );
@@ -33,8 +27,8 @@ export const GridLineY = ({left, height, makeBold}: {left: number; height: numbe
         width: makeBold ? 2 : 1,
       }}
       className={clsx("absolute left-0 -translate-x-1/2", {
-        "z-10 bg-gray-300": makeBold,
-        "bg-gray-200": !makeBold,
+        "z-10 bg-gray-400 dark:bg-gray-500": makeBold,
+        "z-10 bg-gray-300 dark:bg-gray-600": !makeBold,
       })}
     />
   );
@@ -96,38 +90,50 @@ export const GridCell = ({
   onClick: () => void;
   onRightClick: () => void;
 }) => {
+  let backgroundColor = "bg-white dark:bg-gray-700";
+  if (highlight) {
+    backgroundColor = "bg-gray-300 dark:bg-gray-800";
+  }
+  if (highlightNumber) {
+    backgroundColor = "bg-gray-400 dark:bg-gray-600";
+  }
+  if (conflict) {
+    backgroundColor = "bg-red-300 dark:bg-red-900";
+  }
+
+  let borderColor = "border-transparent";
+  if (active) {
+    borderColor = "border-teal-400 dark:border-teal-600";
+    if (notesMode) {
+      borderColor = "border-sky-400 dark:border-sky-600";
+    }
+  }
+
+  const dimensions = {
+    width: `${bounds.width}%`,
+    height: `${bounds.height}%`,
+    top: `${bounds.top}%`,
+    left: `${bounds.left}%`,
+  };
+
   return (
-    <div
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        onClick();
-      }}
-      onContextMenu={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        onRightClick();
-      }}
-      style={{
-        width: `${bounds.width}%`,
-        height: `${bounds.height}%`,
-        top: `${bounds.top}%`,
-        left: `${bounds.left}%`,
-      }}
-      className={clsx(
-        "absolute z-0 bg-opacity-50 transition-colors duration-0 hover:z-20 hover:border-2 hover:bg-opacity-50",
-        {
-          "hover:border-sky-400 hover:bg-gray-300": notesMode,
-          "hover:border-teal-400 hover:bg-gray-300": !notesMode,
-          "duration-300 bg-gray-400": highlightNumber && !conflict && !active,
-          "duration-300 bg-gray-300": highlight && !conflict && !active,
-          "z-20 border-2 border-sky-400 bg-gray-300": active && notesMode,
-          "z-20 border-2 border-teal-400 bg-gray-300": active && !notesMode,
-          "z-20 border-2 border-red-400 bg-red-300": active && conflict,
-          "duration-300 bg-red-300 hover:border-red-400 hover:bg-red-300": conflict,
-        },
-      )}
-    />
+    <>
+      <div style={dimensions} className={clsx("absolute z-20 border-2", borderColor)} />
+      <div
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onClick();
+        }}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onRightClick();
+        }}
+        style={dimensions}
+        className={clsx("absolute z-0 bg-opacity-50 transition-colors duration-0 hover:bg-opacity-50", backgroundColor)}
+      />
+    </>
   );
 };
 
@@ -154,10 +160,10 @@ export const GridCellNumber = ({
         top: `${top}%`,
       }}
       className={clsx("pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2 text-lg font-bold", {
-        "text-black": initial,
-        "text-amber-600": highlight && !conflict && !conflict,
+        "text-black dark:text-white": initial,
+        "text-amber-600": highlight && !conflict,
         "text-teal-600": !initial && !highlight && !conflict,
-        "text-red-600": conflict && !initial,
+        "text-red-600 dark:text-red-300": conflict && !initial,
       })}
     >
       {children}

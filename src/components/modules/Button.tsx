@@ -20,7 +20,7 @@ const Button = ({
       onClick={onClick}
       className={overrideTailwindClasses(
         clsx(
-          "rounded-sm border-none bg-white md:px-4 md:py-2 px-2 py-1 text-black shadow-sm transition-transform hover:brightness-90 focus:outline-none disabled:brightness-75",
+          "rounded-sm border-none bg-white dark:text-white dark:bg-gray-500 md:px-4 md:py-2 px-2 py-1 text-black shadow-sm transition-transform hover:brightness-90 focus:outline-none disabled:brightness-75",
           className,
           {
             "scale-110 brightness-90": active,

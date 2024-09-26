@@ -98,7 +98,7 @@ const CenteredContinueButton = styled.div<{visible: boolean}>`
   width: 100%;
   height: 100%;
   position: absolute;
-  z-index: 1;
+  z-index: 30;
 
   &:hover {
     cursor: pointer;
