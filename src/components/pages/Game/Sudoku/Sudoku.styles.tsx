@@ -90,9 +90,9 @@ export const GridCell = ({
   onClick: () => void;
   onRightClick: () => void;
 }) => {
-  let backgroundColor = "bg-white dark:bg-gray-700";
+  let backgroundColor = "bg-white dark:bg-gray-800";
   if (highlight) {
-    backgroundColor = "bg-gray-300 dark:bg-gray-800";
+    backgroundColor = "bg-gray-300 dark:bg-gray-700";
   }
   if (highlightNumber) {
     backgroundColor = "bg-gray-400 dark:bg-gray-600";
