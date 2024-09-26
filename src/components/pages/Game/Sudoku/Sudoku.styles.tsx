@@ -118,7 +118,6 @@ export const GridCell = ({
 
   return (
     <>
-      <div style={dimensions} className={clsx("absolute z-20 border-2", borderColor)} />
       <div
         onClick={(e) => {
           e.preventDefault();
@@ -130,6 +129,10 @@ export const GridCell = ({
           e.stopPropagation();
           onRightClick();
         }}
+        style={dimensions}
+        className={clsx("absolute z-20 border-2", borderColor)}
+      />
+      <div
         style={dimensions}
         className={clsx("absolute z-0 bg-opacity-50 transition-colors duration-0 hover:bg-opacity-50", backgroundColor)}
       />
