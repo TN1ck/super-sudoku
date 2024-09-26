@@ -101,10 +101,7 @@ const Header = () => {
       <div className="flex justify-between items-center max-w-screen-xl w-full px-4">
         <div>{"Super Sudoku"}</div>
         <div className="flex space-x-2">
-          <button
-            onClick={toggleDarkMode}
-            className="h-10 w-10 rounded-sm p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
+          <button onClick={toggleDarkMode} className="md:h-10 md:w-10 h-8 w-8 rounded-sm p-1 hover:bg-gray-800">
             <svg className="fill-violet-700 block dark:hidden" fill="currentColor" viewBox="0 0 20 20">
               <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
             </svg>
