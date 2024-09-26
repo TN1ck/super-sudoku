@@ -82,7 +82,16 @@ const NewGameButton: React.FC<NewGamePropsFromRedux> = ({pauseGame, chooseGame})
 const ConnectedNewGameButton = newGameConnector(NewGameButton);
 
 const Header = () => {
-  const [darkMode, setDarkMode] = React.useState(false);
+  const [darkMode, setDarkMode] = React.useState(() => {
+    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+      const savedMode = localStorage.getItem("darkMode");
+      if (savedMode !== null) {
+        return JSON.parse(savedMode);
+      }
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+    return false;
+  });
 
   React.useEffect(() => {
     if (darkMode) {
@@ -90,10 +99,32 @@ const Header = () => {
     } else {
       document.body.classList.remove("dark");
     }
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem("darkMode", JSON.stringify(darkMode));
+    }
   }, [darkMode]);
 
+  React.useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = (e: MediaQueryListEvent) => {
+      const newMode = e.matches;
+      setDarkMode(newMode);
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem("darkMode", JSON.stringify(newMode));
+      }
+    };
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
   const toggleDarkMode = () => {
-    setDarkMode((prevMode) => !prevMode);
+    setDarkMode((prevMode: boolean) => {
+      const newMode = !prevMode;
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem("darkMode", JSON.stringify(newMode));
+      }
+      return newMode;
+    });
   };
 
   return (
