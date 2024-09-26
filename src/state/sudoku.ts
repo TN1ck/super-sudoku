@@ -111,6 +111,7 @@ export const emptyGrid: Cell[] = simpleSudokuToCells([
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0],
 ]);
 
 export const INITIAL_SUDOKU_STATE: SudokuState = {

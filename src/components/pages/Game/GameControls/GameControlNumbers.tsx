@@ -79,9 +79,10 @@ class SudokuMenuNumbers extends React.Component<PropsFromRedux> {
             <NumberButton
               className={clsx("relative font-bold", {
                 "bg-gray-400": occurrences == 9,
-                "bg-red-400": this.props.showOccurrences && occurrences > 9,
-                "bg-sky-600 text-white": this.props.notesMode && userNotes.includes(n) && activeCell?.number === 0,
-                "bg-sky-300":
+                "bg-red-400 dark:bg-red-400": this.props.showOccurrences && occurrences > 9,
+                "bg-sky-600 dark:bg-sky-600 text-white":
+                  this.props.notesMode && userNotes.includes(n) && activeCell?.number === 0,
+                "bg-sky-300 dark:bg-sky-300":
                   this.props.notesMode &&
                   userNotes.length === 0 &&
                   autoNotes.includes(n) &&
