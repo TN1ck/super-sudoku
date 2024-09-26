@@ -82,11 +82,26 @@ const NewGameButton: React.FC<NewGamePropsFromRedux> = ({pauseGame, chooseGame})
 const ConnectedNewGameButton = newGameConnector(NewGameButton);
 
 const Header = () => {
+  const [darkMode, setDarkMode] = React.useState(false);
+
+  React.useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add("dark");
+    } else {
+      document.body.classList.remove("dark");
+    }
+  }, [darkMode]);
+
+  const toggleDarkMode = () => {
+    setDarkMode((prevMode) => !prevMode);
+  };
+
   return (
-    <div className="flex justify-center bg-gray-900 py-4 text-white">
+    <div className="flex justify-center bg-gray-900 dark:bg-black py-4 text-white">
       <div className="flex justify-between items-center max-w-screen-xl w-full px-4">
         <div>{"Super Sudoku"}</div>
         <div className="flex space-x-2">
+          <button onClick={toggleDarkMode}>{darkMode ? "Light Mode" : "Dark Mode"}</button>
           <ConnectedClearGameButton />
           <ConnectedNewGameButton />
         </div>

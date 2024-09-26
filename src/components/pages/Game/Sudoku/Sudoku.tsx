@@ -10,7 +10,6 @@ import {
   GridCellNumber,
   CellNote,
   CellNoteContainer,
-  SudokuContainer,
 } from "src/components/pages/Game/Sudoku/Sudoku.styles";
 import SudokuGame from "src/sudoku-game/SudokuGame";
 import {Bounds} from "src/utils/types";
@@ -188,7 +187,7 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
     };
 
     return (
-      <SudokuContainer>
+      <div className="absolute h-full w-full rounded-sm bg-white">
         {wonGame && (
           <div className="absolute top-0 bottom-0 right-0 left-0 z-30 flex items-center justify-center rounded-sm bg-white bg-opacity-80 text-black">
             <div className="grid gap-8">
@@ -293,7 +292,7 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
             </MenuWrapper>
           </MenuContainer>
         ) : null}
-      </SudokuContainer>
+      </div>
     );
   }
 }
