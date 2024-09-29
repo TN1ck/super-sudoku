@@ -92,13 +92,13 @@ export const GridCell = ({
 }) => {
   let backgroundColor = "bg-white dark:bg-gray-800";
   if (highlight) {
-    backgroundColor = "bg-gray-300 dark:bg-gray-700";
+    backgroundColor = "bg-gray-200 dark:bg-gray-700";
   }
   if (highlightNumber) {
-    backgroundColor = "bg-gray-400 dark:bg-gray-600";
+    backgroundColor = "bg-gray-300 dark:bg-gray-600";
   }
   if (conflict) {
-    backgroundColor = "bg-red-300 dark:bg-red-900";
+    backgroundColor = "bg-red-200 dark:bg-red-900";
   }
 
   let borderColor = "border-transparent";
@@ -134,7 +134,7 @@ export const GridCell = ({
       />
       <div
         style={dimensions}
-        className={clsx("absolute z-0 bg-opacity-50 transition-colors duration-0 hover:bg-opacity-50", backgroundColor)}
+        className={clsx("absolute z-0 transition-colors duration-0 hover:bg-opacity-50", backgroundColor)}
       />
     </>
   );

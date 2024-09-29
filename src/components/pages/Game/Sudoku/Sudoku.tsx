@@ -187,7 +187,7 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
     };
 
     return (
-      <div className="absolute h-full w-full rounded-sm bg-white">
+      <div className="absolute h-full w-full rounded-sm">
         {wonGame && (
           <div className="absolute top-0 bottom-0 right-0 left-0 z-30 flex items-center justify-center rounded-sm bg-white bg-opacity-80 text-black">
             <div className="grid gap-8">
