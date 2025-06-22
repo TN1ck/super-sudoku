@@ -129,14 +129,7 @@ const Game: React.FC = () => {
     : undefined;
 
   const handleRestartGame = React.useCallback(() => {
-    restartGame(
-      game.sudokuId,
-      game.sudokuIndex,
-      game.difficulty,
-      game.timesSolved,
-      game.secondsPlayed,
-      game.previousTimes,
-    );
+    restartGame(game.sudokuIndex, game.difficulty, game.timesSolved, game.secondsPlayed, game.previousTimes);
     // Could also recreate it from sudoku.
     const sudokuData = SUDOKUS[game.difficulty][game.sudokuIndex];
     setSudoku(sudokuData.sudoku, sudokuData.solution);
@@ -165,7 +158,6 @@ const Game: React.FC = () => {
           <div className="flex gap-4 flex-col md:flex-row">
             <main className="mt-4 flex-grow md:min-w-96 w-full">
               <Sudoku
-                sudokuId={game.sudokuId}
                 sudokuIndex={game.sudokuIndex}
                 difficulty={game.difficulty}
                 secondsPlayed={game.secondsPlayed}

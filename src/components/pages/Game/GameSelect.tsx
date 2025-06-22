@@ -106,14 +106,14 @@ const SudokuToSelect = ({
   storedSudoku,
 }: {
   sudoku: SudokuRaw;
-  storedSudoku: StoredSudokuState;
+  storedSudoku: StoredSudokuState | undefined;
   index: number;
   difficulty: DIFFICULTY;
   chooseSudoku: (sudoku: SudokuRaw, index: number) => void;
 }) => {
-  const local = storedSudoku;
-  const unfinished = local && local.game.state !== GameStateMachine.wonGame;
-  const finished = local && local.game.state === GameStateMachine.wonGame;
+  const localSudoku = storedSudoku;
+  const unfinished = localSudoku && localSudoku.game.state !== GameStateMachine.wonGame;
+  const finished = localSudoku && localSudoku.game.state === GameStateMachine.wonGame;
   const navigate = useNavigate();
 
   const choose = () => {
@@ -127,7 +127,6 @@ const SudokuToSelect = ({
     navigate({
       to: "/",
       search: {
-        sudokuId: sudoku.id,
         sudokuIndex: index,
         sudoku: stringifySudoku(sudoku.sudoku),
         difficulty: difficulty,
@@ -147,13 +146,13 @@ const SudokuToSelect = ({
           <div>
             <div className="whitespace-nowrap">{`${
               unfinished ? "Current" : "Last"
-            } time: ${formatDuration(local.game.secondsPlayed)}.`}</div>
-            {local.game.previousTimes.length > 0 && (
+            } time: ${formatDuration(localSudoku.game.secondsPlayed)}.`}</div>
+            {localSudoku.game.previousTimes.length > 0 && (
               <div className="whitespace-nowrap">{`Best time: ${formatDuration(
-                Math.min(...local.game.previousTimes),
+                Math.min(...localSudoku.game.previousTimes),
               )}.`}</div>
             )}
-            <div>{`Solved ${local.game.timesSolved} ${local.game.timesSolved === 1 ? "time" : "times"}`}</div>
+            <div>{`Solved ${localSudoku.game.timesSolved} ${localSudoku.game.timesSolved === 1 ? "time" : "times"}`}</div>
             {unfinished && <div>{"Continue"}</div>}
             {finished && <div>{`Restart?`}</div>}
           </div>
@@ -198,7 +197,8 @@ const GameIndex = ({
       <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
         {pageSudokus.map((sudoku, index) => {
           const globalIndex = pageStart + index;
-          const storedSudoku = localState.sudokus[sudoku.id];
+          const sudokuKey = stringifySudoku(sudoku.sudoku);
+          const storedSudoku = localState.sudokus[sudokuKey] as StoredSudokuState | undefined;
           return (
             <SudokuToSelect
               key={globalIndex}
@@ -224,10 +224,10 @@ const GameSelect: React.FC = () => {
 
   useEffect(() => {
     const search = (location as any).search;
-    if (search?.sudokuId && search?.sudokuIndex && search?.sudoku && search?.difficulty) {
+    if (search?.sudokuIndex && search?.sudoku && search?.difficulty) {
       const sudoku = SUDOKUS[search.difficulty as DIFFICULTY]?.[search.sudokuIndex];
-      if (sudoku && sudoku.id === search.sudokuId) {
-        newGame(search.sudokuId, search.sudokuIndex, search.difficulty);
+      if (sudoku && stringifySudoku(sudoku.sudoku) === search.sudoku) {
+        newGame(search.sudokuIndex, search.difficulty);
         setSudoku(sudoku.sudoku, sudoku.solution);
         continueGame();
       }
@@ -235,7 +235,7 @@ const GameSelect: React.FC = () => {
   }, [location, newGame, setSudoku, continueGame]);
 
   const chooseSudoku = (sudoku: SudokuRaw, index: number) => {
-    newGame(sudoku.id, index, activeTab);
+    newGame(index, activeTab);
     setSudoku(sudoku.sudoku, sudoku.solution);
     continueGame();
   };

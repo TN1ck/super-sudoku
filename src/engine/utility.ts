@@ -86,6 +86,24 @@ export function complexSudokuToSimpleSudoku(sudoku: ComplexSudoku): SimpleSudoku
   return simple;
 }
 
+export function cellsToSimpleSudoku(cells: Cell[]): SimpleSudoku {
+  const simple: number[][] = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ];
+  cells.forEach((cell) => {
+    simple[cell.y][cell.x] = cell.number;
+  });
+  return simple;
+}
+
 export function stringifySudoku(grid: SimpleSudoku) {
   return grid
     .map((row) => {
@@ -102,6 +120,31 @@ export function duplicates(array: number[]): number {
 }
 
 export function parseSudoku(sudoku: string): SimpleSudoku {
+  // Handle multi-line format with underscores (for tests)
+  if (sudoku.includes("\n")) {
+    const lines = sudoku.split("\n").filter((line) => line.trim() !== "");
+    if (lines.length !== 9) {
+      throw new Error(`Wrong number of lines! Only 9 allowed: ${sudoku}`);
+    }
+    return lines.map((line) => {
+      const characters = line.split("");
+      if (characters.length !== 9) {
+        throw new Error(`Wrong number of characters in line! Only 9 allowed: ${line} - ${sudoku}`);
+      }
+      return characters.map((c) => {
+        if (c === "_" || c === "0") {
+          return 0;
+        }
+        const number = Number(c);
+        if (isNaN(number) || number < 1 || number > 9) {
+          throw new Error(`The input data is incorrect, only 1-9 and _/0 allowed, but found ${c}`);
+        }
+        return number;
+      });
+    });
+  }
+
+  // Handle single string format (for production)
   if (sudoku.length !== 9 * 9) {
     throw new Error(
       `The input data is incorrect, only 81 characters allowed, but found ${sudoku.length} characters. Input: ${sudoku}`,

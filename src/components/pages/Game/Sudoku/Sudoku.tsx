@@ -109,7 +109,6 @@ const SudokuCell = React.memo(
 
 interface SudokuProps {
   activeCell?: CellCoordinates;
-  sudokuId: number;
   sudokuIndex: number;
   difficulty: DIFFICULTY;
   sudoku: Cell[];

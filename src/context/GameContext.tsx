@@ -21,7 +21,6 @@ export interface GameState {
   showConflicts: boolean;
   showNotes: boolean;
   state: GameStateMachine;
-  sudokuId: number;
   sudokuIndex: number;
   won: boolean;
   timesSolved: number;
@@ -41,7 +40,6 @@ export const INITIAL_GAME_STATE: GameState = {
   showMenu: false,
   showNotes: false,
   state: GameStateMachine.paused,
-  sudokuId: -1,
   sudokuIndex: -1,
   secondsPlayed: 0,
   timesSolved: 0,
@@ -68,12 +66,11 @@ export const UPDATE_TIMER = "game/UPDATE_TIME";
 const RESET_GAME = "game/RESET_GAME";
 
 type GameAction =
-  | {type: typeof NEW_GAME; sudokuId: number; sudokuIndex: number; difficulty: DIFFICULTY}
+  | {type: typeof NEW_GAME; sudokuIndex: number; difficulty: DIFFICULTY}
   | {type: typeof SET_GAME_STATE; state: GameState}
   | {type: typeof SET_GAME_STATE_MACHINE; state: GameStateMachine}
   | {
       type: typeof RESTART_GAME;
-      sudokuId: number;
       sudokuIndex: number;
       difficulty: DIFFICULTY;
       timesSolved: number;
@@ -100,7 +97,6 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     case NEW_GAME:
       return {
         ...INITIAL_GAME_STATE,
-        sudokuId: action.sudokuId,
         sudokuIndex: action.sudokuIndex,
         difficulty: action.difficulty,
         state: GameStateMachine.running,
@@ -114,7 +110,6 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     case RESTART_GAME:
       return {
         ...state,
-        sudokuId: action.sudokuId,
         sudokuIndex: action.sudokuIndex,
         difficulty: action.difficulty,
         timesSolved: action.timesSolved,
@@ -194,7 +189,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
 interface GameContextType {
   state: GameState;
-  newGame: (sudokuId: number, sudokuIndex: number, difficulty: DIFFICULTY) => void;
+  newGame: (sudokuIndex: number, difficulty: DIFFICULTY) => void;
   setGameState: (state: GameState) => void;
   wonGame: () => void;
   pauseGame: () => void;
@@ -203,7 +198,6 @@ interface GameContextType {
   showMenu: (showNotes?: boolean) => void;
   hideMenu: () => void;
   restartGame: (
-    sudokuId: number,
     sudokuIndex: number,
     difficulty: DIFFICULTY,
     timesSolved: number,
@@ -233,8 +227,8 @@ interface GameProviderProps {
 export function GameProvider({children, initialState = INITIAL_GAME_STATE}: GameProviderProps) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
 
-  const newGame = useCallback((sudokuId: number, sudokuIndex: number, difficulty: DIFFICULTY) => {
-    dispatch({type: NEW_GAME, sudokuId, sudokuIndex, difficulty});
+  const newGame = useCallback((sudokuIndex: number, difficulty: DIFFICULTY) => {
+    dispatch({type: NEW_GAME, sudokuIndex, difficulty});
   }, []);
 
   const setGameState = useCallback((gameState: GameState) => {
@@ -267,14 +261,13 @@ export function GameProvider({children, initialState = INITIAL_GAME_STATE}: Game
 
   const restartGame = useCallback(
     (
-      sudokuId: number,
       sudokuIndex: number,
       difficulty: DIFFICULTY,
       timesSolved: number,
       secondsPlayed: number,
       previousTimes: number[],
     ) => {
-      dispatch({type: RESTART_GAME, sudokuId, sudokuIndex, difficulty, timesSolved, secondsPlayed, previousTimes});
+      dispatch({type: RESTART_GAME, sudokuIndex, difficulty, timesSolved, secondsPlayed, previousTimes});
     },
     [],
   );
