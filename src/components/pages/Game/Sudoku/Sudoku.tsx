@@ -126,6 +126,7 @@ interface SudokuProps {
   selectCell: typeof selectCell;
   restartGame: () => void;
   state: GameStateMachine;
+  children: React.ReactNode;
 }
 
 export const Sudoku: React.FC<SudokuProps> = (props) => {
@@ -181,12 +182,13 @@ export const Sudoku: React.FC<SudokuProps> = (props) => {
 
   return (
     <div className="relative" ref={sudokuContainerRef} style={{height: containerWidth}}>
+      {props.children}
       <div className="absolute h-full w-full rounded-sm">
         {wonGame && (
-          <div className="absolute top-0 bottom-0 right-0 left-0 z-30 flex items-center justify-center rounded-sm bg-white bg-opacity-80 text-black">
+          <div className="absolute top-0 bottom-0 right-0 left-0 z-30 flex items-center justify-center rounded-sm bg-white dark:bg-black dark:bg-opacity-80 bg-opacity-80 text-black dark:text-white">
             <div className="grid gap-8">
-              <div className="flex justify-center bg-white text-2xl">{"🎉 Congrats, you won! 🎉"}</div>
-              <div className="text-md flex justify-center bg-white">
+              <div className="flex justify-center text-2xl">{"🎉 Congrats, you won! 🎉"}</div>
+              <div className="text-md flex justify-center">
                 <div className="grid">
                   <div className="flex justify-center">{`You solved this sudoku ${props.timesSolved} ${
                     props.timesSolved === 1 ? "time" : "times"

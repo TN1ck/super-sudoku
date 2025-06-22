@@ -5,11 +5,9 @@ import {connect, ConnectedProps} from "react-redux";
 import {RootState} from "src/state/rootReducer";
 import {DIFFICULTY} from "src/engine/types";
 import SudokuPreview from "./SudokuPreview/SudokuPreview";
-import {setDifficulty} from "src/state/choose";
 import {newGame, setGameState, continueGame, GameStateMachine, restartGame} from "src/state/game";
 import {setSudoku, setSudokuState} from "src/state/sudoku";
 import {getState, StoredSudokuState} from "src/sudoku-game/persistence";
-import {playGame} from "src/state/application";
 import {formatDuration} from "src/utils/format";
 import {useEffect} from "react";
 import {RefObject} from "react";
@@ -218,23 +216,16 @@ const GameIndex = ({
   );
 };
 
-interface GameSelectProps {
-  difficulty: DIFFICULTY;
-}
-
 const connector = connect(
   (state: RootState) => {
     return {
       currentSudokuIndex: state.game.sudokuIndex,
-      difficulty: state.choose.difficulty,
     };
   },
   {
-    setDifficulty,
     newGame,
     restartGame,
     continueGame,
-    playGame,
     setSudoku,
     setSudokuState,
     setGameState,
@@ -246,20 +237,18 @@ type PropsFromRedux = ConnectedProps<typeof connector>;
 const GameSelect = React.memo(
   ({
     currentSudokuIndex,
-    difficulty,
-    setDifficulty,
     newGame,
     restartGame,
     setSudoku,
     setGameState,
     setSudokuState,
     continueGame,
-    playGame,
-  }: GameSelectProps & PropsFromRedux) => {
+  }: PropsFromRedux) => {
+    const [difficulty, setDifficulty] = React.useState(DIFFICULTY.EASY);
+
     const chooseSudoku = (sudoku: SudokuRaw, index: number) => {
       const localState = getState();
       const local = localState.sudokus[sudoku.id];
-      playGame();
       if (!local) {
         newGame(sudoku.id, index, difficulty);
         setSudoku(sudoku.sudoku, sudoku.solution);

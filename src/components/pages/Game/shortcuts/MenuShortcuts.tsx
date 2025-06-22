@@ -15,18 +15,6 @@ class GameMenuShortcuts extends React.Component<GameMenuShortcutsDispatchProps> 
       this.props.continueGame();
       return false;
     });
-    hotkeys("up", ShortcutScope.Menu, () => {
-      console.log("up");
-      return false;
-    });
-    hotkeys("down", ShortcutScope.Menu, () => {
-      console.log("down");
-      return false;
-    });
-    hotkeys("enter", ShortcutScope.Menu, () => {
-      console.log("enter");
-      return false;
-    });
   }
   componentWillUnmount() {
     hotkeys.deleteScope(ShortcutScope.Menu);

@@ -2,7 +2,6 @@ import * as React from "react";
 import {connect, ConnectedProps} from "react-redux";
 import Button from "./Button";
 import {continueGame, GameStateMachine, pauseGame, resetGame} from "src/state/game";
-import {chooseGame} from "src/state/application";
 import {RootState} from "src/state/rootReducer";
 import {setSudoku} from "src/state/sudoku";
 import SUDOKUS from "src/sudoku-game/sudokus";
@@ -10,7 +9,6 @@ import {Link, useNavigate} from "@tanstack/react-location";
 
 const newGameConnector = connect(null, {
   pauseGame,
-  chooseGame,
 });
 
 type NewGamePropsFromRedux = ConnectedProps<typeof newGameConnector>;
@@ -67,7 +65,7 @@ const ClearGameButton: React.FC<ClearGamePropsFromRedux> = ({
 
 const ConnectedClearGameButton = clearGameConnector(ClearGameButton);
 
-const NewGameButton: React.FC<NewGamePropsFromRedux> = ({pauseGame, chooseGame}) => {
+const NewGameButton: React.FC<NewGamePropsFromRedux> = ({pauseGame}) => {
   const navigate = useNavigate();
 
   const pauseAndChoose = () => {

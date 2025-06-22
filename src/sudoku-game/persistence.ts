@@ -1,7 +1,6 @@
 import SUDOKUS from "src/sudoku-game/sudokus";
 import {GameState, GameStateMachine} from "src/state/game";
 import {SudokuState} from "src/state/sudoku";
-import {ApplicationState} from "src/state/application";
 import {Cell} from "src/engine/types";
 
 const STORAGE_KEY_V_1_3 = "super_sudoku_1_3_use_this_file_if_you_want_to_cheat";
@@ -14,7 +13,6 @@ export interface StoredSudokuState {
 
 interface StoredState {
   active: number;
-  application: ApplicationState | undefined;
   sudokus: {
     [key: number]: StoredSudokuState;
   };
@@ -88,10 +86,9 @@ const loadFromLocalStorage = (): StoredState => {
 
 // TODO: this is problematic with multiple open windows, as the .active gets overwritten.
 // We should have a tab based storage for that stuff as well, so a reload does not open the other sudoku.
-export const saveToLocalStorage = (application: ApplicationState, game: GameState, sudoku: SudokuState) => {
+export const saveToLocalStorage = (game: GameState, sudoku: SudokuState) => {
   const cached = loadFromLocalStorage();
   cached.active = game.sudokuId;
-  cached.application = application;
   // We do not save the history as it would take too much space.
   // Also we don't need to to migrate the existing data.
   cached.sudokus[game.sudokuId] = {game, sudoku: sudoku.current};

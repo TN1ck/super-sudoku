@@ -17,8 +17,6 @@ import {
   toggleShowOccurrences,
 } from "src/state/game";
 
-import {chooseGame} from "src/state/application";
-
 import {setNumber, setNotes, setSudoku, undo} from "src/state/sudoku";
 
 import {Sudoku} from "src/components/pages/Game/Sudoku/Sudoku";
@@ -87,14 +85,12 @@ const connector = connect(
   (state: RootState) => {
     return {
       game: state.game,
-      application: state.application,
       sudoku: state.sudoku.current,
     };
   },
   {
     continueGame,
     pauseGame,
-    chooseGame,
     wonGame,
     showMenu,
     restartGame,
@@ -146,7 +142,7 @@ class Game extends React.Component<PropsFromRedux> {
   };
 
   render() {
-    const {game, application, pauseGame, continueGame, chooseGame, sudoku} = this.props;
+    const {game, pauseGame, continueGame, sudoku} = this.props;
     const pausedGame = game.state === GameStateMachine.paused;
     const activeCell = game.activeCellCoordinates
       ? sudoku.find((s) => {
@@ -175,7 +171,7 @@ class Game extends React.Component<PropsFromRedux> {
       <div className="relative min-h-full max-w-full">
         <Container>
           <div>
-            <Shortcuts gameState={game.state} applicationState={application.state} />
+            <Shortcuts gameState={game.state} />
             <header className="flex justify-between items-center mt-4">
               <div className="flex">
                 <DifficultyShow>{`${game.difficulty} - ${game.sudokuIndex + 1}`}</DifficultyShow>
@@ -191,8 +187,7 @@ class Game extends React.Component<PropsFromRedux> {
               </div>
             </header>
             <div className="flex gap-4 flex-col md:flex-row">
-              <main className="mt-4 flex-grow md:min-w-96 w-full ">
-                <CenteredContinueButton visible={pausedGame} onClick={continueGame} />
+              <main className="mt-4 flex-grow md:min-w-96 w-full">
                 <Sudoku
                   sudokuId={this.props.game.sudokuId}
                   sudokuIndex={this.props.game.sudokuIndex}
@@ -212,7 +207,9 @@ class Game extends React.Component<PropsFromRedux> {
                   selectCell={this.props.selectCell}
                   showHints={game.showHints && game.state === GameStateMachine.running}
                   activeCell={activeCell}
-                />
+                >
+                  <CenteredContinueButton visible={pausedGame} onClick={continueGame} />
+                </Sudoku>
               </main>
               <div className="mt-4">
                 <SudokuMenuNumbersConnected />
