@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import {SUDOKU_NUMBERS, SQUARE_TABLE, squareIndex, duplicates, printSimpleSudoku} from "./utility";
+import {SUDOKU_NUMBERS, SQUARE_TABLE, squareIndex, duplicates, stringifySudoku} from "./utility";
 import {SimpleSudoku} from "./types";
 
 function isFilled(grid: SimpleSudoku): boolean {

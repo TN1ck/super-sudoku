@@ -10,8 +10,13 @@ import Game from "./components/pages/Game";
 import Playground from "./components/pages/Playground";
 import About from "./components/pages/About";
 import NotFound from "./components/pages/NotFound";
+import NewGame from "./components/pages/NewGame";
 
 const routes = [
+  {
+    path: "/new-game",
+    element: <NewGame />,
+  },
   {
     path: "/",
     element: <Game />,

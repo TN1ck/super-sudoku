@@ -13,7 +13,7 @@ const Button = ({
   className?: string;
   disabled?: boolean;
   active?: boolean;
-  onClick: () => void;
+  onClick?: () => void;
 }) => {
   return (
     <button

@@ -38,21 +38,6 @@ export function squareIndex(x: number, y: number): number {
   return Math.floor(y / 3) * 3 + Math.floor(x / 3);
 }
 
-export function printSimpleSudoku(grid: SimpleSudoku) {
-  return grid
-    .map((row) => {
-      return row.map((c) => (c === 0 ? "_" : "" + c)).join("");
-    })
-    .join("\n");
-}
-
-export function duplicates(array: number[]): number {
-  const filtered = array.filter((c) => c !== 0);
-  const grouped = groupBy(filtered, (c) => c);
-  const picked = pickBy(grouped, (x) => x.length > 1);
-  return values(picked).length;
-}
-
 export function simpleSudokuToComplexSudoku(grid: SimpleSudoku): ComplexSudoku {
   return ([] as ComplexSudoku).concat(
     ...grid.map((row, y) => {
@@ -101,17 +86,38 @@ export function complexSudokuToSimpleSudoku(sudoku: ComplexSudoku): SimpleSudoku
   return simple;
 }
 
-export function parseSudoku(sudoku: string): SimpleSudoku {
-  // check if the input-data is correct
-  const inputDataIsCorrectDomain = [...sudoku].every((char) => {
-    return ["\n", "_"].concat(SUDOKU_NUMBERS.map((n) => String(n))).indexOf(char) >= 0;
-  });
+export function stringifySudoku(grid: SimpleSudoku) {
+  return grid
+    .map((row) => {
+      return row.map((c) => (c === 0 ? "0" : c.toString())).join("");
+    })
+    .join("");
+}
 
-  if (!inputDataIsCorrectDomain) {
-    throw new Error("The input data is incorrect, only _, \n and 1...9 allowed");
+export function duplicates(array: number[]): number {
+  const filtered = array.filter((c) => c !== 0);
+  const grouped = groupBy(filtered, (c) => c);
+  const picked = pickBy(grouped, (x) => x.length > 1);
+  return values(picked).length;
+}
+
+export function parseSudoku(sudoku: string): SimpleSudoku {
+  if (sudoku.length !== 9 * 9) {
+    throw new Error(
+      `The input data is incorrect, only 81 characters allowed, but found ${sudoku.length} characters. Input: ${sudoku}`,
+    );
   }
 
-  const lines = sudoku.split("\n");
+  for (const char of sudoku) {
+    if (["0"].concat(SUDOKU_NUMBERS.map((n) => String(n))).indexOf(char) < 0) {
+      throw new Error(`The input data is incorrect, only 0-9 allowed, but found ${char}`);
+    }
+  }
+
+  const lines = [];
+  for (let i = 0; i < 9; i++) {
+    lines.push(sudoku.slice(i * 9, (i + 1) * 9));
+  }
 
   if (lines.length !== 9) {
     throw new Error(`Wrong number of lines! Only 9 allowed: ${sudoku}`);
@@ -123,7 +129,7 @@ export function parseSudoku(sudoku: string): SimpleSudoku {
       throw new Error(`Wrong number of characters in line! Only 9 allowed: ${line} - ${sudoku}`);
     }
     return characters.map((c) => {
-      const number = c === "_" ? 0 : Number(c);
+      const number = c === "0" ? 0 : Number(c);
       return number;
     });
   });

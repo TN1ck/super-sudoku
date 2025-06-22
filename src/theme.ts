@@ -1,5 +1,3 @@
-import {colors} from "@react-spring/shared";
-
 const COLORS = {
   slate: {
     50: "#f8fafc",

@@ -1,18 +1,18 @@
 import {solve} from "../solverAC3";
-import {printSimpleSudoku} from "../utility";
+import {stringifySudoku} from "../utility";
 import {EMPTY_SUDOKU, SOLVED_SUDOKUS} from "../testutils";
 
 describe("solve", () => {
   SOLVED_SUDOKUS.forEach((s, i) => {
     it(`solves correctly sudoku ${i}`, () => {
       const result = solve(s.unsolved);
-      expect(printSimpleSudoku(result.sudoku!)).toBe(printSimpleSudoku(s.solved));
+      expect(stringifySudoku(result.sudoku!)).toBe(stringifySudoku(s.solved));
     });
   });
 
   it(`finds a solution for an empty sudoku`, () => {
     const result = solve(EMPTY_SUDOKU);
-    expect(printSimpleSudoku(result.sudoku!)).toBe(
+    expect(stringifySudoku(result.sudoku!)).toBe(
       [
         "123456789",
         "456789123",

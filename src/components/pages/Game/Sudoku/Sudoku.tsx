@@ -17,6 +17,7 @@ import {Cell, CellCoordinates, DIFFICULTY} from "src/engine/types";
 import {flatten} from "src/utils/collection";
 import Button from "src/components/modules/Button";
 import {formatDuration} from "src/utils/format";
+import {Link} from "@tanstack/react-location";
 
 const SudokuGrid = React.memo(
   ({width, height, hideLeftRight = false}: {width: number; height: number; hideLeftRight?: boolean}) => {
@@ -207,9 +208,9 @@ export class Sudoku extends React.PureComponent<SudokuProps> {
                   </div>
                 </div>
               </div>
-              <Button className="bg-teal-700 text-white" onClick={() => this.props.restartGame()}>
-                Play again
-              </Button>
+              <Link to="/new-game" className="w-full">
+                <Button className="bg-teal-700 text-white w-full">{"Select next sudoku"}</Button>
+              </Link>
             </div>
           </div>
         )}

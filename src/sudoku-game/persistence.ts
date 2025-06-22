@@ -7,7 +7,7 @@ import {Cell} from "src/engine/types";
 const STORAGE_KEY_V_1_3 = "super_sudoku_1_3_use_this_file_if_you_want_to_cheat";
 const STORAGE_KEY_V_1_4 = "super_sudoku_1_4_use_this_file_if_you_want_to_cheat";
 
-interface StoredSudokuState {
+export interface StoredSudokuState {
   game: GameState;
   sudoku: Cell[];
 }

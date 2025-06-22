@@ -23,8 +23,8 @@ import {setNumber, setNotes, setSudoku, undo} from "src/state/sudoku";
 
 import {Sudoku} from "src/components/pages/Game/Sudoku/Sudoku";
 
-import GameTimer from "./GameTimer";
-import GameMenu from "./GameMenu";
+import GameTimer from "./Game/GameTimer";
+import GameMenu from "./Game/GameMenu";
 
 import Button from "src/components/modules/Button";
 import styled from "styled-components";
@@ -34,7 +34,7 @@ import SudokuGame from "src/sudoku-game/SudokuGame";
 import SudokuMenuNumbers from "src/components/pages/Game/GameControls/GameControlNumbers";
 import SudokuMenuControls from "src/components/pages/Game/GameControls/GameControlActions";
 import {Container} from "src/components/modules/Layout";
-import Shortcuts from "./shortcuts/Shortcuts";
+import Shortcuts from "./Game/shortcuts/Shortcuts";
 import Checkbox from "src/components/modules/Checkbox";
 import SUDOKUS from "src/sudoku-game/sudokus";
 
@@ -236,6 +236,24 @@ class Game extends React.Component<PropsFromRedux> {
           return s.x === game.activeCellCoordinates!.x && s.y === game.activeCellCoordinates!.y;
         })
       : undefined;
+
+    const restartGame = () => {
+      () => {
+        this.props.restartGame(
+          this.props.game.sudokuId,
+          this.props.game.sudokuIndex,
+          this.props.game.difficulty,
+          this.props.game.timesSolved,
+          this.props.game.secondsPlayed,
+          this.props.game.previousTimes,
+        );
+        // Could also recreate it from this.props.sudoku.
+        const sudoku = SUDOKUS[this.props.game.difficulty][this.props.game.sudokuIndex];
+        this.props.setSudoku(sudoku.sudoku, sudoku.solution);
+        this.props.continueGame();
+      };
+    };
+
     return (
       <div className="relative min-h-full max-w-full">
         <GameMenu />
@@ -273,20 +291,7 @@ class Game extends React.Component<PropsFromRedux> {
                 shouldShowMenu={this.props.game.showMenu && this.props.game.showCircleMenu}
                 sudoku={this.props.sudoku}
                 timesSolved={this.props.game.timesSolved}
-                restartGame={() => {
-                  this.props.restartGame(
-                    this.props.game.sudokuId,
-                    this.props.game.sudokuIndex,
-                    this.props.game.difficulty,
-                    this.props.game.timesSolved,
-                    this.props.game.secondsPlayed,
-                    this.props.game.previousTimes,
-                  );
-                  // Could also recreate it from this.props.sudoku.
-                  const sudoku = SUDOKUS[this.props.game.difficulty][this.props.game.sudokuIndex];
-                  this.props.setSudoku(sudoku.sudoku, sudoku.solution);
-                  this.props.continueGame();
-                }}
+                restartGame={restartGame}
                 showMenu={this.props.showMenu}
                 hideMenu={this.props.hideMenu}
                 selectCell={this.props.selectCell}

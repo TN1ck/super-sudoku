@@ -3,13 +3,13 @@ import {createSeededRandom} from "../seededRandom";
 import {solve} from "../solverAC3";
 import {EMPTY_SUDOKU, SOLVED_SUDOKUS} from "../testutils";
 import {DIFFICULTY} from "../types";
-import {printSimpleSudoku} from "../utility";
+import {stringifySudoku} from "../utility";
 
 describe("generate", () => {
   it("generates the same sudoku using a seed", () => {
     const randomFn = createSeededRandom(10);
     const sudoku = generateSudoku(DIFFICULTY.EASY, randomFn);
-    const stringified = printSimpleSudoku(sudoku);
+    const stringified = stringifySudoku(sudoku);
     expect(stringified).toBe(
       `_8_9_25_6
 _61_78_4_
@@ -30,7 +30,7 @@ ____2____
   it("generates the difficult sudoku using a seed", () => {
     const randomFn = createSeededRandom(10);
     const sudoku = generateSudoku(DIFFICULTY.EVIL, randomFn);
-    const stringified = printSimpleSudoku(sudoku);
+    const stringified = stringifySudoku(sudoku);
     // Check if it is unique.
     expect(checkForUniqueness(sudoku)).toBe(true);
     // Check if it can be solved.
@@ -41,7 +41,7 @@ ____2____
   it("generates the difficult sudoku using a seed", () => {
     const randomFn = createSeededRandom(4);
     const sudoku = generateSudoku(DIFFICULTY.EVIL, randomFn);
-    const stringified = printSimpleSudoku(sudoku);
+    const stringified = stringifySudoku(sudoku);
     // Check if it is unique.
     expect(checkForUniqueness(sudoku)).toBe(true);
     // Check if it can be solved.

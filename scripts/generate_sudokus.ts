@@ -2,7 +2,7 @@ import * as fs from "fs";
 import {program} from "commander";
 import * as generate from "../src/engine/generate";
 import * as solverAC3 from "../src/engine/solverAC3";
-import {printSimpleSudoku} from "../src/engine/utility";
+import {stringifySudoku} from "../src/engine/utility";
 import {DIFFICULTY, SimpleSudoku} from "../src/engine/types";
 import {createSeededRandom} from "../src/engine/seededRandom";
 
@@ -31,7 +31,7 @@ const sudokuDifficulty = mapping[difficulty];
 
 function writeSudoku(sudoku: SimpleSudoku) {
   const iterations = solverAC3.solve(sudoku).iterations;
-  const printedSudoku = printSimpleSudoku(sudoku);
+  const printedSudoku = stringifySudoku(sudoku);
   console.log(`write sudoku with difficulty ${iterations}\n`, printedSudoku);
   const stringToAppend = `${iterations}
 ${printedSudoku}
