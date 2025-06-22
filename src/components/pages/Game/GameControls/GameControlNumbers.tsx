@@ -1,10 +1,7 @@
 import * as React from "react";
-import {setNumber, setNotes, SudokuState} from "src/state/sudoku";
 import {SUDOKU_NUMBERS} from "src/engine/utility";
-import {CellCoordinates} from "src/engine/types";
+import {CellCoordinates, Cell} from "src/engine/types";
 import Button from "src/components/modules/Button";
-import {connect, ConnectedProps} from "react-redux";
-import {RootState} from "src/state/rootReducer";
 import clsx from "clsx";
 import SudokuGame from "src/sudoku-game/SudokuGame";
 
@@ -18,98 +15,78 @@ const NumberButton = (props: React.ComponentProps<typeof Button>) => (
   <Button className="flex justify-center items-center px-0" {...props} />
 );
 
-export interface SudokuMenuNumbersStateProps {
+export interface SudokuMenuNumbersProps {
   notesMode: boolean;
-  activeCell: CellCoordinates;
+  activeCell?: CellCoordinates;
   showOccurrences: boolean;
-  sudoku: SudokuState;
+  sudoku: Cell[];
+  showHints: boolean;
+  setNumber: (cellCoordinates: CellCoordinates, number: number) => void;
+  setNotes: (cellCoordinates: CellCoordinates, notes: number[]) => void;
 }
 
-export interface SudokuMenuNumbersDispatchProps {
-  setNumber: typeof setNumber;
-  setNotes: typeof setNotes;
-}
+const SudokuMenuNumbers: React.FC<SudokuMenuNumbersProps> = ({
+  notesMode,
+  activeCell,
+  showOccurrences,
+  sudoku,
+  showHints,
+  setNumber,
+  setNotes,
+}) => {
+  return (
+    <SudokuMenuNumbersContainer>
+      {SUDOKU_NUMBERS.map((n) => {
+        const occurrences = sudoku.filter((c) => c.number === n).length;
 
-const connector = connect(
-  (state: RootState) => ({
-    notesMode: state.game.notesMode,
-    showOccurrences: state.game.showOccurrences,
-    activeCell: state.game.activeCellCoordinates,
-    sudoku: state.sudoku.current,
-    showHints: state.game.showHints,
-  }),
-  {
-    setNumber,
-    setNotes,
-  },
-);
-type PropsFromRedux = ConnectedProps<typeof connector>;
+        const conflicting = SudokuGame.conflictingFields(sudoku);
 
-class SudokuMenuNumbers extends React.Component<PropsFromRedux> {
-  render() {
-    return (
-      <SudokuMenuNumbersContainer>
-        {SUDOKU_NUMBERS.map((n) => {
-          const occurrences = this.props.sudoku.filter((c) => c.number === n).length;
+        const activeCellData = activeCell ? sudoku[activeCell.y * 9 + activeCell.x] : undefined;
+        const userNotes = activeCellData?.notes ?? [];
+        const conflictingCell = activeCell ? conflicting[activeCell.y * 9 + activeCell.x] : undefined;
+        const autoNotes = (showHints ? conflictingCell?.possibilities : []) ?? [];
 
-          const conflicting = SudokuGame.conflictingFields(this.props.sudoku);
+        const setNumberOrNote = () => {
+          if (!activeCell) return;
 
-          const activeCell = this.props.activeCell
-            ? this.props.sudoku[this.props.activeCell.y * 9 + this.props.activeCell.x]
-            : undefined;
-          const userNotes = activeCell?.notes ?? [];
-          const conflictingCell = this.props.activeCell
-            ? conflicting[this.props.activeCell.y * 9 + this.props.activeCell.x]
-            : undefined;
-          const autoNotes = (this.props.showHints ? conflictingCell?.possibilities : []) ?? [];
+          if (notesMode) {
+            const startingNotes = userNotes.length === 0 && autoNotes.length > 0 ? autoNotes : userNotes;
 
-          const setNumberOrNote = () => {
-            if (this.props.notesMode) {
-              const startingNotes = userNotes.length === 0 && autoNotes.length > 0 ? autoNotes : userNotes;
+            const newNotes = startingNotes.includes(n) ? startingNotes.filter((note) => note !== n) : [...userNotes, n];
+            setNotes(activeCell, newNotes);
+          } else {
+            setNumber(activeCell, n);
+          }
+        };
 
-              const newNotes = startingNotes.includes(n)
-                ? startingNotes.filter((note) => note !== n)
-                : [...userNotes, n];
-              this.props.setNotes(this.props.activeCell!, newNotes);
-            } else {
-              this.props.setNumber(this.props.activeCell!, n);
-            }
-          };
+        return (
+          <NumberButton
+            className={clsx("relative font-bold", {
+              "bg-gray-400": occurrences == 9,
+              "bg-red-400 dark:bg-red-400": showOccurrences && occurrences > 9,
+              "bg-sky-600 dark:bg-sky-600 text-white":
+                notesMode && userNotes.includes(n) && activeCellData?.number === 0,
+              "bg-sky-300 dark:bg-sky-300":
+                notesMode &&
+                userNotes.length === 0 &&
+                autoNotes.includes(n) &&
+                !userNotes.includes(n) &&
+                activeCellData?.number === 0,
+            })}
+            onClick={setNumberOrNote}
+            key={n}
+          >
+            {showOccurrences && (
+              <div className="absolute right-0 bottom-0 h-3 w-3 rounded-xl bg-teal-700 text-xxs text-white opacity-70 sm:right-1 sm:bottom-1 sm:h-4 sm:w-4 sm:text-xs ">
+                {occurrences}
+              </div>
+            )}
+            {n}
+          </NumberButton>
+        );
+      })}
+    </SudokuMenuNumbersContainer>
+  );
+};
 
-          return (
-            <NumberButton
-              className={clsx("relative font-bold", {
-                "bg-gray-400": occurrences == 9,
-                "bg-red-400 dark:bg-red-400": this.props.showOccurrences && occurrences > 9,
-                "bg-sky-600 dark:bg-sky-600 text-white":
-                  this.props.notesMode && userNotes.includes(n) && activeCell?.number === 0,
-                "bg-sky-300 dark:bg-sky-300":
-                  this.props.notesMode &&
-                  userNotes.length === 0 &&
-                  autoNotes.includes(n) &&
-                  !userNotes.includes(n) &&
-                  activeCell?.number === 0,
-              })}
-              onClick={setNumberOrNote}
-              key={n}
-            >
-              {this.props.showOccurrences && (
-                <div className="absolute right-0 bottom-0 h-3 w-3 rounded-xl bg-teal-700 text-xxs text-white opacity-70 sm:right-1 sm:bottom-1 sm:h-4 sm:w-4 sm:text-xs ">
-                  {occurrences}
-                </div>
-              )}
-              {/* {this.props.notesMode && this.props.showHints && autoNotes.includes(n) && (
-                <div className="absolute font-normal left-1 top-1 h-3 w-3 rounded-xl text-xxs text-gray opacity-70 ">
-                  {"auto"}
-                </div>
-              )} */}
-              {n}
-            </NumberButton>
-          );
-        })}
-      </SudokuMenuNumbersContainer>
-    );
-  }
-}
-
-export default connector(SudokuMenuNumbers);
+export default SudokuMenuNumbers;

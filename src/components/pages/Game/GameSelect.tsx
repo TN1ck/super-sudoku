@@ -1,12 +1,10 @@
 import * as React from "react";
 
 import SUDOKUS, {SudokuRaw} from "src/sudoku-game/sudokus";
-import {connect, ConnectedProps} from "react-redux";
-import {RootState} from "src/state/rootReducer";
 import {DIFFICULTY} from "src/engine/types";
 import SudokuPreview from "./SudokuPreview/SudokuPreview";
-import {newGame, setGameState, continueGame, GameStateMachine, restartGame} from "src/state/game";
-import {setSudoku, setSudokuState} from "src/state/sudoku";
+import {useGame, GameStateMachine} from "src/context/GameContext";
+import {useSudoku} from "src/context/SudokuContext";
 import {getState, StoredSudokuState} from "src/sudoku-game/persistence";
 import {formatDuration} from "src/utils/format";
 import {useEffect} from "react";
@@ -198,16 +196,17 @@ const GameIndex = ({
   return (
     <div>
       <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
-        {pageSudokus.map((sudoku, i) => {
-          const index = i + pageStart;
-          const local = localState.sudokus[sudoku.id];
+        {pageSudokus.map((sudoku, index) => {
+          const globalIndex = pageStart + index;
+          const storedSudoku = localState.sudokus[sudoku.id];
           return (
             <SudokuToSelect
-              difficulty={difficulty}
+              key={globalIndex}
               sudoku={sudoku}
-              index={index}
+              index={globalIndex}
+              difficulty={difficulty}
               chooseSudoku={chooseSudoku}
-              storedSudoku={local}
+              storedSudoku={storedSudoku}
             />
           );
         })}
@@ -216,97 +215,50 @@ const GameIndex = ({
   );
 };
 
-const connector = connect(
-  (state: RootState) => {
-    return {
-      currentSudokuIndex: state.game.sudokuIndex,
-    };
-  },
-  {
-    newGame,
-    restartGame,
-    continueGame,
-    setSudoku,
-    setSudokuState,
-    setGameState,
-  },
-);
+const GameSelect: React.FC = () => {
+  const {newGame, continueGame} = useGame();
+  const {setSudoku} = useSudoku();
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState<DIFFICULTY>(DIFFICULTY.EASY);
+  const [page, setPage] = useState(0);
 
-type PropsFromRedux = ConnectedProps<typeof connector>;
-
-const GameSelect = React.memo(
-  ({
-    currentSudokuIndex,
-    newGame,
-    restartGame,
-    setSudoku,
-    setGameState,
-    setSudokuState,
-    continueGame,
-  }: PropsFromRedux) => {
-    const [difficulty, setDifficulty] = React.useState(DIFFICULTY.EASY);
-
-    const chooseSudoku = (sudoku: SudokuRaw, index: number) => {
-      const localState = getState();
-      const local = localState.sudokus[sudoku.id];
-      if (!local) {
-        newGame(sudoku.id, index, difficulty);
+  useEffect(() => {
+    const search = (location as any).search;
+    if (search?.sudokuId && search?.sudokuIndex && search?.sudoku && search?.difficulty) {
+      const sudoku = SUDOKUS[search.difficulty as DIFFICULTY]?.[search.sudokuIndex];
+      if (sudoku && sudoku.id === search.sudokuId) {
+        newGame(search.sudokuId, search.sudokuIndex, search.difficulty);
         setSudoku(sudoku.sudoku, sudoku.solution);
-      } else if (local.game.state === GameStateMachine.wonGame) {
-        restartGame(
-          sudoku.id,
-          index,
-          difficulty,
-          local.game.timesSolved,
-          local.game.secondsPlayed,
-          local.game.previousTimes,
-        );
-        setSudoku(sudoku.sudoku, sudoku.solution);
-      } else {
-        setGameState(local.game);
-        setSudokuState({current: local.sudoku, history: [local.sudoku], historyIndex: 0});
+        continueGame();
       }
-      continueGame();
-    };
+    }
+  }, [location, newGame, setSudoku, continueGame]);
 
-    const sudokus = SUDOKUS[difficulty];
-    const [page, setPage] = React.useState(0);
-    const [pageSize, setPageSize] = React.useState(50);
-    const pageCount = Math.ceil(sudokus.length / pageSize);
+  const chooseSudoku = (sudoku: SudokuRaw, index: number) => {
+    newGame(sudoku.id, index, activeTab);
+    setSudoku(sudoku.sudoku, sudoku.solution);
+    continueGame();
+  };
 
-    const pageStart = page * pageSize;
-    const pageEnd = pageStart + pageSize;
-    const pageSudokus = sudokus.slice(pageStart, pageEnd);
+  const sudokus = SUDOKUS[activeTab];
+  const pageSize = 12;
+  const pageCount = Math.ceil(sudokus.length / pageSize);
+  const pageStart = page * pageSize;
+  const pageSudokus = sudokus.slice(pageStart, pageStart + pageSize);
 
-    return (
-      <div className="relative h-full max-h-full mt-4">
-        <div className="flex justify-between items-center">
-          <div className="flex border-b-0 text-white justify-center">
-            {[DIFFICULTY.EASY, DIFFICULTY.MEDIUM, DIFFICULTY.HARD, DIFFICULTY.EXPERT, DIFFICULTY.EVIL].map((d, i) => {
-              return (
-                <TabItem
-                  tabIndex={i + 1}
-                  id={`tab-${d}`}
-                  key={d}
-                  active={d === difficulty}
-                  onClick={() => setDifficulty(d)}
-                >
-                  {d}
-                </TabItem>
-              );
-            })}
-          </div>
-          <PageSelector page={page} pageCount={pageCount} setPage={setPage} />
-        </div>
-        <GameIndex
-          difficulty={difficulty}
-          chooseSudoku={chooseSudoku}
-          pageSudokus={pageSudokus}
-          pageStart={pageStart}
-        />
+  return (
+    <div className="mt-8">
+      <div className="flex space-x-2 mb-8">
+        {Object.values(DIFFICULTY).map((difficulty) => (
+          <TabItem key={difficulty} active={activeTab === difficulty} onClick={() => setActiveTab(difficulty)}>
+            {difficulty}
+          </TabItem>
+        ))}
       </div>
-    );
-  },
-);
+      <GameIndex chooseSudoku={chooseSudoku} pageSudokus={pageSudokus} pageStart={pageStart} difficulty={activeTab} />
+      {pageCount > 1 && <PageSelector page={page} pageCount={pageCount} setPage={setPage} />}
+    </div>
+  );
+};
 
-export default connector(GameSelect);
+export default GameSelect;

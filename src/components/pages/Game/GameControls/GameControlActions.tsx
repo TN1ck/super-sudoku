@@ -1,9 +1,8 @@
 import * as React from "react";
-import {clearCell, getHint, undo} from "src/state/sudoku";
-import {activateNotesMode, deactivateNotesMode, GameStateMachine} from "src/state/game";
+import {GameStateMachine} from "src/context/GameContext";
+import {useGame} from "src/context/GameContext";
+import {useSudoku} from "src/context/SudokuContext";
 import Button from "../../../modules/Button";
-import {connect, ConnectedProps} from "react-redux";
-import {RootState} from "src/state/rootReducer";
 import clsx from "clsx";
 
 const ControlContainer = ({children, ...props}: React.HTMLAttributes<HTMLDivElement>) => (
@@ -12,26 +11,16 @@ const ControlContainer = ({children, ...props}: React.HTMLAttributes<HTMLDivElem
   </div>
 );
 
-const undoButtonConnector = connect(
-  (state: RootState) => {
-    return {
-      state: state.game.state,
-      sudoku: state.sudoku,
-    };
-  },
-  {
-    undo,
-  },
-);
+const UndoButton: React.FC = () => {
+  const {state: gameState} = useGame();
+  const {state: sudokuState, undo} = useSudoku();
 
-type UndoButtonProps = ConnectedProps<typeof undoButtonConnector>;
+  const canUndo = sudokuState.historyIndex < sudokuState.history.length - 1;
 
-const UndoButton: React.FC<UndoButtonProps> = ({state, undo, sudoku}) => {
-  const canUndo = sudoku.historyIndex < sudoku.history.length - 1;
   return (
     <Button
       className="w-full"
-      disabled={state === GameStateMachine.wonGame || state === GameStateMachine.paused || !canUndo}
+      disabled={gameState.state === GameStateMachine.wonGame || gameState.state === GameStateMachine.paused || !canUndo}
       onClick={undo}
     >
       {"Undo"}
@@ -39,56 +28,43 @@ const UndoButton: React.FC<UndoButtonProps> = ({state, undo, sudoku}) => {
   );
 };
 
-const ConnectedUndoButton = undoButtonConnector(UndoButton);
+const SudokuMenuControls: React.FC = () => {
+  const {state: gameState, activateNotesMode, deactivateNotesMode} = useGame();
+  const {clearCell, getHint} = useSudoku();
 
-const connector = connect(
-  (state: RootState) => ({
-    notesMode: state.game.notesMode,
-    activeCell: state.game.activeCellCoordinates,
-  }),
-  {
-    clearCell,
-    deactivateNotesMode,
-    activateNotesMode,
-    getHint,
-  },
-);
-type PropsFromRedux = ConnectedProps<typeof connector>;
+  const {notesMode, activeCellCoordinates} = gameState;
 
-class SudokuMenuControls extends React.Component<PropsFromRedux> {
-  render() {
-    return (
-      <div className="mt-4 grid w-full grid-cols-4 gap-2">
-        <ControlContainer>
-          <ConnectedUndoButton />
-        </ControlContainer>
-        <ControlContainer>
-          <Button className="w-full" onClick={() => this.props.clearCell(this.props.activeCell!)}>
-            {"Erase"}
-          </Button>
-        </ControlContainer>
-        <ControlContainer>
-          <Button
-            onClick={() => (this.props.notesMode ? this.props.deactivateNotesMode() : this.props.activateNotesMode())}
-            className={clsx("w-full relative")}
-          >
-            <div
-              className={clsx("absolute -bottom-4 left-1/2 -translate-x-1/2 rounded-full px-2 text-sm md:text-base", {
-                "bg-teal-700 text-white": !this.props.notesMode,
-                "bg-sky-700 text-white": this.props.notesMode,
-              })}
-            >{`${this.props.notesMode ? "ON" : "OFF"}`}</div>
-            <div>{"Notes"}</div>
-          </Button>
-        </ControlContainer>
-        <ControlContainer>
-          <Button className="w-full" onClick={() => this.props.getHint(this.props.activeCell!)}>
-            {"Hint"}
-          </Button>
-        </ControlContainer>
-      </div>
-    );
-  }
-}
+  return (
+    <div className="mt-4 grid w-full grid-cols-4 gap-2">
+      <ControlContainer>
+        <UndoButton />
+      </ControlContainer>
+      <ControlContainer>
+        <Button className="w-full" onClick={() => activeCellCoordinates && clearCell(activeCellCoordinates)}>
+          {"Erase"}
+        </Button>
+      </ControlContainer>
+      <ControlContainer>
+        <Button
+          onClick={() => (notesMode ? deactivateNotesMode() : activateNotesMode())}
+          className={clsx("w-full relative")}
+        >
+          <div
+            className={clsx("absolute -bottom-4 left-1/2 -translate-x-1/2 rounded-full px-2 text-sm md:text-base", {
+              "bg-teal-700 text-white": !notesMode,
+              "bg-sky-700 text-white": notesMode,
+            })}
+          >{`${notesMode ? "ON" : "OFF"}`}</div>
+          <div>{"Notes"}</div>
+        </Button>
+      </ControlContainer>
+      <ControlContainer>
+        <Button className="w-full" onClick={() => activeCellCoordinates && getHint(activeCellCoordinates)}>
+          {"Hint"}
+        </Button>
+      </ControlContainer>
+    </div>
+  );
+};
 
-export default connector(SudokuMenuControls);
+export default SudokuMenuControls;

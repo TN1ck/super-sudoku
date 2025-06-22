@@ -1,68 +1,55 @@
 import * as React from "react";
 import {throttle} from "lodash";
-
-import {connect, ConnectedProps} from "react-redux";
-import {RootState} from "src/state/rootReducer";
-import {GameStateMachine, updateTimer} from "src/state/game";
+import {useGame, GameStateMachine} from "src/context/GameContext";
 import {formatDuration} from "src/utils/format";
 
-const connector = connect(
-  (state: RootState) => {
-    return {
-      secondsPlayed: state.game.secondsPlayed,
-      state: state.game.state,
-      sudokuId: state.game.sudokuId,
-    };
-  },
-  {updateTimer},
-);
+const GameTimer: React.FC = () => {
+  const {state, updateTimer} = useGame();
+  const {secondsPlayed, state: gameState, sudokuId} = state;
 
-type PropsFromRedux = ConnectedProps<typeof connector>;
+  const _isMountedRef = React.useRef<boolean>(false);
+  const _startTimeRef = React.useRef<number>(0);
+  const _sudokuIdRef = React.useRef<number>(-1);
+  const _stateRef = React.useRef<GameStateMachine>(GameStateMachine.paused);
 
-class GameTimer extends React.Component<PropsFromRedux> {
-  _isMounted: boolean = false;
-  _startTime: number = 0;
-  _sudokuId: number = -1;
-  _state: GameStateMachine = GameStateMachine.paused;
-  componentDidMount() {
-    const seconds = this.props.secondsPlayed;
-    this._startTime = Number(new Date()) - seconds * 1000;
-    this._isMounted = true;
-    this._sudokuId = this.props.sudokuId;
-    this._state = this.props.state;
+  React.useEffect(() => {
+    const seconds = secondsPlayed;
+    _startTimeRef.current = Number(new Date()) - seconds * 1000;
+    _isMountedRef.current = true;
+    _sudokuIdRef.current = sudokuId;
+    _stateRef.current = gameState;
+
     const timer = throttle(() => {
       requestAnimationFrame(() => {
         const now = Number(new Date());
         if (
-          this.props.state !== GameStateMachine.running ||
-          this._sudokuId !== this.props.sudokuId ||
-          this._state !== this.props.state
+          gameState !== GameStateMachine.running ||
+          _sudokuIdRef.current !== sudokuId ||
+          _stateRef.current !== gameState
         ) {
-          this._startTime = now - this.props.secondsPlayed * 1000;
-          this._sudokuId = this.props.sudokuId;
-          this._state = this.props.state;
+          _startTimeRef.current = now - secondsPlayed * 1000;
+          _sudokuIdRef.current = sudokuId;
+          _stateRef.current = gameState;
         }
-        if (this.props.state === GameStateMachine.running) {
-          const diff = now - this._startTime;
+        if (gameState === GameStateMachine.running) {
+          const diff = now - _startTimeRef.current;
           const seconds = diff / 1000;
-          this.props.updateTimer(seconds);
-          this.forceUpdate();
+          updateTimer(seconds);
         }
-        if (this._isMounted) {
+        if (_isMountedRef.current) {
           timer();
         }
       });
-    }, 200);
-    timer();
-  }
-  componentWillUnmount() {
-    this._isMounted = false;
-  }
-  render() {
-    const {secondsPlayed} = this.props;
+    }, 2000);
 
-    return <div className="text-center text-white">{formatDuration(secondsPlayed)}</div>;
-  }
-}
+    // timer();
 
-export default connector(GameTimer);
+    return () => {
+      _isMountedRef.current = false;
+    };
+  }, [gameState, sudokuId, secondsPlayed, updateTimer]);
+
+  return <div className="text-center text-white">{formatDuration(secondsPlayed)}</div>;
+};
+
+export default GameTimer;

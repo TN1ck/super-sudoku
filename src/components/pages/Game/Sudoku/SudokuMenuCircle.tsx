@@ -1,12 +1,10 @@
 import * as React from "react";
-import {connect, ConnectedProps} from "react-redux";
-import {setNumber, clearNumber, setNotes} from "src/state/sudoku";
+import {useGame} from "src/context/GameContext";
+import {useSudoku} from "src/context/SudokuContext";
 import {SUDOKU_NUMBERS} from "src/engine/utility";
 import {Cell} from "src/engine/types";
 import THEME from "src/theme";
-import {showMenu} from "src/state/game";
 import {Bounds} from "src/utils/types";
-import {RootState} from "src/state/rootReducer";
 import SudokuGame from "src/sudoku-game/SudokuGame";
 
 export const MenuContainer = ({bounds, children}: {bounds: Bounds; children: React.ReactNode}) => (
@@ -104,137 +102,107 @@ const MenuCirclePart = React.memo(
   },
 );
 
-interface MenuCircleOwnProps {
+interface MenuCircleProps {
   cell: Cell;
 }
 
-const connector = connect(
-  (state: RootState) => {
-    return {
-      notesMode: state.game.notesMode,
-      sudoku: state.sudoku.current,
-      showHints: state.game.showHints,
-    };
-  },
-  {
-    showMenu,
-    setNumber,
-    setNotes,
-    clearNumber,
-  },
-);
+const MenuCircle: React.FC<MenuCircleProps> = ({cell}) => {
+  const {state: gameState, showMenu} = useGame();
+  const {state: sudokuState, setNumber, setNotes, clearNumber} = useSudoku();
 
-type PropsFromRedux = ConnectedProps<typeof connector>;
+  const {notesMode, showHints} = gameState;
+  const sudoku = sudokuState.current;
 
-class MenuCircle extends React.Component<MenuCircleOwnProps & PropsFromRedux, {}> {
-  render() {
-    const cell = this.props.cell;
-    if (cell === null) {
-      return null;
-    }
-    const circleRadius = 45;
-    const minRad = 0;
-    const maxRad = TAU;
+  if (cell === null) {
+    return null;
+  }
 
-    const usedRad = Math.abs(maxRad - minRad);
-    const circumCircle = TAU * circleRadius;
-    const radPerStep = usedRad / SUDOKU_NUMBERS.length;
+  const circleRadius = 45;
+  const minRad = 0;
+  const maxRad = TAU;
 
-    return (
-      <svg
-        className="hidden md:block absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 select-none"
+  const usedRad = Math.abs(maxRad - minRad);
+  const circumCircle = TAU * circleRadius;
+  const radPerStep = usedRad / SUDOKU_NUMBERS.length;
+
+  return (
+    <svg
+      className="hidden md:block absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 select-none"
+      style={{
+        height: circleRadius * 4,
+        width: circleRadius * 4,
+        transform: `translate(-50%, -50%) rotate(${minRad}rad)`,
+        WebkitTouchCallout: "none",
+        WebkitTapHighlightColor: "rgba(0, 0, 0, 0)",
+      }}
+      onClick={() => showMenu()}
+    >
+      <circle
+        r={circleRadius}
+        cx={circleRadius * 2}
+        cy={circleRadius * 2}
         style={{
-          height: circleRadius * 4,
-          width: circleRadius * 4,
-          transform: `translate(-50%, -50%) rotate(${minRad}rad)`,
-          WebkitTouchCallout: "none",
-          WebkitTapHighlightColor: "rgba(0, 0, 0, 0)",
+          pointerEvents: "none",
+          strokeDashoffset: 0,
+          strokeDasharray: `${(usedRad / TAU) * circumCircle} ${circumCircle}`,
         }}
-        onClick={() => this.props.showMenu()}
-      >
-        <circle
-          r={circleRadius}
-          cx={circleRadius * 2}
-          cy={circleRadius * 2}
-          style={{
-            pointerEvents: "none",
-            strokeDashoffset: 0,
-            strokeDasharray: `${(usedRad / TAU) * circumCircle} ${circumCircle}`,
-          }}
-          fill="none"
-          className={this.props.notesMode ? "ss_menu-circle-notes" : "ss_menu-circle"}
-        />
-        {SUDOKU_NUMBERS.map((number, i) => {
-          const currentMinRad = minRad + radPerStep * (i + 1);
-          const currentMaxRad = currentMinRad + radPerStep;
-          let isActive = number === cell.number;
+        fill="none"
+        className={notesMode ? "ss_menu-circle-notes" : "ss_menu-circle"}
+      />
+      {SUDOKU_NUMBERS.map((number, i) => {
+        const currentMinRad = minRad + radPerStep * (i + 1);
+        const currentMaxRad = currentMinRad + radPerStep;
+        let isActive = number === cell.number;
 
-          const conflicting = SudokuGame.conflictingFields(this.props.sudoku);
-          const userNotes = this.props.sudoku[this.props.cell.y * 9 + this.props.cell.x].notes;
-          const conflictingCell = conflicting[this.props.cell.y * 9 + this.props.cell.x];
-          const autoNotes = this.props.showHints ? conflictingCell.possibilities : [];
-          const notesToUse = userNotes.length === 0 && autoNotes.length > 0 ? autoNotes : userNotes;
+        const conflicting = SudokuGame.conflictingFields(sudoku);
+        const userNotes = sudoku[cell.y * 9 + cell.x].notes;
+        const conflictingCell = conflicting[cell.y * 9 + cell.x];
+        const autoNotes = showHints ? conflictingCell.possibilities : [];
+        const notesToUse = userNotes.length === 0 && autoNotes.length > 0 ? autoNotes : userNotes;
 
-          if (this.props.notesMode) {
-            isActive = notesToUse.includes(number);
-          }
+        if (notesMode) {
+          isActive = notesToUse.includes(number);
+        }
 
-          const colors = this.props.notesMode
-            ? [THEME.menuColors.noteNormal, THEME.menuColors.noteAlternate, THEME.menuColors.noteAlternate2]
-            : [THEME.menuColors.normal, THEME.menuColors.alternate, THEME.menuColors.alternate2];
+        const colors = notesMode
+          ? [THEME.menuColors.noteNormal, THEME.menuColors.noteAlternate, THEME.menuColors.noteAlternate2]
+          : [THEME.menuColors.normal, THEME.menuColors.alternate, THEME.menuColors.alternate2];
 
-          const stroke = colors[i % colors.length];
+        const stroke = colors[i % colors.length];
 
-          return (
-            <MenuCirclePart
-              key={i}
-              radius={circleRadius}
-              isActive={isActive}
-              minRad={currentMinRad}
-              stroke={stroke}
-              maxRad={currentMaxRad}
-              onClick={(e) => {
-                if (this.props.notesMode) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }
+        return (
+          <MenuCirclePart
+            key={i}
+            radius={circleRadius}
+            isActive={isActive}
+            minRad={currentMinRad}
+            stroke={stroke}
+            maxRad={currentMaxRad}
+            onClick={(e) => {
+              if (notesMode) {
+                e.preventDefault();
+                e.stopPropagation();
+              }
+              if (notesMode) {
                 const newNotes = notesToUse.includes(number)
                   ? notesToUse.filter((note) => note !== number)
                   : [...userNotes, number];
-                if (this.props.notesMode) {
-                  this.props.setNotes(cell, newNotes);
+                setNotes(cell, newNotes);
+              } else {
+                if (number === cell.number) {
+                  clearNumber(cell);
                 } else {
-                  if (isActive) {
-                    this.props.clearNumber(cell);
-                  } else {
-                    this.props.setNumber(cell, number);
-                  }
+                  setNumber(cell, number);
                 }
-              }}
-            >
-              {number}
-            </MenuCirclePart>
-          );
-        })}
-        {/* <MenuCirclePart
-          radius={circleRadius}
-          notesMode={this.props.notesMode}
-          minRad={minRad}
-          maxRad={minRad + radPerStep}
-          stroke={this.props.notesMode ? THEME.menuColors.alternate : THEME.menuColors.noteAlternate}
-          onClick={e => {
-            if (!this.props.notesMode) {
-              this.props.enterNotesMode();
-              e.preventDefault();
-              e.stopPropagation();
-            }
-          }}
-        >
-          {"N"}
-        </MenuCirclePart> */}
-      </svg>
-    );
-  }
-}
+              }
+            }}
+          >
+            {number}
+          </MenuCirclePart>
+        );
+      })}
+    </svg>
+  );
+};
 
-export default connector(MenuCircle);
+export default MenuCircle;

@@ -1,8 +1,8 @@
 import * as React from "react";
-import {showMenu, selectCell, hideMenu, GameStateMachine} from "src/state/game";
+import {GameStateMachine} from "src/context/GameContext";
+import {emptyGrid} from "src/context/SudokuContext";
 
 import SudokuMenuCircle, {MenuWrapper, MenuContainer} from "./SudokuMenuCircle";
-import {emptyGrid} from "src/state/sudoku";
 import {
   GridLineX,
   GridCell,
@@ -121,9 +121,9 @@ interface SudokuProps {
   previousTimes: number[];
   shouldShowMenu: boolean;
   notesMode: boolean;
-  showMenu: typeof showMenu;
-  hideMenu: typeof hideMenu;
-  selectCell: typeof selectCell;
+  showMenu: (showNotes?: boolean) => void;
+  hideMenu: () => void;
+  selectCell: (cellCoordinates: CellCoordinates) => void;
   restartGame: () => void;
   state: GameStateMachine;
   children: React.ReactNode;

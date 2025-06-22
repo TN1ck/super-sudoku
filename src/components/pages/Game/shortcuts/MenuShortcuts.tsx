@@ -1,27 +1,23 @@
 import * as React from "react";
 import hotkeys from "hotkeys-js";
 import {ShortcutScope} from "./ShortcutScope";
-import {continueGame} from "src/state/game";
-import {connect} from "react-redux";
+import {useGame} from "src/context/GameContext";
 
-interface GameMenuShortcutsDispatchProps {
-  continueGame: typeof continueGame;
-}
+const GameMenuShortcuts: React.FC = () => {
+  const {continueGame} = useGame();
 
-// TODO
-class GameMenuShortcuts extends React.Component<GameMenuShortcutsDispatchProps> {
-  componentDidMount() {
+  React.useEffect(() => {
     hotkeys("esc", ShortcutScope.Menu, () => {
-      this.props.continueGame();
+      continueGame();
       return false;
     });
-  }
-  componentWillUnmount() {
-    hotkeys.deleteScope(ShortcutScope.Menu);
-  }
-  render() {
-    return null;
-  }
-}
 
-export default connect<{}, GameMenuShortcutsDispatchProps>(null, {continueGame})(GameMenuShortcuts);
+    return () => {
+      hotkeys.deleteScope(ShortcutScope.Menu);
+    };
+  }, [continueGame]);
+
+  return null;
+};
+
+export default GameMenuShortcuts;

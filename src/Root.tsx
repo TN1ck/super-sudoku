@@ -2,13 +2,11 @@ import * as React from "react";
 
 import {Outlet, ReactLocation, Router} from "@tanstack/react-location";
 
-import {Provider} from "react-redux";
-
 import Header from "./components/modules/Header";
-import store from "./state/store";
 import Game from "./components/pages/Game";
 import NotFound from "./components/pages/NotFound";
 import NewGame from "./components/pages/NewGame";
+import {AppProvider} from "./context/AppContext";
 
 const routes = [
   {
@@ -29,7 +27,7 @@ const location = new ReactLocation();
 
 const App = () => {
   return (
-    <Provider store={store}>
+    <AppProvider>
       <Router location={location} routes={routes}>
         <Header />
         <React.Suspense fallback={<em>Loading...</em>}>
@@ -38,7 +36,7 @@ const App = () => {
           </div>
         </React.Suspense>
       </Router>
-    </Provider>
+    </AppProvider>
   );
 };
 

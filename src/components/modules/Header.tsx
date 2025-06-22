@@ -1,43 +1,14 @@
 import * as React from "react";
-import {connect, ConnectedProps} from "react-redux";
 import Button from "./Button";
-import {continueGame, GameStateMachine, pauseGame, resetGame} from "src/state/game";
-import {RootState} from "src/state/rootReducer";
-import {setSudoku} from "src/state/sudoku";
+import {useGame, GameStateMachine} from "src/context/GameContext";
+import {useSudoku} from "src/context/SudokuContext";
 import SUDOKUS from "src/sudoku-game/sudokus";
 import {Link, useNavigate} from "@tanstack/react-location";
 
-const newGameConnector = connect(null, {
-  pauseGame,
-});
+const ClearGameButton: React.FC = () => {
+  const {state, resetGame, pauseGame, continueGame} = useGame();
+  const {setSudoku} = useSudoku();
 
-type NewGamePropsFromRedux = ConnectedProps<typeof newGameConnector>;
-
-const clearGameConnector = connect(
-  (state: RootState) => ({
-    state: state.game.state,
-    difficulty: state.game.difficulty as keyof typeof SUDOKUS,
-    sudokuIndex: state.game.sudokuIndex,
-  }),
-  {
-    setSudoku,
-    resetGame,
-    pauseGame,
-    continueGame,
-  },
-);
-
-type ClearGamePropsFromRedux = ConnectedProps<typeof clearGameConnector>;
-
-const ClearGameButton: React.FC<ClearGamePropsFromRedux> = ({
-  state,
-  difficulty,
-  sudokuIndex,
-  setSudoku,
-  resetGame,
-  pauseGame,
-  continueGame,
-}) => {
   const clearGame = async () => {
     pauseGame();
     // Wait 50ms to make sure the game is shown as paused when in the confirm dialog.
@@ -47,7 +18,7 @@ const ClearGameButton: React.FC<ClearGamePropsFromRedux> = ({
       continueGame();
       return;
     }
-    const sudoku = SUDOKUS[difficulty][sudokuIndex];
+    const sudoku = SUDOKUS[state.difficulty][state.sudokuIndex];
     setSudoku(sudoku.sudoku, sudoku.solution);
     resetGame();
     // Wait 100ms as we have to wait until the updateTimer is called (should normally take 1/60 second)
@@ -57,15 +28,17 @@ const ClearGameButton: React.FC<ClearGamePropsFromRedux> = ({
   };
 
   return (
-    <Button disabled={state === GameStateMachine.wonGame || state === GameStateMachine.paused} onClick={clearGame}>
+    <Button
+      disabled={state.state === GameStateMachine.wonGame || state.state === GameStateMachine.paused}
+      onClick={clearGame}
+    >
       {"Clear"}
     </Button>
   );
 };
 
-const ConnectedClearGameButton = clearGameConnector(ClearGameButton);
-
-const NewGameButton: React.FC<NewGamePropsFromRedux> = ({pauseGame}) => {
+const NewGameButton: React.FC = () => {
+  const {pauseGame} = useGame();
   const navigate = useNavigate();
 
   const pauseAndChoose = () => {
@@ -79,8 +52,6 @@ const NewGameButton: React.FC<NewGamePropsFromRedux> = ({pauseGame}) => {
     </Button>
   );
 };
-
-const ConnectedNewGameButton = newGameConnector(NewGameButton);
 
 const ToggleDarkModeButton = () => {
   const [darkMode, setDarkMode] = React.useState(() => {
@@ -151,8 +122,8 @@ const Header = () => {
         <div>{"Super Sudoku"}</div>
         <div className="flex space-x-2">
           <ToggleDarkModeButton />
-          <ConnectedClearGameButton />
-          <ConnectedNewGameButton />
+          <ClearGameButton />
+          <NewGameButton />
         </div>
       </div>
     </div>
