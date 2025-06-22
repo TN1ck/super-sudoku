@@ -57,11 +57,9 @@
     "@headlessui/react": "1.7.19",
     "@tanstack/react-location": "3.7.4",
     "@types/react-dom": "18.3.0",
-    "@types/react-lazyload": "3.2.3",
     "@vitejs/plugin-react": "4.2.1",
     "autoprefixer": "10.4.19",
     "clsx": "2.1.1",
-    "history": "5.3.0",
     "hotkeys-js": "3.13.7",
     "lodash": "4.17.21",
     "postcss": "8.4.38",
@@ -70,21 +68,13 @@
     "prop-types": "15.8.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "react-lazyload": "3.2.1",
     "react-redux": "9.1.1",
     "redux": "5.0.1",
     "redux-logger": "3.0.6",
     "redux-thunk": "3.1.0",
-    "styled-components": "6.1.8",
     "tailwind-override": "0.6.1",
     "tailwindcss": "3.4.3",
     "vite": "5.2.10",
     "vite-tsconfig-paths": "4.3.2"
-  },
-  "overrides": {
-    "react-lazyload": {
-      "react": "^18.2.0",
-      "react-dom": "^18.2.0"
-    }
   }
 }

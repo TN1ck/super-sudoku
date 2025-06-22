@@ -4,12 +4,10 @@ import SUDOKUS, {SudokuRaw} from "src/sudoku-game/sudokus";
 import {connect, ConnectedProps} from "react-redux";
 import {RootState} from "src/state/rootReducer";
 import {DIFFICULTY} from "src/engine/types";
-import styled from "styled-components";
 import SudokuPreview from "./SudokuPreview/SudokuPreview";
 import {setDifficulty} from "src/state/choose";
 import {newGame, setGameState, continueGame, GameStateMachine, restartGame} from "src/state/game";
 import {setSudoku, setSudokuState} from "src/state/sudoku";
-import THEME from "src/theme";
 import {getState, StoredSudokuState} from "src/sudoku-game/persistence";
 import {playGame} from "src/state/application";
 import {formatDuration} from "src/utils/format";
@@ -19,39 +17,18 @@ import {useState} from "react";
 import Button from "src/components/modules/Button";
 import {useLocation, useNavigate} from "@tanstack/react-location";
 import {stringifySudoku} from "src/engine/utility";
+import {useElementWidth} from "src/utils/hooks";
 
-const TabItem = styled.button.attrs({
-  className: "px-1 xs:px-2 sm:px-4 text-xs sm:text-sm md:text-base py-2 pointer capitalize rounded-sm border-none",
-})<{
-  active: boolean;
-}>`
-  background: ${(p) => (p.active ? THEME.colors.foreground : "transparent")};
-  color: ${(p) => (p.active ? THEME.colors.background : THEME.colors.foreground)};
-`;
-
-export function useElementWidth(ref: RefObject<HTMLElement | null>) {
-  const [elementWidth, setElementWidth] = useState<number>();
-
-  useEffect(() => {
-    const resizeObserver = new ResizeObserver(([entry]) => {
-      window.requestAnimationFrame(() => {
-        setElementWidth(entry!.contentRect.width);
-      });
-    });
-
-    const element = ref.current;
-
-    if (element) {
-      resizeObserver.observe(element);
-    }
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, [ref]);
-
-  return elementWidth;
-}
+const TabItem = ({active, children, ...props}: React.ButtonHTMLAttributes<HTMLButtonElement> & {active: boolean}) => (
+  <button
+    className={`px-1 xs:px-2 sm:px-4 text-xs sm:text-sm md:text-base py-2 pointer capitalize rounded-sm border-none ${
+      active ? "bg-white text-black dark:bg-gray-600 dark:text-white" : "bg-transparent text-white dark:text-gray-300"
+    }`}
+    {...props}
+  >
+    {children}
+  </button>
+);
 
 // Nice page selector. Will show previous / next buttons, then the current page, the first and last page and the surrounding
 // pages of the current. Will use ... to show the missing pages.
@@ -186,13 +163,23 @@ const SudokuToSelect = ({
           </div>
         </div>
       ) : null}
-      <SudokuPreview
-        size={size}
-        onClick={choose}
-        id={index + 1}
-        sudoku={finished ? sudoku.solution : sudoku.sudoku}
-        darken
-      />
+      {size === undefined && (
+        <div className="inline-block relative w-full">
+          <div style={{marginTop: "100%"}} />
+          <div className="absolute top-0 left-0 w-full h-full">
+            <div className="w-full h-full bg-gray-300 dark:bg-gray-900 rounded-sm" />
+          </div>
+        </div>
+      )}
+      {size !== undefined && (
+        <SudokuPreview
+          size={size}
+          onClick={choose}
+          id={index + 1}
+          sudoku={finished ? sudoku.solution : sudoku.sudoku}
+          darken
+        />
+      )}
     </div>
   );
 };

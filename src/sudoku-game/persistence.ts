@@ -60,7 +60,7 @@ const loadFromLocalStorage = (): StoredState => {
         }
       }
 
-      // Make sure that conflicts are shown by default. Doesn't warrant a new persistance key.
+      // Make sure that conflicts are shown by default. Doesn't warrant a new persistence key.
       const keys = Object.keys(result.sudokus);
       for (const key of keys) {
         const numberKey = parseInt(key, 10);

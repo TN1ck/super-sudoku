@@ -1,89 +1,25 @@
 import React from "react";
 import {SimpleSudoku} from "src/engine/types";
-import styled, {css} from "styled-components";
-import THEME from "src/theme";
 
-const SudokuPreviewContainer = styled.div`
-  user-select: none;
-`;
+const GridLineX = ({top, width, makeBold}: {top: number; width: number; makeBold: boolean}) => (
+  <div
+    className={`absolute left-0 h-px transform -translate-y-1/2 ${makeBold ? "bg-gray-400 dark:bg-gray-400" : "bg-gray-200 dark:bg-gray-600"}`}
+    style={{
+      width: `${width}%`,
+      top: `${top}%`,
+    }}
+  />
+);
 
-const SudokuPreviewInnerContainer = styled.div`
-  position: relative;
-  background-color: white;
-  color: black;
-  cursor: default;
-  border-radius: ${THEME.borderRadius}px;
-`;
-
-const SudokuPreviewDarken = styled.div`
-  position: absolute;
-  background: black;
-  height: 100%;
-  width: 100%;
-  opacity: 0.2;
-  z-index: 9;
-
-  &:hover {
-    opacity: 0;
-  }
-`;
-
-const SudokuPreviewTitle = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: black;
-  opacity: 0.8;
-  font-size: 42px;
-  font-weight: bold;
-  position: absolute;
-  height: 100%;
-  z-index: 4;
-  width: 100%;
-  top: 0;
-  left: 0;
-`;
-
-const GridLineX = styled.div<{
-  top: number;
-  width: number;
-  makeBold: boolean;
-}>`
-  position: absolute;
-  left: 0;
-  width: ${(props) => props.width}%;
-  top: ${(props) => props.top}%;
-  transform: translateY(-50%);
-  height: 1px;
-  background: #eeeeee;
-  ${(props) =>
-    props.makeBold &&
-    css`
-      background: #aaaaaa;
-      height: 1px;
-      z-index: 1;
-    `};
-`;
-
-const GridLineY = styled.div<{
-  left: number;
-  height: number;
-  makeBold: boolean;
-}>`
-  position: absolute;
-  top: 0;
-  height: ${(props) => props.height}%;
-  left: ${(props) => props.left}%;
-  background: #eeeeee;
-  width: 1px;
-  transform: translateX(-50%);
-  ${(props) =>
-    props.makeBold &&
-    css`
-      background: #aaaaaa;
-      width: 1px;
-    `};
-`;
+const GridLineY = ({left, height, makeBold}: {left: number; height: number; makeBold: boolean}) => (
+  <div
+    className={`absolute top-0 w-px transform -translate-x-1/2 ${makeBold ? "bg-gray-400 dark:bg-gray-400" : "bg-gray-200 dark:bg-gray-600"}`}
+    style={{
+      height: `${height}%`,
+      left: `${left}%`,
+    }}
+  />
+);
 
 const SudokuPreviewGrid = React.memo(
   ({width, height, hideLeftRight = false}: {width: number; height: number; hideLeftRight?: boolean}) => {
@@ -135,8 +71,14 @@ export default class SudokuPreview extends React.PureComponent<{
     };
 
     return (
-      <SudokuPreviewContainer tabIndex={id + 4} onClick={onClick} onKeyDown={onKeyDown}>
-        <SudokuPreviewInnerContainer
+      <div
+        className="user-select-none hover:cursor-pointer group"
+        tabIndex={id + 4}
+        onClick={onClick}
+        onKeyDown={onKeyDown}
+      >
+        <div
+          className="relative bg-gray-100 dark:bg-gray-700 rounded-sm"
           style={{
             height: containerHeight,
             width: containerWidth,
@@ -144,7 +86,11 @@ export default class SudokuPreview extends React.PureComponent<{
             lineHeight: 1,
           }}
         >
-          <SudokuPreviewTitle style={{fontSize: size / 3}}>{id}</SudokuPreviewTitle>
+          <div className="absolute z-10 top-0 left-0 w-full h-full flex items-center justify-center">
+            <div style={{fontSize: size / 3}} className="font-bold text-black dark:text-white opacity-80">
+              {id}
+            </div>
+          </div>
           <SudokuPreviewGrid width={width} height={height} hideLeftRight />
           {sudoku.map((row, y) => {
             return (
@@ -153,6 +99,7 @@ export default class SudokuPreview extends React.PureComponent<{
                   return n !== 0 ? (
                     <div
                       key={x}
+                      className="text-black dark:text-white"
                       style={{
                         position: "absolute",
                         left: xSection * (x + 0.5) + "%",
@@ -167,9 +114,11 @@ export default class SudokuPreview extends React.PureComponent<{
               </div>
             );
           })}
-          {this.props.darken ? <SudokuPreviewDarken /> : null}
-        </SudokuPreviewInnerContainer>
-      </SudokuPreviewContainer>
+          {this.props.darken ? (
+            <div className="absolute z-20 top-0 left-0 w-full h-full bg-black opacity-20 group-hover:opacity-0 transition-opacity duration-300" />
+          ) : null}
+        </div>
+      </div>
     );
   }
 }

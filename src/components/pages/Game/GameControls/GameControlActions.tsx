@@ -1,13 +1,16 @@
 import * as React from "react";
 import {clearCell, getHint, undo} from "src/state/sudoku";
-import styled from "styled-components";
 import {activateNotesMode, deactivateNotesMode, GameStateMachine} from "src/state/game";
 import Button from "../../../modules/Button";
 import {connect, ConnectedProps} from "react-redux";
 import {RootState} from "src/state/rootReducer";
 import clsx from "clsx";
 
-const ControlContainer = styled.div.attrs({className: "relative justify-center flex"})``;
+const ControlContainer = ({children, ...props}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className="relative justify-center flex" {...props}>
+    {children}
+  </div>
+);
 
 const undoButtonConnector = connect(
   (state: RootState) => {

@@ -2,20 +2,21 @@ import * as React from "react";
 import {setNumber, setNotes, SudokuState} from "src/state/sudoku";
 import {SUDOKU_NUMBERS} from "src/engine/utility";
 import {CellCoordinates} from "src/engine/types";
-import styled from "styled-components";
 import Button from "src/components/modules/Button";
 import {connect, ConnectedProps} from "react-redux";
 import {RootState} from "src/state/rootReducer";
 import clsx from "clsx";
 import SudokuGame from "src/sudoku-game/SudokuGame";
 
-const SudokuMenuNumbersContainer = styled.div.attrs({
-  className: "grid w-full overflow-hidden justify-center gap-2 md:grid-cols-3 grid-cols-9 md:mt-0 mt-4",
-})``;
+const SudokuMenuNumbersContainer = ({children, ...props}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className="grid w-full overflow-hidden justify-center gap-2 md:grid-cols-3 grid-cols-9 md:mt-0 mt-4" {...props}>
+    {children}
+  </div>
+);
 
-const NumberButton = styled(Button).attrs({
-  className: "flex justify-center items-center px-0",
-})`` as typeof Button;
+const NumberButton = (props: React.ComponentProps<typeof Button>) => (
+  <Button className="flex justify-center items-center px-0" {...props} />
+);
 
 export interface SudokuMenuNumbersStateProps {
   notesMode: boolean;

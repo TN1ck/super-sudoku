@@ -3,76 +3,44 @@ import {connect, ConnectedProps} from "react-redux";
 import {setNumber, clearNumber, setNotes} from "src/state/sudoku";
 import {SUDOKU_NUMBERS} from "src/engine/utility";
 import {Cell} from "src/engine/types";
-import styled, {css} from "styled-components";
 import THEME from "src/theme";
 import {showMenu} from "src/state/game";
 import {Bounds} from "src/utils/types";
 import {RootState} from "src/state/rootReducer";
 import SudokuGame from "src/sudoku-game/SudokuGame";
 
-const MenuCircleContainer = styled.svg`
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  position: absolute;
-  user-select: none;
-  -webkit-touch-callout: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-`;
+export const MenuContainer = ({bounds, children}: {bounds: Bounds; children: React.ReactNode}) => (
+  <div
+    className="absolute"
+    style={{
+      width: `${bounds.width}%`,
+      height: `${bounds.height}%`,
+      top: `${bounds.top}%`,
+      left: `${bounds.left}%`,
+    }}
+  >
+    {children}
+  </div>
+);
 
-const MenuCirclePartComponent = styled.circle<{
-  notesMode: boolean;
-  isActive: boolean;
-}>`
-  stroke-width: 50px;
-  opacity: 0.75;
-
-  &:hover {
-    stroke-width: 60px;
-    cursor: pointer;
-    fill-opacity: 0.9;
-  }
-
-  ${(props) =>
-    props.isActive &&
-    css`
-      stroke-width: 60px;
-      cursor: pointer;
-      fill-opacity: 0.9;
-    `}
-`;
-
-export const MenuContainer = styled.div<{bounds: Bounds}>`
-  position: absolute;
-  width: ${(props) => props.bounds.width}%;
-  height: ${(props) => props.bounds.height}%;
-  top: ${(props) => props.bounds.top}%;
-  left: ${(props) => props.bounds.left}%;
-`;
-
-export const MenuWrapper = styled.div.attrs({
-  className: "relative z-50",
-})`
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  /* We just hide it on mobile, as it's not useful there */
-  @media (max-width: ${THEME.widths.hideCircleMenu}px) {
-    display: none;
-  }
-`;
+export const MenuWrapper = ({children}: {children: React.ReactNode}) => (
+  <div
+    className="relative z-50"
+    style={{
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+    }}
+  >
+    <div className="menu-wrapper-mobile">{children}</div>
+  </div>
+);
 
 const TAU = Math.PI * 2;
-
-//
-// Menu
-//
 
 const MenuCirclePart = React.memo(
   ({
     radius,
-    notesMode,
     isActive,
     onClick,
     minRad,
@@ -81,7 +49,6 @@ const MenuCirclePart = React.memo(
     stroke,
   }: {
     radius: number;
-    notesMode: boolean;
     isActive: boolean;
     onClick: (e: any) => void;
     minRad: number;
@@ -101,11 +68,14 @@ const MenuCirclePart = React.memo(
     const strokeDashoffset = -((minRad / TAU) * circumCircle) % circumCircle;
     const strokeDasharray = `${(step / TAU) * circumCircle} ${circumCircle}`;
 
+    const baseClasses = "stroke-[50px] opacity-75";
+    const hoverClasses = "hover:stroke-[60px] hover:cursor-pointer hover:fill-opacity-90";
+    const activeClasses = isActive ? "stroke-[60px] cursor-pointer fill-opacity-90" : "";
+
     return (
       <g>
-        <MenuCirclePartComponent
-          notesMode={notesMode}
-          isActive={isActive}
+        <circle
+          className={`${baseClasses} ${hoverClasses} ${activeClasses}`}
           r={radius}
           cx={radius * 2}
           cy={radius * 2}
@@ -163,8 +133,6 @@ class MenuCircle extends React.Component<MenuCircleOwnProps & PropsFromRedux, {}
       return null;
     }
     const circleRadius = 45;
-
-    // TODO: use these only dymanically on small screens
     const minRad = 0;
     const maxRad = TAU;
 
@@ -173,11 +141,14 @@ class MenuCircle extends React.Component<MenuCircleOwnProps & PropsFromRedux, {}
     const radPerStep = usedRad / SUDOKU_NUMBERS.length;
 
     return (
-      <MenuCircleContainer
+      <svg
+        className="hidden md:block absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 select-none"
         style={{
           height: circleRadius * 4,
           width: circleRadius * 4,
           transform: `translate(-50%, -50%) rotate(${minRad}rad)`,
+          WebkitTouchCallout: "none",
+          WebkitTapHighlightColor: "rgba(0, 0, 0, 0)",
         }}
         onClick={() => this.props.showMenu()}
       >
@@ -218,7 +189,6 @@ class MenuCircle extends React.Component<MenuCircleOwnProps & PropsFromRedux, {}
             <MenuCirclePart
               key={i}
               radius={circleRadius}
-              notesMode={this.props.notesMode}
               isActive={isActive}
               minRad={currentMinRad}
               stroke={stroke}
@@ -262,7 +232,7 @@ class MenuCircle extends React.Component<MenuCircleOwnProps & PropsFromRedux, {}
         >
           {"N"}
         </MenuCirclePart> */}
-      </MenuCircleContainer>
+      </svg>
     );
   }
 }

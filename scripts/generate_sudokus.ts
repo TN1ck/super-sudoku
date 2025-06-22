@@ -32,17 +32,12 @@ const sudokuDifficulty = mapping[difficulty];
 function writeSudoku(sudoku: SimpleSudoku) {
   const iterations = solverAC3.solve(sudoku).iterations;
   const printedSudoku = stringifySudoku(sudoku);
-  console.log(`write sudoku with difficulty ${iterations}\n`, printedSudoku);
-  const stringToAppend = `${iterations}
-${printedSudoku}
-
-
-`;
-  fs.appendFileSync("sudokus.txt", stringToAppend);
+  console.log(`Write sudoku with ${iterations} iterations\n`, printedSudoku);
+  fs.appendFileSync("sudokus.txt", printedSudoku + "\n");
 }
 
 const number = options.number;
-console.log(`Generate ${number} sudokus with difficulty ` + difficulty);
+console.log(`Generate ${number} sudoku puzzles with difficulty "${difficulty}"`);
 
 const randomFn = createSeededRandom(Math.random() * +new Date());
 new Array(number).fill(0).forEach((_, i) => {
