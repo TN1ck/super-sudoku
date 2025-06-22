@@ -1,6 +1,7 @@
 import React, {useEffect, ReactNode} from "react";
 import {GameProvider, GameState, INITIAL_GAME_STATE, useGame} from "./GameContext";
 import {SudokuProvider, SudokuState, INITIAL_SUDOKU_STATE, useSudoku} from "./SudokuContext";
+import {TimerProvider} from "./TimerContext";
 import {getState} from "src/sudoku-game/persistence";
 import {saveToLocalStorage} from "src/sudoku-game/persistence";
 import {throttle} from "lodash";
@@ -28,9 +29,11 @@ export function AppProvider({children}: AppContextProps) {
 
   return (
     <GameProvider initialState={initialGameState}>
-      <SudokuProvider initialState={initialSudokuState}>
-        <PersistenceHandler>{children}</PersistenceHandler>
-      </SudokuProvider>
+      <TimerProvider>
+        <SudokuProvider initialState={initialSudokuState}>
+          <PersistenceHandler>{children}</PersistenceHandler>
+        </SudokuProvider>
+      </TimerProvider>
     </GameProvider>
   );
 }
