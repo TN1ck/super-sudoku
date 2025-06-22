@@ -3,9 +3,9 @@ import {useGame} from "src/context/GameContext";
 import {useSudoku} from "src/context/SudokuContext";
 import {SUDOKU_NUMBERS} from "src/engine/utility";
 import {Cell} from "src/engine/types";
-import THEME from "src/theme";
 import {Bounds} from "src/utils/types";
 import SudokuGame from "src/sudoku-game/SudokuGame";
+import colors from "tailwindcss/colors";
 
 export const MenuContainer = ({bounds, children}: {bounds: Bounds; children: React.ReactNode}) => (
   <div
@@ -35,6 +35,17 @@ export const MenuWrapper = ({children}: {children: React.ReactNode}) => (
 );
 
 const TAU = Math.PI * 2;
+
+const MENU_COLORS = {
+  menuColors: {
+    normal: colors.teal[500],
+    alternate: colors.teal[600],
+    alternate2: colors.teal[400],
+    noteNormal: colors.sky[500],
+    noteAlternate: colors.sky[600],
+    noteAlternate2: colors.sky[400],
+  },
+};
 
 const MenuCirclePart = React.memo(
   ({
@@ -165,8 +176,12 @@ const MenuCircle: React.FC<MenuCircleProps> = ({cell}) => {
         }
 
         const colors = notesMode
-          ? [THEME.menuColors.noteNormal, THEME.menuColors.noteAlternate, THEME.menuColors.noteAlternate2]
-          : [THEME.menuColors.normal, THEME.menuColors.alternate, THEME.menuColors.alternate2];
+          ? [
+              MENU_COLORS.menuColors.noteNormal,
+              MENU_COLORS.menuColors.noteAlternate,
+              MENU_COLORS.menuColors.noteAlternate2,
+            ]
+          : [MENU_COLORS.menuColors.normal, MENU_COLORS.menuColors.alternate, MENU_COLORS.menuColors.alternate2];
 
         const stroke = colors[i % colors.length];
 

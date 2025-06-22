@@ -246,11 +246,20 @@ const GameSelect: React.FC = () => {
   const pageStart = page * pageSize;
   const pageSudokus = sudokus.slice(pageStart, pageStart + pageSize);
 
+  const setActiveTabAndResetPage = (difficulty: DIFFICULTY) => {
+    setActiveTab(difficulty);
+    setPage(0);
+  };
+
   return (
     <div className="mt-8">
       <div className="flex space-x-2 mb-8">
         {Object.values(DIFFICULTY).map((difficulty) => (
-          <TabItem key={difficulty} active={activeTab === difficulty} onClick={() => setActiveTab(difficulty)}>
+          <TabItem
+            key={difficulty}
+            active={activeTab === difficulty}
+            onClick={() => setActiveTabAndResetPage(difficulty)}
+          >
             {difficulty}
           </TabItem>
         ))}
