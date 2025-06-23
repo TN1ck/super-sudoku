@@ -12,7 +12,7 @@ import {
   CellNoteContainer,
 } from "src/components/sudoku/SudokuGrid";
 import SudokuGame from "src/lib/game/SudokuGame";
-import {Bounds} from "src/utils/types";
+import {Bounds} from "src/components/sudoku/types";
 import {Cell, CellCoordinates, DIFFICULTY} from "src/lib/engine/types";
 import {flatten} from "src/utils/collection";
 import Button from "src/components/Button";

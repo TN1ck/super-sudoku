@@ -1,6 +1,8 @@
 import {SQUARE_TABLE, SUDOKU_NUMBERS, squareIndex} from "./utility";
-import {DomainSudoku, SimpleSudoku} from "./types";
+import {SimpleSudoku} from "./types";
 import {sortBy} from "lodash";
+
+export type DomainSudoku = number[][][];
 
 function removeValuesFromDomain(domain1: number[], domain2: number[]): [number[], boolean] {
   let change = false;

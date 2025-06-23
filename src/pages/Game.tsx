@@ -256,6 +256,7 @@ const Game: React.FC = () => {
               <div className="hidden sm:block w-2 sm:w-4" />
               <GameTimer />
             </div>
+            <div className="text-white text-lg sm:text-2xl font-bold">Super Sudoku</div>
             <div className="flex">
               <div className="flex gap-2 flex-col justify-end items-end sm:flex-row">
                 <div className="flex gap-2">

@@ -4,7 +4,7 @@ import {SudokuProvider, SudokuState, INITIAL_SUDOKU_STATE, useSudoku} from "./Su
 import {TimerProvider} from "./TimerContext";
 import {getState} from "src/lib/game/persistence";
 import {saveToLocalStorage} from "src/lib/game/persistence";
-import {throttle} from "lodash";
+import throttle from "lodash/throttle";
 
 interface AppContextProps {
   children: ReactNode;

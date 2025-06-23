@@ -1,5 +1,5 @@
-import {chain, groupBy, keys, pickBy, sortBy, values} from "lodash";
-import {SimpleSudoku, ComplexSudoku, Cell} from "./types";
+import {groupBy, keys, pickBy, sortBy, values} from "lodash";
+import {SimpleSudoku, Cell} from "./types";
 export const SUDOKU_COORDINATES = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 export const SUDOKU_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -8,7 +8,7 @@ export const SUDOKU_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     _x = 0       _x = 1     _x = 2
 .-----0-----------1----------2------|
 |   x < 3   | 3 < x < 6 |   x > 6   |  _y = 0
-|   y < 3   | y < 3     |   y < 3   |
+|   y < 3   | y < 3     |   y < 3   |h
 |-----3-----------4----------5------|
 |   x < 3   | 3 < x < 6 |   x > 6   |  _y = 1
 | 3 < y < 6 | 3 < y < 6 | 3 < y < 6 |
@@ -38,20 +38,6 @@ export function squareIndex(x: number, y: number): number {
   return Math.floor(y / 3) * 3 + Math.floor(x / 3);
 }
 
-export function simpleSudokuToComplexSudoku(grid: SimpleSudoku): ComplexSudoku {
-  return ([] as ComplexSudoku).concat(
-    ...grid.map((row, y) => {
-      return row.map((n, x) => {
-        return {
-          x,
-          y,
-          number: n,
-        };
-      });
-    }),
-  );
-}
-
 export function simpleSudokuToCells(grid: SimpleSudoku, solution?: SimpleSudoku): Cell[] {
   return ([] as Cell[]).concat(
     ...grid.map((row, y) => {
@@ -67,23 +53,6 @@ export function simpleSudokuToCells(grid: SimpleSudoku, solution?: SimpleSudoku)
       });
     }),
   );
-}
-
-export function complexSudokuToSimpleSudoku(sudoku: ComplexSudoku): SimpleSudoku {
-  const simple: number[][] = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  ];
-  sudoku.forEach((cell) => {
-    simple[cell.y][cell.x] = cell.number;
-  });
-  return simple;
 }
 
 export function cellsToSimpleSudoku(cells: Cell[]): SimpleSudoku {
@@ -178,21 +147,4 @@ export function parseSudoku(sudoku: string): SimpleSudoku {
       return number;
     });
   });
-}
-
-export function printComplexSudoku(grid: ComplexSudoku) {
-  return chain(grid)
-    .groupBy((c) => {
-      return c.y;
-    })
-    .toPairs()
-    .sortBy(([, k]) => k)
-    .map(([, cells]: [string, ComplexSudoku]) => {
-      return sortBy(cells, (c) => c.x)
-        .map((c) => {
-          return c.number === 0 ? "_" : String(c.number);
-        })
-        .join("");
-    })
-    .join("\n");
 }

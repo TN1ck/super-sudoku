@@ -9,13 +9,9 @@ export interface CellCoordinates {
   x: number;
   y: number;
 }
-export interface SimpleCell extends CellCoordinates {
-  number: number;
-}
-export type ComplexSudoku = SimpleCell[];
 export type SimpleSudoku = number[][];
-export type DomainSudoku = number[][][];
-export interface Cell extends SimpleCell {
+export interface Cell extends CellCoordinates {
+  number: number;
   initial: boolean;
   notes: number[];
   solution: number;

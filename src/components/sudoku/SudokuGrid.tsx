@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Bounds} from "src/utils/types";
+import {Bounds} from "src/components/sudoku/types";
 import clsx from "clsx";
 
 export const GridLineX = ({top, width, makeBold}: {top: number; width: number; makeBold: boolean}) => {

@@ -3,7 +3,7 @@ import {useGame} from "src/context/GameContext";
 import {useSudoku} from "src/context/SudokuContext";
 import {SUDOKU_NUMBERS} from "src/lib/engine/utility";
 import {Cell} from "src/lib/engine/types";
-import {Bounds} from "src/utils/types";
+import {Bounds} from "src/components/sudoku/types";
 import SudokuGame from "src/lib/game/SudokuGame";
 import colors from "tailwindcss/colors";
 
