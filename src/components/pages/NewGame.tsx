@@ -15,14 +15,14 @@ const NewGame = () => {
 
   return (
     <Container className="mt-8">
-      <div className="flex items-center justify-between mb-8">
-        <div>
+      <div className="mb-8 flex flex-col gap-2">
+        <div className="flex gap-4 items-center justify-between">
           <h1 className="text-2xl text-white">{"New Game"}</h1>
-          <p className="text-gray-300">{"Choose a new sudoku to play or continue with an already started game."}</p>
+          <Button className="bg-teal-600 dark:bg-teal-600 text-white flex-shrink-0" onClick={goBack}>
+            {"◀ Go back"}
+          </Button>
         </div>
-        <Button className="bg-teal-600 dark:bg-teal-600 text-white" onClick={goBack}>
-          {"◀ Go back"}
-        </Button>
+        <p className="text-gray-300">{"Choose a new sudoku to play or continue with an already started game."}</p>
       </div>
       <GameSelect />
     </Container>

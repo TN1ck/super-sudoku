@@ -169,8 +169,7 @@ function sudokuReducer(state: SudokuState, action: SudokuAction): SudokuState {
       }
 
       // Add to history
-      const newHistory = state.history.slice(0, state.historyIndex);
-      newHistory.unshift(newGrid);
+      const newHistory = [newGrid, ...state.history];
 
       return {
         current: newGrid,

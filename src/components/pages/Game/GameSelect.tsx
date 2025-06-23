@@ -14,6 +14,7 @@ import Button from "src/components/modules/Button";
 import {useLocation, useNavigate} from "@tanstack/react-location";
 import {stringifySudoku} from "src/engine/utility";
 import {useElementWidth} from "src/utils/hooks";
+import {useTimer} from "src/context/TimerContext";
 
 const TabItem = ({active, children, ...props}: React.ButtonHTMLAttributes<HTMLButtonElement> & {active: boolean}) => (
   <button
@@ -109,7 +110,7 @@ const SudokuToSelect = ({
   storedSudoku: StoredSudokuState | undefined;
   index: number;
   difficulty: DIFFICULTY;
-  chooseSudoku: (sudoku: SudokuRaw, index: number) => void;
+  chooseSudoku: (sudoku: SudokuRaw, index: number, storedSudoku: StoredSudokuState | undefined) => void;
 }) => {
   const localSudoku = storedSudoku;
   const unfinished = localSudoku && localSudoku.game.state !== GameStateMachine.wonGame;
@@ -133,7 +134,7 @@ const SudokuToSelect = ({
       },
     });
 
-    chooseSudoku(sudoku, index);
+    chooseSudoku(sudoku, index, localSudoku);
   };
 
   const sudokuContainerRef = React.useRef(null);
@@ -142,17 +143,19 @@ const SudokuToSelect = ({
   return (
     <div className="relative" ref={sudokuContainerRef}>
       {unfinished || finished ? (
-        <div className="pointer-events-none absolute left-4 bottom-4 z-10 max-w-min bg-gray-900 px-4 py-2 text-sm text-white md:text-base">
+        <div className="pointer-events-none absolute left-2 rounded-sm bottom-2 z-10 max-w-min bg-gray-900 px-2 py-1 text-xs text-white md:text-base">
           <div>
             <div className="whitespace-nowrap">{`${
-              unfinished ? "Current" : "Last"
-            } time: ${formatDuration(localSudoku.game.secondsPlayed)}.`}</div>
+              unfinished ? "Play" : "Last"
+            } time: ${formatDuration(localSudoku.game.secondsPlayed)}`}</div>
             {localSudoku.game.previousTimes.length > 0 && (
               <div className="whitespace-nowrap">{`Best time: ${formatDuration(
                 Math.min(...localSudoku.game.previousTimes),
-              )}.`}</div>
+              )}`}</div>
             )}
-            <div>{`Solved ${localSudoku.game.timesSolved} ${localSudoku.game.timesSolved === 1 ? "time" : "times"}`}</div>
+            {localSudoku.game.timesSolved > 0 && (
+              <div>{`Solved ${localSudoku.game.timesSolved} ${localSudoku.game.timesSolved === 1 ? "time" : "times"}`}</div>
+            )}
             {unfinished && <div>{"Continue"}</div>}
             {finished && <div>{`Restart?`}</div>}
           </div>
@@ -185,7 +188,7 @@ const GameIndex = ({
   pageStart,
   difficulty,
 }: {
-  chooseSudoku: (sudoku: SudokuRaw, index: number) => void;
+  chooseSudoku: (sudoku: SudokuRaw, index: number, storedSudoku: StoredSudokuState | undefined) => void;
   pageSudokus: SudokuRaw[];
   pageStart: number;
   difficulty: DIFFICULTY;
@@ -216,8 +219,8 @@ const GameIndex = ({
 };
 
 const GameSelect: React.FC = () => {
-  const {newGame, continueGame} = useGame();
-  const {setSudoku} = useSudoku();
+  const {newGame, continueGame, updateTimer, setGameState} = useGame();
+  const {setSudoku, setSudokuState} = useSudoku();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState<DIFFICULTY>(DIFFICULTY.EASY);
   const [page, setPage] = useState(0);
@@ -234,9 +237,19 @@ const GameSelect: React.FC = () => {
     }
   }, [location, newGame, setSudoku, continueGame]);
 
-  const chooseSudoku = (sudoku: SudokuRaw, index: number) => {
+  const chooseSudoku = (sudoku: SudokuRaw, index: number, storedSudoku: StoredSudokuState | undefined) => {
     newGame(index, activeTab);
     setSudoku(sudoku.sudoku, sudoku.solution);
+    if (storedSudoku) {
+      setGameState({
+        ...storedSudoku.game,
+      });
+      setSudokuState({
+        current: storedSudoku.sudoku,
+        history: [storedSudoku.sudoku],
+        historyIndex: 0,
+      });
+    }
     continueGame();
   };
 

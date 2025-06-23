@@ -99,7 +99,9 @@ export function cellsToSimpleSudoku(cells: Cell[]): SimpleSudoku {
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
   ];
   cells.forEach((cell) => {
-    simple[cell.y][cell.x] = cell.number;
+    if (cell.initial) {
+      simple[cell.y][cell.x] = cell.number;
+    }
   });
   return simple;
 }

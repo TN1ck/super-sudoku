@@ -111,14 +111,14 @@ const Game: React.FC = () => {
   }, []);
 
   const onVisibilityChange = React.useCallback(() => {
-    setTimeout(() => {
-      if (document.visibilityState === "hidden") {
-        pauseGame();
-      } else if (game.state === GameStateMachine.paused) {
+    if (document.visibilityState === "hidden") {
+      pauseGame();
+    } else {
+      // So the user knows that it was paused, we wait a bit before continuing.
+      setTimeout(() => {
         continueGame();
-      }
-      // TODO: THere is some caching somewhere that breaks this.
-    }, 500);
+      }, 200);
+    }
   }, [game.state, pauseGame, continueGame]);
 
   const pausedGame = game.state === GameStateMachine.paused;
@@ -142,7 +142,7 @@ const Game: React.FC = () => {
         <div>
           <Shortcuts gameState={game.state} />
           <header className="flex justify-between items-center mt-4">
-            <div className="flex">
+            <div className="flex text-white">
               <DifficultyShow>{`${game.difficulty} - ${game.sudokuIndex + 1}`}</DifficultyShow>
               <div className="w-2 sm:w-4" />
               {"|"}
