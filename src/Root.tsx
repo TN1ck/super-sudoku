@@ -2,7 +2,6 @@ import * as React from "react";
 
 import {Outlet, ReactLocation, Router} from "@tanstack/react-location";
 
-import Header from "./components/modules/Header";
 import Game from "./components/pages/Game";
 import NotFound from "./components/pages/NotFound";
 import NewGame from "./components/pages/NewGame";
@@ -29,7 +28,6 @@ const App = () => {
   return (
     <AppProvider>
       <Router location={location} routes={routes}>
-        <Header />
         <React.Suspense fallback={<em>Loading...</em>}>
           <div>
             <Outlet />

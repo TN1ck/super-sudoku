@@ -14,7 +14,7 @@ const NewGame = () => {
   };
 
   return (
-    <Container className="mt-8">
+    <Container className="mt-4">
       <div className="mb-8 flex flex-col gap-2">
         <div className="flex gap-4 items-center justify-between">
           <h1 className="text-2xl text-white">{"New Game"}</h1>

@@ -2,6 +2,7 @@ import React, {createContext, useContext, useReducer, useCallback, ReactNode} fr
 import {CellCoordinates, DIFFICULTY} from "src/engine/types";
 import {saveToLocalStorage} from "src/sudoku-game/persistence";
 import {throttle} from "lodash";
+import {DEFAULT_SUDOKU_INDEX} from "./SudokuContext";
 
 export enum GameStateMachine {
   running = "RUNNING",
@@ -40,7 +41,7 @@ export const INITIAL_GAME_STATE: GameState = {
   showMenu: false,
   showNotes: false,
   state: GameStateMachine.paused,
-  sudokuIndex: -1,
+  sudokuIndex: DEFAULT_SUDOKU_INDEX,
   secondsPlayed: 0,
   timesSolved: 0,
   previousTimes: [],
