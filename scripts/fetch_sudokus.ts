@@ -1,7 +1,7 @@
 import {Command} from "commander";
 import cheerio from "cheerio";
 import {writeFileSync} from "fs";
-import {stringifySudoku} from "../src/engine/utility";
+import {stringifySudoku} from "../src/lib/engine/utility";
 import {map} from "lodash";
 
 const program = new Command();

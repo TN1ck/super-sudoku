@@ -1,7 +1,7 @@
 import * as React from "react";
 import GameSelect from "./Game/GameSelect";
-import {Container} from "src/components/modules/Layout";
-import Button from "../modules/Button";
+import {Container} from "src/components/Layout";
+import Button from "../components/Button";
 import {useNavigate} from "@tanstack/react-location";
 import {useGame} from "src/context/GameContext";
 

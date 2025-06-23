@@ -2,8 +2,8 @@ import React, {useEffect, ReactNode} from "react";
 import {GameProvider, GameState, INITIAL_GAME_STATE, useGame} from "./GameContext";
 import {SudokuProvider, SudokuState, INITIAL_SUDOKU_STATE, useSudoku} from "./SudokuContext";
 import {TimerProvider} from "./TimerContext";
-import {getState} from "src/sudoku-game/persistence";
-import {saveToLocalStorage} from "src/sudoku-game/persistence";
+import {getState} from "src/lib/game/persistence";
+import {saveToLocalStorage} from "src/lib/game/persistence";
 import {throttle} from "lodash";
 
 interface AppContextProps {

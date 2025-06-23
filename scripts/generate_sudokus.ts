@@ -1,10 +1,10 @@
 import * as fs from "fs";
 import {program} from "commander";
-import * as generate from "../src/engine/generate";
-import * as solverAC3 from "../src/engine/solverAC3";
-import {stringifySudoku} from "../src/engine/utility";
-import {DIFFICULTY, SimpleSudoku} from "../src/engine/types";
-import {createSeededRandom} from "../src/engine/seededRandom";
+import * as generate from "../src/lib/engine/generate";
+import * as solverAC3 from "../src/lib/engine/solverAC3";
+import {stringifySudoku} from "../src/lib/engine/utility";
+import {DIFFICULTY, SimpleSudoku} from "../src/lib/engine/types";
+import {createSeededRandom} from "../src/lib/engine/seededRandom";
 
 program
   .version("0.0.1")

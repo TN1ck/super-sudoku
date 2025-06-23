@@ -1,18 +1,18 @@
 import * as React from "react";
 
-import SUDOKUS, {SudokuRaw} from "src/sudoku-game/sudokus";
-import {DIFFICULTY} from "src/engine/types";
-import SudokuPreview from "./SudokuPreview/SudokuPreview";
+import SUDOKUS, {SudokuRaw} from "src/lib/game/sudokus";
+import {DIFFICULTY} from "src/lib/engine/types";
+import SudokuPreview from "../../components/sudoku/SudokuPreview";
 import {useGame, GameStateMachine} from "src/context/GameContext";
 import {useSudoku} from "src/context/SudokuContext";
-import {getState, StoredSudokuState} from "src/sudoku-game/persistence";
+import {getState, StoredSudokuState} from "src/lib/game/persistence";
 import {formatDuration} from "src/utils/format";
 import {useEffect} from "react";
 import {RefObject} from "react";
 import {useState} from "react";
-import Button from "src/components/modules/Button";
+import Button from "src/components/Button";
 import {useLocation, useNavigate} from "@tanstack/react-location";
-import {stringifySudoku} from "src/engine/utility";
+import {stringifySudoku} from "src/lib/engine/utility";
 import {useElementWidth} from "src/utils/hooks";
 import {useTimer} from "src/context/TimerContext";
 

@@ -1,9 +1,9 @@
 import * as React from "react";
-import {SUDOKU_NUMBERS} from "src/engine/utility";
-import {CellCoordinates, Cell} from "src/engine/types";
-import Button from "src/components/modules/Button";
+import {SUDOKU_NUMBERS} from "src/lib/engine/utility";
+import {CellCoordinates, Cell} from "src/lib/engine/types";
+import Button from "src/components/Button";
 import clsx from "clsx";
-import SudokuGame from "src/sudoku-game/SudokuGame";
+import SudokuGame from "src/lib/game/SudokuGame";
 
 const SudokuMenuNumbersContainer = ({children, ...props}: React.HTMLAttributes<HTMLDivElement>) => (
   <div className="grid w-full overflow-hidden justify-center gap-2 md:grid-cols-3 grid-cols-9 md:mt-0 mt-4" {...props}>

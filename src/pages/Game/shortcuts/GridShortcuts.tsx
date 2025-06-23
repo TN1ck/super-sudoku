@@ -1,12 +1,12 @@
 import * as React from "react";
 import key from "keymaster";
 import hotkeys from "hotkeys-js";
-import {SUDOKU_COORDINATES, SUDOKU_NUMBERS} from "src/engine/utility";
-import {Cell} from "src/engine/types";
+import {SUDOKU_COORDINATES, SUDOKU_NUMBERS} from "src/lib/engine/utility";
+import {Cell} from "src/lib/engine/types";
 import {useGame} from "src/context/GameContext";
 import {useSudoku} from "src/context/SudokuContext";
 import {ShortcutScope} from "./ShortcutScope";
-import SudokuGame from "src/sudoku-game/SudokuGame";
+import SudokuGame from "src/lib/game/SudokuGame";
 
 const GameKeyboardShortcuts: React.FC = () => {
   const {

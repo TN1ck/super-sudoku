@@ -1,5 +1,5 @@
 import React from "react";
-import {SimpleSudoku} from "src/engine/types";
+import {SimpleSudoku} from "src/lib/engine/types";
 
 const GridLineX = ({top, width, makeBold}: {top: number; width: number; makeBold: boolean}) => (
   <div

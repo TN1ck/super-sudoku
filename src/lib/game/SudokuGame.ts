@@ -1,6 +1,6 @@
 import {groupBy, uniq, uniqBy} from "lodash";
-import {SUDOKU_NUMBERS} from "src/engine/utility";
-import {Cell} from "src/engine/types";
+import {SUDOKU_NUMBERS} from "src/lib/engine/utility";
+import {Cell} from "src/lib/engine/types";
 
 export interface CellIndexed extends Cell {
   index: number;

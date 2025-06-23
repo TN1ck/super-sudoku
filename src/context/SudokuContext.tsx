@@ -1,7 +1,7 @@
 import React, {createContext, useContext, useReducer, useCallback, ReactNode} from "react";
-import {Cell, SimpleSudoku, CellCoordinates} from "src/engine/types";
-import {simpleSudokuToCells, squareIndex} from "src/engine/utility";
-import SUDOKUS from "src/sudoku-game/sudokus";
+import {Cell, SimpleSudoku, CellCoordinates} from "src/lib/engine/types";
+import {simpleSudokuToCells, squareIndex} from "src/lib/engine/utility";
+import SUDOKUS from "src/lib/game/sudokus";
 
 export const DEFAULT_SUDOKU_INDEX = 0;
 

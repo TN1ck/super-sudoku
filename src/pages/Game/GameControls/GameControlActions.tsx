@@ -2,7 +2,7 @@ import * as React from "react";
 import {GameStateMachine} from "src/context/GameContext";
 import {useGame} from "src/context/GameContext";
 import {useSudoku} from "src/context/SudokuContext";
-import Button from "../../../modules/Button";
+import Button from "../../../components/Button";
 import clsx from "clsx";
 
 const ControlContainer = ({children, ...props}: React.HTMLAttributes<HTMLDivElement>) => (

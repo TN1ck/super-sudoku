@@ -2,9 +2,9 @@ import * as React from "react";
 
 import {Outlet, ReactLocation, Router} from "@tanstack/react-location";
 
-import Game from "./components/pages/Game";
-import NotFound from "./components/pages/NotFound";
-import NewGame from "./components/pages/NewGame";
+import Game from "./pages/Game";
+import NotFound from "./pages/NotFound";
+import NewGame from "./pages/NewGame";
 import {AppProvider} from "./context/AppContext";
 
 const routes = [

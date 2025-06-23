@@ -3,18 +3,18 @@ import * as React from "react";
 import {useGame, GameStateMachine} from "src/context/GameContext";
 import {useSudoku} from "src/context/SudokuContext";
 
-import {Sudoku} from "src/components/pages/Game/Sudoku/Sudoku";
+import {Sudoku} from "src/components/sudoku/Sudoku";
 
 import GameTimer from "./Game/GameTimer";
 
-import Button from "src/components/modules/Button";
-import SudokuGame from "src/sudoku-game/SudokuGame";
-import SudokuMenuNumbers from "src/components/pages/Game/GameControls/GameControlNumbers";
-import SudokuMenuControls from "src/components/pages/Game/GameControls/GameControlActions";
-import {Container} from "src/components/modules/Layout";
+import Button from "src/components/Button";
+import SudokuGame from "src/lib/game/SudokuGame";
+import SudokuMenuNumbers from "src/pages/Game/GameControls/GameControlNumbers";
+import SudokuMenuControls from "src/pages/Game/GameControls/GameControlActions";
+import {Container} from "src/components/Layout";
 import Shortcuts from "./Game/shortcuts/Shortcuts";
-import Checkbox from "src/components/modules/Checkbox";
-import SUDOKUS from "src/sudoku-game/sudokus";
+import Checkbox from "src/components/Checkbox";
+import SUDOKUS from "src/lib/game/sudokus";
 import {useNavigate} from "@tanstack/react-location";
 
 const SudokuMenuNumbersConnected: React.FC = () => {

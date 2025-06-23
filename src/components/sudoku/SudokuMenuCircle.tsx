@@ -1,10 +1,10 @@
 import * as React from "react";
 import {useGame} from "src/context/GameContext";
 import {useSudoku} from "src/context/SudokuContext";
-import {SUDOKU_NUMBERS} from "src/engine/utility";
-import {Cell} from "src/engine/types";
+import {SUDOKU_NUMBERS} from "src/lib/engine/utility";
+import {Cell} from "src/lib/engine/types";
 import {Bounds} from "src/utils/types";
-import SudokuGame from "src/sudoku-game/SudokuGame";
+import SudokuGame from "src/lib/game/SudokuGame";
 import colors from "tailwindcss/colors";
 
 export const MenuContainer = ({bounds, children}: {bounds: Bounds; children: React.ReactNode}) => (

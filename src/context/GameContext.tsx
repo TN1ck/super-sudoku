@@ -1,6 +1,6 @@
 import React, {createContext, useContext, useReducer, useCallback, ReactNode} from "react";
-import {CellCoordinates, DIFFICULTY} from "src/engine/types";
-import {saveToLocalStorage} from "src/sudoku-game/persistence";
+import {CellCoordinates, DIFFICULTY} from "src/lib/engine/types";
+import {saveToLocalStorage} from "src/lib/game/persistence";
 import {throttle} from "lodash";
 import {DEFAULT_SUDOKU_INDEX} from "./SudokuContext";
 

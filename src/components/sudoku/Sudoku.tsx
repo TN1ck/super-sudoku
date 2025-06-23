@@ -10,12 +10,12 @@ import {
   GridCellNumber,
   CellNote,
   CellNoteContainer,
-} from "src/components/pages/Game/Sudoku/Sudoku.styles";
-import SudokuGame from "src/sudoku-game/SudokuGame";
+} from "src/components/sudoku/SudokuGrid";
+import SudokuGame from "src/lib/game/SudokuGame";
 import {Bounds} from "src/utils/types";
-import {Cell, CellCoordinates, DIFFICULTY} from "src/engine/types";
+import {Cell, CellCoordinates, DIFFICULTY} from "src/lib/engine/types";
 import {flatten} from "src/utils/collection";
-import Button from "src/components/modules/Button";
+import Button from "src/components/Button";
 import {formatDuration} from "src/utils/format";
 import {Link} from "@tanstack/react-location";
 import {useElementWidth} from "src/utils/hooks";

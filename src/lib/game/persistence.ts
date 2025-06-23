@@ -1,8 +1,8 @@
-import SUDOKUS from "src/sudoku-game/sudokus";
+import SUDOKUS from "src/lib/game/sudokus";
 import {GameState, GameStateMachine} from "src/context/GameContext";
 import {SudokuState} from "src/context/SudokuContext";
-import {Cell} from "src/engine/types";
-import {stringifySudoku, cellsToSimpleSudoku} from "src/engine/utility";
+import {Cell} from "src/lib/engine/types";
+import {stringifySudoku, cellsToSimpleSudoku} from "src/lib/engine/utility";
 
 const STORAGE_KEY_V_1_3 = "super_sudoku_1_3_use_this_file_if_you_want_to_cheat";
 const STORAGE_KEY_V_1_4 = "super_sudoku_1_4_use_this_file_if_you_want_to_cheat";
