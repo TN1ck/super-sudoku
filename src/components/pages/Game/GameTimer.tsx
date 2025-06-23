@@ -4,10 +4,9 @@ import {useTimer} from "src/context/TimerContext";
 import {formatDuration} from "src/utils/format";
 
 const GameTimer: React.FC = () => {
-  const {state} = useGame();
   const {displayTime} = useTimer();
 
-  return <div className="text-center text-white">{formatDuration(displayTime)}</div>;
+  return <div>{formatDuration(displayTime)}</div>;
 };
 
 export default GameTimer;

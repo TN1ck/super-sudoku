@@ -248,20 +248,24 @@ const Game: React.FC = () => {
       <Container>
         <div>
           <Shortcuts gameState={game.state} />
-          <header className="flex justify-between items-center mt-4">
-            <div className="flex text-white">
+          <header className="flex justify-between sm:items-center mt-4">
+            <div className="flex text-white flex-col sm:flex-row justify-end">
               <DifficultyShow>{`${game.difficulty} - ${game.sudokuIndex + 1}`}</DifficultyShow>
-              <div className="w-2 sm:w-4" />
-              {"|"}
-              <div className="w-2 sm:w-4" />
+              <div className="hidden sm:block w-2 sm:w-4" />
+              <div className="hidden sm:block">{"|"}</div>
+              <div className="hidden sm:block w-2 sm:w-4" />
               <GameTimer />
             </div>
             <div className="flex">
-              <div className="flex space-x-2">
-                <ToggleDarkModeButton />
-                <ClearGameButton />
-                <PauseButton state={game.state} continueGame={continueGame} pauseGame={pauseGame} />
-                <NewGameButton />
+              <div className="flex gap-2 flex-col justify-end items-end sm:flex-row">
+                <div className="flex gap-2">
+                  <ToggleDarkModeButton />
+                  <ClearGameButton />
+                </div>
+                <div className="flex gap-2">
+                  <PauseButton state={game.state} continueGame={continueGame} pauseGame={pauseGame} />
+                  <NewGameButton />
+                </div>
               </div>
             </div>
           </header>
