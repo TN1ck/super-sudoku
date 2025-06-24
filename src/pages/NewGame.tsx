@@ -2,8 +2,8 @@ import * as React from "react";
 import GameSelect from "./Game/GameSelect";
 import {Container} from "src/components/Layout";
 import Button from "../components/Button";
-import {useNavigate} from "@tanstack/react-location";
 import {useGame} from "src/context/GameContext";
+import {useNavigate} from "@tanstack/react-router";
 
 const NewGame = () => {
   const navigate = useNavigate();

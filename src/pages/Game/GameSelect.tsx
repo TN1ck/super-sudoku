@@ -7,14 +7,11 @@ import {useGame, GameStateMachine} from "src/context/GameContext";
 import {useSudoku} from "src/context/SudokuContext";
 import {getState, StoredSudokuState} from "src/lib/game/persistence";
 import {formatDuration} from "src/utils/format";
-import {useEffect} from "react";
-import {RefObject} from "react";
 import {useState} from "react";
 import Button from "src/components/Button";
-import {useLocation, useNavigate} from "@tanstack/react-location";
 import {stringifySudoku} from "src/lib/engine/utility";
 import {useElementWidth} from "src/utils/hooks";
-import {useTimer} from "src/context/TimerContext";
+import {useNavigate} from "@tanstack/react-router";
 
 const TabItem = ({active, children, ...props}: React.ButtonHTMLAttributes<HTMLButtonElement> & {active: boolean}) => (
   <button

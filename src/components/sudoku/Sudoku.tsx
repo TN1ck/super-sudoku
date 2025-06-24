@@ -17,8 +17,8 @@ import {Cell, CellCoordinates, DIFFICULTY} from "src/lib/engine/types";
 import {flatten} from "src/utils/collection";
 import Button from "src/components/Button";
 import {formatDuration} from "src/utils/format";
-import {Link} from "@tanstack/react-location";
 import {useElementWidth} from "src/utils/hooks";
+import {Link} from "@tanstack/react-router";
 
 const SudokuGrid = React.memo(
   ({width, height, hideLeftRight = false}: {width: number; height: number; hideLeftRight?: boolean}) => {

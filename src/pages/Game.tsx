@@ -14,9 +14,9 @@ import SudokuMenuControls from "src/pages/Game/GameControls/GameControlActions";
 import {Container} from "src/components/Layout";
 import Shortcuts from "./Game/shortcuts/Shortcuts";
 import Checkbox from "src/components/Checkbox";
-import {useNavigate} from "@tanstack/react-location";
 import {cellsToSimpleSudoku} from "src/lib/engine/utility";
 import {solve} from "src/lib/engine/solverAC3";
+import {useNavigate} from "@tanstack/react-router";
 
 const SudokuMenuNumbersConnected: React.FC = () => {
   const {state: gameState} = useGame();
