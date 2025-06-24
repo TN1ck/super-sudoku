@@ -6,6 +6,7 @@ import Game from "./pages/Game";
 import NotFound from "./pages/NotFound";
 import NewGame from "./pages/NewGame";
 import {AppProvider} from "./context/AppContext";
+import {OfflineIndicator} from "./components/OfflineIndicator";
 
 const rootRoute = createRootRoute();
 
@@ -100,6 +101,7 @@ const App = () => {
   return (
     <ErrorBoundary>
       <AppProvider>
+        <OfflineIndicator />
         <RouterProvider router={router} />
       </AppProvider>
     </ErrorBoundary>
