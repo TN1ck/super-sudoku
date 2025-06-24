@@ -9,44 +9,34 @@ describe("generate", () => {
   it("generates the same sudoku using a seed", () => {
     const randomFn = createSeededRandom(10);
     const sudoku = generateSudoku(DIFFICULTY.EASY, randomFn);
-    const stringified = stringifySudoku(sudoku);
-    expect(stringified).toBe(
-      `_8_9_25_6
-_61_78_4_
-_4__5___3
-_5_1_4_2_
-4_____9__
-_13_9__85
-____2____
-7258_____
-8__7_5_3_`,
-    );
+    const stringified = stringifySudoku(sudoku.sudoku);
+    expect(stringified).toBe("080902506061078040040050003050104020400000900013090085000020000725800000800705030");
     // Check if it is unique.
-    expect(checkForUniqueness(sudoku)).toBe(true);
+    expect(checkForUniqueness(sudoku.sudoku)).toBe(true);
     // Check if it can be solved.
-    expect(solve(sudoku).iterations).toBe(4);
+    expect(solve(sudoku.sudoku).iterations).toBe(4);
   });
 
   it("generates the difficult sudoku using a seed", () => {
     const randomFn = createSeededRandom(10);
     const sudoku = generateSudoku(DIFFICULTY.EVIL, randomFn);
-    const stringified = stringifySudoku(sudoku);
+    const stringified = stringifySudoku(sudoku.sudoku);
     // Check if it is unique.
-    expect(checkForUniqueness(sudoku)).toBe(true);
+    expect(checkForUniqueness(sudoku.sudoku)).toBe(true);
     // Check if it can be solved.
     // The difficulty is capped, as we don't do to many changes.
-    expect(solve(sudoku).iterations).toBe(32);
+    expect(solve(sudoku.sudoku).iterations).toBe(32);
   });
 
   it("generates the difficult sudoku using a seed", () => {
     const randomFn = createSeededRandom(4);
     const sudoku = generateSudoku(DIFFICULTY.EVIL, randomFn);
-    const stringified = stringifySudoku(sudoku);
+    const stringified = stringifySudoku(sudoku.sudoku);
     // Check if it is unique.
-    expect(checkForUniqueness(sudoku)).toBe(true);
+    expect(checkForUniqueness(sudoku.sudoku)).toBe(true);
     // Check if it can be solved.
     // The difficulty is capped, as we don't do to many changes.
-    expect(solve(sudoku).iterations).toBe(248);
+    expect(solve(sudoku.sudoku).iterations).toBe(248);
   });
 });
 
