@@ -73,7 +73,6 @@ type GameAction =
       sudokuIndex: number;
       difficulty: DIFFICULTY;
       timesSolved: number;
-      secondsPlayed: number;
       previousTimes: number[];
     }
   | {type: typeof SHOW_MENU; showNotes?: boolean}
@@ -101,10 +100,13 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         state: GameStateMachine.running,
       };
     case SET_GAME_STATE_MACHINE:
+      const justWon = action.state === GameStateMachine.wonGame && state.state !== GameStateMachine.wonGame;
       return {
         ...state,
         state: action.state,
-        won: action.state === GameStateMachine.wonGame,
+        won: justWon,
+        timesSolved: justWon ? state.timesSolved + 1 : state.timesSolved,
+        previousTimes: justWon ? [...state.previousTimes, state.secondsPlayed] : state.previousTimes,
       };
     case RESTART_GAME:
       return {
@@ -112,7 +114,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         sudokuIndex: action.sudokuIndex,
         difficulty: action.difficulty,
         timesSolved: action.timesSolved,
-        secondsPlayed: action.secondsPlayed,
+        secondsPlayed: 0,
         previousTimes: action.previousTimes,
         state: GameStateMachine.running,
         won: false,
@@ -196,13 +198,7 @@ interface GameContextType {
   selectCell: (cellCoordinates: CellCoordinates) => void;
   showMenu: (showNotes?: boolean) => void;
   hideMenu: () => void;
-  restartGame: (
-    sudokuIndex: number,
-    difficulty: DIFFICULTY,
-    timesSolved: number,
-    secondsPlayed: number,
-    previousTimes: number[],
-  ) => void;
+  restartGame: (sudokuIndex: number, difficulty: DIFFICULTY, timesSolved: number, previousTimes: number[]) => void;
   toggleShowHints: () => void;
   toggleShowOccurrences: () => void;
   toggleShowConflicts: () => void;
@@ -257,14 +253,8 @@ export function GameProvider({children, initialState = INITIAL_GAME_STATE}: Game
   }, []);
 
   const restartGame = useCallback(
-    (
-      sudokuIndex: number,
-      difficulty: DIFFICULTY,
-      timesSolved: number,
-      secondsPlayed: number,
-      previousTimes: number[],
-    ) => {
-      dispatch({type: RESTART_GAME, sudokuIndex, difficulty, timesSolved, secondsPlayed, previousTimes});
+    (sudokuIndex: number, difficulty: DIFFICULTY, timesSolved: number, previousTimes: number[]) => {
+      dispatch({type: RESTART_GAME, sudokuIndex, difficulty, timesSolved, previousTimes});
     },
     [],
   );

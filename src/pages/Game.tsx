@@ -204,10 +204,8 @@ const Game: React.FC = () => {
   const sudoku = sudokuState.current;
 
   React.useEffect(() => {
-    // check if won
-    const wasSolved = SudokuGame.isSolved(sudoku);
     const isSolved = SudokuGame.isSolved(sudoku);
-    if (isSolved && !wasSolved) {
+    if (isSolved) {
       wonGame();
     }
   }, [sudoku, wonGame]);
@@ -243,7 +241,7 @@ const Game: React.FC = () => {
     : undefined;
 
   const handleRestartGame = React.useCallback(() => {
-    restartGame(game.sudokuIndex, game.difficulty, game.timesSolved, game.secondsPlayed, game.previousTimes);
+    restartGame(game.sudokuIndex, game.difficulty, game.timesSolved, game.previousTimes);
     const simpleSudoku = cellsToSimpleSudoku(sudoku);
     const solved = solve(simpleSudoku);
     if (solved.sudoku) {
@@ -359,13 +357,11 @@ const Game: React.FC = () => {
                       <a href="https://tn1ck.com" target="_blank" className="hover:underline">
                         {"Created by Tom Nick."}
                       </a>
-                      <p>
-                        If you find a bug, please report it on{" "}
-                        <a target="_blank" className="underline" href="https://github.com/TN1ck/super-sudoku/issues">
-                          Github
-                        </a>
-                        .
-                      </p>
+                      If you find a bug or experience any issues, please report it on{" "}
+                      <a target="_blank" className="underline" href="https://github.com/TN1ck/super-sudoku/issues">
+                        Github
+                      </a>
+                      .
                     </p>
                   </div>
                 </div>
@@ -403,7 +399,6 @@ The URL contains the ${difficulty} sudoku #${sudokuIndex + 1}.
           `,
         );
         if (!areYouSure) {
-          navigate({to: "/"});
           return;
         }
       }

@@ -112,12 +112,15 @@ const SudokuToSelect = ({
   const localSudoku = storedSudoku;
   const unfinished = localSudoku && localSudoku.game.state !== GameStateMachine.wonGame;
   const finished = localSudoku && localSudoku.game.state === GameStateMachine.wonGame;
+  const {restartGame} = useGame();
   const navigate = useNavigate();
 
   const choose = () => {
     if (finished) {
-      // TODO: make nice.
-      const areYouSure = confirm("Are you sure? This will reset the sudoku.");
+      // TODO: make it nicer.
+      const areYouSure = confirm(
+        "Are you sure? This will restart the sudoku and reset the timer. It will continue to say that you solved it.",
+      );
       if (!areYouSure) {
         return;
       }
@@ -216,7 +219,7 @@ const GameIndex = ({
 };
 
 const GameSelect: React.FC = () => {
-  const {newGame, continueGame, setGameState} = useGame();
+  const {newGame, continueGame, setGameState, restartGame} = useGame();
   const {setSudoku, setSudokuState} = useSudoku();
   const [activeTab, setActiveTab] = useState<DIFFICULTY>(DIFFICULTY.EASY);
   const [page, setPage] = useState(0);
@@ -224,7 +227,10 @@ const GameSelect: React.FC = () => {
   const chooseSudoku = (sudoku: SudokuRaw, index: number, storedSudoku: StoredSudokuState | undefined) => {
     newGame(index, activeTab);
     setSudoku(sudoku.sudoku, sudoku.solution);
-    if (storedSudoku) {
+    if (storedSudoku && storedSudoku.game.state === GameStateMachine.wonGame) {
+      restartGame(index, activeTab, storedSudoku.game.timesSolved, storedSudoku.game.previousTimes);
+    }
+    if (storedSudoku && storedSudoku.game.state !== GameStateMachine.wonGame) {
       setGameState({
         ...storedSudoku.game,
       });
