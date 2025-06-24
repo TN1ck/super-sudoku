@@ -32,12 +32,20 @@ import {DIFFICULTY, SimpleSudoku} from "./types";
 import flatten from "lodash/flatten";
 import {sample, shuffle} from "./seededRandom";
 
-const DIFFICULTY_MAPPING = {
+export const DIFFICULTY_GOALS = {
   [DIFFICULTY.EASY]: 3,
   [DIFFICULTY.MEDIUM]: 20,
   [DIFFICULTY.HARD]: 50,
   [DIFFICULTY.EXPERT]: 200,
   [DIFFICULTY.EVIL]: 500,
+};
+
+export const DIFFICULTY_RANGES = {
+  [DIFFICULTY.EASY]: [0, 7],
+  [DIFFICULTY.MEDIUM]: [8, 20],
+  [DIFFICULTY.HARD]: [20, 70],
+  [DIFFICULTY.EXPERT]: [71, 299],
+  [DIFFICULTY.EVIL]: [300, 10000],
 };
 
 const sudokuSolver = solverAC3.solve;
@@ -276,8 +284,11 @@ function makeSudokuUnique(sudoku: SimpleSudoku, randomFn: () => number): [Simple
   return [sudoku, checkForUniqueness(sudoku)];
 }
 
-export function generateSudoku(difficulty: DIFFICULTY, randomFn: () => number): SimpleSudoku {
-  const iterationGoal = DIFFICULTY_MAPPING[difficulty];
+export function generateSudoku(
+  difficulty: DIFFICULTY,
+  randomFn: () => number,
+): {sudoku: SimpleSudoku; isInDifficultyRange: boolean; reachedMaxIterations: boolean; iterations: number} {
+  const iterationGoal = DIFFICULTY_GOALS[difficulty];
 
   /**
    * returns the percentage of how close we are to the iteration goal
@@ -313,6 +324,8 @@ export function generateSudoku(difficulty: DIFFICULTY, randomFn: () => number): 
   }
 
   let currentIterations = sudokuSolver(sudoku).iterations;
+
+  let reachedMaxIterations = false;
   while (!validIterations(currentIterations)) {
     let newSudoku: SimpleSudoku = [];
     // Too difficult, make it easier.
@@ -325,14 +338,16 @@ export function generateSudoku(difficulty: DIFFICULTY, randomFn: () => number): 
     }
     const newIterations = sudokuSolver(newSudoku).iterations;
     if (currentIterations === newIterations) {
-      console.log("Reached maximum simplicity / difficulty with this sudoku.");
+      reachedMaxIterations = true;
       break;
     }
     sudoku = newSudoku;
     currentIterations = newIterations;
   }
-  console.log(`Needed ${currentIterations} to generate this sudoku. Goal was ${iterationGoal}.`);
-  return sudoku;
+
+  const isInDifficultyRange =
+    currentIterations >= DIFFICULTY_RANGES[difficulty][0] && currentIterations <= DIFFICULTY_RANGES[difficulty][1];
+  return {sudoku, isInDifficultyRange, reachedMaxIterations, iterations: currentIterations};
 }
 
 export default generateSudoku;

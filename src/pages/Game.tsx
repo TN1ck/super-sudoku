@@ -14,8 +14,10 @@ import SudokuMenuControls from "src/pages/Game/GameControls/GameControlActions";
 import {Container} from "src/components/Layout";
 import Shortcuts from "./Game/shortcuts/Shortcuts";
 import Checkbox from "src/components/Checkbox";
-import SUDOKUS from "src/lib/game/sudokus";
 import {useNavigate} from "@tanstack/react-location";
+import {getSudokusPaginated} from "src/lib/game/sudokus";
+import {cellsToSimpleSudoku} from "src/lib/engine/utility";
+import {solve} from "src/lib/engine/solverAC3";
 
 const SudokuMenuNumbersConnected: React.FC = () => {
   const {state: gameState} = useGame();
@@ -55,6 +57,7 @@ function PauseButton({
 
 const ClearGameButton: React.FC = () => {
   const {state, resetGame, pauseGame, continueGame} = useGame();
+  const {state: sudokuState} = useSudoku();
   const {setSudoku} = useSudoku();
 
   const clearGame = async () => {
@@ -66,8 +69,11 @@ const ClearGameButton: React.FC = () => {
       continueGame();
       return;
     }
-    const sudoku = SUDOKUS[state.difficulty][state.sudokuIndex];
-    setSudoku(sudoku.sudoku, sudoku.solution);
+    const simpleSudoku = cellsToSimpleSudoku(sudokuState.current);
+    const solved = solve(simpleSudoku);
+    if (solved.sudoku) {
+      setSudoku(simpleSudoku, solved.sudoku);
+    }
     resetGame();
     // Wait 100ms as we have to wait until the updateTimer is called (should normally take 1/60 second)
     // This is certainly not ideal and should be fixed there.
@@ -237,9 +243,11 @@ const Game: React.FC = () => {
 
   const handleRestartGame = React.useCallback(() => {
     restartGame(game.sudokuIndex, game.difficulty, game.timesSolved, game.secondsPlayed, game.previousTimes);
-    // Could also recreate it from sudoku.
-    const sudokuData = SUDOKUS[game.difficulty][game.sudokuIndex];
-    setSudoku(sudokuData.sudoku, sudokuData.solution);
+    const simpleSudoku = cellsToSimpleSudoku(sudoku);
+    const solved = solve(simpleSudoku);
+    if (solved.sudoku) {
+      setSudoku(simpleSudoku, solved.sudoku);
+    }
     continueGame();
   }, [game, restartGame, setSudoku, continueGame]);
 

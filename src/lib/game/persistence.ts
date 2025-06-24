@@ -1,4 +1,3 @@
-import SUDOKUS from "src/lib/game/sudokus";
 import {GameState, GameStateMachine} from "src/context/GameContext";
 import {SudokuState} from "src/context/SudokuContext";
 import {Cell} from "src/lib/engine/types";
@@ -118,5 +117,3 @@ export const getState = () => {
   const cached = loadFromLocalStorage();
   return cached;
 };
-
-export default SUDOKUS;

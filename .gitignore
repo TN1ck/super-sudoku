@@ -6,3 +6,8 @@ typings
 node_modules
 tmp
 artifacts
+sudokus_easy.txt
+sudokus_medium.txt
+sudokus_hard.txt
+sudokus_expert.txt
+sudokus_evil.txt

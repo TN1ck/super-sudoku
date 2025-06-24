@@ -1,7 +1,7 @@
 import React, {createContext, useContext, useReducer, useCallback, ReactNode} from "react";
 import {Cell, SimpleSudoku, CellCoordinates} from "src/lib/engine/types";
 import {simpleSudokuToCells, squareIndex} from "src/lib/engine/utility";
-import SUDOKUS from "src/lib/game/sudokus";
+import {START_SUDOKU} from "src/lib/game/sudokus";
 
 export const DEFAULT_SUDOKU_INDEX = 0;
 
@@ -25,10 +25,8 @@ export const emptyGrid: Cell[] = simpleSudokuToCells([
 
 // We start with the first easy sudoku, so the user can start playing immediately.
 export const INITIAL_SUDOKU_STATE: SudokuState = {
-  current: simpleSudokuToCells(SUDOKUS.easy[DEFAULT_SUDOKU_INDEX].sudoku, SUDOKUS.easy[DEFAULT_SUDOKU_INDEX].solution),
-  history: [
-    simpleSudokuToCells(SUDOKUS.easy[DEFAULT_SUDOKU_INDEX].sudoku, SUDOKUS.easy[DEFAULT_SUDOKU_INDEX].solution),
-  ],
+  current: simpleSudokuToCells(START_SUDOKU.sudoku, START_SUDOKU.solution),
+  history: [simpleSudokuToCells(START_SUDOKU.sudoku, START_SUDOKU.solution)],
   historyIndex: 0,
 };
 

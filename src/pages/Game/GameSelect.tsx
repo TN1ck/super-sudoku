@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import SUDOKUS, {SudokuRaw} from "src/lib/game/sudokus";
+import {getSudokusPaginated, SudokuRaw} from "src/lib/game/sudokus";
 import {DIFFICULTY} from "src/lib/engine/types";
 import SudokuPreview from "../../components/sudoku/SudokuPreview";
 import {useGame, GameStateMachine} from "src/context/GameContext";
@@ -219,23 +219,10 @@ const GameIndex = ({
 };
 
 const GameSelect: React.FC = () => {
-  const {newGame, continueGame, updateTimer, setGameState} = useGame();
+  const {newGame, continueGame, setGameState} = useGame();
   const {setSudoku, setSudokuState} = useSudoku();
-  const location = useLocation();
   const [activeTab, setActiveTab] = useState<DIFFICULTY>(DIFFICULTY.EASY);
   const [page, setPage] = useState(0);
-
-  useEffect(() => {
-    const search = (location as any).search;
-    if (search?.sudokuIndex && search?.sudoku && search?.difficulty) {
-      const sudoku = SUDOKUS[search.difficulty as DIFFICULTY]?.[search.sudokuIndex];
-      if (sudoku && stringifySudoku(sudoku.sudoku) === search.sudoku) {
-        newGame(search.sudokuIndex, search.difficulty);
-        setSudoku(sudoku.sudoku, sudoku.solution);
-        continueGame();
-      }
-    }
-  }, [location, newGame, setSudoku, continueGame]);
 
   const chooseSudoku = (sudoku: SudokuRaw, index: number, storedSudoku: StoredSudokuState | undefined) => {
     newGame(index, activeTab);
@@ -253,11 +240,9 @@ const GameSelect: React.FC = () => {
     continueGame();
   };
 
-  const sudokus = SUDOKUS[activeTab];
   const pageSize = 12;
-  const pageCount = Math.ceil(sudokus.length / pageSize);
+  const {sudokus: pageSudokus, totalPages: pageCount, totalRows} = getSudokusPaginated(activeTab, page, pageSize);
   const pageStart = page * pageSize;
-  const pageSudokus = sudokus.slice(pageStart, pageStart + pageSize);
 
   const setActiveTabAndResetPage = (difficulty: DIFFICULTY) => {
     setActiveTab(difficulty);
