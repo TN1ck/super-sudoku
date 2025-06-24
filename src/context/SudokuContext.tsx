@@ -3,8 +3,6 @@ import {Cell, SimpleSudoku, CellCoordinates} from "src/lib/engine/types";
 import {simpleSudokuToCells, squareIndex} from "src/lib/engine/utility";
 import {START_SUDOKU} from "src/lib/game/sudokus";
 
-export const DEFAULT_SUDOKU_INDEX = 0;
-
 export interface SudokuState {
   current: Cell[];
   history: Cell[][];

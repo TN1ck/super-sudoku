@@ -1,4 +1,4 @@
-import {GameState, GameStateMachine} from "src/context/GameContext";
+import {GameState} from "src/context/GameContext";
 import {SudokuState} from "src/context/SudokuContext";
 import {Cell} from "src/lib/engine/types";
 import {stringifySudoku, cellsToSimpleSudoku} from "src/lib/engine/utility";
@@ -34,10 +34,7 @@ const loadFromLocalStorage = (): StoredState => {
   if (text === null) {
     usedKey = STORAGE_KEY_V_1_4;
     text = localStorage.getItem(STORAGE_KEY_V_1_4);
-  }
-  if (text === null) {
-    usedKey = STORAGE_KEY_V_1_3;
-    text = localStorage.getItem(STORAGE_KEY_V_1_3);
+    console.log("using v1.4", text);
   }
   if (text !== null) {
     try {
@@ -45,9 +42,10 @@ const loadFromLocalStorage = (): StoredState => {
       const result = JSON.parse(text) as StoredState;
 
       // Migrate from numeric IDs to stringified sudoku keys
-      if (usedKey === STORAGE_KEY_V_1_3 || usedKey === STORAGE_KEY_V_1_4) {
+      if (usedKey === STORAGE_KEY_V_1_4) {
         const migratedSudokus: {[key: string]: StoredSudokuState} = {};
         const keys = Object.keys(result.sudokus);
+        console.log("keys", keys);
 
         for (const key of keys) {
           const numberKey = parseInt(key, 10);
@@ -56,24 +54,9 @@ const loadFromLocalStorage = (): StoredState => {
           }
           const sudoku = result.sudokus[numberKey];
 
-          // Migrate missing timesSolved and previousTimes.
-          if (usedKey === STORAGE_KEY_V_1_3) {
-            if (sudoku.game.state === GameStateMachine.wonGame) {
-              sudoku.game.timesSolved = 1;
-              sudoku.game.previousTimes = [sudoku.game.secondsPlayed];
-            } else {
-              sudoku.game.timesSolved = 0;
-              sudoku.game.previousTimes = [];
-            }
-          }
-
-          // Make sure that conflicts are shown by default. Doesn't warrant a new persistence key.
-          if (sudoku.game.showConflicts === undefined) {
-            sudoku.game.showConflicts = true;
-          }
-
           // Convert numeric ID to stringified sudoku key
           const sudokuKey = stringifySudoku(cellsToSimpleSudoku(sudoku.sudoku));
+          console.log("migrated sudoku:", numberKey, "to", sudokuKey);
 
           migratedSudokus[sudokuKey] = sudoku;
         }

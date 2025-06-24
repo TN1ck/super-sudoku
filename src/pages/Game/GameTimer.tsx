@@ -1,5 +1,4 @@
 import * as React from "react";
-import {useGame} from "src/context/GameContext";
 import {useTimer} from "src/context/TimerContext";
 import {formatDuration} from "src/utils/format";
 

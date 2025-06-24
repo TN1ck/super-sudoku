@@ -10,7 +10,8 @@ interface AppContextProps {
   children: ReactNode;
 }
 
-const throttledSave = throttle(saveToLocalStorage, 1000);
+// Save every 2 seconds.
+const throttledSave = throttle(saveToLocalStorage, 2000);
 
 export function AppProvider({children}: AppContextProps) {
   // Load initial state from persistence

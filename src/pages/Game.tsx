@@ -359,6 +359,13 @@ const Game: React.FC = () => {
                       <a href="https://tn1ck.com" target="_blank" className="hover:underline">
                         {"Created by Tom Nick."}
                       </a>
+                      <p>
+                        If you find a bug, please report it on{" "}
+                        <a target="_blank" className="underline" href="https://github.com/TN1ck/super-sudoku/issues">
+                          Github
+                        </a>
+                        .
+                      </p>
                     </p>
                   </div>
                 </div>

@@ -1,7 +1,5 @@
 import React, {createContext, useContext, useReducer, useCallback, ReactNode} from "react";
 import {CellCoordinates, DIFFICULTY} from "src/lib/engine/types";
-import {saveToLocalStorage} from "src/lib/game/persistence";
-import {throttle} from "lodash";
 import {START_SUDOKU_DIFFICULTY, START_SUDOKU_INDEX} from "src/lib/game/sudokus";
 
 export enum GameStateMachine {
@@ -217,8 +215,6 @@ interface GameContextType {
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
-
-const throttledSave = throttle(saveToLocalStorage, 1000);
 
 interface GameProviderProps {
   children: ReactNode;
