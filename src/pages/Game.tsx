@@ -14,9 +14,11 @@ import SudokuMenuControls from "src/pages/Game/GameControls/GameControlActions";
 import {Container} from "src/components/Layout";
 import Shortcuts from "./Game/shortcuts/Shortcuts";
 import Checkbox from "src/components/Checkbox";
-import {cellsToSimpleSudoku} from "src/lib/engine/utility";
+import {cellsToSimpleSudoku, stringifySudoku, parseSudoku} from "src/lib/engine/utility";
 import {solve} from "src/lib/engine/solverAC3";
-import {useNavigate} from "@tanstack/react-router";
+import {useLocation, useNavigate} from "@tanstack/react-router";
+import {DIFFICULTY} from "src/lib/engine/types";
+import {getState, StoredSudokuState} from "src/lib/game/persistence";
 
 const SudokuMenuNumbersConnected: React.FC = () => {
   const {state: gameState} = useGame();
@@ -257,7 +259,7 @@ const Game: React.FC = () => {
           <Shortcuts gameState={game.state} />
           <header className="flex justify-between sm:items-center mt-4">
             <div className="flex text-white flex-col sm:flex-row justify-end">
-              <DifficultyShow>{`${game.difficulty} - ${game.sudokuIndex + 1}`}</DifficultyShow>
+              <DifficultyShow>{`${game.difficulty} #${game.sudokuIndex + 1}`}</DifficultyShow>
               <div className="hidden sm:block w-2 sm:w-4" />
               <div className="hidden sm:block">{"|"}</div>
               <div className="hidden sm:block w-2 sm:w-4" />
@@ -369,4 +371,64 @@ const Game: React.FC = () => {
   );
 };
 
-export default Game;
+const GameWithRouteManagement = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const {setGameState, state: gameState, continueGame, newGame} = useGame();
+  const {setSudokuState, state: sudokuState, setSudoku} = useSudoku();
+  const search = location.search;
+  const sudokuIndex = search["sudokuIndex"] as number;
+  const sudoku = search["sudoku"] as string;
+  const difficulty = search["difficulty"] as DIFFICULTY;
+
+  React.useEffect(() => {
+    if (sudokuIndex && sudoku && difficulty) {
+      const simpleSudoku = cellsToSimpleSudoku(sudokuState.current);
+      // Only show the check if they actually played a few seconds.
+      if (stringifySudoku(simpleSudoku) !== sudoku && gameState.secondsPlayed > 5) {
+        const areYouSure = confirm(
+          `
+The URL contains another sudoku than the one you are currently playing.
+Do you want to continue with the new sudoku? The old sudoku will be paused.
+
+You currently play the ${gameState.difficulty} sudoku #${gameState.sudokuIndex + 1}.
+The URL contains the ${difficulty} sudoku #${sudokuIndex + 1}.
+          `,
+        );
+        if (!areYouSure) {
+          navigate({to: "/"});
+          return;
+        }
+      }
+
+      const localState = getState();
+      const storedSudoku = localState.sudokus[sudoku] as StoredSudokuState | undefined;
+
+      const parsedSudoku = parseSudoku(sudoku);
+      const solvedSudoku = solve(parsedSudoku);
+      if (solvedSudoku.sudoku) {
+        setSudoku(parsedSudoku, solvedSudoku.sudoku);
+      } else {
+        alert("The URL contains an invalid sudoku.");
+        return;
+      }
+      newGame(sudokuIndex, difficulty);
+
+      if (storedSudoku) {
+        setGameState({
+          ...storedSudoku.game,
+        });
+        setSudokuState({
+          current: storedSudoku.sudoku,
+          history: [storedSudoku.sudoku],
+          historyIndex: 0,
+        });
+      }
+      continueGame();
+    }
+  }, [sudokuIndex, sudoku, difficulty, setGameState]);
+
+  return <Game />;
+};
+
+export default GameWithRouteManagement;
