@@ -15,7 +15,6 @@ import {Container} from "src/components/Layout";
 import Shortcuts from "./Game/shortcuts/Shortcuts";
 import Checkbox from "src/components/Checkbox";
 import {useNavigate} from "@tanstack/react-location";
-import {getSudokusPaginated} from "src/lib/game/sudokus";
 import {cellsToSimpleSudoku} from "src/lib/engine/utility";
 import {solve} from "src/lib/engine/solverAC3";
 
