@@ -1,8 +1,7 @@
 import {Command} from "commander";
 import cheerio from "cheerio";
 import {writeFileSync} from "fs";
-import {printSimpleSudoku} from "../src/engine/utility";
-import {map} from "lodash";
+import {stringifySudoku} from "../src/lib/engine/utility";
 
 const program = new Command();
 
@@ -145,7 +144,7 @@ program
     }
 
     const sudokusSerialized = sudokus.map((sudoku) => {
-      return {sudoku: printSimpleSudoku(sudoku.sudoku), winRate: sudoku.winRate};
+      return {sudoku: stringifySudoku(sudoku.sudoku), winRate: sudoku.winRate};
     });
 
     const jsonFileName = `sudokus-${level}-${number}-${new Date().getTime()}.json`;

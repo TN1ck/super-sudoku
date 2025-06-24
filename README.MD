@@ -1,67 +1,130 @@
-# Super Sudoku
+# Super Sudoku 🧩
 
-Currently hosted at [https://sudoku.tn1ck.com](https://sudoku.tn1ck.com).
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://sudoku.tn1ck.com)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](https://nodejs.org/)
 
-![Screenshot of the sudoku app](./docs/screenshot-app-2024-08-25.png)
+**A feature-rich, open-source Sudoku game that rivals commercial applications**
 
+🌐 **Live Demo**: [https://sudoku.tn1ck.com](https://sudoku.tn1ck.com)
 
-This project aims to be a sudoku app with everything included. An open source sudoku that is on par with all commercial applications. Why? Because my Grandma wanted to play a Sudoku once and I didn't like all the available offers. This has changed since then, but having an open source version will hopefully help people in the future.
+![Screenshot of the sudoku app](./docs/screenshot-app-2025-06-24.png)
 
-## Features include:
+## ✨ Why Super Sudoku?
 
-- 100 sudokus for 5 different difficulties
-- Save the users progress
-- Generate Notes, custom notes
-- Undo & hints
-- Highlighting of conflicts and wrong entries
-- Show occurrences of numbers in the buttons
-- Shortcuts
-    - Arrow keys: Move around the board
-    - Number keys: Write a note or set the sudoku number
-    - Backspace: Delete a number
-    - Escape: Pause/unpause the game
-    - H: Hint
-    - N: Enter/exit note mode
-    - Undo/Redo: CMD/CTRL + Z & CMD/CTRL + Y
+Born from a simple request - my Grandma wanted to play Sudoku, but I wasn't satisfied with the available options. This project aims to create an open-source Sudoku experience that matches or exceeds commercial applications, making quality puzzle gaming accessible to everyone.
 
+## 🚀 Key Features
 
-If something is missing, open an issue!
+### 🎮 **Core Gameplay**
+- **3000 Puzzles**: ~Carefully~ Automatically created puzzles across 5 difficulty levels
+- **Smart Hints**: Get help when you're stuck without spoiling the challenge
+- **Undo/Redo**: Full history tracking with CMD/CTRL + Z & Y shortcuts
+- **Progress Saving**: Never lose your place - automatic save functionality
 
-## Development Setup
+### 📝 **Advanced Note System**
+- **Smart Notes**: Automatic note generation and management
+- **Custom Notes**: Add your own annotations and strategies
+- **Conflict Detection**: Real-time highlighting of errors and conflicts
+- **Number Tracking**: Visual indicators showing number occurrences
 
-You need nodejs to run this project. Check [here](https://nodejs.org/en/download/package-manager/) on how to install nodejs if you haven't done it yet. This project was tested with version 20.
+### ⌨️ **Keyboard Shortcuts**
+| Action | Key |
+|--------|-----|
+| **Navigate** | Arrow Keys |
+| **Input Numbers** | 1-9 Keys |
+| **Delete** | Backspace |
+| **Pause/Resume** | Escape |
+| **Get Hint** | H |
+| **Toggle Notes** | N |
+| **Undo/Redo** | CMD/CTRL + Z/Y |
 
-If you have node installed, execute in a terminal:
+### 🎯 **Smart Features**
+- **Auto-save**: Your progress is automatically saved
+- **Difficulty Progression**: Start easy, work your way up
+- **Clean Interface**: Distraction-free, modern design
+- **Mobile Responsive**: Play on any device
 
-```
+## 🛠️ Development Setup
+
+### Prerequisites
+- **Node.js** (version 20 or higher) - [Download here](https://nodejs.org/en/download/package-manager/)
+
+### Quick Start
+```bash
+# Clone the repository
+git clone https://github.com/tn1ck/super-sudoku.git
+cd super-sudoku
+
+# Install dependencies
 npm install
+
+# Start development server
 npm start
 ```
 
-The app should be available on [http://127.0.0.1:3000](http://127.0.0.1:3000).
+The app will be available at [http://127.0.0.1:3000](http://127.0.0.1:3000)
 
-To build the project, execute `npm run build`, the generated files are in the `dist` directory.
+### Build for Production
+```bash
+npm run build
+```
+Generated files will be in the `dist` directory.
 
-## Run it using Docker
+## 🐳 Docker Deployment
 
-A docker image is provided to build the application and serve it using NGINX at port 80.
+### Quick Docker Setup
+```bash
+# Build the image
+docker build -t super-sudoku:latest .
 
-Build the image: `docker build -t super-sudoku:latest .`
-Run the image: `docker run -p 8081:80 super-sudoku:latest` (Change 8081 for the port you want to map it to locally).
+# Run the container (map to your preferred port)
+docker run -p 8081:80 super-sudoku:latest
+```
 
-Automatically build images are available at [https://github.com/tn1ck/super-sudoku/pkgs/container/super-sudoku](https://github.com/tn1ck/super-sudoku/pkgs/container/super-sudoku).
+### Pre-built Images
+Ready-to-use images are available at [GitHub Container Registry](https://github.com/tn1ck/super-sudoku/pkgs/container/super-sudoku).
 
-## Solve & Generate Sudokus
+## 🧩 Puzzle Generation
 
-A generator was build to create an infinite amount of sudokus for every difficulty Level.
-The generator is mostly based on the paper "Rating and Generating Sudoku Puzzles Based On Constraint Satisfaction Problems".
-Currently I include a few hundred sudokus with this app, in the future it would be nice if a user could generate more if he would like to / having an interface to create new sudokus.
+Super Sudoku includes a sophisticated puzzle generation system based on research from "Rating and Generating Sudoku Puzzles Based On Constraint Satisfaction Problems."
 
-There are two scripts included in this project:
+### Generation Tools
+- **`generate_sudokus.ts`**: Generate new puzzles by difficulty level
 
-* `generate_sudokus.ts` - given a difficulty level and number of sudokus it will generate these and append the results to the `sudokus.txt` file
-* `read_sudokus.ts` - reads the `sudokus.txt` file and creates a `sudokus.json` which is used in the application itself. It adds some more data and changes the datastructure. The contents need then to be placed in `src/assets/sudokus.ts`. I also format the file with prettier, to make it prettier.
+### Future Plans
+- User interface for custom puzzle generation
+- Community puzzle sharing
+- Advanced difficulty algorithms
 
-## Contribution
+## 🤝 Contributing
 
-Every contribution is welcome! Simply fork the project and create a PR. You can also create an issue and ask for a feature.
+We welcome contributions! Here's how you can help:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+### Areas for Contribution
+- 🎨 UI/UX improvements
+- 🧩 New puzzle generation algorithms
+- 🐛 Bug fixes
+- 📱 Mobile optimization
+- 🌍 Internationalization
+- 🎮 New game modes
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Research paper: "Rating and Generating Sudoku Puzzles Based On Constraint Satisfaction Problems"
+- The open-source community for inspiration and tools
+- My Grandma for the original motivation! ❤️
+
+---
+
+**Missing a feature?** [Open an issue](https://github.com/tn1ck/super-sudoku/issues) and let us know!

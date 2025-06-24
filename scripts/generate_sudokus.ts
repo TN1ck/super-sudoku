@@ -1,10 +1,10 @@
 import * as fs from "fs";
 import {program} from "commander";
-import * as generate from "../src/engine/generate";
-import * as solverAC3 from "../src/engine/solverAC3";
-import {printSimpleSudoku} from "../src/engine/utility";
-import {DIFFICULTY, SimpleSudoku} from "../src/engine/types";
-import {createSeededRandom} from "../src/engine/seededRandom";
+import * as generate from "../src/lib/engine/generate";
+import * as solverAC3 from "../src/lib/engine/solverAC3";
+import {stringifySudoku} from "../src/lib/engine/utility";
+import {DIFFICULTY, SimpleSudoku} from "../src/lib/engine/types";
+import {createSeededRandom} from "../src/lib/engine/seededRandom";
 
 program
   .version("0.0.1")
@@ -31,21 +31,30 @@ const sudokuDifficulty = mapping[difficulty];
 
 function writeSudoku(sudoku: SimpleSudoku) {
   const iterations = solverAC3.solve(sudoku).iterations;
-  const printedSudoku = printSimpleSudoku(sudoku);
-  console.log(`write sudoku with difficulty ${iterations}\n`, printedSudoku);
-  const stringToAppend = `${iterations}
-${printedSudoku}
-
-
-`;
-  fs.appendFileSync("sudokus.txt", stringToAppend);
+  const printedSudoku = stringifySudoku(sudoku);
+  console.log(`Write sudoku with ${iterations} iterations\n`, printedSudoku);
+  fs.appendFileSync(`sudokus_${difficulty}.txt`, printedSudoku + "\n");
 }
 
 const number = options.number;
-console.log(`Generate ${number} sudokus with difficulty ` + difficulty);
+console.log(`Generate ${number} sudoku puzzles with difficulty "${difficulty}"`);
 
 const randomFn = createSeededRandom(Math.random() * +new Date());
-new Array(number).fill(0).forEach((_, i) => {
-  console.log("Generate sudoku " + (i + 1));
-  writeSudoku(generate.generateSudoku(sudokuDifficulty, randomFn));
-});
+let i = 0;
+let attempts = 0;
+while (i < number) {
+  console.log("Generate sudoku " + (i + 1) + " (attempt " + (attempts + 1) + ")");
+  const {sudoku, isInDifficultyRange, iterations} = generate.generateSudoku(sudokuDifficulty, randomFn);
+  console.log(
+    `Needed ${iterations} iterations to generate this sudoku. Goal was ${generate.DIFFICULTY_GOALS[sudokuDifficulty]}.`,
+  );
+  if (isInDifficultyRange) {
+    console.log("Sudoku is in difficulty range.");
+    writeSudoku(sudoku);
+    i++;
+    attempts = 0;
+  } else {
+    console.log("Sudoku is not in difficulty range. Skipping.");
+    attempts++;
+  }
+}
