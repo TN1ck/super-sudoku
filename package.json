@@ -42,6 +42,7 @@
     "@types/react-dom": "18.3.0",
     "@types/styled-components": "5.1.34",
     "@vitejs/plugin-react": "4.2.1",
+    "autoprefixer": "10.4.19",
     "cheerio": "1.0.0-rc.12",
     "commander": "12.0.0",
     "eslint": "9.1.1",
@@ -56,17 +57,16 @@
     "ts-loader": "9.5.1",
     "ts-node": "10.9.2",
     "typescript": "5.4.5",
-    "url-loader": "4.1.1"
+    "url-loader": "4.1.1",
+    "vite-tsconfig-paths": "4.3.2",
+    "vite": "5.2.10"
   },
   "dependencies": {
-    "autoprefixer": "10.4.19",
     "clsx": "2.1.1",
     "hotkeys-js": "3.13.7",
     "lodash": "4.17.21",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "tailwind-merge": "3.3.1",
-    "vite": "5.2.10",
-    "vite-tsconfig-paths": "4.3.2"
+    "tailwind-merge": "3.3.1"
   }
 }
