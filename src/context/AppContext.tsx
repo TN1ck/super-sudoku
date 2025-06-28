@@ -2,21 +2,19 @@ import React, {useEffect, ReactNode} from "react";
 import {GameProvider, GameState, INITIAL_GAME_STATE, useGame} from "./GameContext";
 import {SudokuProvider, SudokuState, INITIAL_SUDOKU_STATE, useSudoku} from "./SudokuContext";
 import {TimerProvider} from "./TimerContext";
-import {getState} from "src/lib/game/persistence";
-import {saveToLocalStorage} from "src/lib/game/persistence";
 import throttle from "lodash/throttle";
+import {localStoragePlayedSudokuRepository} from "src/lib/database/playedSudokus";
 
 interface AppContextProps {
   children: ReactNode;
 }
 
 // Save every 2 seconds.
-const throttledSave = throttle(saveToLocalStorage, 2000);
+const throttledSave = throttle(localStoragePlayedSudokuRepository.saveSudokuState, 2000);
 
 export function AppProvider({children}: AppContextProps) {
   // Load initial state from persistence
-  const savedState = getState();
-  const currentSudoku = savedState.sudokus[savedState.active];
+  const currentSudoku = localStoragePlayedSudokuRepository.getCurrentSudoku();
 
   const initialGameState: GameState = currentSudoku ? currentSudoku.game : INITIAL_GAME_STATE;
 

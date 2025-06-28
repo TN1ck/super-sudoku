@@ -1,6 +1,6 @@
 import React, {createContext, useContext, useReducer, useCallback, ReactNode} from "react";
 import {CellCoordinates, DIFFICULTY} from "src/lib/engine/types";
-import {START_SUDOKU_DIFFICULTY, START_SUDOKU_INDEX} from "src/lib/game/sudokus";
+import {START_SUDOKU_COLLECTION, START_SUDOKU_INDEX} from "src/lib/game/sudokus";
 
 export enum GameStateMachine {
   running = "RUNNING",
@@ -10,7 +10,7 @@ export enum GameStateMachine {
 
 export interface GameState {
   activeCellCoordinates?: CellCoordinates;
-  difficulty: DIFFICULTY;
+  sudokuCollectionName: string;
   notesMode: boolean;
   showCircleMenu: boolean;
   showHints: boolean;
@@ -29,7 +29,7 @@ export interface GameState {
 
 export const INITIAL_GAME_STATE: GameState = {
   activeCellCoordinates: undefined,
-  difficulty: START_SUDOKU_DIFFICULTY as DIFFICULTY,
+  sudokuCollectionName: START_SUDOKU_COLLECTION,
   notesMode: false,
   showCircleMenu: true,
   showHints: false,
@@ -47,8 +47,8 @@ export const INITIAL_GAME_STATE: GameState = {
 };
 
 // Action types
-export const NEW_GAME = "game/NEW_GAME";
-export const SET_GAME_STATE = "game/SET_GAME_STATE";
+const NEW_GAME = "game/NEW_GAME";
+const SET_GAME_STATE = "game/SET_GAME_STATE";
 const SET_GAME_STATE_MACHINE = "game/SET_GAME_STATE_MACHINE";
 const RESTART_GAME = "game/RESTART_GAME";
 const SHOW_MENU = "game/SHOW_MENU";
@@ -61,17 +61,17 @@ const TOGGLE_SHOW_CIRCLE_MENU = "game/TOGGLE_SHOW_CIRCLE_MENU";
 const TOGGLE_SHOW_WRONG_ENTRIES = "game/TOGGLE_SHOW_WRONG_ENTRIES";
 const ACTIVATE_NOTES_MODE = "game/ACTIVATE_NOTES_MODE";
 const DEACTIVATE_NOTES_MODE = "game/DEACTIVATE_NOTES_MODE";
-export const UPDATE_TIMER = "game/UPDATE_TIME";
+const UPDATE_TIMER = "game/UPDATE_TIME";
 const RESET_GAME = "game/RESET_GAME";
 
 type GameAction =
-  | {type: typeof NEW_GAME; sudokuIndex: number; difficulty: DIFFICULTY}
+  | {type: typeof NEW_GAME; sudokuIndex: number; sudokuCollectionName: string}
   | {type: typeof SET_GAME_STATE; state: GameState}
   | {type: typeof SET_GAME_STATE_MACHINE; state: GameStateMachine}
   | {
       type: typeof RESTART_GAME;
       sudokuIndex: number;
-      difficulty: DIFFICULTY;
+      sudokuCollectionName: string;
       timesSolved: number;
       previousTimes: number[];
     }
@@ -96,7 +96,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...INITIAL_GAME_STATE,
         sudokuIndex: action.sudokuIndex,
-        difficulty: action.difficulty,
+        sudokuCollectionName: action.sudokuCollectionName,
         state: GameStateMachine.running,
       };
     case SET_GAME_STATE_MACHINE:
@@ -112,7 +112,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         sudokuIndex: action.sudokuIndex,
-        difficulty: action.difficulty,
+        sudokuCollectionName: action.sudokuCollectionName,
         timesSolved: action.timesSolved,
         secondsPlayed: 0,
         previousTimes: action.previousTimes,
@@ -190,7 +190,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
 interface GameContextType {
   state: GameState;
-  newGame: (sudokuIndex: number, difficulty: DIFFICULTY) => void;
+  newGame: (sudokuIndex: number, sudokuCollectionName: string) => void;
   setGameState: (state: GameState) => void;
   wonGame: () => void;
   pauseGame: () => void;
@@ -198,7 +198,12 @@ interface GameContextType {
   selectCell: (cellCoordinates: CellCoordinates) => void;
   showMenu: (showNotes?: boolean) => void;
   hideMenu: () => void;
-  restartGame: (sudokuIndex: number, difficulty: DIFFICULTY, timesSolved: number, previousTimes: number[]) => void;
+  restartGame: (
+    sudokuIndex: number,
+    sudokuCollectionName: string,
+    timesSolved: number,
+    previousTimes: number[],
+  ) => void;
   toggleShowHints: () => void;
   toggleShowOccurrences: () => void;
   toggleShowConflicts: () => void;
@@ -220,8 +225,8 @@ interface GameProviderProps {
 export function GameProvider({children, initialState = INITIAL_GAME_STATE}: GameProviderProps) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
 
-  const newGame = useCallback((sudokuIndex: number, difficulty: DIFFICULTY) => {
-    dispatch({type: NEW_GAME, sudokuIndex, difficulty});
+  const newGame = useCallback((sudokuIndex: number, sudokuCollectionName: string) => {
+    dispatch({type: NEW_GAME, sudokuIndex, sudokuCollectionName});
   }, []);
 
   const setGameState = useCallback((gameState: GameState) => {
@@ -253,8 +258,8 @@ export function GameProvider({children, initialState = INITIAL_GAME_STATE}: Game
   }, []);
 
   const restartGame = useCallback(
-    (sudokuIndex: number, difficulty: DIFFICULTY, timesSolved: number, previousTimes: number[]) => {
-      dispatch({type: RESTART_GAME, sudokuIndex, difficulty, timesSolved, previousTimes});
+    (sudokuIndex: number, sudokuCollectionName: string, timesSolved: number, previousTimes: number[]) => {
+      dispatch({type: RESTART_GAME, sudokuIndex, sudokuCollectionName, timesSolved, previousTimes});
     },
     [],
   );

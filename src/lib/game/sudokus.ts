@@ -1,12 +1,14 @@
-import {SimpleSudoku} from "src/lib/engine/types";
+import {DIFFICULTY, SimpleSudoku} from "src/lib/engine/types";
 
 import easySudokus from "../../../sudokus/easy.txt?raw";
 import mediumSudokus from "../../../sudokus/medium.txt?raw";
 import hardSudokus from "../../../sudokus/hard.txt?raw";
 import expertSudokus from "../../../sudokus/expert.txt?raw";
 import evilSudokus from "../../../sudokus/evil.txt?raw";
-import {parseSudoku} from "src/lib/engine/utility";
+import {parseSudoku, stringifySudoku} from "src/lib/engine/utility";
 import {solve} from "src/lib/engine/solverAC3";
+import {useCallback, useMemo, useState} from "react";
+import {Collection, CollectionIndex, localStorageCollectionRepository} from "../database/collections";
 
 export interface SudokuRaw {
   iterations: number;
@@ -22,9 +24,7 @@ export interface PaginatedSudokus {
   totalPages: number;
 }
 
-type Difficulty = "easy" | "medium" | "hard" | "expert" | "evil";
-
-const SUDOKU_FILES = {
+const BASE_SUDOKU_COLLECTIONS: Record<string, string> = {
   easy: easySudokus,
   medium: mediumSudokus,
   hard: hardSudokus,
@@ -32,48 +32,33 @@ const SUDOKU_FILES = {
   evil: evilSudokus,
 } as const;
 
-// Cache for parsed sudokus to avoid re-parsing
-const parsedCache: Record<Difficulty, SudokuRaw[]> = {} as Record<Difficulty, SudokuRaw[]>;
-
 // Cache for raw line counts
-const lineCountCache: Record<Difficulty, number> = {} as Record<Difficulty, number>;
+const lineCountCache: Record<string, number> = {} as Record<string, number>;
 
-function getLineCount(difficulty: Difficulty): number {
-  if (!lineCountCache[difficulty]) {
-    lineCountCache[difficulty] = SUDOKU_FILES[difficulty].split("\n").filter((line) => line.trim()).length;
+function getLineCount(collection: Collection): number {
+  if (!lineCountCache[collection.id]) {
+    lineCountCache[collection.id] = collection.sudokusRaw.split("\n").filter((line) => line.trim()).length;
   }
-  return lineCountCache[difficulty];
+  return lineCountCache[collection.id];
 }
 
-function parseSudokus(sudokus: string): SudokuRaw[] {
-  const parsedSudokus = sudokus.split("\n").map((line) => {
-    const sudoku = parseSudoku(line);
-    const solved = solve(sudoku);
-    return {sudoku, solution: solved.sudoku, iterations: solved.iterations};
-  });
-
-  const validSudokus: SudokuRaw[] = [];
-  for (const sudoku of parsedSudokus) {
-    if (sudoku.solution !== null) {
-      validSudokus.push({
-        iterations: sudoku.iterations,
-        sudoku: sudoku.sudoku,
-        solution: sudoku.solution,
-      });
-    } else {
-      console.warn("Invalid sudoku: ", sudoku.sudoku);
-    }
-  }
-  return validSudokus;
-}
-
-export function getSudokusPaginated(difficulty: Difficulty, page: number = 0, pageSize: number = 12): PaginatedSudokus {
-  const totalRows = getLineCount(difficulty);
+export function getSudokusPaginated(collection: Collection, page: number = 0, pageSize: number = 12): PaginatedSudokus {
+  const totalRows = getLineCount(collection);
   const totalPages = Math.ceil(totalRows / pageSize);
   const startIndex = page * pageSize;
   const endIndex = startIndex + pageSize;
 
-  const rawLines = SUDOKU_FILES[difficulty].split("\n");
+  if (collection.sudokusRaw === "") {
+    return {
+      sudokus: [],
+      totalRows: 0,
+      page,
+      pageSize,
+      totalPages: 0,
+    };
+  }
+
+  const rawLines = collection.sudokusRaw.split("\n");
   const sudokus: SudokuRaw[] = [];
 
   for (const line of rawLines.slice(startIndex, endIndex)) {
@@ -101,6 +86,77 @@ export function getSudokusPaginated(difficulty: Difficulty, page: number = 0, pa
 }
 
 export const START_SUDOKU_INDEX = 0;
-export const START_SUDOKU_DIFFICULTY = "easy";
-export const START_SUDOKU = getSudokusPaginated(START_SUDOKU_DIFFICULTY, START_SUDOKU_INDEX, START_SUDOKU_INDEX + 1)
+export const START_SUDOKU_COLLECTION = {id: "easy", name: "easy", sudokusRaw: BASE_SUDOKU_COLLECTIONS.easy};
+export const START_SUDOKU = getSudokusPaginated(START_SUDOKU_COLLECTION, START_SUDOKU_INDEX, START_SUDOKU_INDEX + 1)
   .sudokus[0];
+
+export function getCollections() {
+  const baseCollections = Object.keys(BASE_SUDOKU_COLLECTIONS);
+  const collections = localStorageCollectionRepository.getCollections();
+  console.log("collections", collections);
+  return [...baseCollections.map((collection) => ({id: collection, name: collection})), ...collections];
+}
+
+export function useSudokuCollections() {
+  const [collections, setCollections] = useState<CollectionIndex[]>(getCollections());
+
+  const [activeCollectionId, setActiveCollectionId] = useState<string>("easy");
+
+  const isBaseCollection = useCallback((collectionId: string) => {
+    return Object.keys(BASE_SUDOKU_COLLECTIONS).includes(collectionId);
+  }, []);
+
+  const addCollection = useCallback(
+    (collection: string) => {
+      const collectionId = crypto.randomUUID();
+      const newCollection = {id: collectionId, name: collection, sudokusRaw: ""};
+      localStorageCollectionRepository.saveCollection(newCollection);
+      setCollections(getCollections());
+      return newCollection;
+    },
+    [collections],
+  );
+
+  const addSudokuToCollection = useCallback(
+    (collectionId: string, sudoku: SudokuRaw) => {
+      const stringifiedSudoku = stringifySudoku(sudoku.sudoku);
+      const collection = localStorageCollectionRepository.getCollection(collectionId);
+      collection.sudokusRaw += "\n" + stringifiedSudoku;
+      localStorageCollectionRepository.saveCollection(collection);
+      setCollections(getCollections());
+    },
+    [collections],
+  );
+
+  const getCollection = useCallback(
+    (collectionId: string) => {
+      if (isBaseCollection(collectionId)) {
+        return {
+          id: collectionId,
+          name: collectionId,
+          sudokusRaw: BASE_SUDOKU_COLLECTIONS[collectionId],
+        };
+      }
+      return localStorageCollectionRepository.getCollection(collectionId);
+    },
+    [collections],
+  );
+
+  const activeCollection = useMemo(() => getCollection(activeCollectionId), [activeCollectionId, getCollection]);
+
+  const removeCollection = (collectionId: string) => {
+    localStorageCollectionRepository.removeCollection(collectionId);
+    setCollections(getCollections());
+  };
+
+  return {
+    collections,
+    addCollection,
+    removeCollection,
+    addSudokuToCollection,
+    isBaseCollection,
+    getCollection,
+    activeCollection,
+    setActiveCollectionId,
+  };
+}

@@ -17,8 +17,7 @@ import Checkbox from "src/components/Checkbox";
 import {cellsToSimpleSudoku, stringifySudoku, parseSudoku} from "src/lib/engine/utility";
 import {solve} from "src/lib/engine/solverAC3";
 import {useLocation, useNavigate} from "@tanstack/react-router";
-import {DIFFICULTY} from "src/lib/engine/types";
-import {getState, StoredSudokuState} from "src/lib/game/persistence";
+import {localStoragePlayedSudokuRepository} from "src/lib/database/playedSudokus";
 
 const SudokuMenuNumbersConnected: React.FC = () => {
   const {state: gameState} = useGame();
@@ -190,7 +189,6 @@ const Game: React.FC = () => {
     continueGame,
     wonGame,
     showMenu,
-    restartGame,
     selectCell,
     hideMenu,
     toggleShowHints,
@@ -240,16 +238,6 @@ const Game: React.FC = () => {
       })
     : undefined;
 
-  const handleRestartGame = React.useCallback(() => {
-    restartGame(game.sudokuIndex, game.difficulty, game.timesSolved, game.previousTimes);
-    const simpleSudoku = cellsToSimpleSudoku(sudoku);
-    const solved = solve(simpleSudoku);
-    if (solved.sudoku) {
-      setSudoku(simpleSudoku, solved.sudoku);
-    }
-    continueGame();
-  }, [game, restartGame, setSudoku, continueGame]);
-
   return (
     <div className="relative min-h-full max-w-full">
       <Container>
@@ -257,7 +245,7 @@ const Game: React.FC = () => {
           <Shortcuts gameState={game.state} />
           <header className="flex justify-between sm:items-center mt-4">
             <div className="flex text-white flex-col sm:flex-row justify-end">
-              <DifficultyShow>{`${game.difficulty} #${game.sudokuIndex + 1}`}</DifficultyShow>
+              <DifficultyShow>{`${game.sudokuCollectionName} #${game.sudokuIndex + 1}`}</DifficultyShow>
               <div className="hidden sm:block w-2 sm:w-4" />
               <div className="hidden sm:block">{"|"}</div>
               <div className="hidden sm:block w-2 sm:w-4" />
@@ -280,8 +268,6 @@ const Game: React.FC = () => {
           <div className="flex gap-4 flex-col md:flex-row">
             <main className="mt-4 flex-grow md:min-w-96 w-full">
               <Sudoku
-                sudokuIndex={game.sudokuIndex}
-                difficulty={game.difficulty}
                 secondsPlayed={game.secondsPlayed}
                 previousTimes={game.previousTimes}
                 state={game.state}
@@ -291,7 +277,6 @@ const Game: React.FC = () => {
                 shouldShowMenu={game.showMenu && game.showCircleMenu}
                 sudoku={sudoku}
                 timesSolved={game.timesSolved}
-                restartGame={handleRestartGame}
                 showMenu={showMenu}
                 hideMenu={hideMenu}
                 selectCell={selectCell}
@@ -375,17 +360,16 @@ const Game: React.FC = () => {
 };
 
 const GameWithRouteManagement = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const {setGameState, state: gameState, continueGame, newGame} = useGame();
   const {setSudokuState, state: sudokuState, setSudoku} = useSudoku();
   const search = location.search;
   const sudokuIndex = search["sudokuIndex"] as number;
   const sudoku = search["sudoku"] as string;
-  const difficulty = search["difficulty"] as DIFFICULTY;
+  const sudokuCollectionName = search["sudokuCollectionName"] as string;
 
   React.useEffect(() => {
-    if (sudokuIndex && sudoku && difficulty) {
+    if (sudokuIndex && sudoku && sudokuCollectionName) {
       const simpleSudoku = cellsToSimpleSudoku(sudokuState.current);
       // Only show the check if they actually played a few seconds.
       if (stringifySudoku(simpleSudoku) !== sudoku && gameState.secondsPlayed > 5) {
@@ -394,8 +378,8 @@ const GameWithRouteManagement = () => {
 The URL contains another sudoku than the one you are currently playing.
 Do you want to continue with the new sudoku? The old sudoku will be paused.
 
-You currently play the ${gameState.difficulty} sudoku #${gameState.sudokuIndex + 1}.
-The URL contains the ${difficulty} sudoku #${sudokuIndex + 1}.
+You currently play the ${gameState.sudokuCollectionName} sudoku #${gameState.sudokuIndex + 1}.
+The URL contains the ${sudokuCollectionName} sudoku #${sudokuIndex + 1}.
           `,
         );
         if (!areYouSure) {
@@ -403,8 +387,7 @@ The URL contains the ${difficulty} sudoku #${sudokuIndex + 1}.
         }
       }
 
-      const localState = getState();
-      const storedSudoku = localState.sudokus[sudoku] as StoredSudokuState | undefined;
+      const storedSudoku = localStoragePlayedSudokuRepository.getSudokuState(sudoku);
 
       const parsedSudoku = parseSudoku(sudoku);
       const solvedSudoku = solve(parsedSudoku);
@@ -414,7 +397,7 @@ The URL contains the ${difficulty} sudoku #${sudokuIndex + 1}.
         alert("The URL contains an invalid sudoku.");
         return;
       }
-      newGame(sudokuIndex, difficulty);
+      newGame(sudokuIndex, sudokuCollectionName);
 
       if (storedSudoku) {
         setGameState({
@@ -428,7 +411,7 @@ The URL contains the ${difficulty} sudoku #${sudokuIndex + 1}.
       }
       continueGame();
     }
-  }, [sudokuIndex, sudoku, difficulty, setGameState]);
+  }, [sudokuIndex, sudoku, sudokuCollectionName, setGameState]);
 
   return <Game />;
 };

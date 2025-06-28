@@ -1,21 +1,22 @@
 import * as React from "react";
 
-import {getSudokusPaginated, SudokuRaw} from "src/lib/game/sudokus";
+import {getCollections, getSudokusPaginated, SudokuRaw, useSudokuCollections} from "src/lib/game/sudokus";
 import {DIFFICULTY} from "src/lib/engine/types";
 import SudokuPreview from "../../components/sudoku/SudokuPreview";
 import {useGame, GameStateMachine} from "src/context/GameContext";
 import {useSudoku} from "src/context/SudokuContext";
-import {getState, StoredSudokuState} from "src/lib/game/persistence";
 import {formatDuration} from "src/utils/format";
 import {useState} from "react";
 import Button from "src/components/Button";
 import {stringifySudoku} from "src/lib/engine/utility";
 import {useElementWidth} from "src/utils/hooks";
 import {useNavigate} from "@tanstack/react-router";
+import {localStoragePlayedSudokuRepository, StoredPlayedSudokuState} from "src/lib/database/playedSudokus";
+import {Collection, localStorageCollectionRepository} from "src/lib/database/collections";
 
 const TabItem = ({active, children, ...props}: React.ButtonHTMLAttributes<HTMLButtonElement> & {active: boolean}) => (
   <button
-    className={`px-1 xs:px-2 sm:px-4 text-xs sm:text-sm md:text-base py-2 pointer capitalize rounded-sm border-none ${
+    className={`px-1 xs:px-2 sm:px-4 text-xs sm:text-sm md:text-base py-2 pointer capitalize rounded-sm border-none hover:bg-gray-500 ${
       active ? "bg-white text-black dark:bg-gray-600 dark:text-white" : "bg-transparent text-white dark:text-gray-300"
     }`}
     {...props}
@@ -99,15 +100,15 @@ const PageSelector = ({
 const SudokuToSelect = ({
   sudoku,
   index,
-  difficulty,
+  sudokuCollectionName,
   chooseSudoku,
   storedSudoku,
 }: {
   sudoku: SudokuRaw;
-  storedSudoku: StoredSudokuState | undefined;
+  storedSudoku: StoredPlayedSudokuState | undefined;
   index: number;
-  difficulty: DIFFICULTY;
-  chooseSudoku: (sudoku: SudokuRaw, index: number, storedSudoku: StoredSudokuState | undefined) => void;
+  sudokuCollectionName: string;
+  chooseSudoku: (sudoku: SudokuRaw, index: number, storedSudoku: StoredPlayedSudokuState | undefined) => void;
 }) => {
   const localSudoku = storedSudoku;
   const unfinished = localSudoku && localSudoku.game.state !== GameStateMachine.wonGame;
@@ -130,7 +131,7 @@ const SudokuToSelect = ({
       search: {
         sudokuIndex: index,
         sudoku: stringifySudoku(sudoku.sudoku),
-        difficulty: difficulty,
+        sudokuCollectionName: sudokuCollectionName,
       },
     });
 
@@ -186,14 +187,16 @@ const GameIndex = ({
   chooseSudoku,
   pageSudokus,
   pageStart,
-  difficulty,
+  sudokuCollectionName,
 }: {
-  chooseSudoku: (sudoku: SudokuRaw, index: number, storedSudoku: StoredSudokuState | undefined) => void;
+  chooseSudoku: (sudoku: SudokuRaw, index: number, storedSudoku: StoredPlayedSudokuState | undefined) => void;
   pageSudokus: SudokuRaw[];
   pageStart: number;
-  difficulty: DIFFICULTY;
+  sudokuCollectionName: string;
 }) => {
-  const localState = getState();
+  if (pageSudokus.length === 0) {
+    return <div className="text-center text-white">No sudokus in this category.</div>;
+  }
 
   return (
     <div>
@@ -201,13 +204,14 @@ const GameIndex = ({
         {pageSudokus.map((sudoku, index) => {
           const globalIndex = pageStart + index;
           const sudokuKey = stringifySudoku(sudoku.sudoku);
-          const storedSudoku = localState.sudokus[sudokuKey] as StoredSudokuState | undefined;
+          const storedSudoku = localStoragePlayedSudokuRepository.getSudokuState(sudokuKey);
+
           return (
             <SudokuToSelect
               key={globalIndex}
               sudoku={sudoku}
               index={globalIndex}
-              difficulty={difficulty}
+              sudokuCollectionName={sudokuCollectionName}
               chooseSudoku={chooseSudoku}
               storedSudoku={storedSudoku}
             />
@@ -218,17 +222,28 @@ const GameIndex = ({
   );
 };
 
+const usePaginatedSudokus = (collection: Collection, page: number, pageSize: number) => {
+  return getSudokusPaginated(collection, page, pageSize);
+};
+
+const CustomSudokus = () => {
+  return <div>Custom Sudokus</div>;
+};
+
 const GameSelect: React.FC = () => {
   const {newGame, continueGame, setGameState, restartGame} = useGame();
   const {setSudoku, setSudokuState} = useSudoku();
-  const [activeTab, setActiveTab] = useState<DIFFICULTY>(DIFFICULTY.EASY);
+  const {activeCollection, setActiveCollectionId, collections, addCollection, removeCollection, getCollection} =
+    useSudokuCollections();
   const [page, setPage] = useState(0);
 
-  const chooseSudoku = (sudoku: SudokuRaw, index: number, storedSudoku: StoredSudokuState | undefined) => {
-    newGame(index, activeTab);
+  console.log("collections", collections);
+
+  const chooseSudoku = (sudoku: SudokuRaw, index: number, storedSudoku: StoredPlayedSudokuState | undefined) => {
+    newGame(index, activeCollection.id);
     setSudoku(sudoku.sudoku, sudoku.solution);
     if (storedSudoku && storedSudoku.game.state === GameStateMachine.wonGame) {
-      restartGame(index, activeTab, storedSudoku.game.timesSolved, storedSudoku.game.previousTimes);
+      restartGame(index, activeCollection.id, storedSudoku.game.timesSolved, storedSudoku.game.previousTimes);
     }
     if (storedSudoku && storedSudoku.game.state !== GameStateMachine.wonGame) {
       setGameState({
@@ -244,28 +259,52 @@ const GameSelect: React.FC = () => {
   };
 
   const pageSize = 12;
-  const {sudokus: pageSudokus, totalPages: pageCount, totalRows} = getSudokusPaginated(activeTab, page, pageSize);
+  const {
+    sudokus: pageSudokus,
+    totalPages: pageCount,
+    totalRows,
+  } = usePaginatedSudokus(activeCollection, page, pageSize);
   const pageStart = page * pageSize;
 
-  const setActiveTabAndResetPage = (difficulty: DIFFICULTY) => {
-    setActiveTab(difficulty);
+  const setActiveCollectionAndResetPage = (collection: string) => {
+    setActiveCollectionId(collection);
     setPage(0);
   };
 
   return (
     <div className="mt-8">
-      <div className="flex space-x-2 mb-8">
-        {Object.values(DIFFICULTY).map((difficulty) => (
+      <div className="flex justify-between items-center  mb-8">
+        <div className="flex space-x-2">
+          {collections.map((collection) => (
+            <TabItem
+              key={collection.id}
+              active={activeCollection.id === collection.id}
+              onClick={() => setActiveCollectionAndResetPage(collection.id)}
+            >
+              {collection.name}
+            </TabItem>
+          ))}
           <TabItem
-            key={difficulty}
-            active={activeTab === difficulty}
-            onClick={() => setActiveTabAndResetPage(difficulty)}
+            active={false}
+            onClick={() => {
+              const newCollectionName = prompt("Enter the name of the new sudoku collection:");
+              if (newCollectionName) {
+                const newCollection = addCollection(newCollectionName);
+                setActiveCollectionId(newCollection.id);
+                setPage(0);
+              }
+            }}
           >
-            {difficulty}
+            + New Collection
           </TabItem>
-        ))}
+        </div>
       </div>
-      <GameIndex chooseSudoku={chooseSudoku} pageSudokus={pageSudokus} pageStart={pageStart} difficulty={activeTab} />
+      <GameIndex
+        chooseSudoku={chooseSudoku}
+        pageSudokus={pageSudokus}
+        pageStart={pageStart}
+        sudokuCollectionName={activeCollection.name}
+      />
       {pageCount > 1 && <PageSelector page={page} pageCount={pageCount} setPage={setPage} />}
     </div>
   );

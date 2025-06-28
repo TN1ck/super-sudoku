@@ -13,7 +13,7 @@ import {
 } from "src/components/sudoku/SudokuGrid";
 import SudokuGame from "src/lib/game/SudokuGame";
 import {Bounds} from "src/components/sudoku/types";
-import {Cell, CellCoordinates, DIFFICULTY} from "src/lib/engine/types";
+import {Cell, CellCoordinates} from "src/lib/engine/types";
 import {flatten} from "src/utils/collection";
 import Button from "src/components/Button";
 import {formatDuration} from "src/utils/format";
@@ -109,8 +109,6 @@ const SudokuCell = React.memo(
 
 interface SudokuProps {
   activeCell?: CellCoordinates;
-  sudokuIndex: number;
-  difficulty: DIFFICULTY;
   sudoku: Cell[];
   showHints: boolean;
   showWrongEntries: boolean;
@@ -123,7 +121,6 @@ interface SudokuProps {
   showMenu: (showNotes?: boolean) => void;
   hideMenu: () => void;
   selectCell: (cellCoordinates: CellCoordinates) => void;
-  restartGame: () => void;
   state: GameStateMachine;
   children: React.ReactNode;
 }

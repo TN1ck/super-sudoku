@@ -4,9 +4,8 @@ import {Container} from "src/components/Layout";
 import Button from "../components/Button";
 import {useGame} from "src/context/GameContext";
 import {useNavigate} from "@tanstack/react-router";
-import {DIFFICULTY} from "src/lib/engine/types";
 import {cellsToSimpleSudoku, stringifySudoku} from "src/lib/engine/utility";
-import {emptyGrid, useSudoku} from "src/context/SudokuContext";
+import {useSudoku} from "src/context/SudokuContext";
 
 const NewGame = () => {
   const navigate = useNavigate();
@@ -19,7 +18,7 @@ const NewGame = () => {
       search: {
         sudokuIndex: state.sudokuIndex,
         sudoku: stringifySudoku(simpleSudoku),
-        difficulty: state.difficulty,
+        sudokuCollectionName: state.sudokuCollectionName,
       },
     });
     continueGame();
