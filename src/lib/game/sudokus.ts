@@ -72,7 +72,7 @@ export function getSudokusPaginated(collection: Collection, page: number = 0, pa
     if (result.solution !== null) {
       sudokus.push(result as SudokuRaw);
     } else {
-      console.warn("Invalid sudoku: ", sudoku);
+      console.warn("Invalid sudoku: ", sudoku, solved);
     }
   }
 
@@ -93,7 +93,6 @@ export const START_SUDOKU = getSudokusPaginated(START_SUDOKU_COLLECTION, START_S
 export function getCollections() {
   const baseCollections = Object.keys(BASE_SUDOKU_COLLECTIONS);
   const collections = localStorageCollectionRepository.getCollections();
-  console.log("collections", collections);
   return [...baseCollections.map((collection) => ({id: collection, name: collection})), ...collections];
 }
 
@@ -118,11 +117,15 @@ export function useSudokuCollections() {
   );
 
   const addSudokuToCollection = useCallback(
-    (collectionId: string, sudoku: SudokuRaw) => {
-      const stringifiedSudoku = stringifySudoku(sudoku.sudoku);
+    (collectionId: string, sudoku: SimpleSudoku) => {
+      const stringifiedSudoku = stringifySudoku(sudoku);
       const collection = localStorageCollectionRepository.getCollection(collectionId);
-      collection.sudokusRaw += "\n" + stringifiedSudoku;
-      localStorageCollectionRepository.saveCollection(collection);
+      const newSudokusRaw =
+        collection.sudokusRaw.length > 0 ? collection.sudokusRaw + "\n" + stringifiedSudoku : stringifiedSudoku;
+      localStorageCollectionRepository.saveCollection({
+        ...collection,
+        sudokusRaw: newSudokusRaw,
+      });
       setCollections(getCollections());
     },
     [collections],

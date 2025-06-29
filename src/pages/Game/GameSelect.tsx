@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import {getCollections, getSudokusPaginated, SudokuRaw, useSudokuCollections} from "src/lib/game/sudokus";
-import {DIFFICULTY} from "src/lib/engine/types";
+import {DIFFICULTY, SimpleSudoku} from "src/lib/engine/types";
 import SudokuPreview from "../../components/sudoku/SudokuPreview";
 import {GameStateMachine} from "src/context/GameContext";
 import {formatDuration} from "src/utils/format";
@@ -223,7 +223,7 @@ const CustomSudokus = () => {
 };
 
 const GameSelect: React.FC = () => {
-  const {activeCollection, setActiveCollectionId, collections, addCollection, isBaseCollection} =
+  const {activeCollection, setActiveCollectionId, collections, addCollection, isBaseCollection, addSudokuToCollection} =
     useSudokuCollections();
   const [page, setPage] = useState(0);
 
@@ -238,6 +238,12 @@ const GameSelect: React.FC = () => {
   const setActiveCollectionAndResetPage = (collection: string) => {
     setActiveCollectionId(collection);
     setPage(0);
+  };
+
+  const saveSudoku = async (sudoku: SimpleSudoku) => {
+    addSudokuToCollection(activeCollection.id, sudoku);
+    // TODO: add a toast notification
+    setShowNewSudokuComponent(false);
   };
 
   const [showNewSudokuComponent, setShowNewSudokuComponent] = useState(false);
@@ -271,11 +277,14 @@ const GameSelect: React.FC = () => {
         </div>
       </div>
       {!isBaseCollection(activeCollection.id) && !showNewSudokuComponent && (
-        <Button className="bg-teal-600 dark:bg-teal-600 text-white" onClick={() => setShowNewSudokuComponent(true)}>
+        <Button
+          className="bg-teal-600 mb-4 dark:bg-teal-600 text-white"
+          onClick={() => setShowNewSudokuComponent(true)}
+        >
           {"Add sudoku +"}
         </Button>
       )}
-      {showNewSudokuComponent && <NewSudoku />}
+      {showNewSudokuComponent && <NewSudoku collection={activeCollection} saveSudoku={saveSudoku} />}
       <GameIndex pageSudokus={pageSudokus} pageStart={pageStart} sudokuCollectionName={activeCollection.name} />
       {pageCount > 1 && <PageSelector page={page} pageCount={pageCount} setPage={setPage} />}
     </div>

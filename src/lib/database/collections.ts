@@ -33,7 +33,6 @@ export const localStorageCollectionRepository: CollectionRepository = {
     const collectionNameKeys = Object.keys(localStorage).filter((key) =>
       key.startsWith(STORAGE_COLLECTION_NAMES_PREFIX),
     );
-    console.log("collectionNameKeys", collectionNameKeys);
 
     return collectionNameKeys
       .map((collectionNameKey) => {

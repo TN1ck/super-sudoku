@@ -15,7 +15,7 @@ export const UndoButton: React.FC<{
 };
 
 export const EraseButton: React.FC<{
-  activeCellCoordinates: CellCoordinates;
+  activeCellCoordinates: CellCoordinates | undefined;
   clearCell: (cellCoordinates: CellCoordinates) => void;
 }> = ({activeCellCoordinates, clearCell}) => {
   return <Button onClick={() => activeCellCoordinates && clearCell(activeCellCoordinates)}>{"Erase"}</Button>;

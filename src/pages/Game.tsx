@@ -22,6 +22,7 @@ import {formatDuration} from "src/utils/format";
 import {throttle} from "lodash";
 import {TimerProvider} from "src/context/TimerContext";
 import {useEffect} from "react";
+import {CellCoordinates, SimpleSudoku} from "src/lib/engine/types";
 
 function PauseButton({
   disabled,
@@ -41,12 +42,13 @@ function PauseButton({
   );
 }
 
-const ClearGameButton: React.FC = () => {
-  const {state, resetGame, pauseGame, continueGame} = useGame();
-  const {state: sudokuState} = useSudoku();
-  const {setSudoku} = useSudoku();
-
-  const clearGame = async () => {
+const ClearGameButton: React.FC<{
+  clearGame: () => void;
+  pauseGame: () => void;
+  continueGame: () => void;
+  disabled: boolean;
+}> = ({clearGame, pauseGame, continueGame, disabled}) => {
+  const clearGameLocal = async () => {
     pauseGame();
     // Wait 50ms to make sure the game is shown as paused when in the confirm dialog.
     await new Promise((resolve) => setTimeout(resolve, 30));
@@ -55,12 +57,7 @@ const ClearGameButton: React.FC = () => {
       continueGame();
       return;
     }
-    const simpleSudoku = cellsToSimpleSudoku(sudokuState.current);
-    const solved = solve(simpleSudoku);
-    if (solved.sudoku) {
-      setSudoku(simpleSudoku, solved.sudoku);
-    }
-    resetGame();
+    clearGame();
     // Wait 100ms as we have to wait until the updateTimer is called (should normally take 1/60 second)
     // This is certainly not ideal and should be fixed there.
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -68,7 +65,7 @@ const ClearGameButton: React.FC = () => {
   };
 
   return (
-    <Button disabled={state.won || state.state === GameStateMachine.paused} onClick={clearGame}>
+    <Button disabled={disabled} onClick={clearGameLocal}>
       {"Clear"}
     </Button>
   );
@@ -237,20 +234,45 @@ const SettingsAndInformation = () => {
   );
 };
 
-const GameInner: React.FC = () => {
-  const {
-    state: game,
-    pauseGame,
-    continueGame,
-    wonGame,
-    showMenu,
-    selectCell,
-    hideMenu,
-    activateNotesMode,
-    deactivateNotesMode,
-  } = useGame();
-
-  const {state: sudokuState, setNumber, setNotes, clearCell, getHint, undo, redo} = useSudoku();
+const GameInner: React.FC<{
+  sudokuState: SudokuState;
+  setSudoku: (sudoku: SimpleSudoku, solvedSudoku: SimpleSudoku) => void;
+  setNumber: (cellCoordinates: CellCoordinates, number: number) => void;
+  setNotes: (cellCoordinates: CellCoordinates, notes: number[]) => void;
+  clearCell: (cellCoordinates: CellCoordinates) => void;
+  getHint: (cellCoordinates: CellCoordinates) => void;
+  undo: () => void;
+  redo: () => void;
+  game: GameState;
+  pauseGame: () => void;
+  continueGame: () => void;
+  wonGame: () => void;
+  showMenu: () => void;
+  selectCell: (cellCoordinates: CellCoordinates) => void;
+  activateNotesMode: () => void;
+  hideMenu: () => void;
+  resetGame: () => void;
+  deactivateNotesMode: () => void;
+}> = ({
+  sudokuState,
+  setSudoku,
+  setNumber,
+  setNotes,
+  clearCell,
+  getHint,
+  undo,
+  redo,
+  game,
+  pauseGame,
+  continueGame,
+  wonGame,
+  showMenu,
+  selectCell,
+  activateNotesMode,
+  hideMenu,
+  resetGame,
+  deactivateNotesMode,
+}) => {
   const canUndo = sudokuState.historyIndex < sudokuState.history.length - 1;
   const sudoku = sudokuState.current;
 
@@ -325,7 +347,19 @@ const GameInner: React.FC = () => {
             <div className="flex gap-2 flex-col justify-end items-end sm:flex-row">
               <div className="flex gap-2">
                 <ToggleDarkModeButton />
-                <ClearGameButton />
+                <ClearGameButton
+                  pauseGame={pauseGame}
+                  continueGame={continueGame}
+                  disabled={game.won || game.state === GameStateMachine.paused}
+                  clearGame={() => {
+                    const simpleSudoku = cellsToSimpleSudoku(sudokuState.current);
+                    const solved = solve(simpleSudoku);
+                    if (solved.sudoku) {
+                      setSudoku(simpleSudoku, solved.sudoku);
+                    }
+                    resetGame();
+                  }}
+                />
               </div>
               <div className="flex gap-2">
                 <PauseButton
@@ -433,36 +467,49 @@ export function AppProvider({children}: {children: React.ReactNode}) {
   return (
     <GameProvider initialState={initialGameState}>
       <TimerProvider>
-        <SudokuProvider initialState={initialSudokuState}>
-          <PersistenceHandler>{children}</PersistenceHandler>
-        </SudokuProvider>
+        <SudokuProvider initialState={initialSudokuState}>{children}</SudokuProvider>
       </TimerProvider>
     </GameProvider>
   );
 }
 
-// Component to handle persistence
-function PersistenceHandler({children}: {children: ReactNode}) {
-  const {state: gameState} = useGame();
-  const {state: sudokuState} = useSudoku();
+const GameWithRouteManagement = () => {
+  const location = useLocation();
+  const {
+    setGameState,
+    state: gameState,
+    continueGame,
+    newGame,
+    pauseGame,
+    wonGame,
+    showMenu,
+    selectCell,
+    activateNotesMode,
+    deactivateNotesMode,
+    resetGame,
+    hideMenu,
+  } = useGame();
+  const {
+    setSudokuState,
+    state: sudokuState,
+    setSudoku,
+    setNumber,
+    setNotes,
+    clearCell,
+    getHint,
+    undo,
+    redo,
+  } = useSudoku();
+  const search = location.search;
+  const sudokuIndex = search["sudokuIndex"] as number;
+  const sudoku = search["sudoku"] as string;
+  const sudokuCollectionName = search["sudokuCollectionName"] as string;
 
   useEffect(() => {
     if (gameState && sudokuState) {
       throttledSave(gameState, sudokuState);
     }
   }, [gameState, sudokuState]);
-
-  return <>{children}</>;
-}
-
-const GameWithRouteManagement = () => {
-  const location = useLocation();
-  const {setGameState, state: gameState, continueGame, newGame} = useGame();
-  const {setSudokuState, state: sudokuState, setSudoku} = useSudoku();
-  const search = location.search;
-  const sudokuIndex = search["sudokuIndex"] as number;
-  const sudoku = search["sudoku"] as string;
-  const sudokuCollectionName = search["sudokuCollectionName"] as string;
 
   React.useEffect(() => {
     if (sudokuIndex && sudoku && sudokuCollectionName) {
@@ -509,7 +556,28 @@ const GameWithRouteManagement = () => {
     }
   }, [sudokuIndex, sudoku, sudokuCollectionName, setGameState]);
 
-  return <GameInner />;
+  return (
+    <GameInner
+      sudokuState={sudokuState}
+      setSudoku={setSudoku}
+      setNumber={setNumber}
+      setNotes={setNotes}
+      clearCell={clearCell}
+      getHint={getHint}
+      undo={undo}
+      redo={redo}
+      game={gameState}
+      pauseGame={pauseGame}
+      continueGame={continueGame}
+      wonGame={wonGame}
+      showMenu={showMenu}
+      selectCell={selectCell}
+      activateNotesMode={activateNotesMode}
+      hideMenu={hideMenu}
+      resetGame={resetGame}
+      deactivateNotesMode={deactivateNotesMode}
+    />
+  );
 };
 
 const Game = () => {

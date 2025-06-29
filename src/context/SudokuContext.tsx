@@ -28,6 +28,12 @@ export const INITIAL_SUDOKU_STATE: SudokuState = {
   historyIndex: 0,
 };
 
+export const INITIAL_CREATE_NEW_SUDOKU_STATE: SudokuState = {
+  current: emptyGrid,
+  history: [emptyGrid],
+  historyIndex: 0,
+};
+
 // Action types
 const SET_SUDOKU = "sudoku/SET_SUDOKU";
 const SET_SUDOKU_STATE = "sudoku/SET_SUDOKU_STATE";

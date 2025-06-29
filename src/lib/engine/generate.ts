@@ -25,12 +25,13 @@
  *
  */
 
-import * as solverAC3 from "./solverAC3";
+import {solve as solveAC3} from "./solverAC3";
 
 import {SUDOKU_NUMBERS, SUDOKU_COORDINATES, SQUARE_TABLE} from "./utility";
 import {DIFFICULTY, SimpleSudoku} from "./types";
 import flatten from "lodash/flatten";
 import {sample, shuffle} from "./seededRandom";
+import {solve as solveFast} from "./solverFast";
 
 export const DIFFICULTY_GOALS = {
   [DIFFICULTY.EASY]: 3,
@@ -48,15 +49,16 @@ export const DIFFICULTY_RANGES = {
   [DIFFICULTY.EVIL]: [300, 10000],
 };
 
-const sudokuSolver = solverAC3.solve;
+const sudokuSolver = solveAC3;
 
 /**
  * Checks that there is only one solution for the sudoku.
  *
  * This works by iterating over all cells and if an empty one is encountered,
  * we set numbers from 1-9 and make sure that only one yields a solution.
+ * This is a very expensive operation as it needs to solve at maximum about 9 * 9 * 9 = 729 sudokus.
  */
-export function checkForUniqueness(sudoku: SimpleSudoku): boolean {
+export function isSudokuUnique(sudoku: SimpleSudoku): boolean {
   let rowIndex = 0;
   for (const row of sudoku) {
     let colIndex = 0;
@@ -69,7 +71,7 @@ export function checkForUniqueness(sudoku: SimpleSudoku): boolean {
           const newSudoku = cloneSudoku(sudoku);
           newSudoku[rowIndex][colIndex] = num;
 
-          const iterations = sudokuSolver(newSudoku).iterations;
+          const iterations = solveFast(newSudoku).iterations;
           if (iterations !== Infinity) {
             timesSolved++;
           }
@@ -250,7 +252,7 @@ export function increaseDifficultyOfSudoku(sudoku: SimpleSudoku, randomFn: () =>
     const newSudoku = cloneSudoku(sudoku);
     newSudoku[x][y] = 0;
     const newCosts = sudokuSolver(newSudoku).iterations;
-    if (newCosts > costs && checkForUniqueness(newSudoku)) {
+    if (newCosts > costs && isSudokuUnique(newSudoku)) {
       return newSudoku;
     }
   }
@@ -272,7 +274,7 @@ function createSolvableSudoku(randomFn: () => number): SimpleSudoku {
 
 function makeSudokuUnique(sudoku: SimpleSudoku, randomFn: () => number): [SimpleSudoku, boolean] {
   sudoku = cloneSudoku(sudoku);
-  while (!checkForUniqueness(sudoku)) {
+  while (!isSudokuUnique(sudoku)) {
     const newBestSudoku = enhanceUniqueness(sudoku, randomFn);
     if (newBestSudoku === undefined) {
       console.log("Max uniqueness reached");
@@ -281,7 +283,7 @@ function makeSudokuUnique(sudoku: SimpleSudoku, randomFn: () => number): [Simple
     sudoku = newBestSudoku;
   }
 
-  return [sudoku, checkForUniqueness(sudoku)];
+  return [sudoku, isSudokuUnique(sudoku)];
 }
 
 export function generateSudoku(
