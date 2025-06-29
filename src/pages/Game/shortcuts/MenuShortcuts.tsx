@@ -1,11 +1,8 @@
 import * as React from "react";
 import hotkeys from "hotkeys-js";
 import {ShortcutScope} from "./ShortcutScope";
-import {useGame} from "src/context/GameContext";
 
-const GameMenuShortcuts: React.FC = () => {
-  const {continueGame} = useGame();
-
+const MenuShortcuts: React.FC<{continueGame: () => void}> = ({continueGame}) => {
   React.useEffect(() => {
     hotkeys("esc", ShortcutScope.Menu, () => {
       continueGame();
@@ -20,4 +17,4 @@ const GameMenuShortcuts: React.FC = () => {
   return null;
 };
 
-export default GameMenuShortcuts;
+export default MenuShortcuts;

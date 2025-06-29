@@ -5,16 +5,6 @@ import Button from "src/components/Button";
 import clsx from "clsx";
 import SudokuGame from "src/lib/game/SudokuGame";
 
-const SudokuMenuNumbersContainer = ({children, ...props}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className="grid w-full overflow-hidden justify-center gap-2 md:grid-cols-3 grid-cols-9 md:mt-0 mt-4" {...props}>
-    {children}
-  </div>
-);
-
-const NumberButton = (props: React.ComponentProps<typeof Button>) => (
-  <Button className="flex justify-center items-center px-0" {...props} />
-);
-
 export interface SudokuMenuNumbersProps {
   notesMode: boolean;
   activeCell?: CellCoordinates;
@@ -35,7 +25,7 @@ const SudokuMenuNumbers: React.FC<SudokuMenuNumbersProps> = ({
   setNotes,
 }) => {
   return (
-    <SudokuMenuNumbersContainer>
+    <div className="grid w-full overflow-hidden justify-center gap-2 md:grid-cols-3 grid-cols-9">
       {SUDOKU_NUMBERS.map((n) => {
         const occurrences = sudoku.filter((c) => c.number === n).length;
 
@@ -60,7 +50,7 @@ const SudokuMenuNumbers: React.FC<SudokuMenuNumbersProps> = ({
         };
 
         return (
-          <NumberButton
+          <Button
             className={clsx("relative font-bold", {
               "bg-gray-400": occurrences == 9,
               "bg-red-400 dark:bg-red-400": showOccurrences && occurrences > 9,
@@ -82,10 +72,10 @@ const SudokuMenuNumbers: React.FC<SudokuMenuNumbersProps> = ({
               </div>
             )}
             {n}
-          </NumberButton>
+          </Button>
         );
       })}
-    </SudokuMenuNumbersContainer>
+    </div>
   );
 };
 

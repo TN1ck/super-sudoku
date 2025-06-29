@@ -3,9 +3,7 @@ import * as React from "react";
 import {createRootRoute, createRoute, createRouter, RouterProvider} from "@tanstack/react-router";
 
 import Game from "./pages/Game";
-import NotFound from "./pages/NotFound";
-import NewGame from "./pages/NewGame";
-import {AppProvider} from "./context/AppContext";
+import SelectGame from "./pages/SelectGame";
 import {OfflineIndicator} from "./components/OfflineIndicator";
 
 const rootRoute = createRootRoute();
@@ -16,13 +14,13 @@ const indexRoute = createRoute({
   component: Game,
 });
 
-const newGameRoute = createRoute({
+const selectGameRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/new-game",
-  component: NewGame,
+  path: "/select-game",
+  component: SelectGame,
 });
 
-rootRoute.addChildren([indexRoute, newGameRoute]);
+rootRoute.addChildren([indexRoute, selectGameRoute]);
 
 const router = createRouter({
   routeTree: rootRoute,
@@ -100,10 +98,8 @@ const ErrorBoundary: React.FC<{children: React.ReactNode}> = ({children}) => {
 const App = () => {
   return (
     <ErrorBoundary>
-      <AppProvider>
-        <OfflineIndicator />
-        <RouterProvider router={router} />
-      </AppProvider>
+      <OfflineIndicator />
+      <RouterProvider router={router} />
     </ErrorBoundary>
   );
 };

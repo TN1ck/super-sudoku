@@ -5,7 +5,6 @@ import {START_SUDOKU_COLLECTION, START_SUDOKU_INDEX} from "src/lib/game/sudokus"
 export enum GameStateMachine {
   running = "RUNNING",
   paused = "PAUSED",
-  wonGame = "WON_GAME",
 }
 
 export interface GameState {
@@ -29,7 +28,7 @@ export interface GameState {
 
 export const INITIAL_GAME_STATE: GameState = {
   activeCellCoordinates: undefined,
-  sudokuCollectionName: START_SUDOKU_COLLECTION,
+  sudokuCollectionName: START_SUDOKU_COLLECTION.name,
   notesMode: false,
   showCircleMenu: true,
   showHints: false,
@@ -48,8 +47,10 @@ export const INITIAL_GAME_STATE: GameState = {
 
 // Action types
 const NEW_GAME = "game/NEW_GAME";
+const WON_GAME = "game/WON_GAME";
+const PAUSE_GAME = "game/PAUSE_GAME";
+const CONTINUE_GAME = "game/CONTINUE_GAME";
 const SET_GAME_STATE = "game/SET_GAME_STATE";
-const SET_GAME_STATE_MACHINE = "game/SET_GAME_STATE_MACHINE";
 const RESTART_GAME = "game/RESTART_GAME";
 const SHOW_MENU = "game/SHOW_MENU";
 const HIDE_MENU = "game/HIDE_MENU";
@@ -65,9 +66,16 @@ const UPDATE_TIMER = "game/UPDATE_TIME";
 const RESET_GAME = "game/RESET_GAME";
 
 type GameAction =
-  | {type: typeof NEW_GAME; sudokuIndex: number; sudokuCollectionName: string}
+  | {
+      type: typeof NEW_GAME;
+      sudokuIndex: number;
+      sudokuCollectionName: string;
+      timesSolved: number;
+      previousTimes: number[];
+    }
   | {type: typeof SET_GAME_STATE; state: GameState}
-  | {type: typeof SET_GAME_STATE_MACHINE; state: GameStateMachine}
+  | {type: typeof PAUSE_GAME}
+  | {type: typeof CONTINUE_GAME}
   | {
       type: typeof RESTART_GAME;
       sudokuIndex: number;
@@ -86,7 +94,8 @@ type GameAction =
   | {type: typeof ACTIVATE_NOTES_MODE}
   | {type: typeof DEACTIVATE_NOTES_MODE}
   | {type: typeof UPDATE_TIMER; secondsPlayed: number}
-  | {type: typeof RESET_GAME};
+  | {type: typeof RESET_GAME}
+  | {type: typeof WON_GAME};
 
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
@@ -97,16 +106,27 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         ...INITIAL_GAME_STATE,
         sudokuIndex: action.sudokuIndex,
         sudokuCollectionName: action.sudokuCollectionName,
+        timesSolved: action.timesSolved,
+        previousTimes: action.previousTimes,
         state: GameStateMachine.running,
       };
-    case SET_GAME_STATE_MACHINE:
-      const justWon = action.state === GameStateMachine.wonGame && state.state !== GameStateMachine.wonGame;
+    case WON_GAME:
+      const justWon = state.won === false;
       return {
         ...state,
-        state: action.state,
-        won: justWon,
+        won: true,
         timesSolved: justWon ? state.timesSolved + 1 : state.timesSolved,
         previousTimes: justWon ? [...state.previousTimes, state.secondsPlayed] : state.previousTimes,
+      };
+    case PAUSE_GAME:
+      return {
+        ...state,
+        state: GameStateMachine.paused,
+      };
+    case CONTINUE_GAME:
+      return {
+        ...state,
+        state: GameStateMachine.running,
       };
     case RESTART_GAME:
       return {
@@ -190,7 +210,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
 interface GameContextType {
   state: GameState;
-  newGame: (sudokuIndex: number, sudokuCollectionName: string) => void;
+  newGame: (sudokuIndex: number, sudokuCollectionName: string, timesSolved: number, previousTimes: number[]) => void;
   setGameState: (state: GameState) => void;
   wonGame: () => void;
   pauseGame: () => void;
@@ -225,24 +245,27 @@ interface GameProviderProps {
 export function GameProvider({children, initialState = INITIAL_GAME_STATE}: GameProviderProps) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
 
-  const newGame = useCallback((sudokuIndex: number, sudokuCollectionName: string) => {
-    dispatch({type: NEW_GAME, sudokuIndex, sudokuCollectionName});
-  }, []);
+  const newGame = useCallback(
+    (sudokuIndex: number, sudokuCollectionName: string, timesSolved: number, previousTimes: number[]) => {
+      dispatch({type: NEW_GAME, sudokuIndex, sudokuCollectionName, timesSolved, previousTimes});
+    },
+    [],
+  );
 
   const setGameState = useCallback((gameState: GameState) => {
     dispatch({type: SET_GAME_STATE, state: gameState});
   }, []);
 
   const wonGame = useCallback(() => {
-    dispatch({type: SET_GAME_STATE_MACHINE, state: GameStateMachine.wonGame});
+    dispatch({type: WON_GAME});
   }, []);
 
   const pauseGame = useCallback(() => {
-    dispatch({type: SET_GAME_STATE_MACHINE, state: GameStateMachine.paused});
+    dispatch({type: PAUSE_GAME});
   }, []);
 
   const continueGame = useCallback(() => {
-    dispatch({type: SET_GAME_STATE_MACHINE, state: GameStateMachine.running});
+    dispatch({type: CONTINUE_GAME});
   }, []);
 
   const selectCell = useCallback((cellCoordinates: CellCoordinates) => {

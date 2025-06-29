@@ -113,23 +113,19 @@ interface SudokuProps {
   showHints: boolean;
   showWrongEntries: boolean;
   showConflicts: boolean;
-  timesSolved: number;
-  secondsPlayed: number;
-  previousTimes: number[];
   shouldShowMenu: boolean;
   notesMode: boolean;
   showMenu: (showNotes?: boolean) => void;
   hideMenu: () => void;
   selectCell: (cellCoordinates: CellCoordinates) => void;
-  state: GameStateMachine;
+  setNumber: (cell: Cell, number: number) => void;
+  setNotes: (cell: Cell, notes: number[]) => void;
+  clearNumber: (cell: Cell) => void;
   children: React.ReactNode;
 }
 
 export const Sudoku: React.FC<SudokuProps> = (props) => {
-  const {sudoku: passedSudoku, showHints, state, activeCell: passedActiveCell} = props;
-  const paused = state === GameStateMachine.paused;
-  const wonGame = state === GameStateMachine.wonGame;
-  const sudoku = paused ? emptyGrid : passedSudoku;
+  const {sudoku, showHints, activeCell: passedActiveCell} = props;
 
   const height = 100;
   const width = 100;
@@ -137,8 +133,7 @@ export const Sudoku: React.FC<SudokuProps> = (props) => {
   const xSection = height / 9;
   const ySection = width / 9;
 
-  const activeCell =
-    passedActiveCell && !paused && sudoku.find((c) => c.x === passedActiveCell.x && c.y === passedActiveCell.y);
+  const activeCell = passedActiveCell && sudoku.find((c) => c.x === passedActiveCell.x && c.y === passedActiveCell.y);
   const selectionPosition = {
     x: (activeCell && activeCell.x) || 0,
     y: (activeCell && activeCell.y) || 0,
@@ -180,37 +175,9 @@ export const Sudoku: React.FC<SudokuProps> = (props) => {
     <div className="relative" ref={sudokuContainerRef} style={{height: containerWidth}}>
       {props.children}
       <div className="absolute h-full w-full rounded-sm">
-        {wonGame && (
-          <div className="absolute top-0 bottom-0 right-0 left-0 z-30 flex items-center justify-center rounded-sm bg-white dark:bg-black dark:bg-opacity-80 bg-opacity-80 text-black dark:text-white">
-            <div className="grid gap-8">
-              <div className="flex justify-center text-2xl">{"🎉 Congrats, you won! 🎉"}</div>
-              <div className="text-md flex justify-center">
-                <div className="grid">
-                  <div className="flex justify-center">{`You solved this sudoku ${props.timesSolved} ${
-                    props.timesSolved === 1 ? "time" : "times"
-                  }`}</div>
-                  <div className="flex justify-center">
-                    <div>
-                      {props.previousTimes.length > 0 && (
-                        <div>{`Best time: ${formatDuration(Math.min(...props.previousTimes))}`}</div>
-                      )}
-                      <div>{`This time: ${formatDuration(props.secondsPlayed)}`}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <Link to="/new-game" className="w-full">
-                <Button className="bg-teal-700 text-white w-full">{"Select next sudoku"}</Button>
-              </Link>
-            </div>
-          </div>
-        )}
         <SudokuGrid width={width} height={height} hideLeftRight />
         {sudoku.map((c, i) => {
           const onClick = () => {
-            if (paused) {
-              return;
-            }
             props.selectCell(c);
             if (!c.initial) {
               props.showMenu();
@@ -241,14 +208,12 @@ export const Sudoku: React.FC<SudokuProps> = (props) => {
             top: ySection * c.y,
           };
 
-          const isActive = !wonGame && activeCell ? c.x === activeCell.x && c.y === activeCell.y : false;
-          const highlight =
-            !wonGame &&
-            friendsOfActiveCell.some((cc) => {
-              return cc.x === c.x && cc.y === c.y;
-            });
-          const isWrong = !wonGame && props.showWrongEntries && (c.number === 0 ? false : c.solution !== c.number);
-          const highlightNumber = !wonGame && activeCell && c.number !== 0 ? activeCell.number === c.number : false;
+          const isActive = activeCell ? c.x === activeCell.x && c.y === activeCell.y : false;
+          const highlight = friendsOfActiveCell.some((cc) => {
+            return cc.x === c.x && cc.y === c.y;
+          });
+          const isWrong = props.showWrongEntries && (c.number === 0 ? false : c.solution !== c.number);
+          const highlightNumber = activeCell && c.number !== 0 ? activeCell.number === c.number : false;
 
           return (
             <SudokuCell
@@ -269,7 +234,7 @@ export const Sudoku: React.FC<SudokuProps> = (props) => {
             />
           );
         })}
-        {!wonGame && activeCell && props.shouldShowMenu ? (
+        {activeCell && props.shouldShowMenu ? (
           <MenuContainer
             bounds={{
               top: ySection * selectionPosition.y,
@@ -279,7 +244,16 @@ export const Sudoku: React.FC<SudokuProps> = (props) => {
             }}
           >
             <MenuWrapper>
-              <SudokuMenuCircle cell={activeCell} />
+              <SudokuMenuCircle
+                cell={activeCell}
+                notesMode={props.notesMode}
+                showHints={props.showHints}
+                setNumber={props.setNumber}
+                setNotes={props.setNotes}
+                clearNumber={props.clearNumber}
+                sudoku={sudoku}
+                showMenu={props.showMenu}
+              />
             </MenuWrapper>
           </MenuContainer>
         ) : null}

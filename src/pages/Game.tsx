@@ -1,7 +1,7 @@
 import * as React from "react";
 
-import {useGame, GameStateMachine} from "src/context/GameContext";
-import {useSudoku} from "src/context/SudokuContext";
+import {useGame, GameStateMachine, GameState, INITIAL_GAME_STATE, GameProvider} from "src/context/GameContext";
+import {emptyGrid, INITIAL_SUDOKU_STATE, SudokuProvider, SudokuState, useSudoku} from "src/context/SudokuContext";
 
 import {Sudoku} from "src/components/sudoku/Sudoku";
 
@@ -9,48 +9,34 @@ import GameTimer from "./Game/GameTimer";
 
 import Button from "src/components/Button";
 import SudokuGame from "src/lib/game/SudokuGame";
-import SudokuMenuNumbers from "src/pages/Game/GameControls/GameControlNumbers";
-import SudokuMenuControls from "src/pages/Game/GameControls/GameControlActions";
+import SudokuMenuNumbers from "src/components/sudoku/SudokuMenuNumbers";
+import SudokuMenuControls from "src/components/sudoku/SudokuMenuControls";
 import {Container} from "src/components/Layout";
 import Shortcuts from "./Game/shortcuts/Shortcuts";
 import Checkbox from "src/components/Checkbox";
 import {cellsToSimpleSudoku, stringifySudoku, parseSudoku} from "src/lib/engine/utility";
 import {solve} from "src/lib/engine/solverAC3";
-import {useLocation, useNavigate} from "@tanstack/react-router";
+import {Link, ReactNode, useLocation, useNavigate} from "@tanstack/react-router";
 import {localStoragePlayedSudokuRepository} from "src/lib/database/playedSudokus";
-
-const SudokuMenuNumbersConnected: React.FC = () => {
-  const {state: gameState} = useGame();
-  const {state: sudokuState, setNumber, setNotes} = useSudoku();
-
-  return (
-    <SudokuMenuNumbers
-      notesMode={gameState.notesMode}
-      showOccurrences={gameState.showOccurrences}
-      activeCell={gameState.activeCellCoordinates}
-      sudoku={sudokuState.current}
-      showHints={gameState.showHints}
-      setNumber={setNumber}
-      setNotes={setNotes}
-    />
-  );
-};
+import {formatDuration} from "src/utils/format";
+import {throttle} from "lodash";
+import {TimerProvider} from "src/context/TimerContext";
+import {useEffect} from "react";
 
 function PauseButton({
-  state,
+  disabled,
+  paused,
   pauseGame,
   continueGame,
 }: {
-  state: GameStateMachine;
+  disabled: boolean;
+  paused: boolean;
   pauseGame: () => void;
   continueGame: () => void;
 }) {
   return (
-    <Button
-      disabled={state === GameStateMachine.wonGame}
-      onClick={state === GameStateMachine.paused ? continueGame : pauseGame}
-    >
-      {state === GameStateMachine.paused ? "Continue" : "Pause"}
+    <Button disabled={disabled} onClick={paused ? continueGame : pauseGame}>
+      {paused ? "Continue" : "Pause"}
     </Button>
   );
 }
@@ -82,10 +68,7 @@ const ClearGameButton: React.FC = () => {
   };
 
   return (
-    <Button
-      disabled={state.state === GameStateMachine.wonGame || state.state === GameStateMachine.paused}
-      onClick={clearGame}
-    >
+    <Button disabled={state.won || state.state === GameStateMachine.paused} onClick={clearGame}>
       {"Clear"}
     </Button>
   );
@@ -97,7 +80,7 @@ const NewGameButton: React.FC = () => {
 
   const pauseAndChoose = () => {
     pauseGame();
-    navigate({to: "/new-game"});
+    navigate({to: "/select-game"});
   };
 
   return (
@@ -182,7 +165,79 @@ const DifficultyShow = ({children, ...props}: React.HTMLAttributes<HTMLDivElemen
   </div>
 );
 
-const Game: React.FC = () => {
+const SettingsAndInformation = () => {
+  const {
+    state: game,
+    toggleShowHints,
+    toggleShowOccurrences,
+    toggleShowCircleMenu,
+    toggleShowWrongEntries,
+    toggleShowConflicts,
+  } = useGame();
+
+  return (
+    <div className="text-white">
+      <div className="grid gap-4">
+        <div className="md:block hidden">
+          <h2 className="mb-2 text-3xl font-bold">Shortcuts</h2>
+          <div className="grid gap-2">
+            <ul className="list-disc pl-6">
+              <li>Arrow keys: Move around the board</li>
+              <li>Number keys: Write a note or set the sudoku number</li>
+              <li>Backspace: Delete a number</li>
+              <li>Escape: Pause/unpause the game</li>
+              <li>H: Hint</li>
+              <li>N: Enter/exit note mode</li>
+              <li>CTRL + Z: Undo</li>
+              <li>CTRL + Y: Redo</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <h2 className="mb-2 text-3xl font-bold">Settings</h2>
+          <div className="grid gap-2">
+            <Checkbox id="generated_notes" checked={game.showHints} onChange={toggleShowHints}>
+              {"Show auto generated notes"}
+            </Checkbox>
+            <Checkbox id="highlight_wrong_entries" checked={game.showWrongEntries} onChange={toggleShowWrongEntries}>
+              {"Highlight wrong entries"}
+            </Checkbox>
+            <Checkbox id="highlight_conflicts" checked={game.showConflicts} onChange={toggleShowConflicts}>
+              {"Highlight conflicts"}
+            </Checkbox>
+            <Checkbox id="circle_menu" checked={game.showCircleMenu} onChange={toggleShowCircleMenu}>
+              {"Show circle menu when a cell is clicked (desktop only)"}
+            </Checkbox>
+            <Checkbox id="show_occurrences" checked={game.showOccurrences} onChange={toggleShowOccurrences}>
+              {"Show occurrences of numbers in number buttons"}
+            </Checkbox>
+          </div>
+        </div>
+        <div>
+          <h2 className="text-3xl font-bold text-white">About</h2>
+          <p className="text-white">
+            This sudoku app is and will be free of charge, free of ads and free of tracking. Its source code is
+            available at{" "}
+            <a target="_blank" className="underline" href="https://github.com/TN1ck/super-sudoku">
+              Github
+            </a>
+            .{" "}
+            <a href="https://tn1ck.com" target="_blank" className="hover:underline">
+              {"Created by Tom Nick."}
+            </a>
+            If you find a bug or experience any issues, please report it on{" "}
+            <a target="_blank" className="underline" href="https://github.com/TN1ck/super-sudoku/issues">
+              Github
+            </a>
+            .
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const GameInner: React.FC = () => {
   const {
     state: game,
     pauseGame,
@@ -191,14 +246,12 @@ const Game: React.FC = () => {
     showMenu,
     selectCell,
     hideMenu,
-    toggleShowHints,
-    toggleShowOccurrences,
-    toggleShowCircleMenu,
-    toggleShowWrongEntries,
-    toggleShowConflicts,
+    activateNotesMode,
+    deactivateNotesMode,
   } = useGame();
 
-  const {state: sudokuState, setSudoku} = useSudoku();
+  const {state: sudokuState, setNumber, setNotes, clearCell, getHint, undo, redo} = useSudoku();
+  const canUndo = sudokuState.historyIndex < sudokuState.history.length - 1;
   const sudoku = sudokuState.current;
 
   React.useEffect(() => {
@@ -239,125 +292,168 @@ const Game: React.FC = () => {
     : undefined;
 
   return (
-    <div className="relative min-h-full max-w-full">
-      <Container>
-        <div>
-          <Shortcuts gameState={game.state} />
-          <header className="flex justify-between sm:items-center mt-4">
-            <div className="flex text-white flex-col sm:flex-row justify-end">
-              <DifficultyShow>{`${game.sudokuCollectionName} #${game.sudokuIndex + 1}`}</DifficultyShow>
-              <div className="hidden sm:block w-2 sm:w-4" />
-              <div className="hidden sm:block">{"|"}</div>
-              <div className="hidden sm:block w-2 sm:w-4" />
-              <GameTimer />
-            </div>
-            <div className="text-white text-lg sm:text-2xl font-bold">Super Sudoku</div>
-            <div className="flex">
-              <div className="flex gap-2 flex-col justify-end items-end sm:flex-row">
-                <div className="flex gap-2">
-                  <ToggleDarkModeButton />
-                  <ClearGameButton />
-                </div>
-                <div className="flex gap-2">
-                  <PauseButton state={game.state} continueGame={continueGame} pauseGame={pauseGame} />
-                  <NewGameButton />
-                </div>
+    <Container>
+      <div>
+        <Shortcuts
+          gameState={game.state}
+          continueGame={continueGame}
+          pauseGame={pauseGame}
+          activateNotesMode={activateNotesMode}
+          deactivateNotesMode={deactivateNotesMode}
+          setNumber={setNumber}
+          clearNumber={clearCell}
+          getHint={getHint}
+          setNotes={setNotes}
+          undo={undo}
+          redo={redo}
+          sudoku={sudoku}
+          activeCell={activeCell}
+          notesMode={game.notesMode}
+          showHints={game.showHints}
+          selectCell={selectCell}
+        />
+        <header className="flex justify-between sm:items-center mt-4">
+          <div className="flex text-white flex-col sm:flex-row justify-end">
+            <DifficultyShow>{`${game.sudokuCollectionName} #${game.sudokuIndex + 1}`}</DifficultyShow>
+            <div className="hidden sm:block w-2 sm:w-4" />
+            <div className="hidden sm:block">{"|"}</div>
+            <div className="hidden sm:block w-2 sm:w-4" />
+            <GameTimer />
+          </div>
+          <div className="text-white text-lg sm:text-2xl font-bold">Super Sudoku</div>
+          <div className="flex">
+            <div className="flex gap-2 flex-col justify-end items-end sm:flex-row">
+              <div className="flex gap-2">
+                <ToggleDarkModeButton />
+                <ClearGameButton />
               </div>
-            </div>
-          </header>
-          <div className="flex gap-4 flex-col md:flex-row">
-            <main className="mt-4 flex-grow md:min-w-96 w-full">
-              <Sudoku
-                secondsPlayed={game.secondsPlayed}
-                previousTimes={game.previousTimes}
-                state={game.state}
-                showWrongEntries={game.showWrongEntries}
-                showConflicts={game.showConflicts}
-                notesMode={game.notesMode}
-                shouldShowMenu={game.showMenu && game.showCircleMenu}
-                sudoku={sudoku}
-                timesSolved={game.timesSolved}
-                showMenu={showMenu}
-                hideMenu={hideMenu}
-                selectCell={selectCell}
-                showHints={game.showHints && game.state === GameStateMachine.running}
-                activeCell={activeCell}
-              >
-                <CenteredContinueButton visible={pausedGame} onClick={continueGame} />
-              </Sudoku>
-            </main>
-            <div className="mt-4">
-              <SudokuMenuNumbersConnected />
-              <SudokuMenuControls />
-              <div className="text-white">
-                <div className="mt-4 grid gap-4">
-                  <div className="md:block hidden">
-                    <h2 className="mb-2 text-3xl font-bold">Shortcuts</h2>
-                    <div className="grid gap-2">
-                      <ul className="list-disc pl-6">
-                        <li>Arrow keys: Move around the board</li>
-                        <li>Number keys: Write a note or set the sudoku number</li>
-                        <li>Backspace: Delete a number</li>
-                        <li>Escape: Pause/unpause the game</li>
-                        <li>H: Hint</li>
-                        <li>N: Enter/exit note mode</li>
-                        <li>CTRL + Z: Undo</li>
-                        <li>CTRL + Y: Redo</li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div>
-                    <h2 className="mb-2 text-3xl font-bold">Settings</h2>
-                    <div className="grid gap-2">
-                      <Checkbox id="generated_notes" checked={game.showHints} onChange={toggleShowHints}>
-                        {"Show auto generated notes"}
-                      </Checkbox>
-                      <Checkbox
-                        id="highlight_wrong_entries"
-                        checked={game.showWrongEntries}
-                        onChange={toggleShowWrongEntries}
-                      >
-                        {"Highlight wrong entries"}
-                      </Checkbox>
-                      <Checkbox id="highlight_conflicts" checked={game.showConflicts} onChange={toggleShowConflicts}>
-                        {"Highlight conflicts"}
-                      </Checkbox>
-                      <Checkbox id="circle_menu" checked={game.showCircleMenu} onChange={toggleShowCircleMenu}>
-                        {"Show circle menu when a cell is clicked (desktop only)"}
-                      </Checkbox>
-                      <Checkbox id="show_occurrences" checked={game.showOccurrences} onChange={toggleShowOccurrences}>
-                        {"Show occurrences of numbers in number buttons"}
-                      </Checkbox>
-                    </div>
-                  </div>
-                  <div>
-                    <h2 className="text-3xl font-bold text-white">About</h2>
-                    <p className="text-white">
-                      This sudoku app is and will be free of charge, free of ads and free of tracking. Its source code
-                      is available at{" "}
-                      <a target="_blank" className="underline" href="https://github.com/TN1ck/super-sudoku">
-                        Github
-                      </a>
-                      .{" "}
-                      <a href="https://tn1ck.com" target="_blank" className="hover:underline">
-                        {"Created by Tom Nick."}
-                      </a>
-                      If you find a bug or experience any issues, please report it on{" "}
-                      <a target="_blank" className="underline" href="https://github.com/TN1ck/super-sudoku/issues">
-                        Github
-                      </a>
-                      .
-                    </p>
-                  </div>
-                </div>
+              <div className="flex gap-2">
+                <PauseButton
+                  disabled={game.won}
+                  paused={game.state === GameStateMachine.paused}
+                  continueGame={continueGame}
+                  pauseGame={pauseGame}
+                />
+                <NewGameButton />
               </div>
             </div>
           </div>
+        </header>
+        <div className="flex gap-4 flex-col md:flex-row">
+          <main className="mt-4 flex-grow md:min-w-96 w-full">
+            <Sudoku
+              showWrongEntries={game.showWrongEntries && game.state === GameStateMachine.running}
+              showConflicts={game.showConflicts && game.state === GameStateMachine.running}
+              notesMode={game.notesMode}
+              shouldShowMenu={game.showMenu && game.showCircleMenu && game.state === GameStateMachine.running}
+              sudoku={game.state === GameStateMachine.paused ? emptyGrid : sudoku}
+              showMenu={showMenu}
+              hideMenu={hideMenu}
+              selectCell={selectCell}
+              showHints={game.showHints && game.state === GameStateMachine.running}
+              activeCell={game.state === GameStateMachine.running ? activeCell : undefined}
+              setNumber={setNumber}
+              setNotes={setNotes}
+              clearNumber={clearCell}
+            >
+              {game.won && (
+                <div className="absolute top-0 bottom-0 right-0 left-0 z-30 flex items-center justify-center rounded-sm bg-white dark:bg-black dark:bg-opacity-80 bg-opacity-80 text-black dark:text-white">
+                  <div className="grid gap-8">
+                    <div className="flex justify-center text-2xl">{"🎉 Congrats, you won! 🎉"}</div>
+                    <div className="text-md flex justify-center">
+                      <div className="grid">
+                        <div className="flex justify-center">{`You solved this sudoku ${game.timesSolved} ${
+                          game.timesSolved === 1 ? "time" : "times"
+                        }`}</div>
+                        <div className="flex justify-center">
+                          <div>
+                            {game.previousTimes.length > 0 && (
+                              <div>{`Best time: ${formatDuration(Math.min(...game.previousTimes))}`}</div>
+                            )}
+                            <div>{`This time: ${formatDuration(game.secondsPlayed)}`}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <Link to="/select-game" className="w-full">
+                      <Button className="bg-teal-700 text-white w-full">{"Select next sudoku"}</Button>
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              <CenteredContinueButton visible={pausedGame} onClick={continueGame} />
+            </Sudoku>
+          </main>
+          <div className="grid gap-4 mt-4">
+            <SudokuMenuNumbers
+              notesMode={game.notesMode}
+              showOccurrences={game.showOccurrences}
+              activeCell={game.activeCellCoordinates}
+              sudoku={sudokuState.current}
+              showHints={game.showHints}
+              setNumber={setNumber}
+              setNotes={setNotes}
+            />
+            <SudokuMenuControls
+              notesMode={game.notesMode}
+              activeCellCoordinates={game.activeCellCoordinates ?? {x: 0, y: 0}}
+              clearCell={clearCell}
+              activateNotesMode={activateNotesMode}
+              deactivateNotesMode={deactivateNotesMode}
+              getHint={getHint}
+              canUndo={canUndo}
+              undo={undo}
+            />
+            <SettingsAndInformation />
+          </div>
         </div>
-      </Container>
-    </div>
+      </div>
+    </Container>
   );
 };
+
+// Save every 2 seconds.
+const throttledSave = throttle(localStoragePlayedSudokuRepository.saveSudokuState, 2000);
+
+export function AppProvider({children}: {children: React.ReactNode}) {
+  // Load initial state from persistence
+  const currentSudoku = localStoragePlayedSudokuRepository.getCurrentSudoku();
+
+  const initialGameState: GameState = currentSudoku ? currentSudoku.game : INITIAL_GAME_STATE;
+
+  const initialSudokuState: SudokuState = currentSudoku
+    ? {
+        history: [currentSudoku.sudoku],
+        historyIndex: 0,
+        current: currentSudoku.sudoku,
+      }
+    : INITIAL_SUDOKU_STATE;
+
+  return (
+    <GameProvider initialState={initialGameState}>
+      <TimerProvider>
+        <SudokuProvider initialState={initialSudokuState}>
+          <PersistenceHandler>{children}</PersistenceHandler>
+        </SudokuProvider>
+      </TimerProvider>
+    </GameProvider>
+  );
+}
+
+// Component to handle persistence
+function PersistenceHandler({children}: {children: ReactNode}) {
+  const {state: gameState} = useGame();
+  const {state: sudokuState} = useSudoku();
+
+  useEffect(() => {
+    if (gameState && sudokuState) {
+      throttledSave(gameState, sudokuState);
+    }
+  }, [gameState, sudokuState]);
+
+  return <>{children}</>;
+}
 
 const GameWithRouteManagement = () => {
   const location = useLocation();
@@ -370,17 +466,11 @@ const GameWithRouteManagement = () => {
 
   React.useEffect(() => {
     if (sudokuIndex && sudoku && sudokuCollectionName) {
+      // TODO: Add a toast for this.
       const simpleSudoku = cellsToSimpleSudoku(sudokuState.current);
-      // Only show the check if they actually played a few seconds.
-      if (stringifySudoku(simpleSudoku) !== sudoku && gameState.secondsPlayed > 5) {
+      if (stringifySudoku(simpleSudoku) !== sudoku && gameState.secondsPlayed > 5 && !gameState.won) {
         const areYouSure = confirm(
-          `
-The URL contains another sudoku than the one you are currently playing.
-Do you want to continue with the new sudoku? The old sudoku will be paused.
-
-You currently play the ${gameState.sudokuCollectionName} sudoku #${gameState.sudokuIndex + 1}.
-The URL contains the ${sudokuCollectionName} sudoku #${sudokuIndex + 1}.
-          `,
+          `You are currently playing sudoku ${gameState.sudokuCollectionName} #${gameState.sudokuIndex + 1}, do you want to pause it and start ${sudokuCollectionName} #${sudokuIndex + 1}?`,
         );
         if (!areYouSure) {
           return;
@@ -397,9 +487,15 @@ The URL contains the ${sudokuCollectionName} sudoku #${sudokuIndex + 1}.
         alert("The URL contains an invalid sudoku.");
         return;
       }
-      newGame(sudokuIndex, sudokuCollectionName);
+      newGame(
+        sudokuIndex,
+        sudokuCollectionName,
+        storedSudoku?.game.timesSolved ?? 0,
+        storedSudoku?.game.previousTimes ?? [],
+      );
 
-      if (storedSudoku) {
+      // If we have a stored sudoku, we need to set the game state and sudoku state.
+      if (storedSudoku && !storedSudoku.game.won) {
         setGameState({
           ...storedSudoku.game,
         });
@@ -413,7 +509,15 @@ The URL contains the ${sudokuCollectionName} sudoku #${sudokuIndex + 1}.
     }
   }, [sudokuIndex, sudoku, sudokuCollectionName, setGameState]);
 
-  return <Game />;
+  return <GameInner />;
 };
 
-export default GameWithRouteManagement;
+const Game = () => {
+  return (
+    <AppProvider>
+      <GameWithRouteManagement />
+    </AppProvider>
+  );
+};
+
+export default Game;

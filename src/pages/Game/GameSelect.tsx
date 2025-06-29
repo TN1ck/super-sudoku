@@ -3,8 +3,7 @@ import * as React from "react";
 import {getCollections, getSudokusPaginated, SudokuRaw, useSudokuCollections} from "src/lib/game/sudokus";
 import {DIFFICULTY} from "src/lib/engine/types";
 import SudokuPreview from "../../components/sudoku/SudokuPreview";
-import {useGame, GameStateMachine} from "src/context/GameContext";
-import {useSudoku} from "src/context/SudokuContext";
+import {GameStateMachine} from "src/context/GameContext";
 import {formatDuration} from "src/utils/format";
 import {useState} from "react";
 import Button from "src/components/Button";
@@ -13,6 +12,7 @@ import {useElementWidth} from "src/utils/hooks";
 import {useNavigate} from "@tanstack/react-router";
 import {localStoragePlayedSudokuRepository, StoredPlayedSudokuState} from "src/lib/database/playedSudokus";
 import {Collection, localStorageCollectionRepository} from "src/lib/database/collections";
+import NewSudoku from "./NewSudoku";
 
 const TabItem = ({active, children, ...props}: React.ButtonHTMLAttributes<HTMLButtonElement> & {active: boolean}) => (
   <button
@@ -101,19 +101,16 @@ const SudokuToSelect = ({
   sudoku,
   index,
   sudokuCollectionName,
-  chooseSudoku,
   storedSudoku,
 }: {
   sudoku: SudokuRaw;
   storedSudoku: StoredPlayedSudokuState | undefined;
   index: number;
   sudokuCollectionName: string;
-  chooseSudoku: (sudoku: SudokuRaw, index: number, storedSudoku: StoredPlayedSudokuState | undefined) => void;
 }) => {
   const localSudoku = storedSudoku;
-  const unfinished = localSudoku && localSudoku.game.state !== GameStateMachine.wonGame;
-  const finished = localSudoku && localSudoku.game.state === GameStateMachine.wonGame;
-  const {restartGame} = useGame();
+  const unfinished = localSudoku && !localSudoku.game.won;
+  const finished = localSudoku && localSudoku.game.won;
   const navigate = useNavigate();
 
   const choose = () => {
@@ -134,8 +131,6 @@ const SudokuToSelect = ({
         sudokuCollectionName: sudokuCollectionName,
       },
     });
-
-    chooseSudoku(sudoku, index, localSudoku);
   };
 
   const sudokuContainerRef = React.useRef(null);
@@ -184,18 +179,16 @@ const SudokuToSelect = ({
 };
 
 const GameIndex = ({
-  chooseSudoku,
   pageSudokus,
   pageStart,
   sudokuCollectionName,
 }: {
-  chooseSudoku: (sudoku: SudokuRaw, index: number, storedSudoku: StoredPlayedSudokuState | undefined) => void;
   pageSudokus: SudokuRaw[];
   pageStart: number;
   sudokuCollectionName: string;
 }) => {
   if (pageSudokus.length === 0) {
-    return <div className="text-center text-white">No sudokus in this category.</div>;
+    return <div className="text-center text-white">There are no sudokus in this collection.</div>;
   }
 
   return (
@@ -212,7 +205,6 @@ const GameIndex = ({
               sudoku={sudoku}
               index={globalIndex}
               sudokuCollectionName={sudokuCollectionName}
-              chooseSudoku={chooseSudoku}
               storedSudoku={storedSudoku}
             />
           );
@@ -231,32 +223,9 @@ const CustomSudokus = () => {
 };
 
 const GameSelect: React.FC = () => {
-  const {newGame, continueGame, setGameState, restartGame} = useGame();
-  const {setSudoku, setSudokuState} = useSudoku();
-  const {activeCollection, setActiveCollectionId, collections, addCollection, removeCollection, getCollection} =
+  const {activeCollection, setActiveCollectionId, collections, addCollection, isBaseCollection} =
     useSudokuCollections();
   const [page, setPage] = useState(0);
-
-  console.log("collections", collections);
-
-  const chooseSudoku = (sudoku: SudokuRaw, index: number, storedSudoku: StoredPlayedSudokuState | undefined) => {
-    newGame(index, activeCollection.id);
-    setSudoku(sudoku.sudoku, sudoku.solution);
-    if (storedSudoku && storedSudoku.game.state === GameStateMachine.wonGame) {
-      restartGame(index, activeCollection.id, storedSudoku.game.timesSolved, storedSudoku.game.previousTimes);
-    }
-    if (storedSudoku && storedSudoku.game.state !== GameStateMachine.wonGame) {
-      setGameState({
-        ...storedSudoku.game,
-      });
-      setSudokuState({
-        current: storedSudoku.sudoku,
-        history: [storedSudoku.sudoku],
-        historyIndex: 0,
-      });
-    }
-    continueGame();
-  };
 
   const pageSize = 12;
   const {
@@ -270,6 +239,8 @@ const GameSelect: React.FC = () => {
     setActiveCollectionId(collection);
     setPage(0);
   };
+
+  const [showNewSudokuComponent, setShowNewSudokuComponent] = useState(false);
 
   return (
     <div className="mt-8">
@@ -299,12 +270,13 @@ const GameSelect: React.FC = () => {
           </TabItem>
         </div>
       </div>
-      <GameIndex
-        chooseSudoku={chooseSudoku}
-        pageSudokus={pageSudokus}
-        pageStart={pageStart}
-        sudokuCollectionName={activeCollection.name}
-      />
+      {!isBaseCollection(activeCollection.id) && !showNewSudokuComponent && (
+        <Button className="bg-teal-600 dark:bg-teal-600 text-white" onClick={() => setShowNewSudokuComponent(true)}>
+          {"Add sudoku +"}
+        </Button>
+      )}
+      {showNewSudokuComponent && <NewSudoku />}
+      <GameIndex pageSudokus={pageSudokus} pageStart={pageStart} sudokuCollectionName={activeCollection.name} />
       {pageCount > 1 && <PageSelector page={page} pageCount={pageCount} setPage={setPage} />}
     </div>
   );
