@@ -2,24 +2,14 @@ import * as React from "react";
 import GameSelect from "./Game/GameSelect";
 import {Container} from "src/components/Layout";
 import Button from "../components/Button";
-import {useLocation, useNavigate} from "@tanstack/react-router";
+import {useNavigate} from "@tanstack/react-router";
 
 const SelectGame = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const search = location.search;
-  const sudokuIndex = search["sudokuIndex"] as number;
-  const sudoku = search["sudoku"] as string;
-  const sudokuCollectionName = search["sudokuCollectionName"] as string;
 
   const goBack = () => {
     navigate({
       to: "/",
-      search: {
-        sudokuIndex: sudokuIndex,
-        sudoku: sudoku,
-        sudokuCollectionName: sudokuCollectionName,
-      },
     });
   };
 

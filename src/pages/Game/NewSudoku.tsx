@@ -202,7 +202,7 @@ const NewSudokuInner = ({saveSudoku}: {saveSudoku: (sudoku: SimpleSudoku) => Pro
         activeCell={activeCell}
         selectCell={setActiveCell}
       />
-      <main className="mt-4">
+      <main>
         <Sudoku
           sudoku={currentSudoku}
           showHints={false}
@@ -220,7 +220,7 @@ const NewSudokuInner = ({saveSudoku}: {saveSudoku: (sudoku: SimpleSudoku) => Pro
           children={<></>}
         />
       </main>
-      <div className="mt-4 flex flex-col gap-4">
+      <div className="flex flex-col gap-4">
         <SudokuMenuNumbers
           notesMode={false}
           showOccurrences={false}
@@ -262,8 +262,6 @@ const NewSudoku = ({
 }) => {
   return (
     <div>
-      <div className="text-white text-lg sm:text-2xl font-bold">Create new sudoku</div>
-      <p className="text-white">{`Add your own sudoku. Set the numbers and you can play it. This sudoku will be added to the "${collection.name}" collection.`}</p>
       <SudokuProvider initialState={INITIAL_CREATE_NEW_SUDOKU_STATE}>
         <NewSudokuInner saveSudoku={saveSudoku} />
       </SudokuProvider>

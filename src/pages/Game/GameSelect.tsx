@@ -115,7 +115,6 @@ const SudokuToSelect = ({
 
   const choose = () => {
     if (finished) {
-      // TODO: make it nicer.
       const areYouSure = confirm(
         "Are you sure? This will restart the sudoku and reset the timer. It will continue to say that you solved it.",
       );
@@ -126,7 +125,7 @@ const SudokuToSelect = ({
     navigate({
       to: "/",
       search: {
-        sudokuIndex: index,
+        sudokuIndex: index + 1,
         sudoku: stringifySudoku(sudoku.sudoku),
         sudokuCollectionName: sudokuCollectionName,
       },
@@ -188,7 +187,11 @@ const GameIndex = ({
   sudokuCollectionName: string;
 }) => {
   if (pageSudokus.length === 0) {
-    return <div className="text-center text-white">There are no sudokus in this collection.</div>;
+    return (
+      <div className="text-center text-white">
+        There are no sudokus in this collection. Add one by clicking the "Add sudoku" button.
+      </div>
+    );
   }
 
   return (
@@ -218,13 +221,16 @@ const usePaginatedSudokus = (collection: Collection, page: number, pageSize: num
   return getSudokusPaginated(collection, page, pageSize);
 };
 
-const CustomSudokus = () => {
-  return <div>Custom Sudokus</div>;
-};
-
 const GameSelect: React.FC = () => {
-  const {activeCollection, setActiveCollectionId, collections, addCollection, isBaseCollection, addSudokuToCollection} =
-    useSudokuCollections();
+  const {
+    activeCollection,
+    setActiveCollectionId,
+    collections,
+    addCollection,
+    isBaseCollection,
+    addSudokuToCollection,
+    removeCollection,
+  } = useSudokuCollections();
   const [page, setPage] = useState(0);
 
   const pageSize = 12;
@@ -237,6 +243,7 @@ const GameSelect: React.FC = () => {
 
   const setActiveCollectionAndResetPage = (collection: string) => {
     setActiveCollectionId(collection);
+    setShowNewSudokuComponent(false);
     setPage(0);
   };
 
@@ -247,11 +254,28 @@ const GameSelect: React.FC = () => {
   };
 
   const [showNewSudokuComponent, setShowNewSudokuComponent] = useState(false);
+  const removeCollectionLocal = () => {
+    if (isBaseCollectionLocal) {
+      alert("You cannot delete the base collection.");
+      return;
+    }
+    const areYouSure = confirm(
+      `Are you sure you want to delete collection "${activeCollection.name}"? This will delete all sudokus in it.`,
+    );
+    if (!areYouSure) {
+      return;
+    }
+    removeCollection(activeCollection.id);
+    setActiveCollectionId(collections[0].id);
+    setPage(0);
+  };
+
+  const isBaseCollectionLocal = isBaseCollection(activeCollection.id);
 
   return (
     <div className="mt-8">
       <div className="flex justify-between items-center  mb-8">
-        <div className="flex space-x-2">
+        <div className="flex flex-wrap gap-2">
           {collections.map((collection) => (
             <TabItem
               key={collection.id}
@@ -276,15 +300,28 @@ const GameSelect: React.FC = () => {
           </TabItem>
         </div>
       </div>
-      {!isBaseCollection(activeCollection.id) && !showNewSudokuComponent && (
-        <Button
-          className="bg-teal-600 mb-4 dark:bg-teal-600 text-white"
-          onClick={() => setShowNewSudokuComponent(true)}
-        >
-          {"Add sudoku +"}
-        </Button>
+      {!isBaseCollectionLocal && (
+        <div className="flex justify-between items-center gap-2 mb-4">
+          {!showNewSudokuComponent ? (
+            <Button className="bg-teal-600 dark:bg-teal-600 text-white" onClick={() => setShowNewSudokuComponent(true)}>
+              {"Add sudoku +"}
+            </Button>
+          ) : (
+            <Button onClick={() => setShowNewSudokuComponent(false)}>{"Close new sudoku creator"}</Button>
+          )}
+          <Button onClick={removeCollectionLocal}>{"Delete collection"}</Button>
+        </div>
       )}
-      {showNewSudokuComponent && <NewSudoku collection={activeCollection} saveSudoku={saveSudoku} />}
+      {!isBaseCollectionLocal && showNewSudokuComponent && (
+        <div className="mb-4 p-4 bg-gray-900 rounded-sm border border-gray-700 flex flex-col gap-4">
+          <div className="flex justify-between items-center">
+            <div className="text-white text-lg sm:text-2xl font-bold">Create new sudoku</div>
+            <Button onClick={() => setShowNewSudokuComponent(false)}>{"Close"}</Button>
+          </div>
+          <p className="text-white">{`Add your own sudoku. Set the numbers and you can play it. This sudoku will be added to the "${activeCollection.name}" collection.`}</p>
+          <NewSudoku collection={activeCollection} saveSudoku={saveSudoku} />
+        </div>
+      )}
       <GameIndex pageSudokus={pageSudokus} pageStart={pageStart} sudokuCollectionName={activeCollection.name} />
       {pageCount > 1 && <PageSelector page={page} pageCount={pageCount} setPage={setPage} />}
     </div>

@@ -142,7 +142,8 @@ const saveCurrentSudokuToLocalStorage = (game: GameState, sudoku: SudokuState) =
 
 interface PlayedSudokuRepository {
   getPlayedSudokus(): string[];
-  getCurrentSudoku(): StoredPlayedSudokuState | undefined;
+  getCurrentSudokuKey(): string | null;
+  saveCurrentSudokuKey(sudokuKey: string): void;
   getSudokuState(sudokuKey: string): StoredPlayedSudokuState | undefined;
   saveSudokuState(game: GameState, sudoku: SudokuState): void;
   removeSudokuState(sudokuKey: string): void;
@@ -152,8 +153,11 @@ export const localStoragePlayedSudokuRepository: PlayedSudokuRepository = {
   getPlayedSudokus(): string[] {
     return Object.keys(localStorage).filter((key) => key.startsWith(STORAGE_KEY_V_1_6_PREFIX));
   },
-  getCurrentSudoku(): StoredPlayedSudokuState | undefined {
-    return getCurrentSudokuFromStorage();
+  getCurrentSudokuKey(): string | null {
+    return localStorage.getItem(STORAGE_CURRENTLY_PLAYING_SUDOKU_KEY);
+  },
+  saveCurrentSudokuKey(sudokuKey: string): void {
+    localStorage.setItem(STORAGE_CURRENTLY_PLAYING_SUDOKU_KEY, sudokuKey);
   },
   getSudokuState(sudokuKey: string): StoredPlayedSudokuState | undefined {
     return getSudokuFromStorage(sudokuKey);

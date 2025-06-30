@@ -452,7 +452,10 @@ const throttledSave = throttle(localStoragePlayedSudokuRepository.saveSudokuStat
 
 export function AppProvider({children}: {children: React.ReactNode}) {
   // Load initial state from persistence
-  const currentSudoku = localStoragePlayedSudokuRepository.getCurrentSudoku();
+  const currentSudokuKey = localStoragePlayedSudokuRepository.getCurrentSudokuKey();
+  const currentSudoku = currentSudokuKey
+    ? localStoragePlayedSudokuRepository.getSudokuState(currentSudokuKey)
+    : undefined;
 
   const initialGameState: GameState = currentSudoku ? currentSudoku.game : INITIAL_GAME_STATE;
 
@@ -500,61 +503,88 @@ const GameWithRouteManagement = () => {
     undo,
     redo,
   } = useSudoku();
+  const [initialized, setInitialized] = React.useState(false);
+  const navigate = useNavigate();
+
   const search = location.search;
-  const sudokuIndex = search["sudokuIndex"] as number;
-  const sudoku = search["sudoku"] as string;
-  const sudokuCollectionName = search["sudokuCollectionName"] as string;
+  const sudokuIndex = search["sudokuIndex"] as number | undefined;
+  const sudoku = search["sudoku"] as string | undefined;
+  const sudokuCollectionName = search["sudokuCollectionName"] as string | undefined;
 
   useEffect(() => {
-    if (gameState && sudokuState) {
+    if (gameState && sudokuState && initialized) {
       throttledSave(gameState, sudokuState);
+      // Also update the URL to the current game state.
+      navigate({
+        replace: true,
+        to: "/",
+        search: {
+          sudokuIndex: gameState.sudokuIndex + 1,
+          sudoku: stringifySudoku(cellsToSimpleSudoku(sudokuState.current)),
+          sudokuCollectionName: gameState.sudokuCollectionName,
+        },
+      });
     }
-  }, [gameState, sudokuState]);
+  }, [gameState, sudokuState, initialized]);
 
+  // In the AppProvider, we load the sudoku from the local storage.
+  // TODO: Combine it with this logic.
   React.useEffect(() => {
-    if (sudokuIndex && sudoku && sudokuCollectionName) {
-      // TODO: Add a toast for this.
-      const simpleSudoku = cellsToSimpleSudoku(sudokuState.current);
-      if (stringifySudoku(simpleSudoku) !== sudoku && gameState.secondsPlayed > 5 && !gameState.won) {
-        const areYouSure = confirm(
-          `You are currently playing sudoku ${gameState.sudokuCollectionName} #${gameState.sudokuIndex + 1}, do you want to pause it and start ${sudokuCollectionName} #${sudokuIndex + 1}?`,
-        );
-        if (!areYouSure) {
-          return;
-        }
-      }
+    // If the URL does not contain a sudoku, we don't need to do anything.
+    if (sudokuIndex === undefined || sudoku === undefined || sudokuCollectionName === undefined) {
+      return;
+    }
 
-      const storedSudoku = localStoragePlayedSudokuRepository.getSudokuState(sudoku);
+    const currentSudoku = cellsToSimpleSudoku(sudokuState.current);
+    // If the current sudoku is the same as the one in the URL, we don't need to do anything.
+    if (stringifySudoku(currentSudoku) === sudoku) {
+      return;
+    }
 
-      const parsedSudoku = parseSudoku(sudoku);
-      const solvedSudoku = solve(parsedSudoku);
-      if (solvedSudoku.sudoku) {
-        setSudoku(parsedSudoku, solvedSudoku.sudoku);
-      } else {
-        alert("The URL contains an invalid sudoku.");
+    console.info("Loading sudoku from URL", sudokuIndex, sudoku, sudokuCollectionName);
+    // We only show a message if the user has played for more than 5 seconds and has not won.
+    if (gameState.secondsPlayed > 5 && !gameState.won) {
+      const areYouSure = confirm(
+        `You are currently playing sudoku ${gameState.sudokuCollectionName} #${gameState.sudokuIndex}, do you want to pause it and start ${sudokuCollectionName} #${sudokuIndex}?`,
+      );
+      if (!areYouSure) {
+        setInitialized(true);
         return;
       }
-      newGame(
-        sudokuIndex,
-        sudokuCollectionName,
-        storedSudoku?.game.timesSolved ?? 0,
-        storedSudoku?.game.previousTimes ?? [],
-      );
-
-      // If we have a stored sudoku, we need to set the game state and sudoku state.
-      if (storedSudoku && !storedSudoku.game.won) {
-        setGameState({
-          ...storedSudoku.game,
-        });
-        setSudokuState({
-          current: storedSudoku.sudoku,
-          history: [storedSudoku.sudoku],
-          historyIndex: 0,
-        });
-      }
-      continueGame();
     }
-  }, [sudokuIndex, sudoku, sudokuCollectionName, setGameState]);
+
+    // The user wants to play the sudoku from the URL.
+    const storedSudoku = localStoragePlayedSudokuRepository.getSudokuState(sudoku);
+    const parsedSudoku = parseSudoku(sudoku);
+    const solvedSudoku = solve(parsedSudoku);
+    if (solvedSudoku.sudoku) {
+      setSudoku(parsedSudoku, solvedSudoku.sudoku);
+    } else {
+      alert("The URL contains an invalid sudoku.");
+      setInitialized(true);
+      return;
+    }
+    newGame(
+      sudokuIndex - 1, // We subtract 1 because the index is 0-based, but we want to display it as 1-based in the URL.
+      sudokuCollectionName,
+      storedSudoku?.game.timesSolved ?? 0,
+      storedSudoku?.game.previousTimes ?? [],
+    );
+
+    // If we have a stored sudoku, we need to set the game state and sudoku state.
+    if (storedSudoku && !storedSudoku.game.won) {
+      setGameState({
+        ...storedSudoku.game,
+      });
+      setSudokuState({
+        current: storedSudoku.sudoku,
+        history: [storedSudoku.sudoku],
+        historyIndex: 0,
+      });
+    }
+    setInitialized(true);
+    continueGame();
+  }, [sudokuIndex, sudoku, sudokuCollectionName, setGameState, setSudokuState, setInitialized, continueGame]);
 
   return (
     <GameInner
