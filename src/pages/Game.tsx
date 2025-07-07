@@ -112,7 +112,7 @@ const ShareButton: React.FC<{
 
   const handleShare = async () => {
     const stringifiedSudoku = stringifySudoku(cellsToSimpleSudoku(sudokuState.current));
-    const shareUrl = `${window.location.origin}/?sudokuIndex=${gameState.sudokuIndex + 1}&sudoku=${stringifiedSudoku}&sudokuCollectionName=${gameState.sudokuCollectionName}`;
+    const shareUrl = `${window.location.origin}/?sudokuIndex=${gameState.sudokuIndex + 1}&sudoku="${stringifiedSudoku}"&sudokuCollectionName=${gameState.sudokuCollectionName}`;
 
     await copyToClipboard(shareUrl);
     setCopied(true);
@@ -539,16 +539,23 @@ const GameWithRouteManagement = () => {
     }
 
     // The user wants to play the sudoku from the URL.
-    const storedSudoku = localStoragePlayedSudokuRepository.getSudokuState(sudoku);
-    const parsedSudoku = parseSudoku(sudoku);
-    const solvedSudoku = solve(parsedSudoku);
-    if (solvedSudoku.sudoku) {
-      setSudoku(parsedSudoku, solvedSudoku.sudoku);
-    } else {
+    try {
+      const parsedSudoku = parseSudoku(sudoku);
+      const solvedSudoku = solve(parsedSudoku);
+      if (solvedSudoku.sudoku) {
+        setSudoku(parsedSudoku, solvedSudoku.sudoku);
+      } else {
+        alert("The URL contains an invalid sudoku.");
+        setInitialized(true);
+        return;
+      }
+    } catch (error) {
       alert("The URL contains an invalid sudoku.");
       setInitialized(true);
       return;
     }
+
+    const storedSudoku = localStoragePlayedSudokuRepository.getSudokuState(sudoku);
     newGame(
       sudokuIndex - 1, // We subtract 1 because the index is 0-based, but we want to display it as 1-based in the URL.
       sudokuCollectionName,
