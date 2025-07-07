@@ -90,6 +90,38 @@ const NewGameButton: React.FC = () => {
   );
 };
 
+const ShareButton: React.FC<{
+  gameState: GameState;
+  sudokuState: SudokuState;
+}> = ({gameState, sudokuState}) => {
+  const [copied, setCopied] = React.useState(false);
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (error) {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+    }
+  };
+
+  const handleShare = async () => {
+    const stringifiedSudoku = stringifySudoku(cellsToSimpleSudoku(sudokuState.current));
+    const shareUrl = `${window.location.origin}/?sudokuIndex=${gameState.sudokuIndex + 1}&sudoku=${stringifiedSudoku}&sudokuCollectionName=${gameState.sudokuCollectionName}`;
+
+    await copyToClipboard(shareUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1000);
+  };
+
+  return <Button onClick={handleShare}>{copied ? "Copied!" : "Share"}</Button>;
+};
+
 const CenteredContinueButton: React.FC<{visible: boolean; onClick: () => void}> = ({visible, onClick}) => (
   <div
     onClick={onClick}
@@ -305,6 +337,7 @@ const GameInner: React.FC<{
                     resetGame();
                   }}
                 />
+                <ShareButton gameState={game} sudokuState={sudokuState} />
               </div>
               <div className="flex gap-2">
                 <PauseButton
