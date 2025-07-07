@@ -119,7 +119,11 @@ const ShareButton: React.FC<{
     setTimeout(() => setCopied(false), 1000);
   };
 
-  return <Button onClick={handleShare}>{copied ? "Copied!" : "Share"}</Button>;
+  return (
+    <div className="text-white hover:cursor-pointer p-1 hover:bg-gray-500 rounded-md" onClick={handleShare}>
+      {copied ? "🔗 Copied!" : "🔗 Share"}
+    </div>
+  );
 };
 
 const CenteredContinueButton: React.FC<{visible: boolean; onClick: () => void}> = ({visible, onClick}) => (
@@ -312,11 +316,10 @@ const GameInner: React.FC<{
           selectCell={selectCell}
         />
         <header className="flex justify-between sm:items-center mt-4">
-          <div className="flex text-white flex-col sm:flex-row justify-end">
+          <div className="flex text-white flex-col sm:flex-row justify-end items-center gap-2">
             <DifficultyShow>{`${game.sudokuCollectionName} #${game.sudokuIndex + 1}`}</DifficultyShow>
-            <div className="hidden sm:block w-2 sm:w-4" />
+            <ShareButton gameState={game} sudokuState={sudokuState} />
             <div className="hidden sm:block">{"|"}</div>
-            <div className="hidden sm:block w-2 sm:w-4" />
             <GameTimer />
           </div>
           <div className="text-white text-lg sm:text-2xl font-bold">Super Sudoku</div>
@@ -337,7 +340,6 @@ const GameInner: React.FC<{
                     resetGame();
                   }}
                 />
-                <ShareButton gameState={game} sudokuState={sudokuState} />
               </div>
               <div className="flex gap-2">
                 <PauseButton
