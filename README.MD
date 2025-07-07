@@ -17,10 +17,11 @@ Born from a simple request - my Grandma wanted to play Sudoku, but I wasn't sati
 ## 🚀 Key Features
 
 ### 🎮 **Core Gameplay**
-- **3000 Puzzles**: ~Carefully~ Automatically created puzzles across 5 difficulty levels
+- **3000 Puzzles**: Carefully created puzzles across 5 difficulty levels
 - **Smart Hints**: Get help when you're stuck without spoiling the challenge
 - **Undo/Redo**: Full history tracking with CMD/CTRL + Z & Y shortcuts
 - **Progress Saving**: Never lose your place - automatic save functionality
+- **Create your own**: Design custom puzzles with built-in validation checking
 
 ### 📝 **Advanced Note System**
 - **Smart Notes**: Automatic note generation and management
