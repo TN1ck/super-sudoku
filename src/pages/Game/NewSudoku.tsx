@@ -13,10 +13,10 @@ import {
   useSudoku,
 } from "src/context/SudokuContext";
 import {Collection} from "src/lib/database/collections";
-import {isSudokuUnique} from "src/lib/engine/generate";
 import {solve} from "src/lib/engine/solverAC3";
 import {Cell, CellCoordinates, SimpleSudoku} from "src/lib/engine/types";
 import {cellsToSimpleSudoku, stringifySudoku, SUDOKU_COORDINATES, SUDOKU_NUMBERS} from "src/lib/engine/utility";
+import {useSudokuUniqueWorker} from "src/utils/useSudokuUniqueWorker";
 import SudokuGame from "src/lib/game/SudokuGame";
 
 const SHORTCUT_SCOPE = "new-sudoku";
@@ -171,6 +171,7 @@ const NewSudokuInner = ({saveSudoku}: {saveSudoku: (sudoku: SimpleSudoku) => Pro
 
   const [isSaving, setIsSaving] = React.useState(false);
   const [errors, setErrors] = React.useState<string[]>([]);
+  const {checkUniqueness, isChecking} = useSudokuUniqueWorker();
 
   const saveSudokuLocal = async () => {
     setIsSaving(true);
@@ -181,7 +182,13 @@ const NewSudokuInner = ({saveSudoku}: {saveSudoku: (sudoku: SimpleSudoku) => Pro
       setIsSaving(false);
       return;
     }
-    const isUnique = isSudokuUnique(simpleSudoku);
+
+    const {isUnique, error} = await checkUniqueness(simpleSudoku);
+    if (error) {
+      setErrors([`Error checking uniqueness: ${error}`]);
+      setIsSaving(false);
+      return;
+    }
     if (!isUnique) {
       setErrors(["This sudoku is not unique. It has multiple solutions."]);
       setIsSaving(false);
@@ -235,8 +242,12 @@ const NewSudokuInner = ({saveSudoku}: {saveSudoku: (sudoku: SimpleSudoku) => Pro
           <EraseButton activeCellCoordinates={activeCell} clearCell={clearNumber} />
         </div>
         <div>
-          <Button disabled={isSaving} className="bg-teal-600 dark:bg-teal-600 text-white" onClick={saveSudokuLocal}>
-            {isSaving ? "Saving..." : "Save sudoku"}
+          <Button
+            disabled={isSaving || isChecking}
+            className="bg-teal-600 dark:bg-teal-600 text-white"
+            onClick={saveSudokuLocal}
+          >
+            {isSaving ? "Saving..." : isChecking ? "Checking uniqueness..." : "Save sudoku"}
           </Button>
           {errors.length > 0 && (
             <ul className="text-red-200 mt-2 bg-red-800 p-2 rounded-sm list-disc list-inside pl-4">
