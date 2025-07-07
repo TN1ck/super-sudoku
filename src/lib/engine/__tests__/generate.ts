@@ -1,4 +1,4 @@
-import generateSudoku, {checkForUniqueness} from "../generate";
+import generateSudoku, {isSudokuUnique} from "../generate";
 import {createSeededRandom} from "../seededRandom";
 import {solve} from "../solverAC3";
 import {EMPTY_SUDOKU, SOLVED_SUDOKUS} from "../testutils";
@@ -12,7 +12,7 @@ describe("generate", () => {
     const stringified = stringifySudoku(sudoku.sudoku);
     expect(stringified).toBe("080902506061078040040050003050104020400000900013090085000020000725800000800705030");
     // Check if it is unique.
-    expect(checkForUniqueness(sudoku.sudoku)).toBe(true);
+    expect(isSudokuUnique(sudoku.sudoku)).toBe(true);
     // Check if it can be solved.
     expect(solve(sudoku.sudoku).iterations).toBe(4);
   });
@@ -22,7 +22,7 @@ describe("generate", () => {
     const sudoku = generateSudoku(DIFFICULTY.EVIL, randomFn);
     const stringified = stringifySudoku(sudoku.sudoku);
     // Check if it is unique.
-    expect(checkForUniqueness(sudoku.sudoku)).toBe(true);
+    expect(isSudokuUnique(sudoku.sudoku)).toBe(true);
     // Check if it can be solved.
     // The difficulty is capped, as we don't do to many changes.
     expect(solve(sudoku.sudoku).iterations).toBe(32);
@@ -33,7 +33,7 @@ describe("generate", () => {
     const sudoku = generateSudoku(DIFFICULTY.EVIL, randomFn);
     const stringified = stringifySudoku(sudoku.sudoku);
     // Check if it is unique.
-    expect(checkForUniqueness(sudoku.sudoku)).toBe(true);
+    expect(isSudokuUnique(sudoku.sudoku)).toBe(true);
     // Check if it can be solved.
     // The difficulty is capped, as we don't do to many changes.
     expect(solve(sudoku.sudoku).iterations).toBe(248);
@@ -42,12 +42,12 @@ describe("generate", () => {
 
 describe("checkForUniqueness", () => {
   it("empty sudoku is not unique", () => {
-    expect(checkForUniqueness(EMPTY_SUDOKU)).toBe(false);
+    expect(isSudokuUnique(EMPTY_SUDOKU)).toBe(false);
   });
 
   it("test sudokus are unique", () => {
     SOLVED_SUDOKUS.forEach((s) => {
-      expect(checkForUniqueness(s.unsolved)).toBe(true);
+      expect(isSudokuUnique(s.unsolved)).toBe(true);
     });
   });
 });

@@ -3,26 +3,28 @@ import * as React from "react";
 import {createRootRoute, createRoute, createRouter, RouterProvider} from "@tanstack/react-router";
 
 import Game from "./pages/Game";
-import NotFound from "./pages/NotFound";
-import NewGame from "./pages/NewGame";
-import {AppProvider} from "./context/AppContext";
+import SelectGame from "./pages/SelectGame";
 import {OfflineIndicator} from "./components/OfflineIndicator";
+import {localStoragePlayedSudokuRepository} from "./lib/database/playedSudokus";
+import {START_SUDOKU, START_SUDOKU_COLLECTION} from "./lib/game/sudokus";
+import {START_SUDOKU_INDEX} from "./lib/game/sudokus";
+import {cellsToSimpleSudoku, stringifySudoku} from "./lib/engine/utility";
 
 const rootRoute = createRootRoute();
 
-const indexRoute = createRoute({
+const gameRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   component: Game,
 });
 
-const newGameRoute = createRoute({
+const selectGameRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/new-game",
-  component: NewGame,
+  path: "/select-game",
+  component: SelectGame,
 });
 
-rootRoute.addChildren([indexRoute, newGameRoute]);
+rootRoute.addChildren([gameRoute, selectGameRoute]);
 
 const router = createRouter({
   routeTree: rootRoute,
@@ -100,10 +102,8 @@ const ErrorBoundary: React.FC<{children: React.ReactNode}> = ({children}) => {
 const App = () => {
   return (
     <ErrorBoundary>
-      <AppProvider>
-        <OfflineIndicator />
-        <RouterProvider router={router} />
-      </AppProvider>
+      <OfflineIndicator />
+      <RouterProvider router={router} />
     </ErrorBoundary>
   );
 };

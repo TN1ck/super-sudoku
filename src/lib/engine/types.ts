@@ -5,6 +5,7 @@ export enum DIFFICULTY {
   EXPERT = "expert",
   EVIL = "evil",
 }
+
 export interface CellCoordinates {
   x: number;
   y: number;

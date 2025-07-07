@@ -1,6 +1,4 @@
 import * as React from "react";
-import {useGame} from "src/context/GameContext";
-import {useSudoku} from "src/context/SudokuContext";
 import {SUDOKU_NUMBERS} from "src/lib/engine/utility";
 import {Cell} from "src/lib/engine/types";
 import {Bounds} from "src/components/sudoku/types";
@@ -113,17 +111,16 @@ const MenuCirclePart = React.memo(
   },
 );
 
-interface MenuCircleProps {
+const MenuCircle: React.FC<{
   cell: Cell;
-}
-
-const MenuCircle: React.FC<MenuCircleProps> = ({cell}) => {
-  const {state: gameState, showMenu} = useGame();
-  const {state: sudokuState, setNumber, setNotes, clearNumber} = useSudoku();
-
-  const {notesMode, showHints} = gameState;
-  const sudoku = sudokuState.current;
-
+  notesMode: boolean;
+  showHints: boolean;
+  setNumber: (cell: Cell, number: number) => void;
+  setNotes: (cell: Cell, notes: number[]) => void;
+  showMenu: () => void;
+  clearNumber: (cell: Cell) => void;
+  sudoku: Cell[];
+}> = ({cell, notesMode, showHints, setNumber, setNotes, clearNumber, sudoku, showMenu}) => {
   if (cell === null) {
     return null;
   }

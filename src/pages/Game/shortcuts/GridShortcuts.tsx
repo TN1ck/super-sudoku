@@ -1,35 +1,43 @@
 import * as React from "react";
-import key from "keymaster";
 import hotkeys from "hotkeys-js";
 import {SUDOKU_COORDINATES, SUDOKU_NUMBERS} from "src/lib/engine/utility";
 import {Cell} from "src/lib/engine/types";
-import {useGame} from "src/context/GameContext";
-import {useSudoku} from "src/context/SudokuContext";
 import {ShortcutScope} from "./ShortcutScope";
 import SudokuGame from "src/lib/game/SudokuGame";
 
-const GameKeyboardShortcuts: React.FC = () => {
-  const {
-    state: gameState,
-    showMenu,
-    hideMenu,
-    selectCell,
-    pauseGame,
-    activateNotesMode,
-    deactivateNotesMode,
-  } = useGame();
-
-  const {state: sudokuState, setNumber, clearNumber, getHint, setNotes, undo, redo} = useSudoku();
-
-  const {activeCellCoordinates, notesMode, showHints} = gameState;
-  const sudoku = sudokuState.current;
-
-  const activeCell = activeCellCoordinates
-    ? sudoku.find((s) => {
-        return s.x === activeCellCoordinates.x && s.y === activeCellCoordinates.y;
-      })
-    : undefined;
-
+const GridShortcuts: React.FC<{
+  continueGame: () => void;
+  pauseGame: () => void;
+  activateNotesMode: () => void;
+  deactivateNotesMode: () => void;
+  setNumber: (cell: Cell, number: number) => void;
+  clearNumber: (cell: Cell) => void;
+  getHint: (cell: Cell) => void;
+  setNotes: (cell: Cell, notes: number[]) => void;
+  undo: () => void;
+  redo: () => void;
+  sudoku: Cell[];
+  activeCell: Cell | undefined;
+  notesMode: boolean;
+  showHints: boolean;
+  selectCell: (cell: Cell) => void;
+}> = ({
+  continueGame,
+  pauseGame,
+  activateNotesMode,
+  deactivateNotesMode,
+  setNumber,
+  clearNumber,
+  getHint,
+  setNotes,
+  undo,
+  redo,
+  sudoku,
+  activeCell,
+  notesMode,
+  showHints,
+  selectCell,
+}) => {
   // Use refs to store current values so shortcuts don't need to be recreated
   const stateRef = React.useRef({
     activeCell,
@@ -200,4 +208,4 @@ const GameKeyboardShortcuts: React.FC = () => {
   return null;
 };
 
-export default GameKeyboardShortcuts;
+export default GridShortcuts;

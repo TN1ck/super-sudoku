@@ -28,9 +28,15 @@ export const INITIAL_SUDOKU_STATE: SudokuState = {
   historyIndex: 0,
 };
 
+export const INITIAL_CREATE_NEW_SUDOKU_STATE: SudokuState = {
+  current: emptyGrid,
+  history: [emptyGrid],
+  historyIndex: 0,
+};
+
 // Action types
-export const SET_SUDOKU = "sudoku/SET_SUDOKU";
-export const SET_SUDOKU_STATE = "sudoku/SET_SUDOKU_STATE";
+const SET_SUDOKU = "sudoku/SET_SUDOKU";
+const SET_SUDOKU_STATE = "sudoku/SET_SUDOKU_STATE";
 const GET_HINT = "sudoku/GET_HINT";
 const CLEAR_CELL = "sudoku/CLEAR_CELL";
 const SET_NOTES = "sudoku/SET_NOTES";
