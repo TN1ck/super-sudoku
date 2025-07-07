@@ -23,6 +23,7 @@ import {throttle} from "lodash";
 import {TimerProvider} from "src/context/TimerContext";
 import {useEffect} from "react";
 import {CellCoordinates, SimpleSudoku} from "src/lib/engine/types";
+import {DarkModeButton} from "src/components/DarkModeButton";
 
 function PauseButton({
   disabled,
@@ -75,73 +76,17 @@ const NewGameButton: React.FC = () => {
   const {pauseGame} = useGame();
   const navigate = useNavigate();
 
-  const pauseAndChoose = () => {
+  const pauseAndChoose = async () => {
     pauseGame();
-    navigate({to: "/select-game"});
+    await navigate({
+      to: "/select-game",
+    });
   };
 
   return (
     <Button className="bg-teal-600 dark:bg-teal-600 text-white" onClick={pauseAndChoose}>
       {"New"}
     </Button>
-  );
-};
-
-const ToggleDarkModeButton = () => {
-  const [darkMode, setDarkMode] = React.useState(() => {
-    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
-      const savedMode = localStorage.getItem("darkMode");
-      if (savedMode !== null) {
-        return JSON.parse(savedMode);
-      }
-      return window.matchMedia("(prefers-color-scheme: dark)").matches;
-    }
-    return false;
-  });
-
-  React.useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add("dark");
-    } else {
-      document.body.classList.remove("dark");
-    }
-    if (typeof localStorage !== "undefined") {
-      localStorage.setItem("darkMode", JSON.stringify(darkMode));
-    }
-  }, [darkMode]);
-
-  React.useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = (e: MediaQueryListEvent) => {
-      const newMode = e.matches;
-      setDarkMode(newMode);
-      if (typeof localStorage !== "undefined") {
-        localStorage.setItem("darkMode", JSON.stringify(newMode));
-      }
-    };
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
-
-  const toggleDarkMode = () => {
-    setDarkMode((prevMode: boolean) => {
-      const newMode = !prevMode;
-      if (typeof localStorage !== "undefined") {
-        localStorage.setItem("darkMode", JSON.stringify(newMode));
-      }
-      return newMode;
-    });
-  };
-
-  return (
-    <button onClick={toggleDarkMode} className="md:h-10 md:w-10 h-8 w-8 rounded-sm p-1 hover:bg-gray-800">
-      <svg className="fill-violet-700 block dark:hidden" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
-      </svg>
-      <svg className="fill-yellow-500 hidden dark:block" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path>
-      </svg>
-    </button>
   );
 };
 
@@ -346,7 +291,7 @@ const GameInner: React.FC<{
           <div className="flex">
             <div className="flex gap-2 flex-col justify-end items-end sm:flex-row">
               <div className="flex gap-2">
-                <ToggleDarkModeButton />
+                <DarkModeButton />
                 <ClearGameButton
                   pauseGame={pauseGame}
                   continueGame={continueGame}
@@ -416,7 +361,7 @@ const GameInner: React.FC<{
                 </div>
               )}
 
-              <CenteredContinueButton visible={pausedGame} onClick={continueGame} />
+              <CenteredContinueButton visible={pausedGame && !game.won} onClick={continueGame} />
             </Sudoku>
           </main>
           <div className="grid gap-4 mt-4">
@@ -506,24 +451,29 @@ const GameWithRouteManagement = () => {
   const [initialized, setInitialized] = React.useState(false);
   const navigate = useNavigate();
 
+  const currentPath = location.pathname;
   const search = location.search;
   const sudokuIndex = search["sudokuIndex"] as number | undefined;
   const sudoku = search["sudoku"] as string | undefined;
   const sudokuCollectionName = search["sudokuCollectionName"] as string | undefined;
 
   useEffect(() => {
-    if (gameState && sudokuState && initialized) {
+    if (gameState && sudokuState && initialized && currentPath === "/") {
       throttledSave(gameState, sudokuState);
-      // Also update the URL to the current game state.
-      navigate({
-        replace: true,
-        to: "/",
-        search: {
-          sudokuIndex: gameState.sudokuIndex + 1,
-          sudoku: stringifySudoku(cellsToSimpleSudoku(sudokuState.current)),
-          sudokuCollectionName: gameState.sudokuCollectionName,
-        },
-      });
+      // Also update the URL to the current game state if it differs.
+      const stringifiedSudoku = stringifySudoku(cellsToSimpleSudoku(sudokuState.current));
+      const shouldUpdateUrl = stringifiedSudoku !== sudoku;
+      if (shouldUpdateUrl) {
+        navigate({
+          replace: true,
+          to: "/",
+          search: {
+            sudokuIndex: gameState.sudokuIndex + 1,
+            sudoku: stringifiedSudoku,
+            sudokuCollectionName: gameState.sudokuCollectionName,
+          },
+        });
+      }
     }
   }, [gameState, sudokuState, initialized]);
 
@@ -532,12 +482,14 @@ const GameWithRouteManagement = () => {
   React.useEffect(() => {
     // If the URL does not contain a sudoku, we don't need to do anything.
     if (sudokuIndex === undefined || sudoku === undefined || sudokuCollectionName === undefined) {
+      setInitialized(true);
       return;
     }
 
     const currentSudoku = cellsToSimpleSudoku(sudokuState.current);
     // If the current sudoku is the same as the one in the URL, we don't need to do anything.
     if (stringifySudoku(currentSudoku) === sudoku) {
+      setInitialized(true);
       return;
     }
 
@@ -545,7 +497,7 @@ const GameWithRouteManagement = () => {
     // We only show a message if the user has played for more than 5 seconds and has not won.
     if (gameState.secondsPlayed > 5 && !gameState.won) {
       const areYouSure = confirm(
-        `You are currently playing sudoku ${gameState.sudokuCollectionName} #${gameState.sudokuIndex}, do you want to pause it and start ${sudokuCollectionName} #${sudokuIndex}?`,
+        `You are currently playing sudoku ${gameState.sudokuCollectionName} #${gameState.sudokuIndex + 1}, do you want to pause it and start ${sudokuCollectionName} #${sudokuIndex}?`,
       );
       if (!areYouSure) {
         setInitialized(true);

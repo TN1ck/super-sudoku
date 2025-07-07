@@ -53,7 +53,6 @@ const GridShortcuts: React.FC<{
   });
 
   React.useEffect(() => {
-    console.log("setting up hotkeys");
     const getCellByXY = (x: number, y: number) => {
       return stateRef.current.sudoku.find((cell) => {
         return cell.x === x && cell.y === y;
@@ -69,10 +68,7 @@ const GridShortcuts: React.FC<{
     const minCoordinate = SUDOKU_COORDINATES[0];
     const maxCoordinate = SUDOKU_COORDINATES[SUDOKU_COORDINATES.length - 1];
 
-    console.log("set up hotkeys");
-
     hotkeys("up", SHORTCUT_SCOPE, () => {
-      console.log("up");
       const currentCell = stateRef.current.activeCell;
       if (currentCell === undefined) {
         return setDefault();

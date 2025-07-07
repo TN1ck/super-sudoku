@@ -115,6 +115,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         won: true,
+        state: GameStateMachine.paused,
         timesSolved: justWon ? state.timesSolved + 1 : state.timesSolved,
         previousTimes: justWon ? [...state.previousTimes, state.secondsPlayed] : state.previousTimes,
       };
@@ -124,6 +125,10 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         state: GameStateMachine.paused,
       };
     case CONTINUE_GAME:
+      // You can't continue a game that is won.
+      if (state.won) {
+        return state;
+      }
       return {
         ...state,
         state: GameStateMachine.running,
