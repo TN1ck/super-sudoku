@@ -1,4 +1,4 @@
-import {groupBy, sortBy} from "src/utils/collection";
+import {groupBy, sortBy} from "../../utils/collection";
 import {SimpleSudoku, Cell} from "./types";
 export const SUDOKU_COORDINATES = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 export const SUDOKU_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
