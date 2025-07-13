@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "types": ["vite/client", "@types/node", "@types/jest"],
+    "types": ["vite/client", "@types/node"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -15,6 +15,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react",
+    "baseUrl": ".",
     "paths": {
       "src/*": [
         "./src/*"

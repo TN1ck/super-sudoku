@@ -1,6 +1,6 @@
 import {SQUARE_TABLE, SUDOKU_NUMBERS, squareIndex} from "./utility";
 import {SimpleSudoku} from "./types";
-import {sortBy} from "lodash";
+import {sortBy} from "src/utils/collection";
 
 export type DomainSudoku = number[][][];
 

@@ -1,6 +1,7 @@
-import {solve} from "../solverAC3";
-import {parseSudoku} from "../utility";
-import {mean} from "lodash";
+import {mean} from "src/utils/collection";
+import {solve} from "./solverAC3";
+import {parseSudoku} from "./utility";
+import {describe, it, expect} from "vitest";
 
 interface SudokusWithStats {
   sudokus: string[];

@@ -1,6 +1,7 @@
-import {solve} from "../solverAC3";
-import {stringifySudoku} from "../utility";
-import {EMPTY_SUDOKU, SOLVED_SUDOKUS} from "../testutils";
+import {solve} from "./solverAC3";
+import {stringifySudoku} from "./utility";
+import {EMPTY_SUDOKU, SOLVED_SUDOKUS} from "./testutils";
+import {describe, it, expect} from "vitest";
 
 describe("solve", () => {
   SOLVED_SUDOKUS.forEach((s, i) => {
