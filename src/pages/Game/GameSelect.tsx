@@ -1,9 +1,8 @@
 import * as React from "react";
 
-import {getCollections, getSudokusPaginated, SudokuRaw, useSudokuCollections} from "src/lib/game/sudokus";
-import {DIFFICULTY, SimpleSudoku} from "src/lib/engine/types";
+import {getSudokusPaginated, SudokuRaw, useSudokuCollections} from "src/lib/game/sudokus";
+import {SimpleSudoku} from "src/lib/engine/types";
 import SudokuPreview from "../../components/sudoku/SudokuPreview";
-import {GameStateMachine} from "src/context/GameContext";
 import {formatDuration} from "src/utils/format";
 import {useState} from "react";
 import Button from "src/components/Button";
@@ -11,7 +10,7 @@ import {stringifySudoku} from "src/lib/engine/utility";
 import {useElementWidth} from "src/utils/hooks";
 import {useNavigate} from "@tanstack/react-router";
 import {localStoragePlayedSudokuRepository, StoredPlayedSudokuState} from "src/lib/database/playedSudokus";
-import {Collection, localStorageCollectionRepository} from "src/lib/database/collections";
+import {Collection} from "src/lib/database/collections";
 import NewSudoku from "./NewSudoku";
 
 const TabItem = ({active, children, ...props}: React.ButtonHTMLAttributes<HTMLButtonElement> & {active: boolean}) => (
@@ -234,11 +233,7 @@ const GameSelect: React.FC = () => {
   const [page, setPage] = useState(0);
 
   const pageSize = 12;
-  const {
-    sudokus: pageSudokus,
-    totalPages: pageCount,
-    totalRows,
-  } = usePaginatedSudokus(activeCollection, page, pageSize);
+  const {sudokus: pageSudokus, totalPages: pageCount} = usePaginatedSudokus(activeCollection, page, pageSize);
   const pageStart = page * pageSize;
 
   const setActiveCollectionAndResetPage = (collection: string) => {
@@ -319,7 +314,7 @@ const GameSelect: React.FC = () => {
             <Button onClick={() => setShowNewSudokuComponent(false)}>{"Close"}</Button>
           </div>
           <p className="text-white">{`Add your own sudoku. Set the numbers and you can play it. This sudoku will be added to the "${activeCollection.name}" collection.`}</p>
-          <NewSudoku collection={activeCollection} saveSudoku={saveSudoku} />
+          <NewSudoku saveSudoku={saveSudoku} />
         </div>
       )}
       <GameIndex pageSudokus={pageSudokus} pageStart={pageStart} sudokuCollectionName={activeCollection.name} />

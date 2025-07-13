@@ -75,7 +75,7 @@ const legacyLoadPlayedSudokusFromLocalStorage = (): StoredPlayedSudokusState => 
       return result;
     } catch (e) {
       // delete entry but save it as corrupted, so one might be able to restore it
-      console.error("File corrupted: will delete and save as corrupted.");
+      console.error("File corrupted: will delete and save as corrupted.", e);
       localStorage.setItem(STORAGE_KEY_V_1_5 + "_corrupted_" + new Date().toISOString(), text);
       localStorage.removeItem(STORAGE_KEY_V_1_5);
       return empty;

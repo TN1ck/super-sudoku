@@ -1,4 +1,6 @@
-import {groupBy, uniq, uniqBy} from "lodash";
+import groupBy from "lodash-es/groupBy";
+import uniq from "lodash-es/uniq";
+import uniqBy from "lodash-es/uniqBy";
 import {SUDOKU_NUMBERS} from "src/lib/engine/utility";
 import {Cell} from "src/lib/engine/types";
 
@@ -86,7 +88,7 @@ export default class SudokuGame {
     };
   }
 
-  static isSolved(sudoku: Cell[]): Boolean {
+  static isSolved(sudoku: Cell[]): boolean {
     if (!sudoku) {
       return false;
     }
@@ -112,7 +114,7 @@ export default class SudokuGame {
     return sudoku.map((c) => this.getCellPosition(c, width, height));
   }
 
-  static correct(sudoku: Cell[]): Boolean {
+  static correct(sudoku: Cell[]): boolean {
     if (!sudoku) {
       return false;
     }

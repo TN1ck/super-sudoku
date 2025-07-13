@@ -1,6 +1,4 @@
 import * as React from "react";
-import {GameStateMachine} from "src/context/GameContext";
-import {emptyGrid} from "src/context/SudokuContext";
 
 import SudokuMenuCircle, {MenuWrapper, MenuContainer} from "./SudokuMenuCircle";
 import {
@@ -14,11 +12,8 @@ import {
 import SudokuGame from "src/lib/game/SudokuGame";
 import {Bounds} from "src/components/sudoku/types";
 import {Cell, CellCoordinates} from "src/lib/engine/types";
-import {flatten} from "src/utils/collection";
-import Button from "src/components/Button";
-import {formatDuration} from "src/utils/format";
+import flatten from "lodash-es/flatten";
 import {useElementWidth} from "src/utils/hooks";
-import {Link} from "@tanstack/react-router";
 
 const SudokuGrid = React.memo(
   ({width, height, hideLeftRight = false}: {width: number; height: number; hideLeftRight?: boolean}) => {
@@ -124,9 +119,22 @@ interface SudokuProps {
   children: React.ReactNode;
 }
 
-export const Sudoku: React.FC<SudokuProps> = (props) => {
-  const {sudoku, showHints, activeCell: passedActiveCell} = props;
-
+export const Sudoku: React.FC<SudokuProps> = ({
+  sudoku,
+  showHints,
+  activeCell: passedActiveCell,
+  hideMenu,
+  showMenu,
+  selectCell,
+  setNumber,
+  setNotes,
+  clearNumber,
+  children,
+  showConflicts,
+  showWrongEntries,
+  notesMode,
+  shouldShowMenu,
+}) => {
   const height = 100;
   const width = 100;
 
@@ -162,32 +170,31 @@ export const Sudoku: React.FC<SudokuProps> = (props) => {
 
   React.useEffect(() => {
     const handleClick = () => {
-      if (props.activeCell !== null) {
-        props.hideMenu();
+      if (activeCell !== null) {
+        hideMenu();
       }
     };
 
     window.addEventListener("click", handleClick);
     return () => window.removeEventListener("click", handleClick);
-  }, [props.activeCell, props.hideMenu]);
+  }, [activeCell, hideMenu]);
 
   return (
     <div className="relative" ref={sudokuContainerRef} style={{height: containerWidth}}>
-      {props.children}
+      {children}
       <div className="absolute h-full w-full rounded-sm">
         <SudokuGrid width={width} height={height} hideLeftRight />
         {sudoku.map((c, i) => {
           const onClick = () => {
-            props.selectCell(c);
+            selectCell(c);
             if (!c.initial) {
-              props.showMenu();
+              showMenu();
             }
           };
-          1;
           const onRightClick = () => {
-            props.selectCell(c);
+            selectCell(c);
             if (!c.initial) {
-              props.showMenu(true);
+              showMenu(true);
             }
           };
           const position = positionedCells[i];
@@ -196,7 +203,7 @@ export const Sudoku: React.FC<SudokuProps> = (props) => {
           const notes = showHints && c.notes.length === 0 ? conflicted.possibilities : c.notes;
 
           const inConflictPath =
-            props.showConflicts &&
+            showConflicts &&
             pathCells.some((d) => {
               return d.x === c.x && d.y === c.y;
             });
@@ -212,7 +219,7 @@ export const Sudoku: React.FC<SudokuProps> = (props) => {
           const highlight = friendsOfActiveCell.some((cc) => {
             return cc.x === c.x && cc.y === c.y;
           });
-          const isWrong = props.showWrongEntries && (c.number === 0 ? false : c.solution !== c.number);
+          const isWrong = showWrongEntries && (c.number === 0 ? false : c.solution !== c.number);
           const highlightNumber = activeCell && c.number !== 0 ? activeCell.number === c.number : false;
 
           return (
@@ -230,11 +237,11 @@ export const Sudoku: React.FC<SudokuProps> = (props) => {
               notes={notes}
               number={c.number}
               initial={c.initial}
-              notesMode={props.notesMode}
+              notesMode={notesMode}
             />
           );
         })}
-        {activeCell && props.shouldShowMenu ? (
+        {activeCell && shouldShowMenu ? (
           <MenuContainer
             bounds={{
               top: ySection * selectionPosition.y,
@@ -246,13 +253,13 @@ export const Sudoku: React.FC<SudokuProps> = (props) => {
             <MenuWrapper>
               <SudokuMenuCircle
                 cell={activeCell}
-                notesMode={props.notesMode}
-                showHints={props.showHints}
-                setNumber={props.setNumber}
-                setNotes={props.setNotes}
-                clearNumber={props.clearNumber}
+                notesMode={notesMode}
+                showHints={showHints}
+                setNumber={setNumber}
+                setNotes={setNotes}
+                clearNumber={clearNumber}
                 sudoku={sudoku}
-                showMenu={props.showMenu}
+                showMenu={showMenu}
               />
             </MenuWrapper>
           </MenuContainer>

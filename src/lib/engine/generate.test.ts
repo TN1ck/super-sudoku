@@ -21,7 +21,6 @@ describe("generate", () => {
   it("generates the difficult sudoku using a seed", () => {
     const randomFn = createSeededRandom(10);
     const sudoku = generateSudoku(DIFFICULTY.EVIL, randomFn);
-    const stringified = stringifySudoku(sudoku.sudoku);
     // Check if it is unique.
     expect(isSudokuUnique(sudoku.sudoku)).toBe(true);
     // Check if it can be solved.
@@ -32,7 +31,6 @@ describe("generate", () => {
   it("generates the difficult sudoku using a seed", () => {
     const randomFn = createSeededRandom(4);
     const sudoku = generateSudoku(DIFFICULTY.EVIL, randomFn);
-    const stringified = stringifySudoku(sudoku.sudoku);
     // Check if it is unique.
     expect(isSudokuUnique(sudoku.sudoku)).toBe(true);
     // Check if it can be solved.

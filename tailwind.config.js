@@ -1,8 +1,10 @@
-module.exports = {
+import forms from "@tailwindcss/forms";
+
+export default {
   darkMode: "selector",
   mode: "jit",
   content: ["./src/**/*.{js,jsx,ts,tsx}", "./index.html"],
-  plugins: [require("@tailwindcss/forms")],
+  plugins: [forms],
   theme: {
     extend: {
       fontFamily: {

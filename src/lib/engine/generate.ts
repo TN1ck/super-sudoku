@@ -29,7 +29,7 @@ import {solve, solve as solveAC3} from "./solverAC3";
 
 import {SUDOKU_NUMBERS, SUDOKU_COORDINATES, SQUARE_TABLE} from "./utility";
 import {DIFFICULTY, SimpleSudoku} from "./types";
-import flatten from "lodash/flatten";
+import flatten from "lodash-es/flatten";
 import {sample, shuffle} from "./seededRandom";
 
 export const DIFFICULTY_GOALS = {

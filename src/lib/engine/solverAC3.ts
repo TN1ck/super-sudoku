@@ -1,26 +1,26 @@
 import {SQUARE_TABLE, SUDOKU_NUMBERS, squareIndex} from "./utility";
 import {SimpleSudoku} from "./types";
-import {sortBy} from "../../utils/collection";
+import sortBy from "lodash-es/sortBy";
 
 export type DomainSudoku = number[][][];
 
-function removeValuesFromDomain(domain1: number[], domain2: number[]): [number[], boolean] {
-  let change = false;
-  // this is an optimization:
-  // AC3 checks if there is a value in domain1 that
-  // does not comply the constraint with at least one value in domain2.
-  // But because the constraint is inequality, the case happens only
-  // when the domain2 is just one variable. The <= is just a safe-check.
-  if (domain2.length <= 1) {
-    const index = domain1.indexOf(domain2[0]);
-    if (index !== -1) {
-      domain1 = domain1.slice();
-      domain1.splice(index, 1);
-      change = true;
-    }
-  }
-  return [domain1, change];
-}
+// function removeValuesFromDomain(domain1: number[], domain2: number[]): [number[], boolean] {
+//   let change = false;
+//   // this is an optimization:
+//   // AC3 checks if there is a value in domain1 that
+//   // does not comply the constraint with at least one value in domain2.
+//   // But because the constraint is inequality, the case happens only
+//   // when the domain2 is just one variable. The <= is just a safe-check.
+//   if (domain2.length <= 1) {
+//     const index = domain1.indexOf(domain2[0]);
+//     if (index !== -1) {
+//       domain1 = domain1.slice();
+//       domain1.splice(index, 1);
+//       change = true;
+//     }
+//   }
+//   return [domain1, change];
+// }
 
 function toSimpleSudoku(grid: DomainSudoku): SimpleSudoku {
   return grid.map((row) => {

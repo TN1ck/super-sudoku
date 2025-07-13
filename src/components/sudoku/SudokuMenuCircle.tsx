@@ -57,10 +57,10 @@ const MenuCirclePart = React.memo(
   }: {
     radius: number;
     isActive: boolean;
-    onClick: (e: any) => void;
+    onClick: React.MouseEventHandler<SVGCircleElement> | undefined;
     minRad: number;
     maxRad: number;
-    children?: React.ReactChild;
+    children?: React.ReactNode;
     stroke: string;
   }) => {
     const yOffset = 7;

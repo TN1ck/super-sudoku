@@ -1,4 +1,4 @@
-import {mean} from "src/utils/collection";
+import mean from "lodash-es/mean";
 import {solve} from "./solverAC3";
 import {parseSudoku} from "./utility";
 import {describe, it, expect} from "vitest";
@@ -451,7 +451,7 @@ const WEBSUDOKU_SUDOKUS_WITH_DIFFICULTY: SudokusWithStats[] = [
 describe("websudoku difficulties", () => {
   // websudoku only has easy, medium, hard, evil
   WEBSUDOKU_SUDOKUS_WITH_DIFFICULTY.forEach((s) => {
-    const solutions = s.sudokus.map((s, i) => {
+    const solutions = s.sudokus.map((s) => {
       return solve(parseSudoku(s));
     });
     it("the average number of iterations is correctly adjusted for the difficulty levels", () => {
@@ -589,7 +589,7 @@ const SUDOKU_DOT_COM_SUDOKUS_WITH_DIFFICULTY: SudokusWithStats[] = [
 describe("sudoku.com difficulties", () => {
   // websudoku only has easy, medium, hard, evil
   SUDOKU_DOT_COM_SUDOKUS_WITH_DIFFICULTY.forEach((s) => {
-    let solutions = s.sudokus.map((s, i) => {
+    let solutions = s.sudokus.map((s) => {
       return solve(parseSudoku(s));
     });
     it("the average number of iterations is correctly adjusted for the difficulty levels", () => {

@@ -1,23 +1,14 @@
 import hotkeys from "hotkeys-js";
 import * as React from "react";
-import {useMemo} from "react";
 import Button from "src/components/Button";
 import {Sudoku} from "src/components/sudoku/Sudoku";
 import {EraseButton, UndoButton} from "src/components/sudoku/SudokuMenuControls";
 import SudokuMenuNumbers from "src/components/sudoku/SudokuMenuNumbers";
-import {
-  emptyGrid,
-  INITIAL_CREATE_NEW_SUDOKU_STATE,
-  INITIAL_SUDOKU_STATE,
-  SudokuProvider,
-  useSudoku,
-} from "src/context/SudokuContext";
-import {Collection} from "src/lib/database/collections";
+import {INITIAL_CREATE_NEW_SUDOKU_STATE, SudokuProvider, useSudoku} from "src/context/SudokuContext";
 import {solve} from "src/lib/engine/solverAC3";
 import {Cell, CellCoordinates, SimpleSudoku} from "src/lib/engine/types";
-import {cellsToSimpleSudoku, stringifySudoku, SUDOKU_COORDINATES, SUDOKU_NUMBERS} from "src/lib/engine/utility";
+import {cellsToSimpleSudoku, SUDOKU_COORDINATES, SUDOKU_NUMBERS} from "src/lib/engine/utility";
 import {useSudokuUniqueWorker} from "src/utils/useSudokuUniqueWorker";
-import SudokuGame from "src/lib/game/SudokuGame";
 
 const SHORTCUT_SCOPE = "new-sudoku";
 
@@ -260,13 +251,7 @@ const NewSudokuInner = ({saveSudoku}: {saveSudoku: (sudoku: SimpleSudoku) => Pro
   );
 };
 
-const NewSudoku = ({
-  collection,
-  saveSudoku,
-}: {
-  collection: Collection;
-  saveSudoku: (sudoku: SimpleSudoku) => Promise<void>;
-}) => {
+const NewSudoku = ({saveSudoku}: {saveSudoku: (sudoku: SimpleSudoku) => Promise<void>}) => {
   return (
     <div>
       <SudokuProvider initialState={INITIAL_CREATE_NEW_SUDOKU_STATE}>

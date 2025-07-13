@@ -5,10 +5,6 @@ import {createRootRoute, createRoute, createRouter, RouterProvider} from "@tanst
 import Game from "./pages/Game";
 import SelectGame from "./pages/SelectGame";
 import {OfflineIndicator} from "./components/OfflineIndicator";
-import {localStoragePlayedSudokuRepository} from "./lib/database/playedSudokus";
-import {START_SUDOKU, START_SUDOKU_COLLECTION} from "./lib/game/sudokus";
-import {START_SUDOKU_INDEX} from "./lib/game/sudokus";
-import {cellsToSimpleSudoku, stringifySudoku} from "./lib/engine/utility";
 
 const rootRoute = createRootRoute();
 
