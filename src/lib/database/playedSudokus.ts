@@ -96,7 +96,13 @@ function getSudokuFromStorage(sudokuKey: string): StoredPlayedSudokuState | unde
   // V1.6
   const sudokuFromStorage = localStorage.getItem(createSudokuKey(sudokuKey));
   if (sudokuFromStorage) {
-    return JSON.parse(sudokuFromStorage) as StoredPlayedSudokuState;
+    const sudoku = JSON.parse(sudokuFromStorage) as StoredPlayedSudokuState;
+    // There is a bug that the collection name might not be set, then we just use the difficulty.
+    const difficulty = (sudoku.game as any).difficulty;
+    if (!sudoku.game.sudokuCollectionName && difficulty) {
+      sudoku.game.sudokuCollectionName = difficulty;
+    }
+    return sudoku;
   }
 
   // TODO: Remove after a year (today is 2025-06-28).
