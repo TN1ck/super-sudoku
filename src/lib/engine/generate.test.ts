@@ -1,9 +1,10 @@
-import generateSudoku, {isSudokuUnique} from "../generate";
-import {createSeededRandom} from "../seededRandom";
-import {solve} from "../solverAC3";
-import {EMPTY_SUDOKU, SOLVED_SUDOKUS} from "../testutils";
-import {DIFFICULTY} from "../types";
-import {stringifySudoku} from "../utility";
+import generateSudoku, {isSudokuUnique} from "./generate";
+import {createSeededRandom} from "./seededRandom";
+import {solve} from "./solverAC3";
+import {EMPTY_SUDOKU, SOLVED_SUDOKUS} from "./testutils";
+import {DIFFICULTY} from "./types";
+import {stringifySudoku} from "./utility";
+import {describe, it, expect} from "vitest";
 
 describe("generate", () => {
   it("generates the same sudoku using a seed", () => {
@@ -20,7 +21,6 @@ describe("generate", () => {
   it("generates the difficult sudoku using a seed", () => {
     const randomFn = createSeededRandom(10);
     const sudoku = generateSudoku(DIFFICULTY.EVIL, randomFn);
-    const stringified = stringifySudoku(sudoku.sudoku);
     // Check if it is unique.
     expect(isSudokuUnique(sudoku.sudoku)).toBe(true);
     // Check if it can be solved.
@@ -31,7 +31,6 @@ describe("generate", () => {
   it("generates the difficult sudoku using a seed", () => {
     const randomFn = createSeededRandom(4);
     const sudoku = generateSudoku(DIFFICULTY.EVIL, randomFn);
-    const stringified = stringifySudoku(sudoku.sudoku);
     // Check if it is unique.
     expect(isSudokuUnique(sudoku.sudoku)).toBe(true);
     // Check if it can be solved.

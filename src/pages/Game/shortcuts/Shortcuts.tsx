@@ -44,17 +44,13 @@ const Shortcuts: React.FC<ShortcutsProps> = ({
   selectCell,
 }) => {
   useEffect(() => {
-    selectShortcutState();
-  }, [gameState]);
-
-  const selectShortcutState = () => {
     if (gameState === GameStateMachine.paused) {
       hotkeys.setScope(ShortcutScope.Menu);
     }
     if (gameState === GameStateMachine.running) {
       hotkeys.setScope(ShortcutScope.Game);
     }
-  };
+  }, [gameState]);
 
   return (
     <div>

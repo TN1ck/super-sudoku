@@ -15,11 +15,13 @@ const Checkbox: React.FC<{
             onChange(e.target.checked);
             // So the keyboard works again.
             // TODO: find a better solution for this.
-            (document.activeElement as any).blur();
+            if (document.activeElement instanceof HTMLElement) {
+              document.activeElement.blur();
+            }
           }}
-          id="comments"
-          aria-describedby="comments-description"
-          name="comments"
+          id={id}
+          aria-describedby={`${id}-description`}
+          name={id}
           type="checkbox"
           className="h-6 w-6 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
         />

@@ -37,7 +37,7 @@ const SudokuMenuNumbers: React.FC<SudokuMenuNumbersProps> = ({
         const autoNotes = (showHints ? conflictingCell?.possibilities : []) ?? [];
 
         const setNumberOrNote = () => {
-          if (!activeCell) return;
+          if (!activeCell) {return;}
 
           if (notesMode) {
             const startingNotes = userNotes.length === 0 && autoNotes.length > 0 ? autoNotes : userNotes;

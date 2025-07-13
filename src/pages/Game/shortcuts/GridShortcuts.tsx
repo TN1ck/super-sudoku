@@ -22,7 +22,6 @@ const GridShortcuts: React.FC<{
   showHints: boolean;
   selectCell: (cell: Cell) => void;
 }> = ({
-  continueGame,
   pauseGame,
   activateNotesMode,
   deactivateNotesMode,

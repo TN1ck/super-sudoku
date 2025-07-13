@@ -16,7 +16,7 @@ import Shortcuts from "./Game/shortcuts/Shortcuts";
 import Checkbox from "src/components/Checkbox";
 import {cellsToSimpleSudoku, stringifySudoku, parseSudoku} from "src/lib/engine/utility";
 import {solve} from "src/lib/engine/solverAC3";
-import {Link, ReactNode, useLocation, useNavigate} from "@tanstack/react-router";
+import {Link, useLocation, useNavigate} from "@tanstack/react-router";
 import {localStoragePlayedSudokuRepository} from "src/lib/database/playedSudokus";
 import {formatDuration} from "src/utils/format";
 import {throttle} from "lodash";
@@ -100,6 +100,7 @@ const ShareButton: React.FC<{
     try {
       await navigator.clipboard.writeText(text);
     } catch (error) {
+      console.error("Error copying to clipboard", error);
       // Fallback for older browsers
       const textArea = document.createElement("textarea");
       textArea.value = text;
@@ -196,15 +197,20 @@ const SettingsAndInformation = () => {
           <p className="text-white">
             This sudoku app is and will be free of charge, free of ads and free of tracking. Its source code is
             available at{" "}
-            <a target="_blank" className="underline" href="https://github.com/TN1ck/super-sudoku">
+            <a target="_blank" className="underline" href="https://github.com/TN1ck/super-sudoku" rel="noreferrer">
               Github
             </a>
             .{" "}
-            <a href="https://tn1ck.com" target="_blank" className="hover:underline">
+            <a href="https://tn1ck.com" target="_blank" className="hover:underline" rel="noreferrer">
               {"Created by Tom Nick."}
             </a>
             If you find a bug or experience any issues, please report it on{" "}
-            <a target="_blank" className="underline" href="https://github.com/TN1ck/super-sudoku/issues">
+            <a
+              target="_blank"
+              className="underline"
+              href="https://github.com/TN1ck/super-sudoku/issues"
+              rel="noreferrer"
+            >
               Github
             </a>
             .
@@ -263,6 +269,16 @@ const GameInner: React.FC<{
       wonGame();
     }
   }, [sudoku, wonGame]);
+  const onVisibilityChange = React.useCallback(() => {
+    if (document.visibilityState === "hidden") {
+      pauseGame();
+    } else {
+      // So the user knows that it was paused, we wait a bit before continuing.
+      setTimeout(() => {
+        continueGame();
+      }, 200);
+    }
+  }, [pauseGame, continueGame]);
 
   React.useEffect(() => {
     if (typeof document !== "undefined") {
@@ -274,18 +290,7 @@ const GameInner: React.FC<{
         document.removeEventListener("visibilitychange", onVisibilityChange, false);
       }
     };
-  }, []);
-
-  const onVisibilityChange = React.useCallback(() => {
-    if (document.visibilityState === "hidden") {
-      pauseGame();
-    } else {
-      // So the user knows that it was paused, we wait a bit before continuing.
-      setTimeout(() => {
-        continueGame();
-      }, 200);
-    }
-  }, [game.state, pauseGame, continueGame]);
+  }, [onVisibilityChange]);
 
   const pausedGame = game.state === GameStateMachine.paused;
   const activeCell = game.activeCellCoordinates
@@ -512,7 +517,7 @@ const GameWithRouteManagement = () => {
         });
       }
     }
-  }, [gameState, sudokuState, initialized]);
+  }, [gameState, sudokuState, initialized, currentPath, sudoku, navigate]);
 
   // In the AppProvider, we load the sudoku from the local storage.
   // TODO: Combine it with this logic.
@@ -556,6 +561,7 @@ const GameWithRouteManagement = () => {
     } catch (error) {
       alert("The URL contains an invalid sudoku.");
       setInitialized(true);
+      console.error(error);
       return;
     }
 
@@ -580,7 +586,22 @@ const GameWithRouteManagement = () => {
     }
     setInitialized(true);
     continueGame();
-  }, [sudokuIndex, sudoku, sudokuCollectionName, setGameState, setSudokuState, setInitialized, continueGame]);
+  }, [
+    sudokuIndex,
+    sudoku,
+    sudokuCollectionName,
+    setGameState,
+    setSudokuState,
+    setInitialized,
+    continueGame,
+    sudokuState,
+    gameState.secondsPlayed,
+    gameState.won,
+    gameState.sudokuCollectionName,
+    gameState.sudokuIndex,
+    newGame,
+    setSudoku,
+  ]);
 
   return (
     <GameInner

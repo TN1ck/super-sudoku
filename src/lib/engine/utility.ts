@@ -1,4 +1,5 @@
-import {groupBy, keys, pickBy, sortBy, values} from "lodash";
+import groupBy from "lodash-es/groupBy";
+import sortBy from "lodash-es/sortBy";
 import {SimpleSudoku, Cell} from "./types";
 export const SUDOKU_COORDINATES = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 export const SUDOKU_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -30,7 +31,9 @@ export const SQUARE_TABLE = (function () {
     return Math.floor(y / 3) * 3 + Math.floor(x / 3);
   });
   // we sort them, so we can use an optimization
-  const squares = sortBy(keys(grouped), (k) => k).map((k) => sortBy(grouped[k], ([x, y]) => `${y}-${x}`));
+  const squares = sortBy(Object.keys(grouped), (k) => k).map((k) =>
+    sortBy(grouped[Number(k)], ([x, y]) => `${y}-${x}`),
+  );
   return squares;
 })();
 
@@ -81,13 +84,6 @@ export function stringifySudoku(grid: SimpleSudoku) {
       return row.map((c) => (c === 0 ? "0" : c.toString())).join("");
     })
     .join("");
-}
-
-export function duplicates(array: number[]): number {
-  const filtered = array.filter((c) => c !== 0);
-  const grouped = groupBy(filtered, (c) => c);
-  const picked = pickBy(grouped, (x) => x.length > 1);
-  return values(picked).length;
 }
 
 export function parseSudoku(sudoku: string): SimpleSudoku {
