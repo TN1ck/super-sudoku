@@ -24,6 +24,8 @@ import {TimerProvider} from "src/context/TimerContext";
 import {useEffect} from "react";
 import {CellCoordinates, SimpleSudoku} from "src/lib/engine/types";
 import {DarkModeButton} from "src/components/DarkModeButton";
+import LanguageSelector from "src/components/LanguageSelector";
+import { useTranslation } from "react-i18next";
 
 function PauseButton({
   disabled,
@@ -36,9 +38,10 @@ function PauseButton({
   pauseGame: () => void;
   continueGame: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Button disabled={disabled} onClick={paused ? continueGame : pauseGame}>
-      {paused ? "Continue" : "Pause"}
+      {paused ? t("continue") : t("pause")}
     </Button>
   );
 }
@@ -49,11 +52,12 @@ const ClearGameButton: React.FC<{
   continueGame: () => void;
   disabled: boolean;
 }> = ({clearGame, pauseGame, continueGame, disabled}) => {
+  const { t } = useTranslation();
   const clearGameLocal = async () => {
     pauseGame();
     // Wait 50ms to make sure the game is shown as paused when in the confirm dialog.
     await new Promise((resolve) => setTimeout(resolve, 30));
-    const areYouSure = confirm("Are you sure? This will clear the sudoku and reset the timer.");
+    const areYouSure = confirm(t("confirm_clear"));
     if (!areYouSure) {
       continueGame();
       return;
@@ -67,7 +71,7 @@ const ClearGameButton: React.FC<{
 
   return (
     <Button disabled={disabled} onClick={clearGameLocal}>
-      {"Clear"}
+      {t("clear")}
     </Button>
   );
 };
@@ -75,6 +79,7 @@ const ClearGameButton: React.FC<{
 const NewGameButton: React.FC = () => {
   const {pauseGame} = useGame();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const pauseAndChoose = async () => {
     pauseGame();
@@ -85,7 +90,7 @@ const NewGameButton: React.FC = () => {
 
   return (
     <Button className="bg-teal-600 dark:bg-teal-600 text-white" onClick={pauseAndChoose}>
-      {"New"}
+      {t("new_game")}
     </Button>
   );
 };
@@ -120,9 +125,11 @@ const ShareButton: React.FC<{
     setTimeout(() => setCopied(false), 1000);
   };
 
+  const { t } = useTranslation();
+
   return (
     <div className="text-white hover:cursor-pointer p-1 hover:bg-gray-500 rounded-md" onClick={handleShare}>
-      {copied ? "🔗 Copied!" : "🔗 Share"}
+      {copied ? t("copied") : `🔗 ${t("share")}`}
     </div>
   );
 };
@@ -132,9 +139,11 @@ const CenteredContinueButton: React.FC<{visible: boolean; onClick: () => void}> 
     onClick={onClick}
     className={`${visible ? "flex" : "hidden"} justify-center items-center w-full h-full absolute z-30 hover:cursor-pointer`}
   >
-    <div className="bg-teal-500 rounded-full w-20 h-20 flex justify-center items-center transition-transform duration-200 ease-out hover:scale-110 relative">
-      <div className="absolute w-0 h-0 border-l-[30px] border-l-white border-t-[20px] border-t-transparent border-b-[20px] border-b-transparent translate-x-[5px]"></div>
-    </div>
+    <>
+      <div className="bg-teal-500 rounded-full w-20 h-20 flex justify-center items-center transition-transform duration-200 ease-out hover:scale-110 relative">
+        <div className="absolute w-0 h-0 border-l-[30px] border-l-white border-t-[20px] border-t-transparent border-b-[20px] border-b-transparent translate-x-[5px]"></div>
+      </div>
+    </>
   </div>
 );
 
@@ -153,58 +162,58 @@ const SettingsAndInformation = () => {
     toggleShowWrongEntries,
     toggleShowConflicts,
   } = useGame();
+  const { t } = useTranslation();
 
   return (
     <div className="text-white">
       <div className="grid gap-4">
         <div className="md:block hidden">
-          <h2 className="mb-2 text-3xl font-bold">Shortcuts</h2>
+          <h2 className="mb-2 text-3xl font-bold">{t("shortcuts")}</h2>
           <div className="grid gap-2">
             <ul className="list-disc pl-6">
-              <li>Arrow keys: Move around the board</li>
-              <li>Number keys: Write a note or set the sudoku number</li>
-              <li>Backspace: Delete a number</li>
-              <li>Escape: Pause/unpause the game</li>
-              <li>H: Hint</li>
-              <li>N: Enter/exit note mode</li>
-              <li>CTRL + Z: Undo</li>
-              <li>CTRL + Y: Redo</li>
+              <li>{t("arrow_keys")}</li>
+              <li>{t("number_keys")}</li>
+              <li>{t("backspace")}</li>
+              <li>{t("escape")}</li>
+              <li>{t("hint")}</li>
+              <li>{t("note_mode")}</li>
+              <li>{t("undo")}</li>
+              <li>{t("redo")}</li>
             </ul>
           </div>
         </div>
         <div>
-          <h2 className="mb-2 text-3xl font-bold">Settings</h2>
+          <h2 className="mb-2 text-3xl font-bold">{t("settings")}</h2>
           <div className="grid gap-2">
             <Checkbox id="generated_notes" checked={game.showHints} onChange={toggleShowHints}>
-              {"Show auto generated notes"}
+              {t("show_auto_notes")}
             </Checkbox>
             <Checkbox id="highlight_wrong_entries" checked={game.showWrongEntries} onChange={toggleShowWrongEntries}>
-              {"Highlight wrong entries"}
+              {t("highlight_wrong_entries")}
             </Checkbox>
             <Checkbox id="highlight_conflicts" checked={game.showConflicts} onChange={toggleShowConflicts}>
-              {"Highlight conflicts"}
+              {t("highlight_conflicts")}
             </Checkbox>
             <Checkbox id="circle_menu" checked={game.showCircleMenu} onChange={toggleShowCircleMenu}>
-              {"Show circle menu when a cell is clicked (desktop only)"}
+              {t("show_circle_menu")}
             </Checkbox>
             <Checkbox id="show_occurrences" checked={game.showOccurrences} onChange={toggleShowOccurrences}>
-              {"Show occurrences of numbers in number buttons"}
+              {t("show_occurrences")}
             </Checkbox>
           </div>
         </div>
         <div>
-          <h2 className="text-3xl font-bold text-white">About</h2>
+          <h2 className="text-3xl font-bold text-white">{t("about")}</h2>
           <p className="text-white">
-            This sudoku app is and will be free of charge, free of ads and free of tracking. Its source code is
-            available at{" "}
+            {t("about_text")}{" "}
             <a target="_blank" className="underline" href="https://github.com/TN1ck/super-sudoku" rel="noreferrer">
               Github
             </a>
             .{" "}
             <a href="https://tn1ck.com" target="_blank" className="hover:underline" rel="noreferrer">
-              {"Created by Tom Nick."}
+              {t("created_by")}
             </a>
-            If you find a bug or experience any issues, please report it on{" "}
+            {t("report_issue")}{" "}
             <a
               target="_blank"
               className="underline"
@@ -262,6 +271,7 @@ const GameInner: React.FC<{
 }) => {
   const canUndo = sudokuState.historyIndex < sudokuState.history.length - 1;
   const sudoku = sudokuState.current;
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     const isSolved = SudokuGame.isSolved(sudoku);
@@ -329,10 +339,13 @@ const GameInner: React.FC<{
             <div className="hidden sm:block">{"|"}</div>
             <GameTimer />
           </div>
-          <div className="text-white text-lg sm:text-2xl font-bold">Super Sudoku</div>
+          <div className="text-white text-lg sm:text-2xl font-bold flex items-center gap-2">
+            {t("super_sudoku")}
+          </div>
           <div className="flex">
             <div className="flex gap-2 flex-col justify-end items-end sm:flex-row">
               <div className="flex gap-2">
+                <LanguageSelector />
                 <DarkModeButton />
                 <ClearGameButton
                   pauseGame={pauseGame}
@@ -380,24 +393,24 @@ const GameInner: React.FC<{
               {game.won && (
                 <div className="absolute top-0 bottom-0 right-0 left-0 z-30 flex items-center justify-center rounded-sm bg-white dark:bg-black dark:bg-opacity-80 bg-opacity-80 text-black dark:text-white">
                   <div className="grid gap-8">
-                    <div className="flex justify-center text-2xl">{"🎉 Congrats, you won! 🎉"}</div>
+                    <div className="flex justify-center text-2xl">{t("congrats")}</div>
                     <div className="text-md flex justify-center">
                       <div className="grid">
-                        <div className="flex justify-center">{`You solved this sudoku ${game.timesSolved} ${
-                          game.timesSolved === 1 ? "time" : "times"
-                        }`}</div>
+                        <div className="flex justify-center">
+                          {t(game.timesSolved === 1 ? "solved_time" : "solved_times", { count: game.timesSolved })}
+                        </div>
                         <div className="flex justify-center">
                           <div>
                             {game.previousTimes.length > 0 && (
-                              <div>{`Best time: ${formatDuration(Math.min(...game.previousTimes))}`}</div>
+                              <div>{t("best_time", { time: formatDuration(Math.min(...game.previousTimes)) })}</div>
                             )}
-                            <div>{`This time: ${formatDuration(game.secondsPlayed)}`}</div>
+                            <div>{t("this_time", { time: formatDuration(game.secondsPlayed) })}</div>
                           </div>
                         </div>
                       </div>
                     </div>
                     <Link to="/select-game" className="w-full">
-                      <Button className="bg-teal-700 text-white w-full">{"Select next sudoku"}</Button>
+                      <Button className="bg-teal-700 text-white w-full">{t("select_next_sudoku")}</Button>
                     </Link>
                   </div>
                 </div>
@@ -492,6 +505,7 @@ const GameWithRouteManagement = () => {
   } = useSudoku();
   const [initialized, setInitialized] = React.useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const currentPath = location.pathname;
   const search = location.search;
@@ -539,7 +553,12 @@ const GameWithRouteManagement = () => {
     // We only show a message if the user has played for more than 5 seconds and has not won.
     if (gameState.secondsPlayed > 5 && !gameState.won) {
       const areYouSure = confirm(
-        `You are currently playing sudoku ${gameState.sudokuCollectionName} #${gameState.sudokuIndex + 1}, do you want to pause it and start ${sudokuCollectionName} #${sudokuIndex}?`,
+        t("confirm_new_game", {
+          currentCollection: gameState.sudokuCollectionName,
+          currentIndex: gameState.sudokuIndex + 1,
+          newCollection: sudokuCollectionName,
+          newIndex: sudokuIndex,
+        }),
       );
       if (!areYouSure) {
         setInitialized(true);
@@ -554,12 +573,12 @@ const GameWithRouteManagement = () => {
       if (solvedSudoku.sudoku) {
         setSudoku(parsedSudoku, solvedSudoku.sudoku);
       } else {
-        alert("The URL contains an invalid sudoku.");
+        alert(t("invalid_sudoku_url"));
         setInitialized(true);
         return;
       }
     } catch (error) {
-      alert("The URL contains an invalid sudoku.");
+      alert(t("invalid_sudoku_url"));
       setInitialized(true);
       console.error(error);
       return;
@@ -601,6 +620,7 @@ const GameWithRouteManagement = () => {
     gameState.sudokuIndex,
     newGame,
     setSudoku,
+    t,
   ]);
 
   return (
