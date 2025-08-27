@@ -1,6 +1,6 @@
 import React from "react";
 import {createRoot} from "react-dom/client";
-import './i18n'; // ou './i18n' selon l’emplacement
+import './i18n';
 
 // Your top level component
 import Root from "./Root";

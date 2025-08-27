@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 const LanguageSelector: React.FC = () => {
   const { i18n } = useTranslation();
 
-  // Charger la langue sauvegardée au montage
+  // Load the saved language on mount
+
   useEffect(() => {
     const savedLang = localStorage.getItem('language');
     if (savedLang && savedLang !== i18n.language && typeof i18n.changeLanguage === 'function') {
@@ -31,7 +32,6 @@ const LanguageSelector: React.FC = () => {
         <option value="en" className="text-black dark:text-white dark:bg-gray-800">en</option>
         <option value="fr" className="text-black dark:text-white dark:bg-gray-800">fr</option>
       </select>
-      {/* Flèche personnalisée supprimée */}
     </div>
   );
 };
