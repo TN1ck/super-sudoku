@@ -333,7 +333,7 @@ const GameInner: React.FC<{
         <header className="flex justify-between sm:items-center mt-4">
           <div className="flex text-white flex-col sm:flex-row sm:justify-end sm:items-center gap-2">
             <div className="flex gap-2 items-center">
-              <DifficultyShow>{`${game.sudokuCollectionName} #${game.sudokuIndex + 1}`}</DifficultyShow>
+              <DifficultyShow>{`${t('difficulty_' + game.sudokuCollectionName)} #${game.sudokuIndex + 1}`}</DifficultyShow>
               <ShareButton gameState={game} sudokuState={sudokuState} />
             </div>
             <div className="hidden sm:block">{"|"}</div>
