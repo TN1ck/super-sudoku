@@ -1,6 +1,7 @@
 import React, {createContext, useContext, useReducer, useCallback, ReactNode} from "react";
 import {CellCoordinates} from "src/lib/engine/types";
 import {START_SUDOKU_COLLECTION, START_SUDOKU_INDEX} from "src/lib/game/sudokus";
+import {localStorageUserPreferencesRepository} from "src/lib/database/userPreferences";
 
 export enum GameStateMachine {
   running = "RUNNING",
@@ -26,24 +27,41 @@ export interface GameState {
   secondsPlayed: number;
 }
 
-export const INITIAL_GAME_STATE: GameState = {
-  activeCellCoordinates: undefined,
-  sudokuCollectionName: START_SUDOKU_COLLECTION.name,
-  notesMode: false,
-  showCircleMenu: true,
-  showHints: false,
-  showConflicts: true,
-  showOccurrences: false,
-  showWrongEntries: false,
-  showMenu: false,
-  showNotes: false,
-  state: GameStateMachine.paused,
-  sudokuIndex: START_SUDOKU_INDEX,
-  secondsPlayed: 0,
-  timesSolved: 0,
-  previousTimes: [],
-  won: false,
-};
+function getInitialGameState(): GameState {
+  const savedPreferences = localStorageUserPreferencesRepository.getPreferences();
+
+  return {
+    activeCellCoordinates: undefined,
+    sudokuCollectionName: START_SUDOKU_COLLECTION.name,
+    notesMode: false,
+    showCircleMenu: savedPreferences.showCircleMenu,
+    showHints: savedPreferences.showHints,
+    showConflicts: savedPreferences.showConflicts,
+    showOccurrences: savedPreferences.showOccurrences,
+    showWrongEntries: savedPreferences.showWrongEntries,
+    showMenu: false,
+    showNotes: false,
+    state: GameStateMachine.paused,
+    sudokuIndex: START_SUDOKU_INDEX,
+    secondsPlayed: 0,
+    timesSolved: 0,
+    previousTimes: [],
+    won: false,
+  };
+}
+
+export const INITIAL_GAME_STATE: GameState = getInitialGameState();
+
+function saveUserPreferences(state: GameState): void {
+  const preferences = {
+    showHints: state.showHints,
+    showWrongEntries: state.showWrongEntries,
+    showConflicts: state.showConflicts,
+    showCircleMenu: state.showCircleMenu,
+    showOccurrences: state.showOccurrences,
+  };
+  localStorageUserPreferencesRepository.savePreferences(preferences);
+}
 
 // Action types
 const NEW_GAME = "game/NEW_GAME";
@@ -102,6 +120,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     case SET_GAME_STATE:
       return action.state;
     case NEW_GAME:
+      const currentPreferences = localStorageUserPreferencesRepository.getPreferences();
       return {
         ...INITIAL_GAME_STATE,
         sudokuIndex: action.sudokuIndex,
@@ -109,6 +128,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         timesSolved: action.timesSolved,
         previousTimes: action.previousTimes,
         state: GameStateMachine.running,
+        ...currentPreferences,
       };
     case WON_GAME:
       const justWon = state.won === false;
@@ -134,6 +154,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         state: GameStateMachine.running,
       };
     case RESTART_GAME:
+      const restartPreferences = localStorageUserPreferencesRepository.getPreferences();
       return {
         ...state,
         sudokuIndex: action.sudokuIndex,
@@ -143,6 +164,11 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         previousTimes: action.previousTimes,
         state: GameStateMachine.running,
         won: false,
+        showHints: restartPreferences.showHints,
+        showWrongEntries: restartPreferences.showWrongEntries,
+        showConflicts: restartPreferences.showConflicts,
+        showCircleMenu: restartPreferences.showCircleMenu,
+        showOccurrences: restartPreferences.showOccurrences,
       };
     case SHOW_MENU:
       return {
@@ -162,30 +188,40 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         activeCellCoordinates: action.cellCoordinates,
       };
     case TOGGLE_SHOW_HINTS:
-      return {
+      const newStateHints = {
         ...state,
         showHints: !state.showHints,
       };
+      saveUserPreferences(newStateHints);
+      return newStateHints;
     case TOGGLE_SHOW_OCCURRENCES:
-      return {
+      const newStateOccurrences = {
         ...state,
         showOccurrences: !state.showOccurrences,
       };
+      saveUserPreferences(newStateOccurrences);
+      return newStateOccurrences;
     case TOGGLE_SHOW_CONFLICTS:
-      return {
+      const newStateConflicts = {
         ...state,
         showConflicts: !state.showConflicts,
       };
+      saveUserPreferences(newStateConflicts);
+      return newStateConflicts;
     case TOGGLE_SHOW_CIRCLE_MENU:
-      return {
+      const newStateCircleMenu = {
         ...state,
         showCircleMenu: !state.showCircleMenu,
       };
+      saveUserPreferences(newStateCircleMenu);
+      return newStateCircleMenu;
     case TOGGLE_SHOW_WRONG_ENTRIES:
-      return {
+      const newStateWrongEntries = {
         ...state,
         showWrongEntries: !state.showWrongEntries,
       };
+      saveUserPreferences(newStateWrongEntries);
+      return newStateWrongEntries;
     case ACTIVATE_NOTES_MODE:
       return {
         ...state,

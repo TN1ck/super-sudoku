@@ -18,6 +18,7 @@ import {cellsToSimpleSudoku, stringifySudoku, parseSudoku} from "src/lib/engine/
 import {solve} from "src/lib/engine/solverAC3";
 import {Link, useLocation, useNavigate} from "@tanstack/react-router";
 import {localStoragePlayedSudokuRepository} from "src/lib/database/playedSudokus";
+import {localStorageUserPreferencesRepository} from "src/lib/database/userPreferences";
 import {formatDuration} from "src/utils/format";
 import {throttle} from "lodash";
 import {TimerProvider} from "src/context/TimerContext";
@@ -457,7 +458,19 @@ export function AppProvider({children}: {children: React.ReactNode}) {
     ? localStoragePlayedSudokuRepository.getSudokuState(currentSudokuKey)
     : undefined;
 
-  const initialGameState: GameState = currentSudoku ? currentSudoku.game : INITIAL_GAME_STATE;
+  // Load user preferences and merge with saved game state
+  const userPreferences = localStorageUserPreferencesRepository.getPreferences();
+  const initialGameState: GameState = currentSudoku
+    ? {
+        ...currentSudoku.game,
+        // Always use current user preferences, not saved game preferences
+        showHints: userPreferences.showHints,
+        showWrongEntries: userPreferences.showWrongEntries,
+        showConflicts: userPreferences.showConflicts,
+        showCircleMenu: userPreferences.showCircleMenu,
+        showOccurrences: userPreferences.showOccurrences,
+      }
+    : INITIAL_GAME_STATE;
 
   const initialSudokuState: SudokuState = currentSudoku
     ? {
