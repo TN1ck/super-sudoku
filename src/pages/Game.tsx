@@ -24,6 +24,7 @@ import {TimerProvider} from "src/context/TimerContext";
 import {useEffect} from "react";
 import {CellCoordinates, SimpleSudoku} from "src/lib/engine/types";
 import {DarkModeButton} from "src/components/DarkModeButton";
+import {getSudokusPaginated, useSudokuCollections} from "src/lib/game/sudokus";
 
 function PauseButton({
   disabled,
@@ -87,6 +88,70 @@ const NewGameButton: React.FC = () => {
     <Button className="bg-teal-600 dark:bg-teal-600 text-white" onClick={pauseAndChoose}>
       {"New"}
     </Button>
+  );
+};
+
+const NextSudokuButton: React.FC<{gameState: GameState; setDisableAutoSync: (disabled: boolean) => void}> = ({
+  gameState,
+  setDisableAutoSync,
+}) => {
+  const {getCollection} = useSudokuCollections();
+
+  // Pre-calculate next sudoku parameters
+  const nextSudokuParams = React.useMemo(() => {
+    try {
+      const collection = getCollection(gameState.sudokuCollectionName);
+      const nextIndex = gameState.sudokuIndex + 1;
+
+      const pageSize = 12;
+      const page = Math.floor(nextIndex / pageSize);
+      const position = nextIndex % pageSize;
+      const result = getSudokusPaginated(collection, page, pageSize);
+
+      if (result.sudokus[position]) {
+        return {
+          sudokuIndex: nextIndex + 1,
+          sudoku: stringifySudoku(result.sudokus[position].sudoku),
+          sudokuCollectionName: gameState.sudokuCollectionName,
+        };
+      } else {
+        // Wrap to first sudoku
+        const firstResult = getSudokusPaginated(collection, 0, pageSize);
+        if (firstResult.sudokus[0]) {
+          return {
+            sudokuIndex: 1,
+            sudoku: stringifySudoku(firstResult.sudokus[0].sudoku),
+            sudokuCollectionName: gameState.sudokuCollectionName,
+          };
+        }
+      }
+    } catch (error) {
+      console.error("Error calculating next sudoku:", error);
+    }
+    return null;
+  }, [gameState.sudokuIndex, gameState.sudokuCollectionName, getCollection]);
+
+  if (!nextSudokuParams) {
+    return (
+      <Button className="bg-teal-700 text-white w-full" disabled>
+        No next sudoku
+      </Button>
+    );
+  }
+
+  const handleClick = () => {
+    // Temporarily disable auto-sync to prevent re-rendering
+    setDisableAutoSync(true);
+    // Re-enable after a short delay to let navigation complete
+    setTimeout(() => {
+      setDisableAutoSync(false);
+    }, 2000);
+  };
+
+  return (
+    <Link to="/" search={nextSudokuParams} className="w-full" onClick={handleClick}>
+      <Button className="bg-teal-700 text-white w-full">Select next sudoku</Button>
+    </Link>
   );
 };
 
@@ -240,6 +305,7 @@ const GameInner: React.FC<{
   hideMenu: () => void;
   resetGame: () => void;
   deactivateNotesMode: () => void;
+  setDisableAutoSync: (disabled: boolean) => void;
 }> = ({
   sudokuState,
   setSudoku,
@@ -259,6 +325,7 @@ const GameInner: React.FC<{
   hideMenu,
   resetGame,
   deactivateNotesMode,
+  setDisableAutoSync,
 }) => {
   const canUndo = sudokuState.historyIndex < sudokuState.history.length - 1;
   const sudoku = sudokuState.current;
@@ -396,9 +463,7 @@ const GameInner: React.FC<{
                         </div>
                       </div>
                     </div>
-                    <Link to="/select-game" className="w-full">
-                      <Button className="bg-teal-700 text-white w-full">{"Select next sudoku"}</Button>
-                    </Link>
+                    <NextSudokuButton gameState={game} setDisableAutoSync={setDisableAutoSync} />
                   </div>
                 </div>
               )}
@@ -491,6 +556,7 @@ const GameWithRouteManagement = () => {
     redo,
   } = useSudoku();
   const [initialized, setInitialized] = React.useState(false);
+  const [disableAutoSync, setDisableAutoSync] = React.useState(false);
   const navigate = useNavigate();
 
   const currentPath = location.pathname;
@@ -500,7 +566,7 @@ const GameWithRouteManagement = () => {
   const sudokuCollectionName = search["sudokuCollectionName"] as string | undefined;
 
   useEffect(() => {
-    if (gameState && sudokuState && initialized && currentPath === "/") {
+    if (gameState && sudokuState && initialized && currentPath === "/" && !disableAutoSync) {
       throttledSave(gameState, sudokuState);
       // Also update the URL to the current game state if it differs.
       const stringifiedSudoku = stringifySudoku(cellsToSimpleSudoku(sudokuState.current));
@@ -517,7 +583,7 @@ const GameWithRouteManagement = () => {
         });
       }
     }
-  }, [gameState, sudokuState, initialized, currentPath, sudoku, navigate]);
+  }, [gameState, sudokuState, initialized, currentPath, sudoku, navigate, disableAutoSync]);
 
   // In the AppProvider, we load the sudoku from the local storage.
   // TODO: Combine it with this logic.
@@ -623,6 +689,7 @@ const GameWithRouteManagement = () => {
       hideMenu={hideMenu}
       resetGame={resetGame}
       deactivateNotesMode={deactivateNotesMode}
+      setDisableAutoSync={setDisableAutoSync}
     />
   );
 };
