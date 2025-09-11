@@ -18,7 +18,7 @@ import {cellsToSimpleSudoku, stringifySudoku, parseSudoku} from "src/lib/engine/
 import {solve} from "src/lib/engine/solverAC3";
 import {Link, useLocation, useNavigate} from "@tanstack/react-router";
 import {localStoragePlayedSudokuRepository} from "src/lib/database/playedSudokus";
-import {localStorageUserPreferencesRepository} from "src/lib/database/userPreferences";
+import {UserPreferences} from "src/lib/database/userPreferences";
 import {formatDuration} from "src/utils/format";
 import {throttle} from "lodash";
 import {TimerProvider} from "src/context/TimerContext";
@@ -26,7 +26,12 @@ import {useEffect} from "react";
 import {CellCoordinates, SimpleSudoku} from "src/lib/engine/types";
 import {DarkModeButton} from "src/components/DarkModeButton";
 import LanguageSelector from "src/components/LanguageSelector";
-import { useTranslation } from "react-i18next";
+import {useTranslation} from "react-i18next";
+import {
+  INITIAL_USER_PREFERENCES_STATE,
+  UserPreferencesProvider,
+  useUserPreferences,
+} from "src/context/UserPrefencesContext";
 
 function PauseButton({
   disabled,
@@ -39,7 +44,7 @@ function PauseButton({
   pauseGame: () => void;
   continueGame: () => void;
 }) {
-  const { t } = useTranslation();
+  const {t} = useTranslation();
   return (
     <Button disabled={disabled} onClick={paused ? continueGame : pauseGame}>
       {paused ? t("continue") : t("pause")}
@@ -53,7 +58,7 @@ const ClearGameButton: React.FC<{
   continueGame: () => void;
   disabled: boolean;
 }> = ({clearGame, pauseGame, continueGame, disabled}) => {
-  const { t } = useTranslation();
+  const {t} = useTranslation();
   const clearGameLocal = async () => {
     pauseGame();
     // Wait 50ms to make sure the game is shown as paused when in the confirm dialog.
@@ -80,7 +85,7 @@ const ClearGameButton: React.FC<{
 const NewGameButton: React.FC = () => {
   const {pauseGame} = useGame();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const {t} = useTranslation();
 
   const pauseAndChoose = async () => {
     pauseGame();
@@ -126,7 +131,7 @@ const ShareButton: React.FC<{
     setTimeout(() => setCopied(false), 1000);
   };
 
-  const { t } = useTranslation();
+  const {t} = useTranslation();
 
   return (
     <div className="text-white hover:cursor-pointer p-1 hover:bg-gray-500 rounded-md" onClick={handleShare}>
@@ -156,14 +161,14 @@ const DifficultyShow = ({children, ...props}: React.HTMLAttributes<HTMLDivElemen
 
 const SettingsAndInformation = () => {
   const {
-    state: game,
+    state,
     toggleShowHints,
     toggleShowOccurrences,
     toggleShowCircleMenu,
     toggleShowWrongEntries,
     toggleShowConflicts,
-  } = useGame();
-  const { t } = useTranslation();
+  } = useUserPreferences();
+  const {t} = useTranslation();
 
   return (
     <div className="text-white">
@@ -186,19 +191,19 @@ const SettingsAndInformation = () => {
         <div>
           <h2 className="mb-2 text-3xl font-bold">{t("settings")}</h2>
           <div className="grid gap-2">
-            <Checkbox id="generated_notes" checked={game.showHints} onChange={toggleShowHints}>
+            <Checkbox id="generated_notes" checked={state.showHints} onChange={toggleShowHints}>
               {t("show_auto_notes")}
             </Checkbox>
-            <Checkbox id="highlight_wrong_entries" checked={game.showWrongEntries} onChange={toggleShowWrongEntries}>
+            <Checkbox id="highlight_wrong_entries" checked={state.showWrongEntries} onChange={toggleShowWrongEntries}>
               {t("highlight_wrong_entries")}
             </Checkbox>
-            <Checkbox id="highlight_conflicts" checked={game.showConflicts} onChange={toggleShowConflicts}>
+            <Checkbox id="highlight_conflicts" checked={state.showConflicts} onChange={toggleShowConflicts}>
               {t("highlight_conflicts")}
             </Checkbox>
-            <Checkbox id="circle_menu" checked={game.showCircleMenu} onChange={toggleShowCircleMenu}>
+            <Checkbox id="circle_menu" checked={state.showCircleMenu} onChange={toggleShowCircleMenu}>
               {t("show_circle_menu")}
             </Checkbox>
-            <Checkbox id="show_occurrences" checked={game.showOccurrences} onChange={toggleShowOccurrences}>
+            <Checkbox id="show_occurrences" checked={state.showOccurrences} onChange={toggleShowOccurrences}>
               {t("show_occurrences")}
             </Checkbox>
           </div>
@@ -241,6 +246,7 @@ const GameInner: React.FC<{
   undo: () => void;
   redo: () => void;
   game: GameState;
+  userPreferencesState: UserPreferences;
   pauseGame: () => void;
   continueGame: () => void;
   wonGame: () => void;
@@ -260,6 +266,7 @@ const GameInner: React.FC<{
   undo,
   redo,
   game,
+  userPreferencesState,
   pauseGame,
   continueGame,
   wonGame,
@@ -272,7 +279,7 @@ const GameInner: React.FC<{
 }) => {
   const canUndo = sudokuState.historyIndex < sudokuState.history.length - 1;
   const sudoku = sudokuState.current;
-  const { t } = useTranslation();
+  const {t} = useTranslation();
 
   React.useEffect(() => {
     const isSolved = SudokuGame.isSolved(sudoku);
@@ -328,21 +335,19 @@ const GameInner: React.FC<{
           sudoku={sudoku}
           activeCell={activeCell}
           notesMode={game.notesMode}
-          showHints={game.showHints}
+          showHints={userPreferencesState.showHints}
           selectCell={selectCell}
         />
         <header className="flex justify-between sm:items-center mt-4">
           <div className="flex text-white flex-col sm:flex-row sm:justify-end sm:items-center gap-2">
             <div className="flex gap-2 items-center">
-              <DifficultyShow>{`${t('difficulty_' + game.sudokuCollectionName)} #${game.sudokuIndex + 1}`}</DifficultyShow>
+              <DifficultyShow>{`${t("difficulty_" + game.sudokuCollectionName)} #${game.sudokuIndex + 1}`}</DifficultyShow>
               <ShareButton gameState={game} sudokuState={sudokuState} />
             </div>
             <div className="hidden sm:block">{"|"}</div>
             <GameTimer />
           </div>
-          <div className="text-white text-lg sm:text-2xl font-bold flex items-center gap-2">
-            {t("super_sudoku")}
-          </div>
+          <div className="text-white text-lg sm:text-2xl font-bold flex items-center gap-2">{t("super_sudoku")}</div>
           <div className="flex">
             <div className="flex gap-2 flex-col justify-end items-end sm:flex-row">
               <div className="flex gap-2">
@@ -377,15 +382,17 @@ const GameInner: React.FC<{
         <div className="flex gap-4 flex-col md:flex-row">
           <main className="mt-4 flex-grow md:min-w-96 w-full">
             <Sudoku
-              showWrongEntries={game.showWrongEntries && game.state === GameStateMachine.running}
-              showConflicts={game.showConflicts && game.state === GameStateMachine.running}
+              showWrongEntries={userPreferencesState.showWrongEntries && game.state === GameStateMachine.running}
+              showConflicts={userPreferencesState.showConflicts && game.state === GameStateMachine.running}
               notesMode={game.notesMode}
-              shouldShowMenu={game.showMenu && game.showCircleMenu && game.state === GameStateMachine.running}
+              shouldShowMenu={
+                game.showMenu && userPreferencesState.showCircleMenu && game.state === GameStateMachine.running
+              }
               sudoku={game.state === GameStateMachine.paused ? emptyGrid : sudoku}
               showMenu={showMenu}
               hideMenu={hideMenu}
               selectCell={selectCell}
-              showHints={game.showHints && game.state === GameStateMachine.running}
+              showHints={userPreferencesState.showHints && game.state === GameStateMachine.running}
               activeCell={game.state === GameStateMachine.running ? activeCell : undefined}
               setNumber={setNumber}
               setNotes={setNotes}
@@ -398,14 +405,14 @@ const GameInner: React.FC<{
                     <div className="text-md flex justify-center">
                       <div className="grid">
                         <div className="flex justify-center">
-                          {t(game.timesSolved === 1 ? "solved_time" : "solved_times", { count: game.timesSolved })}
+                          {t(game.timesSolved === 1 ? "solved_time" : "solved_times", {count: game.timesSolved})}
                         </div>
                         <div className="flex justify-center">
                           <div>
                             {game.previousTimes.length > 0 && (
-                              <div>{t("best_time", { time: formatDuration(Math.min(...game.previousTimes)) })}</div>
+                              <div>{t("best_time", {time: formatDuration(Math.min(...game.previousTimes))})}</div>
                             )}
-                            <div>{t("this_time", { time: formatDuration(game.secondsPlayed) })}</div>
+                            <div>{t("this_time", {time: formatDuration(game.secondsPlayed)})}</div>
                           </div>
                         </div>
                       </div>
@@ -423,10 +430,10 @@ const GameInner: React.FC<{
           <div className="grid gap-4 mt-4">
             <SudokuMenuNumbers
               notesMode={game.notesMode}
-              showOccurrences={game.showOccurrences}
+              showOccurrences={userPreferencesState.showOccurrences}
               activeCell={game.activeCellCoordinates}
               sudoku={sudokuState.current}
-              showHints={game.showHints}
+              showHints={userPreferencesState.showHints}
               setNumber={setNumber}
               setNotes={setNotes}
             />
@@ -458,20 +465,6 @@ export function AppProvider({children}: {children: React.ReactNode}) {
     ? localStoragePlayedSudokuRepository.getSudokuState(currentSudokuKey)
     : undefined;
 
-  // Load user preferences and merge with saved game state
-  const userPreferences = localStorageUserPreferencesRepository.getPreferences();
-  const initialGameState: GameState = currentSudoku
-    ? {
-        ...currentSudoku.game,
-        // Always use current user preferences, not saved game preferences
-        showHints: userPreferences.showHints,
-        showWrongEntries: userPreferences.showWrongEntries,
-        showConflicts: userPreferences.showConflicts,
-        showCircleMenu: userPreferences.showCircleMenu,
-        showOccurrences: userPreferences.showOccurrences,
-      }
-    : INITIAL_GAME_STATE;
-
   const initialSudokuState: SudokuState = currentSudoku
     ? {
         history: [currentSudoku.sudoku],
@@ -480,11 +473,17 @@ export function AppProvider({children}: {children: React.ReactNode}) {
       }
     : INITIAL_SUDOKU_STATE;
 
+  const initialGameState: GameState = currentSudoku ? currentSudoku.game : INITIAL_GAME_STATE;
+
+  const initialUserPreferencesState: UserPreferences = INITIAL_USER_PREFERENCES_STATE;
+
   return (
     <GameProvider initialState={initialGameState}>
-      <TimerProvider>
-        <SudokuProvider initialState={initialSudokuState}>{children}</SudokuProvider>
-      </TimerProvider>
+      <UserPreferencesProvider initialState={initialUserPreferencesState}>
+        <TimerProvider>
+          <SudokuProvider initialState={initialSudokuState}>{children}</SudokuProvider>
+        </TimerProvider>
+      </UserPreferencesProvider>
     </GameProvider>
   );
 }
@@ -506,6 +505,14 @@ const GameWithRouteManagement = () => {
     hideMenu,
   } = useGame();
   const {
+    state: userPreferencesState,
+    toggleShowHints,
+    toggleShowOccurrences,
+    toggleShowCircleMenu,
+    toggleShowWrongEntries,
+    toggleShowConflicts,
+  } = useUserPreferences();
+  const {
     setSudokuState,
     state: sudokuState,
     setSudoku,
@@ -518,7 +525,7 @@ const GameWithRouteManagement = () => {
   } = useSudoku();
   const [initialized, setInitialized] = React.useState(false);
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const {t} = useTranslation();
 
   const currentPath = location.pathname;
   const search = location.search;
@@ -647,6 +654,7 @@ const GameWithRouteManagement = () => {
       undo={undo}
       redo={redo}
       game={gameState}
+      userPreferencesState={userPreferencesState}
       pauseGame={pauseGame}
       continueGame={continueGame}
       wonGame={wonGame}

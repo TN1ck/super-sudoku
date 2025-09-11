@@ -12,13 +12,8 @@ export interface GameState {
   activeCellCoordinates?: CellCoordinates;
   sudokuCollectionName: string;
   notesMode: boolean;
-  showCircleMenu: boolean;
-  showHints: boolean;
-  showMenu: boolean;
-  showOccurrences: boolean;
-  showWrongEntries: boolean;
-  showConflicts: boolean;
   showNotes: boolean;
+  showMenu: boolean;
   state: GameStateMachine;
   sudokuIndex: number;
   won: boolean;
@@ -27,41 +22,19 @@ export interface GameState {
   secondsPlayed: number;
 }
 
-function getInitialGameState(): GameState {
-  const savedPreferences = localStorageUserPreferencesRepository.getPreferences();
-
-  return {
-    activeCellCoordinates: undefined,
-    sudokuCollectionName: START_SUDOKU_COLLECTION.name,
-    notesMode: false,
-    showCircleMenu: savedPreferences.showCircleMenu,
-    showHints: savedPreferences.showHints,
-    showConflicts: savedPreferences.showConflicts,
-    showOccurrences: savedPreferences.showOccurrences,
-    showWrongEntries: savedPreferences.showWrongEntries,
-    showMenu: false,
-    showNotes: false,
-    state: GameStateMachine.paused,
-    sudokuIndex: START_SUDOKU_INDEX,
-    secondsPlayed: 0,
-    timesSolved: 0,
-    previousTimes: [],
-    won: false,
-  };
-}
-
-export const INITIAL_GAME_STATE: GameState = getInitialGameState();
-
-function saveUserPreferences(state: GameState): void {
-  const preferences = {
-    showHints: state.showHints,
-    showWrongEntries: state.showWrongEntries,
-    showConflicts: state.showConflicts,
-    showCircleMenu: state.showCircleMenu,
-    showOccurrences: state.showOccurrences,
-  };
-  localStorageUserPreferencesRepository.savePreferences(preferences);
-}
+export const INITIAL_GAME_STATE: GameState = {
+  activeCellCoordinates: undefined,
+  sudokuCollectionName: START_SUDOKU_COLLECTION.name,
+  notesMode: false,
+  showMenu: false,
+  showNotes: false,
+  state: GameStateMachine.paused,
+  sudokuIndex: START_SUDOKU_INDEX,
+  secondsPlayed: 0,
+  timesSolved: 0,
+  previousTimes: [],
+  won: false,
+};
 
 // Action types
 const NEW_GAME = "game/NEW_GAME";
@@ -73,11 +46,6 @@ const RESTART_GAME = "game/RESTART_GAME";
 const SHOW_MENU = "game/SHOW_MENU";
 const HIDE_MENU = "game/HIDE_MENU";
 const SELECT_CELL = "game/SELECT_MENU";
-const TOGGLE_SHOW_HINTS = "game/TOGGLE_SHOW_HINTS";
-const TOGGLE_SHOW_OCCURRENCES = "game/TOGGLE_SHOW_OCCURRENCES";
-const TOGGLE_SHOW_CONFLICTS = "game/TOGGLE_SHOW_CONFLICTS";
-const TOGGLE_SHOW_CIRCLE_MENU = "game/TOGGLE_SHOW_CIRCLE_MENU";
-const TOGGLE_SHOW_WRONG_ENTRIES = "game/TOGGLE_SHOW_WRONG_ENTRIES";
 const ACTIVATE_NOTES_MODE = "game/ACTIVATE_NOTES_MODE";
 const DEACTIVATE_NOTES_MODE = "game/DEACTIVATE_NOTES_MODE";
 const UPDATE_TIMER = "game/UPDATE_TIME";
@@ -104,11 +72,6 @@ type GameAction =
   | {type: typeof SHOW_MENU; showNotes?: boolean}
   | {type: typeof HIDE_MENU}
   | {type: typeof SELECT_CELL; cellCoordinates: CellCoordinates}
-  | {type: typeof TOGGLE_SHOW_HINTS}
-  | {type: typeof TOGGLE_SHOW_OCCURRENCES}
-  | {type: typeof TOGGLE_SHOW_CONFLICTS}
-  | {type: typeof TOGGLE_SHOW_CIRCLE_MENU}
-  | {type: typeof TOGGLE_SHOW_WRONG_ENTRIES}
   | {type: typeof ACTIVATE_NOTES_MODE}
   | {type: typeof DEACTIVATE_NOTES_MODE}
   | {type: typeof UPDATE_TIMER; secondsPlayed: number}
@@ -154,7 +117,6 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         state: GameStateMachine.running,
       };
     case RESTART_GAME:
-      const restartPreferences = localStorageUserPreferencesRepository.getPreferences();
       return {
         ...state,
         sudokuIndex: action.sudokuIndex,
@@ -164,11 +126,6 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         previousTimes: action.previousTimes,
         state: GameStateMachine.running,
         won: false,
-        showHints: restartPreferences.showHints,
-        showWrongEntries: restartPreferences.showWrongEntries,
-        showConflicts: restartPreferences.showConflicts,
-        showCircleMenu: restartPreferences.showCircleMenu,
-        showOccurrences: restartPreferences.showOccurrences,
       };
     case SHOW_MENU:
       return {
@@ -187,41 +144,6 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         activeCellCoordinates: action.cellCoordinates,
       };
-    case TOGGLE_SHOW_HINTS:
-      const newStateHints = {
-        ...state,
-        showHints: !state.showHints,
-      };
-      saveUserPreferences(newStateHints);
-      return newStateHints;
-    case TOGGLE_SHOW_OCCURRENCES:
-      const newStateOccurrences = {
-        ...state,
-        showOccurrences: !state.showOccurrences,
-      };
-      saveUserPreferences(newStateOccurrences);
-      return newStateOccurrences;
-    case TOGGLE_SHOW_CONFLICTS:
-      const newStateConflicts = {
-        ...state,
-        showConflicts: !state.showConflicts,
-      };
-      saveUserPreferences(newStateConflicts);
-      return newStateConflicts;
-    case TOGGLE_SHOW_CIRCLE_MENU:
-      const newStateCircleMenu = {
-        ...state,
-        showCircleMenu: !state.showCircleMenu,
-      };
-      saveUserPreferences(newStateCircleMenu);
-      return newStateCircleMenu;
-    case TOGGLE_SHOW_WRONG_ENTRIES:
-      const newStateWrongEntries = {
-        ...state,
-        showWrongEntries: !state.showWrongEntries,
-      };
-      saveUserPreferences(newStateWrongEntries);
-      return newStateWrongEntries;
     case ACTIVATE_NOTES_MODE:
       return {
         ...state,
@@ -265,11 +187,6 @@ interface GameContextType {
     timesSolved: number,
     previousTimes: number[],
   ) => void;
-  toggleShowHints: () => void;
-  toggleShowOccurrences: () => void;
-  toggleShowConflicts: () => void;
-  toggleShowCircleMenu: () => void;
-  toggleShowWrongEntries: () => void;
   activateNotesMode: () => void;
   deactivateNotesMode: () => void;
   updateTimer: (secondsPlayed: number) => void;
@@ -328,26 +245,6 @@ export function GameProvider({children, initialState = INITIAL_GAME_STATE}: Game
     [],
   );
 
-  const toggleShowHints = useCallback(() => {
-    dispatch({type: TOGGLE_SHOW_HINTS});
-  }, []);
-
-  const toggleShowOccurrences = useCallback(() => {
-    dispatch({type: TOGGLE_SHOW_OCCURRENCES});
-  }, []);
-
-  const toggleShowConflicts = useCallback(() => {
-    dispatch({type: TOGGLE_SHOW_CONFLICTS});
-  }, []);
-
-  const toggleShowCircleMenu = useCallback(() => {
-    dispatch({type: TOGGLE_SHOW_CIRCLE_MENU});
-  }, []);
-
-  const toggleShowWrongEntries = useCallback(() => {
-    dispatch({type: TOGGLE_SHOW_WRONG_ENTRIES});
-  }, []);
-
   const activateNotesMode = useCallback(() => {
     dispatch({type: ACTIVATE_NOTES_MODE});
   }, []);
@@ -375,11 +272,6 @@ export function GameProvider({children, initialState = INITIAL_GAME_STATE}: Game
     showMenu,
     hideMenu,
     restartGame,
-    toggleShowHints,
-    toggleShowOccurrences,
-    toggleShowConflicts,
-    toggleShowCircleMenu,
-    toggleShowWrongEntries,
     activateNotesMode,
     deactivateNotesMode,
     updateTimer,
