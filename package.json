@@ -4,6 +4,7 @@
   "type": "module",
   "description": "Super Sudoku",
   "license": "MIT",
+  "node": "24.3.1",
   "scripts": {
     "build": "vite build",
     "preview": "vite preview",
