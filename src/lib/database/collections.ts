@@ -1,3 +1,29 @@
+import {t} from "i18next";
+
+export enum BaseCollection {
+  Easy = "easy",
+  Medium = "medium",
+  Hard = "hard",
+  Expert = "expert",
+  Evil = "evil",
+}
+
+export function translateCollectionName(collectionName: string) {
+  // TODO: Find better place for this.
+  const BASE_COLLECTION_TRANSLATION: Record<BaseCollection, string> = {
+    [BaseCollection.Easy]: t("difficulty_easy"),
+    [BaseCollection.Medium]: t("difficulty_medium"),
+    [BaseCollection.Hard]: t("difficulty_hard"),
+    [BaseCollection.Expert]: t("difficulty_expert"),
+    [BaseCollection.Evil]: t("difficulty_evil"),
+  };
+  // TODO: We should also pass the collection id, not just the name.
+  if (collectionName in BASE_COLLECTION_TRANSLATION) {
+    return BASE_COLLECTION_TRANSLATION[collectionName as BaseCollection];
+  }
+  return collectionName;
+}
+
 export interface CollectionIndex {
   id: string;
   name: string;

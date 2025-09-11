@@ -8,7 +8,7 @@ import evilSudokus from "../../../sudokus/evil.txt?raw";
 import {parseSudoku, stringifySudoku} from "src/lib/engine/utility";
 import {solve} from "src/lib/engine/solverAC3";
 import {useCallback, useMemo, useState} from "react";
-import {Collection, CollectionIndex, localStorageCollectionRepository} from "../database/collections";
+import {BaseCollection, Collection, CollectionIndex, localStorageCollectionRepository} from "../database/collections";
 
 export interface SudokuRaw {
   iterations: number;
@@ -24,12 +24,12 @@ export interface PaginatedSudokus {
   totalPages: number;
 }
 
-const BASE_SUDOKU_COLLECTIONS: Record<string, string> = {
-  easy: easySudokus,
-  medium: mediumSudokus,
-  hard: hardSudokus,
-  expert: expertSudokus,
-  evil: evilSudokus,
+const BASE_SUDOKU_COLLECTIONS: Record<BaseCollection, string> = {
+  [BaseCollection.Easy]: easySudokus,
+  [BaseCollection.Medium]: mediumSudokus,
+  [BaseCollection.Hard]: hardSudokus,
+  [BaseCollection.Expert]: expertSudokus,
+  [BaseCollection.Evil]: evilSudokus,
 } as const;
 
 // Cache for raw line counts
@@ -131,7 +131,7 @@ export function useSudokuCollections() {
         return {
           id: collectionId,
           name: collectionId,
-          sudokusRaw: BASE_SUDOKU_COLLECTIONS[collectionId],
+          sudokusRaw: BASE_SUDOKU_COLLECTIONS[collectionId as BaseCollection],
         };
       }
       return localStorageCollectionRepository.getCollection(collectionId);

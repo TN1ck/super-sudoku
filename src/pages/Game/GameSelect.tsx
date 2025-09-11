@@ -10,9 +10,9 @@ import {stringifySudoku} from "src/lib/engine/utility";
 import {useElementWidth} from "src/utils/hooks";
 import {useNavigate} from "@tanstack/react-router";
 import {localStoragePlayedSudokuRepository, StoredPlayedSudokuState} from "src/lib/database/playedSudokus";
-import {Collection} from "src/lib/database/collections";
+import {Collection, translateCollectionName} from "src/lib/database/collections";
 import NewSudoku from "./NewSudoku";
-import { useTranslation } from "react-i18next";
+import {useTranslation} from "react-i18next";
 
 const TabItem = ({active, children, ...props}: React.ButtonHTMLAttributes<HTMLButtonElement> & {active: boolean}) => (
   <button
@@ -112,7 +112,7 @@ const SudokuToSelect = ({
   const unfinished = localSudoku && !localSudoku.game.won;
   const finished = localSudoku && localSudoku.game.won;
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const {t} = useTranslation();
 
   const choose = () => {
     if (finished) {
@@ -142,7 +142,7 @@ const SudokuToSelect = ({
         <div className="pointer-events-none absolute left-2 rounded-sm bottom-2 z-10 max-w-min bg-gray-900 px-2 py-1 text-xs text-white md:text-base">
           <div>
             <div className="whitespace-nowrap">{`
-              ${unfinished ? t('play_time') : t('last_time')}
+              ${unfinished ? t("play_time") : t("last_time")}
               ${formatDuration(localSudoku.game.secondsPlayed)}
             `}</div>
             {localSudoku.game.previousTimes.length > 0 && (
@@ -153,7 +153,7 @@ const SudokuToSelect = ({
             {localSudoku.game.timesSolved > 0 && (
               <div>{`Solved ${localSudoku.game.timesSolved} ${localSudoku.game.timesSolved === 1 ? "time" : "times"}`}</div>
             )}
-            {unfinished && <div>{t('continue')}</div>}
+            {unfinished && <div>{t("continue")}</div>}
             {finished && <div>{`Restart?`}</div>}
           </div>
         </div>
@@ -188,14 +188,10 @@ const GameIndex = ({
   pageStart: number;
   sudokuCollectionName: string;
 }) => {
-  const { t } = useTranslation();
+  const {t} = useTranslation();
 
   if (pageSudokus.length === 0) {
-    return (
-      <div className="text-center text-white">
-        {t('no_sudokus_in_collection')}
-      </div>
-    );
+    return <div className="text-center text-white">{t("no_sudokus_in_collection")}</div>;
   }
 
   return (
@@ -236,7 +232,7 @@ const GameSelect: React.FC = () => {
     removeCollection,
   } = useSudokuCollections();
   const [page, setPage] = useState(0);
-  const { t } = useTranslation();
+  const {t} = useTranslation();
 
   const pageSize = 12;
   const {sudokus: pageSudokus, totalPages: pageCount} = usePaginatedSudokus(activeCollection, page, pageSize);
@@ -257,11 +253,11 @@ const GameSelect: React.FC = () => {
   const [showNewSudokuComponent, setShowNewSudokuComponent] = useState(false);
   const removeCollectionLocal = () => {
     if (isBaseCollectionLocal) {
-      alert(t('cannot_delete_base_collection'));
+      alert(t("cannot_delete_base_collection"));
       return;
     }
     const areYouSure = confirm(
-      t('confirm_delete_collection', {collection: activeCollection.name})
+      t("confirm_delete_collection", {collection: translateCollectionName(activeCollection.name)}),
     );
     if (!areYouSure) {
       return;
@@ -283,15 +279,13 @@ const GameSelect: React.FC = () => {
               active={activeCollection.id === collection.id}
               onClick={() => setActiveCollectionAndResetPage(collection.id)}
             >
-              {['easy','medium','hard','expert','evil'].includes(collection.name)
-                ? t('difficulty_' + collection.name)
-                : collection.name}
+              {translateCollectionName(collection.name)}
             </TabItem>
           ))}
           <TabItem
             active={false}
             onClick={() => {
-              const newCollectionName = prompt(t('enter_new_collection_name'));
+              const newCollectionName = prompt(t("enter_new_collection_name"));
               if (newCollectionName) {
                 const newCollection = addCollection(newCollectionName);
                 setActiveCollectionId(newCollection.id);
@@ -299,7 +293,7 @@ const GameSelect: React.FC = () => {
               }
             }}
           >
-            {t('add_new_collection')}
+            {t("add_new_collection")}
           </TabItem>
         </div>
       </div>
@@ -307,21 +301,21 @@ const GameSelect: React.FC = () => {
         <div className="flex justify-between items-center gap-2 mb-4">
           {!showNewSudokuComponent ? (
             <Button className="bg-teal-600 dark:bg-teal-600 text-white" onClick={() => setShowNewSudokuComponent(true)}>
-              {t('add_sudoku')}
+              {t("add_sudoku")}
             </Button>
           ) : (
-            <Button onClick={() => setShowNewSudokuComponent(false)}>{t('close_new_sudoku_creator')}</Button>
+            <Button onClick={() => setShowNewSudokuComponent(false)}>{t("close_new_sudoku_creator")}</Button>
           )}
-          <Button onClick={removeCollectionLocal}>{t('delete_collection')}</Button>
+          <Button onClick={removeCollectionLocal}>{t("delete_collection")}</Button>
         </div>
       )}
       {!isBaseCollectionLocal && showNewSudokuComponent && (
         <div className="mb-4 p-4 bg-gray-900 rounded-sm border border-gray-700 flex flex-col gap-4">
           <div className="flex justify-between items-center">
-            <div className="text-white text-lg sm:text-2xl font-bold">{t('create_new_sudoku')}</div>
-            <Button onClick={() => setShowNewSudokuComponent(false)}>{t('close')}</Button>
+            <div className="text-white text-lg sm:text-2xl font-bold">{t("create_new_sudoku")}</div>
+            <Button onClick={() => setShowNewSudokuComponent(false)}>{t("close")}</Button>
           </div>
-          <p className="text-white">{t('add_your_own_sudoku', {collection: activeCollection.name})}</p>
+          <p className="text-white">{t("add_your_own_sudoku", {collection: activeCollection.name})}</p>
           <NewSudoku saveSudoku={saveSudoku} />
         </div>
       )}

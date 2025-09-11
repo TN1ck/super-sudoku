@@ -33,6 +33,8 @@ import {
   useUserPreferences,
 } from "src/context/UserPrefencesContext";
 import {getSudokusPaginated, useSudokuCollections} from "src/lib/game/sudokus";
+import {t} from "i18next";
+import {translateCollectionName} from "src/lib/database/collections";
 
 function PauseButton({
   disabled,
@@ -137,10 +139,11 @@ const NextSudokuButton: React.FC<{gameState: GameState; setDisableAutoSync: (dis
     return (
       <div>
         <p className="dark:text-white text-black mb-4 max-w-64 text-center">
-          {`Congratulation! You arrived at the end of collection "${collection.name}". Select a new sudoku to play.`}
+          {`Congratulation! You arrived at the end of collection "${translateCollectionName(collection.name)}". Select a new sudoku to play.`}
+          {t("collection_finished", {collection: translateCollectionName(collection.name)})}
         </p>
         <Link to="/select-game" className="w-full">
-          <Button className="bg-teal-700 text-white w-full">{"Select new sudoku"}</Button>
+          <Button className="bg-teal-700 text-white w-full">{t("select_new_sudoku")}</Button>
         </Link>
       </div>
     );
@@ -160,7 +163,10 @@ const NextSudokuButton: React.FC<{gameState: GameState; setDisableAutoSync: (dis
   return (
     <Link to="/" search={nextSudokuParams} className="w-full" onClick={handleClick}>
       <Button className="bg-teal-700 text-white w-full">
-        Select next sudoku: {collection.name} #{nextSudokuParams.sudokuIndex}
+        {t("select_next_sudoku", {
+          collection: translateCollectionName(collection.name),
+          sudokuIndex: nextSudokuParams.sudokuIndex,
+        })}
       </Button>
     </Link>
   );
@@ -408,7 +414,7 @@ const GameInner: React.FC<{
         <header className="flex justify-between sm:items-center mt-4">
           <div className="flex text-white flex-col sm:flex-row sm:justify-end sm:items-center gap-2">
             <div className="flex gap-2 items-center">
-              <DifficultyShow>{`${t("difficulty_" + game.sudokuCollectionName)} #${game.sudokuIndex + 1}`}</DifficultyShow>
+              <DifficultyShow>{`${translateCollectionName(game.sudokuCollectionName)} #${game.sudokuIndex + 1}`}</DifficultyShow>
               <ShareButton gameState={game} sudokuState={sudokuState} />
             </div>
             <div className="hidden sm:block">{"|"}</div>
