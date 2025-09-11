@@ -107,51 +107,49 @@ const NextSudokuButton: React.FC<{gameState: GameState; setDisableAutoSync: (dis
   setDisableAutoSync,
 }) => {
   const {getCollection} = useSudokuCollections();
+  const collection = React.useMemo(
+    () => getCollection(gameState.sudokuCollectionName),
+    [gameState.sudokuCollectionName, getCollection],
+  );
 
   // Pre-calculate next sudoku parameters
   const nextSudokuParams = React.useMemo(() => {
     try {
-      const collection = getCollection(gameState.sudokuCollectionName);
       const nextIndex = gameState.sudokuIndex + 1;
 
-      const pageSize = 12;
-      const page = Math.floor(nextIndex / pageSize);
-      const position = nextIndex % pageSize;
-      const result = getSudokusPaginated(collection, page, pageSize);
+      const result = getSudokusPaginated(collection, nextIndex, 1);
+      const sudoku = result.sudokus[0];
 
-      if (result.sudokus[position]) {
+      if (sudoku) {
         return {
           sudokuIndex: nextIndex + 1,
-          sudoku: stringifySudoku(result.sudokus[position].sudoku),
+          sudoku: stringifySudoku(sudoku.sudoku),
           sudokuCollectionName: gameState.sudokuCollectionName,
         };
-      } else {
-        // Wrap to first sudoku
-        const firstResult = getSudokusPaginated(collection, 0, pageSize);
-        if (firstResult.sudokus[0]) {
-          return {
-            sudokuIndex: 1,
-            sudoku: stringifySudoku(firstResult.sudokus[0].sudoku),
-            sudokuCollectionName: gameState.sudokuCollectionName,
-          };
-        }
       }
     } catch (error) {
       console.error("Error calculating next sudoku:", error);
     }
     return null;
-  }, [gameState.sudokuIndex, gameState.sudokuCollectionName, getCollection]);
+  }, [gameState.sudokuIndex, gameState.sudokuCollectionName, collection]);
 
   if (!nextSudokuParams) {
     return (
-      <Button className="bg-teal-700 text-white w-full" disabled>
-        No next sudoku
-      </Button>
+      <div>
+        <p className="dark:text-white text-black mb-4 max-w-64 text-center">
+          {`Congratulation! You arrived at the end of collection "${collection.name}". Select a new sudoku to play.`}
+        </p>
+        <Link to="/select-game" className="w-full">
+          <Button className="bg-teal-700 text-white w-full">{"Select new sudoku"}</Button>
+        </Link>
+      </div>
     );
   }
 
   const handleClick = () => {
-    // Temporarily disable auto-sync to prevent re-rendering
+    // TODO: Hacky solution for now, but it works.
+    // What is happening is that we sync the URL state, but us changing the URL here
+    // Will lead to an out of sync state with the game state.
     setDisableAutoSync(true);
     // Re-enable after a short delay to let navigation complete
     setTimeout(() => {
@@ -161,7 +159,9 @@ const NextSudokuButton: React.FC<{gameState: GameState; setDisableAutoSync: (dis
 
   return (
     <Link to="/" search={nextSudokuParams} className="w-full" onClick={handleClick}>
-      <Button className="bg-teal-700 text-white w-full">Select next sudoku</Button>
+      <Button className="bg-teal-700 text-white w-full">
+        Select next sudoku: {collection.name} #{nextSudokuParams.sudokuIndex}
+      </Button>
     </Link>
   );
 };
