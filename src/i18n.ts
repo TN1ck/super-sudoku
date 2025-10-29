@@ -17,15 +17,27 @@ export enum Language {
 }
 
 export const LANGUAGE_TRANSLATIONS: Record<Language, string> = {
-  [Language.EN]: "EN",
-  [Language.FR]: "FR",
-  [Language.ES]: "ES",
-  [Language.DE]: "DE",
-  [Language.IT]: "IT",
-  [Language.PT]: "PT",
+  [Language.EN]: "English",
+  [Language.FR]: "Français",
+  [Language.ES]: "Español",
+  [Language.DE]: "Deutsch",
+  [Language.IT]: "Italiano",
+  [Language.PT]: "Português",
 };
 
 export const LANGUAGES = [Language.EN, Language.FR, Language.ES, Language.DE, Language.IT, Language.PT];
+
+// Detect browser language and return a supported language
+const getBrowserLanguage = (): Language => {
+  const savedLang = localStorage.getItem("language");
+  if (savedLang && Object.values(Language).includes(savedLang as Language)) {
+    return savedLang as Language;
+  }
+
+  const browserLang = navigator.language.split("-")[0].toLowerCase();
+  const supportedLang = Object.values(Language).find((lang) => lang === browserLang);
+  return supportedLang || Language.EN;
+};
 
 i18n.use(initReactI18next).init({
   resources: {
@@ -36,7 +48,7 @@ i18n.use(initReactI18next).init({
     [Language.IT]: {translation: it},
     [Language.PT]: {translation: pt},
   },
-  lng: Language.EN,
+  lng: getBrowserLanguage(),
   fallbackLng: Language.EN,
   interpolation: {escapeValue: false},
 });
