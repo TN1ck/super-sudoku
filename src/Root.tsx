@@ -24,6 +24,7 @@ rootRoute.addChildren([gameRoute, selectGameRoute]);
 
 const router = createRouter({
   routeTree: rootRoute,
+  defaultNotFoundComponent: Game,
 });
 
 // Error Boundary Component
