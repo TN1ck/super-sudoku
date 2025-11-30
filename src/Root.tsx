@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import {createRootRoute, createRoute, createRouter, RouterProvider} from "@tanstack/react-router";
+import {createHashHistory, createRootRoute, createRoute, createRouter, RouterProvider} from "@tanstack/react-router";
 
 import Game from "./pages/Game";
 import SelectGame from "./pages/SelectGame";
@@ -22,9 +22,12 @@ const selectGameRoute = createRoute({
 
 rootRoute.addChildren([gameRoute, selectGameRoute]);
 
+const hashHistory = createHashHistory();
+
 const router = createRouter({
   routeTree: rootRoute,
   defaultNotFoundComponent: Game,
+  history: hashHistory,
 });
 
 // Error Boundary Component
