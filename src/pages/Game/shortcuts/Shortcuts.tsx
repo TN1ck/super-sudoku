@@ -23,6 +23,8 @@ interface ShortcutsProps {
   notesMode: boolean;
   showHints: boolean;
   selectCell: (cell: Cell) => void;
+  clipboardNotes: number[] | null;
+  copyNotes: (notes: number[]) => void;
 }
 
 const Shortcuts: React.FC<ShortcutsProps> = ({
@@ -42,6 +44,8 @@ const Shortcuts: React.FC<ShortcutsProps> = ({
   notesMode,
   showHints,
   selectCell,
+  clipboardNotes,
+  copyNotes,
 }) => {
   useEffect(() => {
     if (gameState === GameStateMachine.paused) {
@@ -71,6 +75,8 @@ const Shortcuts: React.FC<ShortcutsProps> = ({
         notesMode={notesMode}
         showHints={showHints}
         selectCell={selectCell}
+        clipboardNotes={clipboardNotes}
+        copyNotes={copyNotes}
       />
     </div>
   );

@@ -256,6 +256,7 @@ const SettingsAndInformation = () => {
               <li>{t("note_mode")}</li>
               <li>{t("undo")}</li>
               <li>{t("redo")}</li>
+              <li>{t("copy_paste_notes")}</li>
             </ul>
           </div>
         </div>
@@ -328,6 +329,7 @@ const GameInner: React.FC<{
   resetGame: () => void;
   deactivateNotesMode: () => void;
   setDisableAutoSync: (disabled: boolean) => void;
+  copyNotes: (notes: number[]) => void;
 }> = ({
   sudokuState,
   setSudoku,
@@ -349,6 +351,7 @@ const GameInner: React.FC<{
   resetGame,
   deactivateNotesMode,
   setDisableAutoSync,
+  copyNotes,
 }) => {
   const canUndo = sudokuState.historyIndex < sudokuState.history.length - 1;
   const sudoku = sudokuState.current;
@@ -410,6 +413,8 @@ const GameInner: React.FC<{
           notesMode={game.notesMode}
           showHints={userPreferencesState.showHints}
           selectCell={selectCell}
+          clipboardNotes={game.clipboardNotes}
+          copyNotes={copyNotes}
         />
         <header className="flex justify-between sm:items-center mt-4">
           <div className="flex text-white flex-col sm:flex-row sm:justify-end sm:items-center gap-2">
@@ -574,6 +579,7 @@ const GameWithRouteManagement = () => {
     deactivateNotesMode,
     resetGame,
     hideMenu,
+    copyNotes,
   } = useGame();
   const {
     state: userPreferencesState,
@@ -737,6 +743,7 @@ const GameWithRouteManagement = () => {
       resetGame={resetGame}
       deactivateNotesMode={deactivateNotesMode}
       setDisableAutoSync={setDisableAutoSync}
+      copyNotes={copyNotes}
     />
   );
 };

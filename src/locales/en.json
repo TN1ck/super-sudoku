@@ -16,6 +16,7 @@
   "note_mode": "N: Enter/exit note mode",
   "undo": "CTRL + Z: Undo",
   "redo": "CTRL + Y: Redo",
+  "copy_paste_notes": "CTRL + C/V: Copy/paste notes",
   "show_auto_notes": "Show auto generated notes",
   "highlight_wrong_entries": "Highlight wrong entries",
   "highlight_conflicts": "Highlight conflicts",
