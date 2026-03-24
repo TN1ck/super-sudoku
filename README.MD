@@ -39,6 +39,7 @@ Born from a simple request - my Grandma wanted to play Sudoku, but I wasn't sati
 | **Get Hint** | H |
 | **Toggle Notes** | N |
 | **Undo/Redo** | CMD/CTRL + Z/Y |
+| **Copy/Paste Notes** | CMD/CTRL + C/V |
 
 ### 🎯 **Smart Features**
 - **Auto-save**: Your progress is automatically saved

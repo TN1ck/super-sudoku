@@ -21,6 +21,8 @@ const GridShortcuts: React.FC<{
   notesMode: boolean;
   showHints: boolean;
   selectCell: (cell: Cell) => void;
+  clipboardNotes: number[] | null;
+  copyNotes: (notes: number[]) => void;
 }> = ({
   pauseGame,
   activateNotesMode,
@@ -36,6 +38,8 @@ const GridShortcuts: React.FC<{
   notesMode,
   showHints,
   selectCell,
+  clipboardNotes,
+  copyNotes,
 }) => {
   // Use refs to store current values so shortcuts don't need to be recreated
   const stateRef = React.useRef({
@@ -53,6 +57,8 @@ const GridShortcuts: React.FC<{
     setNotes,
     undo,
     redo,
+    clipboardNotes,
+    copyNotes,
   });
 
   // Update refs with current values
@@ -72,6 +78,8 @@ const GridShortcuts: React.FC<{
       setNotes,
       undo,
       redo,
+      clipboardNotes,
+      copyNotes,
     };
   });
 
@@ -196,6 +204,22 @@ const GridShortcuts: React.FC<{
 
     hotkeys("ctrl+y,cmd+y", ShortcutScope.Game, () => {
       stateRef.current.redo();
+      return false;
+    });
+
+    hotkeys("ctrl+c,cmd+c", ShortcutScope.Game, () => {
+      const {activeCell, copyNotes} = stateRef.current;
+      if (activeCell && activeCell.notes.length > 0) {
+        copyNotes(activeCell.notes);
+      }
+      return false;
+    });
+
+    hotkeys("ctrl+v,cmd+v", ShortcutScope.Game, () => {
+      const {activeCell, clipboardNotes, setNotes} = stateRef.current;
+      if (activeCell && !activeCell.initial && clipboardNotes && clipboardNotes.length > 0) {
+        setNotes(activeCell, clipboardNotes);
+      }
       return false;
     });
 

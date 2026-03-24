@@ -16,6 +16,7 @@
   "note_mode": "N: Notizmodus betreten/verlassen",
   "undo": "STRG + Z: Rückgängig",
   "redo": "STRG + Y: Wiederholen",
+  "copy_paste_notes": "STRG + C/V: Notizen kopieren/einfügen",
   "show_auto_notes": "Automatisch generierte Notizen anzeigen",
   "highlight_wrong_entries": "Falsche Einträge hervorheben",
   "highlight_conflicts": "Konflikte hervorheben",

@@ -20,6 +20,7 @@ export interface GameState {
   timesSolved: number;
   previousTimes: number[];
   secondsPlayed: number;
+  clipboardNotes: number[] | null;
 }
 
 export const INITIAL_GAME_STATE: GameState = {
@@ -34,6 +35,7 @@ export const INITIAL_GAME_STATE: GameState = {
   timesSolved: 0,
   previousTimes: [],
   won: false,
+  clipboardNotes: null,
 };
 
 // Action types
@@ -50,6 +52,7 @@ const ACTIVATE_NOTES_MODE = "game/ACTIVATE_NOTES_MODE";
 const DEACTIVATE_NOTES_MODE = "game/DEACTIVATE_NOTES_MODE";
 const UPDATE_TIMER = "game/UPDATE_TIME";
 const RESET_GAME = "game/RESET_GAME";
+const COPY_NOTES = "game/COPY_NOTES";
 
 type GameAction =
   | {
@@ -76,7 +79,8 @@ type GameAction =
   | {type: typeof DEACTIVATE_NOTES_MODE}
   | {type: typeof UPDATE_TIMER; secondsPlayed: number}
   | {type: typeof RESET_GAME}
-  | {type: typeof WON_GAME};
+  | {type: typeof WON_GAME}
+  | {type: typeof COPY_NOTES; notes: number[]};
 
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
@@ -166,6 +170,11 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         state: GameStateMachine.running,
         won: false,
       };
+    case COPY_NOTES:
+      return {
+        ...state,
+        clipboardNotes: action.notes,
+      };
     default:
       return state;
   }
@@ -191,6 +200,7 @@ interface GameContextType {
   deactivateNotesMode: () => void;
   updateTimer: (secondsPlayed: number) => void;
   resetGame: () => void;
+  copyNotes: (notes: number[]) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -261,6 +271,10 @@ export function GameProvider({children, initialState = INITIAL_GAME_STATE}: Game
     dispatch({type: RESET_GAME});
   }, []);
 
+  const copyNotes = useCallback((notes: number[]) => {
+    dispatch({type: COPY_NOTES, notes});
+  }, []);
+
   const value = {
     state,
     newGame,
@@ -276,6 +290,7 @@ export function GameProvider({children, initialState = INITIAL_GAME_STATE}: Game
     deactivateNotesMode,
     updateTimer,
     resetGame,
+    copyNotes,
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

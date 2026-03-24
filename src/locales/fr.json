@@ -16,6 +16,7 @@
   "note_mode": "N : Mode note",
   "undo": "CTRL + Z : Annuler",
   "redo": "CTRL + Y : Rétablir",
+  "copy_paste_notes": "CTRL + C/V : Copier/coller les notes",
   "show_auto_notes": "Afficher les notes automatiques",
   "highlight_wrong_entries": "Surligner les erreurs",
   "highlight_conflicts": "Surligner les conflits",

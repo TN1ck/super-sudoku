@@ -16,6 +16,7 @@
   "note_mode": "N: Entrar/salir del modo de notas",
   "undo": "CTRL + Z: Deshacer",
   "redo": "CTRL + Y: Rehacer",
+  "copy_paste_notes": "CTRL + C/V: Copiar/pegar notas",
   "show_auto_notes": "Mostrar notas generadas automáticamente",
   "highlight_wrong_entries": "Resaltar entradas incorrectas",
   "highlight_conflicts": "Resaltar conflictos",
