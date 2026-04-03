@@ -6,6 +6,7 @@ import es from "./locales/es.json";
 import de from "./locales/de.json";
 import it from "./locales/it.json";
 import pt from "./locales/pt.json";
+import uk from "./locales/uk.json";
 
 export enum Language {
   EN = "en",
@@ -14,10 +15,12 @@ export enum Language {
   DE = "de",
   IT = "it",
   PT = "pt",
+  UK = "uk",
 }
 
 export const LANGUAGE_TRANSLATIONS: Record<Language, string> = {
   [Language.EN]: "English",
+  [Language.UK]: "Українська",
   [Language.FR]: "Français",
   [Language.ES]: "Español",
   [Language.DE]: "Deutsch",
@@ -25,7 +28,7 @@ export const LANGUAGE_TRANSLATIONS: Record<Language, string> = {
   [Language.PT]: "Português",
 };
 
-export const LANGUAGES = [Language.EN, Language.FR, Language.ES, Language.DE, Language.IT, Language.PT];
+export const LANGUAGES = [Language.EN, Language.FR, Language.ES, Language.DE, Language.IT, Language.PT, Language.UK];
 
 // Detect browser language and return a supported language
 const getBrowserLanguage = (): Language => {
@@ -42,6 +45,7 @@ const getBrowserLanguage = (): Language => {
 i18n.use(initReactI18next).init({
   resources: {
     [Language.EN]: {translation: en},
+    [Language.UK]: {translation: uk},
     [Language.FR]: {translation: fr},
     [Language.ES]: {translation: es},
     [Language.DE]: {translation: de},
