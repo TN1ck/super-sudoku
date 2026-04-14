@@ -2,8 +2,16 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-body {
-  @apply bg-gray-800 dark:bg-gray-900;
+@layer base {
+  body {
+    @apply bg-sky-100 text-black dark:bg-gray-900 dark:text-white;
+  }
+
+  *,
+  ::before,
+  ::after {
+    @apply border-sky-300 dark:border-gray-700;
+  }
 }
 
 html, body, #root {

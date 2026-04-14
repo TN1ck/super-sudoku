@@ -215,7 +215,7 @@ export const Sudoku: React.FC<SudokuProps> = ({
           const highlight = friendsOfActiveCell.some((cc) => {
             return cc.x === c.x && cc.y === c.y;
           });
-          const isWrong = showWrongEntries && (c.number === 0 ? false : c.solution !== c.number);
+          const isWrong = showWrongEntries && c.solution !== 0 && (c.number === 0 ? false : c.solution !== c.number);
           const highlightNumber = activeCell && c.number !== 0 ? activeCell.number === c.number : false;
 
           return (

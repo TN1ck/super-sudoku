@@ -17,7 +17,9 @@ import {useTranslation} from "react-i18next";
 const TabItem = ({active, children, ...props}: React.ButtonHTMLAttributes<HTMLButtonElement> & {active: boolean}) => (
   <button
     className={`px-1 xs:px-2 sm:px-4 text-xs sm:text-sm md:text-base py-2 pointer capitalize rounded-sm border-none hover:bg-gray-500 ${
-      active ? "bg-white text-black dark:bg-gray-600 dark:text-white" : "bg-transparent text-white dark:text-gray-300"
+      active
+        ? "bg-white text-black dark:bg-gray-600 dark:text-white"
+        : "bg-transparent text-black dark:text-gray-300"
     }`}
     {...props}
   >
@@ -191,7 +193,7 @@ const GameIndex = ({
   const {t} = useTranslation();
 
   if (pageSudokus.length === 0) {
-    return <div className="text-center text-white">{t("no_sudokus_in_collection")}</div>;
+    return <div className="text-center text-black dark:text-white">{t("no_sudokus_in_collection")}</div>;
   }
 
   return (
@@ -310,12 +312,12 @@ const GameSelect: React.FC = () => {
         </div>
       )}
       {!isBaseCollectionLocal && showNewSudokuComponent && (
-        <div className="mb-4 p-4 bg-gray-900 rounded-sm border border-gray-700 flex flex-col gap-4">
+        <div className="mb-4 p-4 bg-sky-200 rounded-sm border border-sky-400 dark:bg-gray-900 dark:border-gray-700 flex flex-col gap-4">
           <div className="flex justify-between items-center">
-            <div className="text-white text-lg sm:text-2xl font-bold">{t("create_new_sudoku")}</div>
+            <div className="text-black dark:text-white text-lg sm:text-2xl font-bold">{t("create_new_sudoku")}</div>
             <Button onClick={() => setShowNewSudokuComponent(false)}>{t("close")}</Button>
           </div>
-          <p className="text-white">{t("add_your_own_sudoku", {collection: activeCollection.name})}</p>
+          <p className="text-black dark:text-white">{t("add_your_own_sudoku", {collection: activeCollection.name})}</p>
           <NewSudoku saveSudoku={saveSudoku} />
         </div>
       )}
