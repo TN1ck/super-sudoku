@@ -8,14 +8,10 @@
 
 🌐 **Live Demo**: [https://sudoku.tn1ck.com](https://sudoku.tn1ck.com)
 
-![Screenshot of the sudoku app](./docs/screenshot-app-2025-06-24.png)
+![Screenshot of the sudoku app](./docs/playing.png))
 
 ## 📸 Solver Demo Pages
 
-### Gameplay Page
-![Gameplay page](./docs/playing.png)
-
-### Solver Demo Page
 ![Solver demo page](./docs/solving.png)
 
 ## ✨ Why Super Sudoku?
@@ -124,6 +120,7 @@ We welcome contributions! Here's how you can help:
 5. **Open** a Pull Request
 
 ### Areas for Contribution
+- 🎨 UI/UX improvements
 - 🧠 Solver strategies and visualization improvements
 - 🧩 New puzzle generation algorithms
 - 🐛 Bug fixes
