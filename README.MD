@@ -8,7 +8,11 @@
 
 🌐 **Live Demo**: [https://sudoku.tn1ck.com](https://sudoku.tn1ck.com)
 
-![Screenshot of the sudoku app](./docs/screenshot-app-2025-06-24.png)
+![Screenshot of the sudoku app](./docs/playing.png))
+
+## 📸 Solver Demo Pages
+
+![Solver demo page](./docs/solving.png)
 
 ## ✨ Why Super Sudoku?
 
@@ -46,6 +50,12 @@ Born from a simple request - my Grandma wanted to play Sudoku, but I wasn't sati
 - **Difficulty Progression**: Start easy, work your way up
 - **Clean Interface**: Distraction-free, modern design
 - **Mobile Responsive**: Play on any device
+
+### 🧠 **Solver Demo**
+- **Interactive Solver Panel**: Run a step-by-step Sudoku solver directly on the current puzzle
+- **Strategy Selection**: Choose a solving strategy from the demo controls
+- **Controllable Execution**: Configure step delay and max iterations for inspection and debugging
+- **Debug-Friendly Workflow**: Use Step/Solve/Reset to observe search progress, iterations, and stack growth
 
 ## 🛠️ Development Setup
 
@@ -111,6 +121,7 @@ We welcome contributions! Here's how you can help:
 
 ### Areas for Contribution
 - 🎨 UI/UX improvements
+- 🧠 Solver strategies and visualization improvements
 - 🧩 New puzzle generation algorithms
 - 🐛 Bug fixes
 - 📱 Mobile optimization

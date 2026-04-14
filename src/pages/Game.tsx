@@ -14,7 +14,7 @@ import SudokuMenuControls from "src/components/sudoku/SudokuMenuControls";
 import {Container} from "src/components/Layout";
 import Shortcuts from "./Game/shortcuts/Shortcuts";
 import Checkbox from "src/components/Checkbox";
-import {cellsToSimpleSudoku, stringifySudoku, parseSudoku} from "src/lib/engine/utility";
+import {cellsToSimpleSudoku, stringifySudoku, parseSudoku, simpleSudokuToCells} from "src/lib/engine/utility";
 import {solve} from "src/lib/engine/solverAC3";
 import {Link, useLocation, useNavigate} from "@tanstack/react-router";
 import {localStoragePlayedSudokuRepository} from "src/lib/database/playedSudokus";
@@ -27,6 +27,7 @@ import {CellCoordinates, SimpleSudoku} from "src/lib/engine/types";
 import {DarkModeButton} from "src/components/DarkModeButton";
 import LanguageSelector from "src/components/LanguageSelector";
 import {useTranslation} from "react-i18next";
+import SolverDemo from "./SolverDemo";
 import {
   INITIAL_USER_PREFERENCES_STATE,
   UserPreferencesProvider,
@@ -205,7 +206,10 @@ const ShareButton: React.FC<{
   const {t} = useTranslation();
 
   return (
-    <div className="text-white hover:cursor-pointer p-1 hover:bg-gray-500 rounded-md" onClick={handleShare}>
+    <div
+      className="text-black dark:text-white hover:cursor-pointer p-1 hover:bg-sky-300 dark:hover:bg-gray-500 rounded-md"
+      onClick={handleShare}
+    >
       {copied ? t("copied") : `🔗 ${t("share")}`}
     </div>
   );
@@ -225,10 +229,89 @@ const CenteredContinueButton: React.FC<{visible: boolean; onClick: () => void}> 
 );
 
 const DifficultyShow = ({children, ...props}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className="text-white capitalize" {...props}>
+  <div className="text-black dark:text-white capitalize" {...props}>
     {children}
   </div>
 );
+
+type InfoPanelType = "shortcuts" | "about";
+
+const InfoPanelModal: React.FC<{panel: InfoPanelType | null; onClose: () => void}> = ({panel, onClose}) => {
+  const {t} = useTranslation();
+
+  if (!panel) {
+    return null;
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 px-4"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="w-full max-w-xl rounded-md bg-gray-100 p-4 text-black shadow-xl dark:bg-gray-800 dark:text-white"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-2xl font-bold">{panel === "shortcuts" ? t("shortcuts") : t("about")}</h2>
+          <Button className="bg-gray-200 dark:bg-gray-600" onClick={onClose}>
+            ✕
+          </Button>
+        </div>
+
+        {panel === "shortcuts" ? (
+          <ul className="list-disc space-y-1 pl-6">
+            <li>{t("arrow_keys")}</li>
+            <li>{t("number_keys")}</li>
+            <li>{t("backspace")}</li>
+            <li>{t("escape")}</li>
+            <li>{t("hint")}</li>
+            <li>{t("note_mode")}</li>
+            <li>{t("undo")}</li>
+            <li>{t("redo")}</li>
+            <li>{t("copy_paste_notes")}</li>
+          </ul>
+        ) : (
+          <div className="space-y-3">
+            <p>
+              {t("about_text")}{" "}
+              <a target="_blank" className="underline" href="https://github.com/TN1ck/super-sudoku" rel="noreferrer">
+                Github
+              </a>
+              .{" "}
+              <a href="https://tn1ck.com" target="_blank" className="hover:underline" rel="noreferrer">
+                {t("created_by")}
+              </a>
+              {t("report_issue")}{" "}
+              <a
+                target="_blank"
+                className="underline"
+                href="https://github.com/TN1ck/super-sudoku/issues"
+                rel="noreferrer"
+              >
+                Github
+              </a>
+              .
+            </p>
+            <p>
+              {t("solver_demo_about_blog")}{" "}
+              <a
+                target="_blank"
+                className="underline"
+                href="https://tn1ck.com/blog/how-to-generate-sudokus"
+                rel="noreferrer"
+              >
+                https://tn1ck.com/blog/how-to-generate-sudokus
+              </a>
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const SettingsAndInformation = () => {
   const {
@@ -240,70 +323,50 @@ const SettingsAndInformation = () => {
     toggleShowConflicts,
   } = useUserPreferences();
   const {t} = useTranslation();
+  const [isPageSettingsOpen, setIsPageSettingsOpen] = React.useState(false);
 
   return (
-    <div className="text-white">
-      <div className="grid gap-4">
-        <div className="md:block hidden">
-          <h2 className="mb-2 text-3xl font-bold">{t("shortcuts")}</h2>
-          <div className="grid gap-2">
-            <ul className="list-disc pl-6">
-              <li>{t("arrow_keys")}</li>
-              <li>{t("number_keys")}</li>
-              <li>{t("backspace")}</li>
-              <li>{t("escape")}</li>
-              <li>{t("hint")}</li>
-              <li>{t("note_mode")}</li>
-              <li>{t("undo")}</li>
-              <li>{t("redo")}</li>
-              <li>{t("copy_paste_notes")}</li>
-            </ul>
-          </div>
-        </div>
-        <div>
-          <h2 className="mb-2 text-3xl font-bold">{t("settings")}</h2>
-          <div className="grid gap-2">
-            <Checkbox id="generated_notes" checked={state.showHints} onChange={toggleShowHints}>
-              {t("show_auto_notes")}
-            </Checkbox>
-            <Checkbox id="highlight_wrong_entries" checked={state.showWrongEntries} onChange={toggleShowWrongEntries}>
-              {t("highlight_wrong_entries")}
-            </Checkbox>
-            <Checkbox id="highlight_conflicts" checked={state.showConflicts} onChange={toggleShowConflicts}>
-              {t("highlight_conflicts")}
-            </Checkbox>
-            <Checkbox id="circle_menu" checked={state.showCircleMenu} onChange={toggleShowCircleMenu}>
-              {t("show_circle_menu")}
-            </Checkbox>
-            <Checkbox id="show_occurrences" checked={state.showOccurrences} onChange={toggleShowOccurrences}>
-              {t("show_occurrences")}
-            </Checkbox>
-          </div>
-        </div>
-        <div>
-          <h2 className="text-3xl font-bold text-white">{t("about")}</h2>
-          <p className="text-white">
-            {t("about_text")}{" "}
-            <a target="_blank" className="underline" href="https://github.com/TN1ck/super-sudoku" rel="noreferrer">
-              Github
-            </a>
-            .{" "}
-            <a href="https://tn1ck.com" target="_blank" className="hover:underline" rel="noreferrer">
-              {t("created_by")}
-            </a>
-            {t("report_issue")}{" "}
-            <a
-              target="_blank"
-              className="underline"
-              href="https://github.com/TN1ck/super-sudoku/issues"
-              rel="noreferrer"
-            >
-              Github
-            </a>
-            .
-          </p>
+    <div className="text-black dark:text-white">
+      <div className="rounded-md border border-sky-400 bg-sky-200/70 dark:border-gray-300/40 dark:bg-black/20">
+        <button
+          type="button"
+          className="flex w-full items-center justify-between px-3 py-2 text-left text-xl font-bold"
+          onClick={() => setIsPageSettingsOpen((prev) => !prev)}
+          aria-expanded={isPageSettingsOpen}
+        >
+          {t("page_settings")}
+          <span aria-hidden="true">{isPageSettingsOpen ? "▴" : "▾"}</span>
+        </button>
+        <div className={isPageSettingsOpen ? "grid gap-2 px-3 pb-3" : "hidden"}>
+          <Checkbox id="generated_notes" checked={state.showHints} onChange={toggleShowHints}>
+            {t("show_auto_notes")}
+          </Checkbox>
+          <Checkbox id="highlight_wrong_entries" checked={state.showWrongEntries} onChange={toggleShowWrongEntries}>
+            {t("highlight_wrong_entries")}
+          </Checkbox>
+          <Checkbox id="highlight_conflicts" checked={state.showConflicts} onChange={toggleShowConflicts}>
+            {t("highlight_conflicts")}
+          </Checkbox>
+          <Checkbox id="circle_menu" checked={state.showCircleMenu} onChange={toggleShowCircleMenu}>
+            {t("show_circle_menu")}
+          </Checkbox>
+          <Checkbox id="show_occurrences" checked={state.showOccurrences} onChange={toggleShowOccurrences}>
+            {t("show_occurrences")}
+          </Checkbox>
         </div>
       </div>
+    </div>
+  );
+};
+
+const SolverToggle: React.FC<{checked: boolean; onChange: (checked: boolean) => void}> = ({checked, onChange}) => {
+  const {t} = useTranslation();
+
+  return (
+    <div className="text-black dark:text-white rounded-md border border-sky-400 bg-sky-200/70 dark:border-gray-300/40 dark:bg-black/20 p-3">
+      <Checkbox id="show_solver_demo" checked={checked} onChange={onChange}>
+        {t("show_solver_demo")}
+      </Checkbox>
     </div>
   );
 };
@@ -356,6 +419,17 @@ const GameInner: React.FC<{
   const canUndo = sudokuState.historyIndex < sudokuState.history.length - 1;
   const sudoku = sudokuState.current;
   const {t} = useTranslation();
+  const [infoPanel, setInfoPanel] = React.useState<InfoPanelType | null>(null);
+  const [showSolverDemo, setShowSolverDemo] = React.useState(false);
+  const [solverGrid, setSolverGrid] = React.useState<SimpleSudoku | null>(null);
+  const currentSimpleSudoku = React.useMemo(() => cellsToSimpleSudoku(sudokuState.current), [sudokuState.current]);
+
+  const solverSudokuCells = React.useMemo(() => {
+    if (!solverGrid) {
+      return emptyGrid;
+    }
+    return simpleSudokuToCells(solverGrid);
+  }, [solverGrid]);
 
   React.useEffect(() => {
     const isSolved = SudokuGame.isSolved(sudoku);
@@ -385,6 +459,23 @@ const GameInner: React.FC<{
       }
     };
   }, [onVisibilityChange]);
+
+  React.useEffect(() => {
+    if (!infoPanel) {
+      return;
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setInfoPanel(null);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [infoPanel]);
 
   const pausedGame = game.state === GameStateMachine.paused;
   const activeCell = game.activeCellCoordinates
@@ -417,7 +508,7 @@ const GameInner: React.FC<{
           copyNotes={copyNotes}
         />
         <header className="flex justify-between sm:items-center mt-4">
-          <div className="flex text-white flex-col sm:flex-row sm:justify-end sm:items-center gap-2">
+          <div className="flex text-black dark:text-white flex-col sm:flex-row sm:justify-end sm:items-center gap-2">
             <div className="flex gap-2 items-center">
               <DifficultyShow>{`${translateCollectionName(game.sudokuCollectionName)} #${game.sudokuIndex + 1}`}</DifficultyShow>
               <ShareButton gameState={game} sudokuState={sudokuState} />
@@ -425,10 +516,16 @@ const GameInner: React.FC<{
             <div className="hidden sm:block">{"|"}</div>
             <GameTimer />
           </div>
-          <div className="text-white text-lg sm:text-2xl font-bold flex items-center gap-2">{t("super_sudoku")}</div>
+          <div className="text-black dark:text-white text-lg sm:text-2xl font-bold flex items-center gap-2">{t("super_sudoku")}</div>
           <div className="flex">
             <div className="flex gap-2 flex-col justify-end items-end sm:flex-row">
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap justify-end">
+                <Button className="bg-gray-100 dark:bg-gray-600" onClick={() => setInfoPanel("shortcuts")}>
+                  {t("shortcuts")}
+                </Button>
+                <Button className="bg-gray-100 dark:bg-gray-600" onClick={() => setInfoPanel("about")}>
+                  {t("about")}
+                </Button>
                 <LanguageSelector />
                 <DarkModeButton />
                 <ClearGameButton
@@ -457,26 +554,30 @@ const GameInner: React.FC<{
             </div>
           </div>
         </header>
-        <div className="flex gap-4 flex-col md:flex-row">
-          <main className="mt-4 flex-grow md:min-w-96 w-full">
+        <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-start">
+          <main className="w-full min-w-0 md:mt-0 md:flex-1">
             <Sudoku
-              showWrongEntries={userPreferencesState.showWrongEntries && game.state === GameStateMachine.running}
-              showConflicts={userPreferencesState.showConflicts && game.state === GameStateMachine.running}
-              notesMode={game.notesMode}
-              shouldShowMenu={
-                game.showMenu && userPreferencesState.showCircleMenu && game.state === GameStateMachine.running
+              showWrongEntries={
+                userPreferencesState.showWrongEntries && game.state === GameStateMachine.running
               }
-              sudoku={game.state === GameStateMachine.paused ? emptyGrid : sudoku}
-              showMenu={showMenu}
-              hideMenu={hideMenu}
-              selectCell={selectCell}
+              showConflicts={userPreferencesState.showConflicts && game.state === GameStateMachine.running}
+              notesMode={showSolverDemo ? false : game.notesMode}
+              shouldShowMenu={
+                showSolverDemo
+                  ? false
+                  : game.showMenu && userPreferencesState.showCircleMenu && game.state === GameStateMachine.running
+              }
+              sudoku={showSolverDemo ? solverSudokuCells : game.state === GameStateMachine.paused ? emptyGrid : sudoku}
+              showMenu={showSolverDemo ? () => {} : showMenu}
+              hideMenu={showSolverDemo ? () => {} : hideMenu}
+              selectCell={showSolverDemo ? () => {} : selectCell}
               showHints={userPreferencesState.showHints && game.state === GameStateMachine.running}
-              activeCell={game.state === GameStateMachine.running ? activeCell : undefined}
-              setNumber={setNumber}
-              setNotes={setNotes}
-              clearNumber={clearCell}
+              activeCell={showSolverDemo ? undefined : game.state === GameStateMachine.running ? activeCell : undefined}
+              setNumber={showSolverDemo ? () => {} : setNumber}
+              setNotes={showSolverDemo ? () => {} : setNotes}
+              clearNumber={showSolverDemo ? () => {} : clearCell}
             >
-              {game.won && (
+              {!showSolverDemo && game.won && (
                 <div className="absolute top-0 bottom-0 right-0 left-0 z-30 flex items-center justify-center rounded-sm bg-white dark:bg-black dark:bg-opacity-80 bg-opacity-80 text-black dark:text-white">
                   <div className="grid gap-8">
                     <div className="flex justify-center text-2xl">{t("congrats")}</div>
@@ -500,32 +601,46 @@ const GameInner: React.FC<{
                 </div>
               )}
 
-              <CenteredContinueButton visible={pausedGame && !game.won} onClick={continueGame} />
+              {!showSolverDemo && <CenteredContinueButton visible={pausedGame && !game.won} onClick={continueGame} />}
             </Sudoku>
           </main>
-          <div className="grid gap-4 mt-4">
-            <SudokuMenuNumbers
-              notesMode={game.notesMode}
-              showOccurrences={userPreferencesState.showOccurrences}
-              activeCell={game.activeCellCoordinates}
-              sudoku={sudokuState.current}
-              showHints={userPreferencesState.showHints}
-              setNumber={setNumber}
-              setNotes={setNotes}
-            />
-            <SudokuMenuControls
-              notesMode={game.notesMode}
-              activeCellCoordinates={game.activeCellCoordinates ?? {x: 0, y: 0}}
-              clearCell={clearCell}
-              activateNotesMode={activateNotesMode}
-              deactivateNotesMode={deactivateNotesMode}
-              getHint={getHint}
-              canUndo={canUndo}
-              undo={undo}
-            />
-            <SettingsAndInformation />
-          </div>
+          <aside className="grid gap-4 md:mt-0 md:w-[clamp(17rem,28vw,22rem)] md:flex-none md:shrink-0" aria-label="sudoku side panel">
+            <SolverToggle checked={showSolverDemo} onChange={setShowSolverDemo} />
+            {showSolverDemo ? (
+              <SolverDemo
+                embedded
+                hideHeader
+                hidePreview
+                initialGrid={currentSimpleSudoku}
+                onGridChange={setSolverGrid}
+              />
+            ) : (
+              <>
+                <SudokuMenuNumbers
+                  notesMode={game.notesMode}
+                  showOccurrences={userPreferencesState.showOccurrences}
+                  activeCell={game.activeCellCoordinates}
+                  sudoku={sudokuState.current}
+                  showHints={userPreferencesState.showHints}
+                  setNumber={setNumber}
+                  setNotes={setNotes}
+                />
+                <SudokuMenuControls
+                  notesMode={game.notesMode}
+                  activeCellCoordinates={game.activeCellCoordinates ?? {x: 0, y: 0}}
+                  clearCell={clearCell}
+                  activateNotesMode={activateNotesMode}
+                  deactivateNotesMode={deactivateNotesMode}
+                  getHint={getHint}
+                  canUndo={canUndo}
+                  undo={undo}
+                />
+                <SettingsAndInformation />
+              </>
+            )}
+          </aside>
         </div>
+        <InfoPanelModal panel={infoPanel} onClose={() => setInfoPanel(null)} />
       </div>
     </Container>
   );

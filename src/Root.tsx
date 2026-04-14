@@ -4,6 +4,7 @@ import {createHashHistory, createRootRoute, createRoute, createRouter, RouterPro
 
 import Game from "./pages/Game";
 import SelectGame from "./pages/SelectGame";
+import SolverDemo from "./pages/SolverDemo";
 import {OfflineIndicator} from "./components/OfflineIndicator";
 
 const rootRoute = createRootRoute();
@@ -20,7 +21,13 @@ const selectGameRoute = createRoute({
   component: SelectGame,
 });
 
-rootRoute.addChildren([gameRoute, selectGameRoute]);
+const solverDemoRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/solver-demo",
+  component: SolverDemo,
+});
+
+rootRoute.addChildren([gameRoute, selectGameRoute, solverDemoRoute]);
 
 const hashHistory = createHashHistory();
 
