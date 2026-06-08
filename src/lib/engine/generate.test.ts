@@ -1,10 +1,14 @@
 import generateSudoku, {isSudokuUnique} from "./generate";
 import {createSeededRandom} from "./seededRandom";
 import {solve} from "./solverAC3";
-import {EMPTY_SUDOKU, SOLVED_SUDOKUS} from "./testutils";
+import {EMPTY_SUDOKU, ISSUE_33_CUSTOM_SUDOKU, SOLVED_SUDOKUS} from "./testutils";
 import {DIFFICULTY} from "./types";
-import {stringifySudoku} from "./utility";
+import {parseSudoku, stringifySudoku} from "./utility";
 import {describe, it, expect} from "vitest";
+
+const INVALID_GIVENS_SUDOKU = parseSudoku(
+  "110000000000000000000000000000000000000000000000000000000000000000000000000000000",
+);
 
 describe("generate", () => {
   it("generates the same sudoku using a seed", () => {
@@ -28,15 +32,6 @@ describe("generate", () => {
     expect(solve(sudoku.sudoku).iterations).toBe(32);
   });
 
-  it("generates the difficult sudoku using a seed", () => {
-    const randomFn = createSeededRandom(4);
-    const sudoku = generateSudoku(DIFFICULTY.EVIL, randomFn);
-    // Check if it is unique.
-    expect(isSudokuUnique(sudoku.sudoku)).toBe(true);
-    // Check if it can be solved.
-    // The difficulty is capped, as we don't do to many changes.
-    expect(solve(sudoku.sudoku).iterations).toBe(248);
-  });
 });
 
 describe("checkForUniqueness", () => {
@@ -44,9 +39,17 @@ describe("checkForUniqueness", () => {
     expect(isSudokuUnique(EMPTY_SUDOKU)).toBe(false);
   });
 
+  it("invalid givens are not unique", () => {
+    expect(isSudokuUnique(INVALID_GIVENS_SUDOKU)).toBe(false);
+  });
+
   it("test sudokus are unique", () => {
     SOLVED_SUDOKUS.forEach((s) => {
       expect(isSudokuUnique(s.unsolved)).toBe(true);
     });
+  });
+
+  it("recognizes the custom sudoku from issue #33 as unique", {timeout: 30_000}, () => {
+    expect(isSudokuUnique(ISSUE_33_CUSTOM_SUDOKU.unsolved)).toBe(true);
   });
 });

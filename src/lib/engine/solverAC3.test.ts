@@ -1,6 +1,6 @@
 import {solve} from "./solverAC3";
 import {stringifySudoku} from "./utility";
-import {EMPTY_SUDOKU, SOLVED_SUDOKUS} from "./testutils";
+import {EMPTY_SUDOKU, ISSUE_33_CUSTOM_SUDOKU, SOLVED_SUDOKUS} from "./testutils";
 import {describe, it, expect} from "vitest";
 
 describe("solve", () => {
@@ -26,6 +26,14 @@ describe("solve", () => {
         "918345672",
       ].join(""),
     );
+  });
+
+  it("solves the advanced custom sudoku from issue #33", () => {
+    const result = solve(ISSUE_33_CUSTOM_SUDOKU.unsolved);
+
+    expect(result.iterations).not.toBe(Infinity);
+    expect(result.sudoku).not.toBeNull();
+    expect(stringifySudoku(result.sudoku!)).toBe(stringifySudoku(ISSUE_33_CUSTOM_SUDOKU.solved));
   });
 });
 

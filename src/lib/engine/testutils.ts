@@ -16,6 +16,12 @@ export const EMPTY_SUDOKU = parseSudoku(
   ].join("\n"),
 );
 
+export const ISSUE_33_CUSTOM_SUDOKU = {
+  description: "custom sudoku from issue #33",
+  unsolved: parseSudoku("008600700900020000000000800000050046300000010000009000046800000000000900070000000"),
+  solved: parseSudoku("428615793931728654765943821892157346357486219614239578546892137183574962279361485"),
+};
+
 interface SolvedSudoku {
   unsolved: SimpleSudoku;
   solved: SimpleSudoku;

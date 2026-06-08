@@ -1,6 +1,7 @@
 import {SQUARE_TABLE, SUDOKU_NUMBERS, squareIndex} from "./utility";
 import {SimpleSudoku} from "./types";
 import sortBy from "lodash-es/sortBy";
+import {solveBacktracking} from "./solverBacktracking";
 
 export type DomainSudoku = number[][][];
 
@@ -221,5 +222,10 @@ export function solve(grid: SimpleSudoku): {
   iterations: number;
 } {
   const stack = [toDomainSudoku(grid)];
-  return _solveGridAC3(stack, 0);
+  const result = _solveGridAC3(stack, 0);
+  if (result.sudoku !== null && result.iterations !== Infinity) {
+    return result;
+  }
+
+  return solveBacktracking(grid);
 }
