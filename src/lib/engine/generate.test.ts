@@ -3,8 +3,12 @@ import {createSeededRandom} from "./seededRandom";
 import {solve} from "./solverAC3";
 import {EMPTY_SUDOKU, ISSUE_33_CUSTOM_SUDOKU, SOLVED_SUDOKUS} from "./testutils";
 import {DIFFICULTY} from "./types";
-import {stringifySudoku} from "./utility";
+import {parseSudoku, stringifySudoku} from "./utility";
 import {describe, it, expect} from "vitest";
+
+const INVALID_GIVENS_SUDOKU = parseSudoku(
+  "110000000000000000000000000000000000000000000000000000000000000000000000000000000",
+);
 
 describe("generate", () => {
   it("generates the same sudoku using a seed", () => {
@@ -42,6 +46,10 @@ describe("generate", () => {
 describe("checkForUniqueness", () => {
   it("empty sudoku is not unique", () => {
     expect(isSudokuUnique(EMPTY_SUDOKU)).toBe(false);
+  });
+
+  it("invalid givens are not unique", () => {
+    expect(isSudokuUnique(INVALID_GIVENS_SUDOKU)).toBe(false);
   });
 
   it("test sudokus are unique", () => {
