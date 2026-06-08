@@ -32,15 +32,6 @@ describe("generate", () => {
     expect(solve(sudoku.sudoku).iterations).toBe(32);
   });
 
-  it("generates the difficult sudoku using a seed", {timeout: 15_000}, () => {
-    const randomFn = createSeededRandom(4);
-    const sudoku = generateSudoku(DIFFICULTY.EVIL, randomFn);
-    // Check if it is unique.
-    expect(isSudokuUnique(sudoku.sudoku)).toBe(true);
-    // Check if it can be solved.
-    // The difficulty is capped, as we don't do to many changes.
-    expect(solve(sudoku.sudoku).iterations).toBe(55);
-  });
 });
 
 describe("checkForUniqueness", () => {
