@@ -7,7 +7,7 @@ import expertSudokus from "../../../sudokus/expert.txt?raw";
 import evilSudokus from "../../../sudokus/evil.txt?raw";
 import {parseSudoku, stringifySudoku} from "src/lib/engine/utility";
 import {solve} from "src/lib/engine/solverAC3";
-import {useCallback, useMemo, useState} from "react";
+import {useCallback, useState} from "react";
 import {BaseCollection, Collection, CollectionIndex, localStorageCollectionRepository} from "../database/collections";
 
 export interface SudokuRaw {
@@ -32,14 +32,8 @@ const BASE_SUDOKU_COLLECTIONS: Record<BaseCollection, string> = {
   [BaseCollection.Evil]: evilSudokus,
 } as const;
 
-// Cache for raw line counts
-const lineCountCache: Record<string, number> = {} as Record<string, number>;
-
 function getLineCount(collection: Collection): number {
-  if (!lineCountCache[collection.id]) {
-    lineCountCache[collection.id] = collection.sudokusRaw.split("\n").filter((line) => line.trim()).length;
-  }
-  return lineCountCache[collection.id];
+  return collection.sudokusRaw.split("\n").filter((line) => line.trim()).length;
 }
 
 export function getSudokusPaginated(collection: Collection, page: number = 0, pageSize: number = 12): PaginatedSudokus {
@@ -139,7 +133,7 @@ export function useSudokuCollections() {
     [isBaseCollection],
   );
 
-  const activeCollection = useMemo(() => getCollection(activeCollectionId), [activeCollectionId, getCollection]);
+  const activeCollection = getCollection(activeCollectionId);
 
   const removeCollection = (collectionId: string) => {
     localStorageCollectionRepository.removeCollection(collectionId);

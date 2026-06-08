@@ -25,7 +25,8 @@
  *
  */
 
-import {solve, solve as solveAC3} from "./solverAC3";
+import {solve as solveAC3} from "./solverAC3";
+import {countSolutions} from "./solverBacktracking";
 
 import {SUDOKU_NUMBERS, SUDOKU_COORDINATES, SQUARE_TABLE} from "./utility";
 import {DIFFICULTY, SimpleSudoku} from "./types";
@@ -52,38 +53,9 @@ const sudokuSolver = solveAC3;
 
 /**
  * Checks that there is only one solution for the sudoku.
- *
- * This works by iterating over all cells and if an empty one is encountered,
- * we set numbers from 1-9 and make sure that only one yields a solution.
- * This is a very expensive operation as it needs to solve at maximum about 9 * 9 * 9 = 729 sudokus.
  */
 export function isSudokuUnique(sudoku: SimpleSudoku): boolean {
-  let rowIndex = 0;
-  for (const row of sudoku) {
-    let colIndex = 0;
-    for (const col of row) {
-      // if it's 0, we try every number and if it's still solvable
-      // with two different numbers it's not unique
-      if (col === 0) {
-        let timesSolved = 0;
-        for (const num of SUDOKU_NUMBERS) {
-          const newSudoku = cloneSudoku(sudoku);
-          newSudoku[rowIndex][colIndex] = num;
-
-          const iterations = solve(newSudoku).iterations;
-          if (iterations !== Infinity) {
-            timesSolved++;
-          }
-        }
-        if (timesSolved > 1) {
-          return false;
-        }
-      }
-      colIndex++;
-    }
-    rowIndex++;
-  }
-  return true;
+  return countSolutions(sudoku, 2).count === 1;
 }
 
 /**

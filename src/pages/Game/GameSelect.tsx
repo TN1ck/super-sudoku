@@ -319,7 +319,7 @@ const GameSelect: React.FC = () => {
           <NewSudoku saveSudoku={saveSudoku} />
         </div>
       )}
-      <GameIndex pageSudokus={pageSudokus} pageStart={pageStart} sudokuCollectionName={activeCollection.name} />
+      <GameIndex pageSudokus={pageSudokus} pageStart={pageStart} sudokuCollectionName={activeCollection.id} />
       {pageCount > 1 && <PageSelector page={page} pageCount={pageCount} setPage={setPage} />}
     </div>
   );

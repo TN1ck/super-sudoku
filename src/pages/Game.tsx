@@ -109,13 +109,24 @@ const NextSudokuButton: React.FC<{gameState: GameState; setDisableAutoSync: (dis
   setDisableAutoSync,
 }) => {
   const {getCollection} = useSudokuCollections();
-  const collection = React.useMemo(
-    () => getCollection(gameState.sudokuCollectionName),
-    [gameState.sudokuCollectionName, getCollection],
-  );
+  const collection = React.useMemo(() => {
+    try {
+      return getCollection(gameState.sudokuCollectionName);
+    } catch (error) {
+      console.error("Error loading sudoku collection:", error);
+      return null;
+    }
+  }, [gameState.sudokuCollectionName, getCollection]);
+  const collectionName = collection
+    ? translateCollectionName(collection.name)
+    : translateCollectionName(gameState.sudokuCollectionName);
 
   // Pre-calculate next sudoku parameters
   const nextSudokuParams = React.useMemo(() => {
+    if (!collection) {
+      return null;
+    }
+
     try {
       const nextIndex = gameState.sudokuIndex + 1;
 
@@ -139,8 +150,8 @@ const NextSudokuButton: React.FC<{gameState: GameState; setDisableAutoSync: (dis
     return (
       <div>
         <p className="dark:text-white text-black mb-4 max-w-64 text-center">
-          {`Congratulation! You arrived at the end of collection "${translateCollectionName(collection.name)}". Select a new sudoku to play.`}
-          {t("collection_finished", {collection: translateCollectionName(collection.name)})}
+          {`Congratulation! You arrived at the end of collection "${collectionName}". Select a new sudoku to play.`}
+          {t("collection_finished", {collection: collectionName})}
         </p>
         <Link to="/select-game" className="w-full">
           <Button className="bg-teal-700 text-white w-full">{t("select_new_sudoku")}</Button>
@@ -164,7 +175,7 @@ const NextSudokuButton: React.FC<{gameState: GameState; setDisableAutoSync: (dis
     <Link to="/" search={nextSudokuParams} className="w-full" onClick={handleClick}>
       <Button className="bg-teal-700 text-white w-full">
         {t("select_next_sudoku", {
-          collection: translateCollectionName(collection.name),
+          collection: collectionName,
           sudokuIndex: nextSudokuParams.sudokuIndex,
         })}
       </Button>

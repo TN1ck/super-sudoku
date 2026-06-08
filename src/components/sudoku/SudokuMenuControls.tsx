@@ -2,14 +2,13 @@ import * as React from "react";
 import Button from "../Button";
 import clsx from "clsx";
 import {CellCoordinates} from "src/lib/engine/types";
-import LanguageSelector from "src/components/LanguageSelector";
-import { useTranslation } from "react-i18next";
+import {useTranslation} from "react-i18next";
 
 export const UndoButton: React.FC<{
   canUndo: boolean;
   undo: () => void;
 }> = ({canUndo, undo}) => {
-  const { t } = useTranslation();
+  const {t} = useTranslation();
   return (
     <Button disabled={!canUndo} onClick={undo}>
       {t("undo_btn")}
@@ -21,12 +20,8 @@ export const EraseButton: React.FC<{
   activeCellCoordinates: CellCoordinates | undefined;
   clearCell: (cellCoordinates: CellCoordinates) => void;
 }> = ({activeCellCoordinates, clearCell}) => {
-  const { t } = useTranslation();
-  return (
-    <Button onClick={() => activeCellCoordinates && clearCell(activeCellCoordinates)}>
-      {t("erase_btn")}
-    </Button>
-  );
+  const {t} = useTranslation();
+  return <Button onClick={() => activeCellCoordinates && clearCell(activeCellCoordinates)}>{t("erase_btn")}</Button>;
 };
 
 const NotesButton: React.FC<{
@@ -34,7 +29,7 @@ const NotesButton: React.FC<{
   activateNotesMode: () => void;
   deactivateNotesMode: () => void;
 }> = ({notesMode, activateNotesMode, deactivateNotesMode}) => {
-  const { t } = useTranslation();
+  const {t} = useTranslation();
   return (
     <Button onClick={() => (notesMode ? deactivateNotesMode() : activateNotesMode())} className={"relative"}>
       <div
@@ -52,12 +47,8 @@ const HintButton: React.FC<{
   activeCellCoordinates: CellCoordinates;
   getHint: (cellCoordinates: CellCoordinates) => void;
 }> = ({activeCellCoordinates, getHint}) => {
-  const { t } = useTranslation();
-  return (
-    <Button onClick={() => activeCellCoordinates && getHint(activeCellCoordinates)}>
-      {t("hint_btn")}
-    </Button>
-  );
+  const {t} = useTranslation();
+  return <Button onClick={() => activeCellCoordinates && getHint(activeCellCoordinates)}>{t("hint_btn")}</Button>;
 };
 
 const SudokuMenuControls: React.FC<{
