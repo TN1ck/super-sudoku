@@ -1,7 +1,7 @@
 import generateSudoku, {isSudokuUnique} from "./generate";
 import {createSeededRandom} from "./seededRandom";
 import {solve} from "./solverAC3";
-import {EMPTY_SUDOKU, SOLVED_SUDOKUS} from "./testutils";
+import {EMPTY_SUDOKU, ISSUE_33_CUSTOM_SUDOKU, SOLVED_SUDOKUS} from "./testutils";
 import {DIFFICULTY} from "./types";
 import {stringifySudoku} from "./utility";
 import {describe, it, expect} from "vitest";
@@ -48,5 +48,9 @@ describe("checkForUniqueness", () => {
     SOLVED_SUDOKUS.forEach((s) => {
       expect(isSudokuUnique(s.unsolved)).toBe(true);
     });
+  });
+
+  it("recognizes the custom sudoku from issue #33 as unique", {timeout: 30_000}, () => {
+    expect(isSudokuUnique(ISSUE_33_CUSTOM_SUDOKU.unsolved)).toBe(true);
   });
 });
