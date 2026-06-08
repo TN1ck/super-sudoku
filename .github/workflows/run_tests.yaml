@@ -1,4 +1,4 @@
-name: Run unit tests
+name: Run tests
 
 on:
   workflow_dispatch:
@@ -6,22 +6,23 @@ on:
     branches: '**'
 
 jobs:
-  unit-test:
+  test:
     runs-on: ubuntu-latest
     steps:
     - name: Check out code
       uses: actions/checkout@v4
-    - uses: pnpm/action-setup@v2
-      with:
-        version: 8
     - uses: actions/setup-node@v4
       with:
-        node-version: '21'
+        node-version: '24'
         cache: npm
         cache-dependency-path: ./package-lock.json
     - name: Install dependencies
-      run: npm install
+      run: npm ci
     - name: Run unit tests
       run: npm test
     - name: Run type checks
       run: npm run typecheck
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps chromium
+    - name: Run Playwright e2e tests
+      run: npm run test:e2e

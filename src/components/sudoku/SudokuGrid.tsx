@@ -49,13 +49,16 @@ export const CellNoteContainer = ({
   initial,
   bounds,
   children,
+  testId,
 }: {
   initial: boolean;
   bounds: Bounds;
   children: React.ReactNode;
+  testId?: string;
 }) => {
   return (
     <div
+      data-testid={testId}
       style={{
         width: `${bounds.width}%`,
         height: `${bounds.height}%`,
@@ -78,6 +81,10 @@ export const GridCell = ({
   bounds,
   active,
   notesMode,
+  initial,
+  number,
+  testId,
+  ariaLabel,
   onClick,
   onRightClick,
 }: {
@@ -87,6 +94,10 @@ export const GridCell = ({
   bounds: Bounds;
   active: boolean;
   notesMode: boolean;
+  initial: boolean;
+  number: number;
+  testId?: string;
+  ariaLabel?: string;
   onClick: () => void;
   onRightClick: () => void;
 }) => {
@@ -119,6 +130,13 @@ export const GridCell = ({
   return (
     <>
       <div
+        aria-label={ariaLabel}
+        data-cell-active={active ? "true" : "false"}
+        data-cell-conflict={conflict ? "true" : "false"}
+        data-cell-initial={initial ? "true" : "false"}
+        data-cell-notes-mode={notesMode ? "true" : "false"}
+        data-cell-value={number === 0 ? "" : number}
+        data-testid={testId}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -146,6 +164,7 @@ export const GridCellNumber = ({
   left,
   top,
   children,
+  testId,
   // TODO: distinguish between wrong and conflicted.
   conflict,
 }: {
@@ -155,9 +174,11 @@ export const GridCellNumber = ({
   left: number;
   top: number;
   children: React.ReactNode;
+  testId?: string;
 }) => {
   return (
     <div
+      data-testid={testId}
       style={{
         left: `${left}%`,
         top: `${top}%`,

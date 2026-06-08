@@ -206,7 +206,12 @@ const ShareButton: React.FC<{
 
   const handleShare = async () => {
     const stringifiedSudoku = stringifySudoku(cellsToSimpleSudoku(sudokuState.current));
-    const shareUrl = `${window.location.origin}/?sudokuIndex=${gameState.sudokuIndex + 1}&sudoku="${stringifiedSudoku}"&sudokuCollectionName=${gameState.sudokuCollectionName}`;
+    const params = new URLSearchParams({
+      sudokuIndex: String(gameState.sudokuIndex + 1),
+      sudoku: stringifiedSudoku,
+      sudokuCollectionName: gameState.sudokuCollectionName,
+    });
+    const shareUrl = `${window.location.origin}${window.location.pathname}#/?${params.toString()}`;
 
     await copyToClipboard(shareUrl);
     setCopied(true);
@@ -216,15 +221,22 @@ const ShareButton: React.FC<{
   const {t} = useTranslation();
 
   return (
-    <div className="text-white hover:cursor-pointer p-1 hover:bg-gray-500 rounded-md" onClick={handleShare}>
+    <button
+      aria-label={t("share")}
+      className="text-white hover:cursor-pointer p-1 hover:bg-gray-500 rounded-md border-none bg-transparent"
+      data-testid="share-sudoku"
+      onClick={handleShare}
+      type="button"
+    >
       {copied ? t("copied") : `🔗 ${t("share")}`}
-    </div>
+    </button>
   );
 };
 
 const CenteredContinueButton: React.FC<{visible: boolean; onClick: () => void}> = ({visible, onClick}) => (
   <div
     onClick={onClick}
+    data-testid="continue-overlay"
     className={`${visible ? "flex" : "hidden"} justify-center items-center w-full h-full absolute z-30 hover:cursor-pointer`}
   >
     <>
@@ -240,6 +252,57 @@ const DifficultyShow = ({children, ...props}: React.HTMLAttributes<HTMLDivElemen
     {children}
   </div>
 );
+
+function stripWrappingQuotes(value: string) {
+  if (value.startsWith('"') && value.endsWith('"')) {
+    return value.slice(1, -1);
+  }
+  return value;
+}
+
+function getRawSearchParam(name: string) {
+  if (typeof window === "undefined") {
+    return undefined;
+  }
+
+  const hashSearch = window.location.hash.includes("?") ? window.location.hash.split("?")[1] : "";
+  const searchSources = [hashSearch, window.location.search.replace(/^\?/, "")].filter(Boolean);
+
+  for (const source of searchSources) {
+    const value = new URLSearchParams(source).get(name);
+    if (value !== null) {
+      return stripWrappingQuotes(value);
+    }
+  }
+
+  return undefined;
+}
+
+function getSearchString(search: Record<string, unknown>, name: string) {
+  const rawValue = getRawSearchParam(name);
+  if (rawValue !== undefined) {
+    return rawValue;
+  }
+
+  const value = search[name];
+  if (typeof value === "string") {
+    return stripWrappingQuotes(value);
+  }
+  if (typeof value === "number" && Number.isSafeInteger(value)) {
+    return value.toString();
+  }
+  return undefined;
+}
+
+function getSearchNumber(search: Record<string, unknown>, name: string) {
+  const value = getSearchString(search, name);
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
 
 const SettingsAndInformation = () => {
   const {
@@ -430,7 +493,9 @@ const GameInner: React.FC<{
         <header className="flex justify-between sm:items-center mt-4">
           <div className="flex text-white flex-col sm:flex-row sm:justify-end sm:items-center gap-2">
             <div className="flex gap-2 items-center">
-              <DifficultyShow>{`${translateCollectionName(game.sudokuCollectionName)} #${game.sudokuIndex + 1}`}</DifficultyShow>
+              <DifficultyShow data-testid="current-game-label">{`${translateCollectionName(
+                game.sudokuCollectionName,
+              )} #${game.sudokuIndex + 1}`}</DifficultyShow>
               <ShareButton gameState={game} sudokuState={sudokuState} />
             </div>
             <div className="hidden sm:block">{"|"}</div>
@@ -592,14 +657,7 @@ const GameWithRouteManagement = () => {
     hideMenu,
     copyNotes,
   } = useGame();
-  const {
-    state: userPreferencesState,
-    toggleShowHints,
-    toggleShowOccurrences,
-    toggleShowCircleMenu,
-    toggleShowWrongEntries,
-    toggleShowConflicts,
-  } = useUserPreferences();
+  const {state: userPreferencesState} = useUserPreferences();
   const {
     setSudokuState,
     state: sudokuState,
@@ -617,10 +675,10 @@ const GameWithRouteManagement = () => {
   const {t} = useTranslation();
 
   const currentPath = location.pathname;
-  const search = location.search;
-  const sudokuIndex = search["sudokuIndex"] as number | undefined;
-  const sudoku = search["sudoku"] as string | undefined;
-  const sudokuCollectionName = search["sudokuCollectionName"] as string | undefined;
+  const search = location.search as Record<string, unknown>;
+  const sudokuIndex = getSearchNumber(search, "sudokuIndex");
+  const sudoku = getSearchString(search, "sudoku");
+  const sudokuCollectionName = getSearchString(search, "sudokuCollectionName");
 
   useEffect(() => {
     if (gameState && sudokuState && initialized && currentPath === "/" && !disableAutoSync) {

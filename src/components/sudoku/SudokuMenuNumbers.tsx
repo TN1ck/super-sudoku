@@ -53,6 +53,7 @@ const SudokuMenuNumbers: React.FC<SudokuMenuNumbersProps> = ({
 
         return (
           <Button
+            aria-label={`Set ${n}`}
             className={clsx("relative font-bold", {
               "bg-gray-400": occurrences == 9,
               "bg-red-400 dark:bg-red-400": showOccurrences && occurrences > 9,
@@ -65,11 +66,15 @@ const SudokuMenuNumbers: React.FC<SudokuMenuNumbersProps> = ({
                 !userNotes.includes(n) &&
                 activeCellData?.number === 0,
             })}
+            data-testid={`sudoku-number-${n}`}
             onClick={setNumberOrNote}
             key={n}
           >
             {showOccurrences && (
-              <div className="absolute right-0 bottom-0 h-3 w-3 rounded-xl bg-teal-700 text-xxs text-white opacity-70 sm:right-1 sm:bottom-1 sm:h-4 sm:w-4 sm:text-xs ">
+              <div
+                className="absolute right-0 bottom-0 h-3 w-3 rounded-xl bg-teal-700 text-xxs text-white opacity-70 sm:right-1 sm:bottom-1 sm:h-4 sm:w-4 sm:text-xs "
+                data-testid={`sudoku-number-occurrences-${n}`}
+              >
                 {occurrences}
               </div>
             )}

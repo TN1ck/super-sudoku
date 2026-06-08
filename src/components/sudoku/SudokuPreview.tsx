@@ -72,7 +72,10 @@ export default class SudokuPreview extends React.PureComponent<{
 
     return (
       <div
+        aria-label={`Select sudoku ${id}`}
         className="user-select-none hover:cursor-pointer group"
+        data-testid={`sudoku-preview-${id}`}
+        role="button"
         tabIndex={id + 4}
         onClick={onClick}
         onKeyDown={onKeyDown}

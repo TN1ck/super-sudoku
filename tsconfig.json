@@ -23,8 +23,10 @@
     },
   },
   "include": [
+    "e2e",
     "src",
     "scripts",
+    "playwright.config.ts",
     "vite.config.ts"
   ]
 }
