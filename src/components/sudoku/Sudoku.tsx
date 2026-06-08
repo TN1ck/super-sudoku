@@ -55,6 +55,8 @@ const SudokuCell = React.memo(
     notesMode,
     conflict,
     highlightNumber,
+    x,
+    y,
   }: {
     number: number;
     active: boolean;
@@ -69,23 +71,41 @@ const SudokuCell = React.memo(
     initial: boolean;
     notes: number[];
     notesMode: boolean;
+    x: number;
+    y: number;
   }) => {
+    const row = y + 1;
+    const column = x + 1;
+
     return (
       <div>
         <GridCell
+          ariaLabel={`${initial ? "Given" : "Editable"} cell row ${row} column ${column}${
+            number === 0 ? " empty" : ` value ${number}`
+          }`}
           notesMode={notesMode}
           active={active}
           conflict={conflict}
           highlight={highlight}
           highlightNumber={highlightNumber}
           bounds={bounds}
+          initial={initial}
+          number={number}
           onClick={onClick}
           onRightClick={onRightClick}
+          testId={`sudoku-cell-${x}-${y}`}
         />
-        <GridCellNumber left={left} top={top} initial={initial} highlight={highlightNumber} conflict={conflict}>
+        <GridCellNumber
+          left={left}
+          top={top}
+          initial={initial}
+          highlight={highlightNumber}
+          conflict={conflict}
+          testId={`sudoku-cell-value-${x}-${y}`}
+        >
           {number !== 0 ? number : ""}
         </GridCellNumber>
-        <CellNoteContainer initial={initial} bounds={bounds}>
+        <CellNoteContainer initial={initial} bounds={bounds} testId={`sudoku-cell-notes-${x}-${y}`}>
           {initial || number
             ? null
             : notes.map((n) => {
@@ -180,7 +200,7 @@ export const Sudoku: React.FC<SudokuProps> = ({
   }, [activeCell, hideMenu]);
 
   return (
-    <div className="relative" ref={sudokuContainerRef} style={{height: containerWidth}}>
+    <div className="relative" data-testid="sudoku-board" ref={sudokuContainerRef} style={{height: containerWidth}}>
       {children}
       <div className="absolute h-full w-full rounded-sm">
         <SudokuGrid width={width} height={height} hideLeftRight />
@@ -238,6 +258,8 @@ export const Sudoku: React.FC<SudokuProps> = ({
               number={c.number}
               initial={c.initial}
               notesMode={notesMode}
+              x={c.x}
+              y={c.y}
             />
           );
         })}
