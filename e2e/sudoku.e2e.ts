@@ -1,11 +1,12 @@
 import {expect, Page, test} from "@playwright/test";
 
-const FIRST_PUZZLE =
-  "534920700060007309900000010008700000496803002721594806000200940800046100003000000";
-const FIRST_SOLUTION =
-  "534921768162487359987635214358762491496813572721594836615278943879346125243159687";
+const FIRST_PUZZLE = "534920700060007309900000010008700000496803002721594806000200940800046100003000000";
+const FIRST_SOLUTION = "534921768162487359987635214358762491496813572721594836615278943879346125243159687";
 const ONE_EMPTY_CELL_PUZZLE = `${FIRST_SOLUTION.slice(0, -1)}0`;
+const ISSUE_33_CUSTOM_PUZZLE = "008600700900020000000000800000050046300000010000009000046800000000000900070000000";
+const ISSUE_33_CUSTOM_SOLUTION = "428615793931728654765943821892157346357486219614239578546892137183574962279361485";
 const SHORTCUT_MODIFIER = "Control";
+const CUSTOM_SUDOKU_VERIFICATION_LIMIT_MS = 5_000;
 
 function gameUrl(sudoku = FIRST_PUZZLE, sudokuIndex = 1, sudokuCollectionName = "easy") {
   const params = new URLSearchParams({
@@ -29,6 +30,13 @@ function cellNotes(page: Page, x: number, y: number) {
   return page.getByTestId(`sudoku-cell-notes-${x}-${y}`);
 }
 
+function cellCoordinates(index: number) {
+  return {
+    x: index % 9,
+    y: Math.floor(index / 9),
+  };
+}
+
 async function openGame(page: Page, sudoku = FIRST_PUZZLE, sudokuIndex = 1, collection = "easy", label = "Easy") {
   await page.goto(gameUrl(sudoku, sudokuIndex, collection));
   await expect(page.getByTestId("current-game-label")).toHaveText(`${label} #${sudokuIndex}`);
@@ -48,6 +56,22 @@ async function continueIfPaused(page: Page) {
 async function selectCell(page: Page, x: number, y: number) {
   await cell(page, x, y).click();
   await expect(cell(page, x, y)).toHaveAttribute("data-cell-active", "true");
+}
+
+async function enterSudokuValues(
+  page: Page,
+  values: string,
+  shouldEnter: (value: string, index: number) => boolean = (value) => value !== "0",
+) {
+  for (const [index, value] of [...values].entries()) {
+    if (!shouldEnter(value, index)) {
+      continue;
+    }
+
+    const {x, y} = cellCoordinates(index);
+    await selectCell(page, x, y);
+    await page.keyboard.press(value);
+  }
 }
 
 async function expectStoredPreferences(page: Page, preferences: Record<string, boolean>) {
@@ -194,6 +218,55 @@ test("changes games through the selection screen", async ({page}) => {
 
   await expect(page.getByTestId("current-game-label")).toHaveText("Medium #1");
   await expect(page).toHaveURL(/sudokuCollectionName=medium/);
+});
+
+test("creates and solves a difficult custom sudoku", async ({page}) => {
+  test.setTimeout(60_000);
+  const customCollectionName = "Issue #33 custom";
+
+  await page.goto("/#/select-game");
+  await expect(page.getByRole("heading", {name: "Select Game"})).toBeVisible();
+
+  page.once("dialog", async (dialog) => {
+    expect(dialog.type()).toBe("prompt");
+    await dialog.accept(customCollectionName);
+  });
+  await page.getByRole("button", {name: "+ New Collection"}).click();
+  await expect(page.getByRole("button", {name: customCollectionName})).toBeVisible();
+
+  await page.getByRole("button", {name: "Add sudoku +"}).click();
+  await expect(page.getByText("Create new sudoku")).toBeVisible();
+
+  await enterSudokuValues(page, ISSUE_33_CUSTOM_PUZZLE);
+
+  const saveStartedAt = performance.now();
+  await page.getByRole("button", {name: "Save sudoku"}).click();
+  await expect(page.getByTestId("sudoku-preview-1")).toBeVisible();
+  const saveDurationMs = performance.now() - saveStartedAt;
+  expect(saveDurationMs).toBeLessThan(CUSTOM_SUDOKU_VERIFICATION_LIMIT_MS);
+
+  await page.getByTestId("sudoku-preview-1").click();
+  await expect(page.getByTestId("current-game-label")).toHaveText(`${customCollectionName} #1`);
+  await continueIfPaused(page);
+  await page.locator("#circle_menu").uncheck();
+  await expect(page.locator("#circle_menu")).not.toBeChecked();
+
+  await enterSudokuValues(page, ISSUE_33_CUSTOM_SOLUTION, (_, index) => ISSUE_33_CUSTOM_PUZZLE[index] === "0");
+
+  await expect(page.getByText(/Congrats, you won/)).toBeVisible();
+  await expect(
+    page.getByText(
+      `Congratulations! You arrived at the end of collection "${customCollectionName}". Select a new sudoku to play.`,
+    ),
+  ).toBeVisible();
+  await expect
+    .poll(() =>
+      page.getByTestId("sudoku-board").evaluate((board) => {
+        const text = board.textContent ?? "";
+        return text.match(/arrived at the end of collection/g)?.length ?? 0;
+      }),
+    )
+    .toBe(1);
 });
 
 test("copies a shareable sudoku URL that opens the same puzzle", async ({context, page}) => {

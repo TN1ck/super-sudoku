@@ -150,7 +150,6 @@ const NextSudokuButton: React.FC<{gameState: GameState; setDisableAutoSync: (dis
     return (
       <div>
         <p className="dark:text-white text-black mb-4 max-w-64 text-center">
-          {`Congratulation! You arrived at the end of collection "${collectionName}". Select a new sudoku to play.`}
           {t("collection_finished", {collection: collectionName})}
         </p>
         <Link to="/select-game" className="w-full">
@@ -430,6 +429,15 @@ const GameInner: React.FC<{
   const canUndo = sudokuState.historyIndex < sudokuState.history.length - 1;
   const sudoku = sudokuState.current;
   const {t} = useTranslation();
+  const {getCollection} = useSudokuCollections();
+  const collectionName = React.useMemo(() => {
+    try {
+      return translateCollectionName(getCollection(game.sudokuCollectionName).name);
+    } catch (error) {
+      console.error("Error loading sudoku collection:", error);
+      return translateCollectionName(game.sudokuCollectionName);
+    }
+  }, [game.sudokuCollectionName, getCollection]);
 
   React.useEffect(() => {
     const isSolved = SudokuGame.isSolved(sudoku);
@@ -493,9 +501,7 @@ const GameInner: React.FC<{
         <header className="flex justify-between sm:items-center mt-4">
           <div className="flex text-white flex-col sm:flex-row sm:justify-end sm:items-center gap-2">
             <div className="flex gap-2 items-center">
-              <DifficultyShow data-testid="current-game-label">{`${translateCollectionName(
-                game.sudokuCollectionName,
-              )} #${game.sudokuIndex + 1}`}</DifficultyShow>
+              <DifficultyShow data-testid="current-game-label">{`${collectionName} #${game.sudokuIndex + 1}`}</DifficultyShow>
               <ShareButton gameState={game} sudokuState={sudokuState} />
             </div>
             <div className="hidden sm:block">{"|"}</div>
