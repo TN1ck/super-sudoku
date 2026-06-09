@@ -100,6 +100,16 @@ export default [
     },
   },
 
+  // JavaScript helper scripts
+  {
+    files: ['scripts/**/*.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
+
   // Ignore build output and other files
   {
     ignores: ['dist/**', 'node_modules/**', '*.min.js', 'coverage/**', 'postcss.config.js', 'prettier.config.js', 'tailwind.config.js'],
