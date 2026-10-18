@@ -49,6 +49,8 @@ Born from a simple request - my Grandma wanted to play Sudoku, but I wasn't sati
 
 ## 🛠️ Development Setup
 
+[![Launch on PicoRunner](https://picorunner.com/badges/launch.svg)](https://picorunner.com/launch/?repository=https%3A%2F%2Fgithub.com%2FTN1ck%2Fsuper-sudoku)
+
 ### Prerequisites
 - **Node.js** (version 20 or higher) - [Download here](https://nodejs.org/en/download/package-manager/)
 
