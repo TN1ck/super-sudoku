@@ -17,7 +17,7 @@ import Checkbox from "src/components/Checkbox";
 import {cellsToSimpleSudoku, stringifySudoku, parseSudoku} from "src/lib/engine/utility";
 import {solve} from "src/lib/engine/solverAC3";
 import {Link, useLocation, useNavigate} from "@tanstack/react-router";
-import {localStoragePlayedSudokuRepository} from "src/lib/database/playedSudokus";
+import {getCurrentSudokuFromStorage, localStoragePlayedSudokuRepository} from "src/lib/database/playedSudokus";
 import {UserPreferences} from "src/lib/database/userPreferences";
 import {formatDuration} from "src/utils/format";
 import {throttle} from "lodash";
@@ -618,10 +618,7 @@ const throttledSave = throttle(localStoragePlayedSudokuRepository.saveSudokuStat
 
 export function AppProvider({children}: {children: React.ReactNode}) {
   // Load initial state from persistence
-  const currentSudokuKey = localStoragePlayedSudokuRepository.getCurrentSudokuKey();
-  const currentSudoku = currentSudokuKey
-    ? localStoragePlayedSudokuRepository.getSudokuState(currentSudokuKey)
-    : undefined;
+  const [currentSudoku] = React.useState(getCurrentSudokuFromStorage);
 
   const initialSudokuState: SudokuState = currentSudoku
     ? {
@@ -687,8 +684,17 @@ const GameWithRouteManagement = () => {
   const sudokuCollectionName = getSearchString(search, "sudokuCollectionName");
 
   useEffect(() => {
+    return () => {
+      throttledSave.flush();
+    };
+  }, []);
+
+  useEffect(() => {
     if (gameState && sudokuState && initialized && currentPath === "/" && !disableAutoSync) {
       throttledSave(gameState, sudokuState);
+      if (gameState.won) {
+        throttledSave.flush();
+      }
       // Also update the URL to the current game state if it differs.
       const stringifiedSudoku = stringifySudoku(cellsToSimpleSudoku(sudokuState.current));
       const shouldUpdateUrl = stringifiedSudoku !== sudoku;

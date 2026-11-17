@@ -1,10 +1,11 @@
-import {GameState} from "src/context/GameContext";
+import {GameState, GameStateMachine, INITIAL_GAME_STATE} from "src/context/GameContext";
 import {SudokuState} from "src/context/SudokuContext";
 import {Cell} from "src/lib/engine/types";
-import {stringifySudoku, cellsToSimpleSudoku} from "src/lib/engine/utility";
+import {stringifySudoku, cellsToSimpleSudoku, parseSudoku, simpleSudokuToCells} from "src/lib/engine/utility";
 
-const STORAGE_KEY_V_1_4 = "super_sudoku_1_4_use_this_file_if_you_want_to_cheat";
-const STORAGE_KEY_V_1_5 = "super_sudoku_1_5_use_this_file_if_you_want_to_cheat";
+const LEGACY_KEYS = ["1_5", "1_4", "1_3", "1_2", "1_1", "1_0"].map(
+  (version) => `super_sudoku_${version}_use_this_file_if_you_want_to_cheat`,
+);
 const STORAGE_KEY_V_1_6_PREFIX = "super_sudoku_1_6_";
 const STORAGE_CURRENTLY_PLAYING_SUDOKU_KEY = "super_sudoku_currently_playing_sudoku";
 
@@ -13,165 +14,224 @@ export interface StoredPlayedSudokuState {
   sudoku: Cell[];
 }
 
-interface StoredPlayedSudokusState {
-  active: string;
-  sudokus: {
-    [key: string]: StoredPlayedSudokuState;
+interface CompletedSudoku {
+  game: GameState;
+  completedGrid: string;
+}
+
+type SavedSudoku = StoredPlayedSudokuState | CompletedSudoku;
+
+function puzzleKey(cells: Cell[]) {
+  return stringifySudoku(cellsToSimpleSudoku(cells));
+}
+
+function compact(record: SavedSudoku): SavedSudoku {
+  if (
+    "sudoku" in record &&
+    record.game.won &&
+    record.sudoku.length === 81 &&
+    record.sudoku.every((c) => c.number > 0)
+  ) {
+    // Keep the player's actual solution, including for custom or shared puzzles.
+    return {game: record.game, completedGrid: record.sudoku.map((c) => c.number).join("")};
+  }
+  return record;
+}
+
+interface LegacyGame extends Partial<Omit<GameState, "state">> {
+  difficulty?: string;
+  state?: string;
+  startTime?: number;
+  stopTime?: number;
+  offsetTime?: number;
+}
+
+function normalizeGame(game: LegacyGame, lastActiveTime = 0): GameState {
+  const won = game.won === true || game.state === "WON_GAME";
+  // v1.0 stored timestamps and the time spent paused, all in milliseconds.
+  const stopTime = game.stopTime || lastActiveTime;
+  const elapsedMs = game.startTime && stopTime ? Math.max(0, stopTime - game.startTime - (game.offsetTime ?? 0)) : 0;
+  const secondsPlayed = game.secondsPlayed ?? elapsedMs / 1000;
+  return {
+    ...INITIAL_GAME_STATE,
+    ...game,
+    sudokuCollectionName: game.sudokuCollectionName || game.difficulty || INITIAL_GAME_STATE.sudokuCollectionName,
+    won,
+    secondsPlayed,
+    state: !won && game.state === GameStateMachine.running ? GameStateMachine.running : GameStateMachine.paused,
+    timesSolved: game.timesSolved ?? (won ? 1 : 0),
+    previousTimes: game.previousTimes ?? (won ? [secondsPlayed] : []),
   };
 }
 
-// Before version 1.6, we had one storage key for all sudokus.
-// Now we have one storage key for each sudoku.
-// This function loads the sudokus from the old storage key.
-const legacyLoadPlayedSudokusFromLocalStorage = (): StoredPlayedSudokusState => {
-  const empty = {
-    active: "",
-    sudokus: {},
-    application: undefined,
-  };
-  if (typeof localStorage === "undefined") {
-    return empty;
+function restore(record: SavedSudoku, key: string): StoredPlayedSudokuState {
+  const game = normalizeGame(record.game);
+  if ("sudoku" in record) {
+    return {game, sudoku: record.sudoku};
   }
-  let usedKey = STORAGE_KEY_V_1_5;
-  let text = localStorage.getItem(STORAGE_KEY_V_1_5);
-  // Try older versions.
-  if (text === null) {
-    usedKey = STORAGE_KEY_V_1_4;
-    text = localStorage.getItem(STORAGE_KEY_V_1_4);
-    console.log("using v1.4", text);
-  }
-  if (text !== null) {
+  const cells = simpleSudokuToCells(parseSudoku(key), parseSudoku(record.completedGrid));
+  return {game, sudoku: cells.map((cell) => ({...cell, number: cell.solution}))};
+}
+
+function getPlayedKeys() {
+  return Object.keys(localStorage).filter((key) => key.startsWith(STORAGE_KEY_V_1_6_PREFIX));
+}
+
+function compactOldCompletions() {
+  for (const key of getPlayedKeys()) {
     try {
-      // TODO: add validation
-      const result = JSON.parse(text) as StoredPlayedSudokusState;
-
-      // Migrate from numeric IDs to stringified sudoku keys
-      if (usedKey === STORAGE_KEY_V_1_4) {
-        const migratedSudokus: {[key: string]: StoredPlayedSudokuState} = {};
-        const keys = Object.keys(result.sudokus);
-        console.log("keys", keys);
-
-        for (const key of keys) {
-          const numberKey = parseInt(key, 10);
-          if (isNaN(numberKey)) {
-            continue;
-          }
-          const sudoku = result.sudokus[numberKey];
-
-          // Convert numeric ID to stringified sudoku key
-          const sudokuKey = stringifySudoku(cellsToSimpleSudoku(sudoku.sudoku));
-          console.log("migrated sudoku:", numberKey, "to", sudokuKey);
-
-          migratedSudokus[sudokuKey] = sudoku;
-        }
-
-        result.sudokus = migratedSudokus;
-        result.active =
-          typeof result.active === "number" && result.active !== -1
-            ? stringifySudoku(cellsToSimpleSudoku(result.sudokus[result.active]?.sudoku || []))
-            : "";
+      const raw = localStorage.getItem(key);
+      if (!raw) {
+        continue;
       }
-
-      return result;
-    } catch (e) {
-      // delete entry but save it as corrupted, so one might be able to restore it
-      console.error("File corrupted: will delete and save as corrupted.", e);
-      localStorage.setItem(STORAGE_KEY_V_1_5 + "_corrupted_" + new Date().toISOString(), text);
-      localStorage.removeItem(STORAGE_KEY_V_1_5);
-      return empty;
+      const record: SavedSudoku = JSON.parse(raw);
+      if ("sudoku" in record) {
+        const smaller = compact({...record, game: normalizeGame(record.game)});
+        if ("completedGrid" in smaller) {
+          localStorage.setItem(key, JSON.stringify(smaller));
+        }
+      }
+    } catch (error) {
+      console.warn("Could not compact saved puzzle", key, error);
     }
   }
-  return empty;
-};
+}
+
+interface PuzzleArchive {
+  active: string;
+  sudokus: Record<string, SavedSudoku>;
+}
+
+// Before v1.5 both the active pointer and the archive entries used numeric IDs.
+function readLegacyArchive(text: string, storageKey: string): PuzzleArchive {
+  const archive: {active: number | string; sudokus: Record<string, SavedSudoku>} = JSON.parse(text);
+  const sudokus: Record<string, SavedSudoku> = {};
+  // After a partial migration the active puzzle may already be in its own record.
+  let active = typeof archive.active === "string" ? archive.active : "";
+  for (const [id, record] of Object.entries(archive.sudokus)) {
+    const key = "sudoku" in record ? puzzleKey(record.sudoku) : id;
+    const isActive = archive.active !== -1 && id === String(archive.active);
+    const lastActiveTime = isActive ? Number(localStorage.getItem(storageKey + "_stop_time")) : 0;
+    sudokus[key] = compact({...record, game: normalizeGame(record.game, lastActiveTime)});
+    if (isActive) {
+      active = key;
+    }
+  }
+  return {active, sudokus};
+}
+
+function isQuotaError(error: unknown) {
+  return error instanceof DOMException && error.name === "QuotaExceededError";
+}
+
+function copyLegacyArchive(archive: PuzzleArchive, storageKey: string, archiveSize: number) {
+  const remaining = {...archive.sudokus};
+  const write = (destination: string, value: string) => {
+    try {
+      localStorage.setItem(destination, value);
+    } catch (error) {
+      if (!isQuotaError(error)) {
+        throw error;
+      }
+      // Release space atomically. Every puzzle is still in the archive or its own record.
+      const backup = JSON.stringify({active: archive.active, sudokus: remaining});
+      if (backup.length >= archiveSize) {
+        throw error;
+      }
+      localStorage.setItem(storageKey, backup);
+      archiveSize = backup.length;
+      localStorage.setItem(destination, value);
+    }
+  };
+
+  for (const [key, record] of Object.entries(archive.sudokus)) {
+    const destination = STORAGE_KEY_V_1_6_PREFIX + key;
+    if (localStorage.getItem(destination) === null) {
+      write(destination, JSON.stringify(record));
+    }
+    delete remaining[key];
+  }
+  if (archive.active && !localStorage.getItem(STORAGE_CURRENTLY_PLAYING_SUDOKU_KEY)) {
+    write(STORAGE_CURRENTLY_PLAYING_SUDOKU_KEY, archive.active);
+  }
+}
+
+function migrateLegacyStorage(): PuzzleArchive {
+  const migrated: PuzzleArchive = {active: "", sudokus: {}};
+  for (const storageKey of LEGACY_KEYS) {
+    const text = localStorage.getItem(storageKey);
+    if (!text) {
+      continue;
+    }
+    let archive: PuzzleArchive;
+    try {
+      archive = readLegacyArchive(text, storageKey);
+    } catch (error) {
+      console.warn("Could not read saved puzzles", storageKey, error);
+      continue;
+    }
+    migrated.sudokus = {...archive.sudokus, ...migrated.sudokus};
+    migrated.active ||= archive.active;
+
+    try {
+      copyLegacyArchive(archive, storageKey, text.length);
+      localStorage.removeItem(storageKey);
+    } catch (error) {
+      console.warn("Could not finish migrating saved puzzles", storageKey, error);
+      // Keep the remaining archive readable and retry the migration on a later access.
+      break;
+    }
+  }
+  return migrated;
+}
+
+function getCurrentSudokuKey(): string | null {
+  return localStorage.getItem(STORAGE_CURRENTLY_PLAYING_SUDOKU_KEY) || migrateLegacyStorage().active || null;
+}
 
 export function getCurrentSudokuFromStorage(): StoredPlayedSudokuState | undefined {
-  const sudokuKey = localStorage.getItem(STORAGE_CURRENTLY_PLAYING_SUDOKU_KEY);
-  if (sudokuKey) {
-    return getSudokuFromStorage(sudokuKey);
-  }
-  return undefined;
+  const key = getCurrentSudokuKey();
+  return key ? getSudokuFromStorage(key) : undefined;
 }
 
-function getSudokuFromStorage(sudokuKey: string): StoredPlayedSudokuState | undefined {
-  // V1.6
-  const sudokuFromStorage = localStorage.getItem(createSudokuKey(sudokuKey));
-  if (sudokuFromStorage) {
-    const sudoku = JSON.parse(sudokuFromStorage) as StoredPlayedSudokuState;
-    // There is a bug that the collection name might not be set, then we just use the difficulty.
-    const difficulty = (sudoku.game as any).difficulty;
-    if (!sudoku.game.sudokuCollectionName && difficulty) {
-      sudoku.game.sudokuCollectionName = difficulty;
-    }
-    return sudoku;
-  }
-
-  // TODO: Remove after a year (today is 2025-06-28).
-  // No old storage found.
-  if (localStorage.getItem(STORAGE_KEY_V_1_5) === null && localStorage.getItem(STORAGE_KEY_V_1_4) === null) {
-    return undefined;
-  }
-
-  // V1.5
-  const sudokusFromStorage = legacyLoadPlayedSudokusFromLocalStorage();
-  // Migrate to V1.6
-  for (const sudokuKey of Object.keys(sudokusFromStorage.sudokus)) {
-    const sudoku = sudokusFromStorage.sudokus[sudokuKey];
-    const stringifiedSudoku = stringifySudoku(cellsToSimpleSudoku(sudoku.sudoku));
-    localStorage.setItem(createSudokuKey(stringifiedSudoku), JSON.stringify(sudoku));
-  }
-  // Delete old storage.
-  localStorage.removeItem(STORAGE_KEY_V_1_5);
-  localStorage.removeItem(STORAGE_KEY_V_1_4);
-
-  // Try again, as now we have the new storage key.
-  return getSudokuFromStorage(sudokuKey);
+function getSudokuFromStorage(key: string): StoredPlayedSudokuState | undefined {
+  const raw = localStorage.getItem(STORAGE_KEY_V_1_6_PREFIX + key);
+  const record: SavedSudoku | undefined = raw ? JSON.parse(raw) : migrateLegacyStorage().sudokus[key];
+  return record ? restore(record, key) : undefined;
 }
 
-function createSudokuKey(stringifiedSudoku: string) {
-  return STORAGE_KEY_V_1_6_PREFIX + stringifiedSudoku;
-}
-
-const saveCurrentSudokuToLocalStorage = (game: GameState, sudoku: SudokuState) => {
-  const stringifiedSudoku = stringifySudoku(cellsToSimpleSudoku(sudoku.current));
-  const sudokuKey = createSudokuKey(stringifiedSudoku);
-  // We do not save the history as it would take too much space.
-  // Also we don't need to to migrate the existing data.
+function saveCurrentSudokuToLocalStorage(game: GameState, sudoku: Pick<SudokuState, "current">) {
+  const key = puzzleKey(sudoku.current);
+  const value = JSON.stringify(compact({game, sudoku: sudoku.current}));
+  const save = () => {
+    localStorage.setItem(STORAGE_KEY_V_1_6_PREFIX + key, value);
+    localStorage.setItem(STORAGE_CURRENTLY_PLAYING_SUDOKU_KEY, key);
+  };
   try {
-    localStorage.setItem(sudokuKey, JSON.stringify({game, sudoku: sudoku.current}));
-    // TODO: this is problematic with multiple open windows, as the .active gets overwritten.
-    // We should have a tab based storage for that stuff as well, so a reload does not open the other sudoku.
-    localStorage.setItem(STORAGE_CURRENTLY_PLAYING_SUDOKU_KEY, stringifiedSudoku);
-  } catch (e) {
-    console.error("LocalStorage is not supported! No Saving possible.", e);
+    save();
+  } catch (error) {
+    if (isQuotaError(error)) {
+      compactOldCompletions();
+      try {
+        save();
+      } catch (retryError) {
+        console.error("Could not save the current sudoku after compacting old wins.", retryError);
+      }
+      return;
+    }
+    console.error("Could not save the current sudoku.", error);
   }
-};
-
-interface PlayedSudokuRepository {
-  getPlayedSudokus(): string[];
-  getCurrentSudokuKey(): string | null;
-  saveCurrentSudokuKey(sudokuKey: string): void;
-  getSudokuState(sudokuKey: string): StoredPlayedSudokuState | undefined;
-  saveSudokuState(game: GameState, sudoku: SudokuState): void;
-  removeSudokuState(sudokuKey: string): void;
 }
 
-export const localStoragePlayedSudokuRepository: PlayedSudokuRepository = {
-  getPlayedSudokus(): string[] {
-    return Object.keys(localStorage).filter((key) => key.startsWith(STORAGE_KEY_V_1_6_PREFIX));
-  },
-  getCurrentSudokuKey(): string | null {
-    return localStorage.getItem(STORAGE_CURRENTLY_PLAYING_SUDOKU_KEY);
-  },
+export const localStoragePlayedSudokuRepository = {
+  getPlayedSudokus: getPlayedKeys,
+  getCurrentSudokuKey,
   saveCurrentSudokuKey(sudokuKey: string): void {
     localStorage.setItem(STORAGE_CURRENTLY_PLAYING_SUDOKU_KEY, sudokuKey);
   },
-  getSudokuState(sudokuKey: string): StoredPlayedSudokuState | undefined {
-    return getSudokuFromStorage(sudokuKey);
-  },
-  saveSudokuState(game: GameState, sudoku: SudokuState): void {
-    saveCurrentSudokuToLocalStorage(game, sudoku);
-  },
+  getSudokuState: getSudokuFromStorage,
+  saveSudokuState: saveCurrentSudokuToLocalStorage,
   removeSudokuState(sudokuKey: string): void {
-    localStorage.removeItem(createSudokuKey(sudokuKey));
+    localStorage.removeItem(STORAGE_KEY_V_1_6_PREFIX + sudokuKey);
   },
 };

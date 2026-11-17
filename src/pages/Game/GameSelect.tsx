@@ -4,9 +4,10 @@ import {getSudokusPaginated, SudokuRaw, useSudokuCollections} from "src/lib/game
 import {SimpleSudoku} from "src/lib/engine/types";
 import SudokuPreview from "../../components/sudoku/SudokuPreview";
 import {formatDuration} from "src/utils/format";
+import {createNewGameState} from "src/context/GameContext";
 import {useState} from "react";
 import Button from "src/components/Button";
-import {stringifySudoku} from "src/lib/engine/utility";
+import {simpleSudokuToCells, stringifySudoku} from "src/lib/engine/utility";
 import {useElementWidth} from "src/utils/hooks";
 import {useNavigate} from "@tanstack/react-router";
 import {localStoragePlayedSudokuRepository, StoredPlayedSudokuState} from "src/lib/database/playedSudokus";
@@ -122,6 +123,10 @@ const SudokuToSelect = ({
       if (!areYouSure) {
         return;
       }
+      const replay = createNewGameState({...localSudoku.game, sudokuCollectionName, sudokuIndex: index});
+      localStoragePlayedSudokuRepository.saveSudokuState(replay, {
+        current: simpleSudokuToCells(sudoku.sudoku, sudoku.solution),
+      });
     }
     navigate({
       to: "/",

@@ -89,6 +89,29 @@ test.beforeEach(async ({context}) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"], {origin: "http://127.0.0.1:4173"});
 });
 
+test("uses the application name as the browser tab title", async ({page}) => {
+  await page.goto("/");
+  await expect(page).toHaveTitle("Super Sudoku");
+});
+
+test("undo after a new edit keeps previously undone moves off the board", async ({page}) => {
+  await openGame(page);
+  const undo = page.getByRole("button", {name: "Undo"});
+  await selectCell(page, 5, 0);
+  await page.keyboard.press("1");
+  await undo.click();
+  await selectCell(page, 7, 0);
+  await page.keyboard.press("6");
+  await undo.click();
+
+  await expect(cellValue(page, 5, 0)).toBeEmpty();
+  await expect(cellValue(page, 7, 0)).toBeEmpty();
+  await expect(undo).toBeDisabled();
+  await page.keyboard.press(`${SHORTCUT_MODIFIER}+Y`);
+  await expect(cellValue(page, 7, 0)).toHaveText("6");
+  await expect(cellValue(page, 5, 0)).toBeEmpty();
+});
+
 test("supports number entry, erase, undo, redo, notes, hints, and keyboard shortcuts", async ({page}) => {
   await openGame(page);
 
@@ -200,6 +223,8 @@ test("solves a sudoku and starts the next game from the win screen", async ({pag
   await page.getByRole("button", {name: "Set 7"}).click();
 
   await expect(page.getByText(/Congrats, you won/)).toBeVisible();
+  await page.reload();
+  await expect(page.getByText(/Congrats, you won/)).toBeVisible();
   await page.getByRole("button", {name: "Select next sudoku: Easy #2"}).click();
 
   await expect(page.getByTestId("current-game-label")).toHaveText("Easy #2");
@@ -218,6 +243,91 @@ test("changes games through the selection screen", async ({page}) => {
 
   await expect(page.getByTestId("current-game-label")).toHaveText("Medium #1");
   await expect(page).toHaveURL(/sudokuCollectionName=medium/);
+});
+
+test("restarts the last completed puzzle from the collection and keeps its solve history", async ({page}) => {
+  await page.goto("/#/select-game");
+  await page.evaluate(
+    ({puzzle, solution}) => {
+      const game = {
+        sudokuCollectionName: "easy",
+        sudokuIndex: 0,
+        won: true,
+        secondsPlayed: 91,
+        timesSolved: 2,
+        previousTimes: [100, 91],
+        state: "PAUSED",
+      };
+      localStorage.setItem("super_sudoku_1_6_" + puzzle, JSON.stringify({game, completedGrid: solution}));
+      localStorage.setItem("super_sudoku_currently_playing_sudoku", puzzle);
+    },
+    {puzzle: FIRST_PUZZLE, solution: FIRST_SOLUTION},
+  );
+  await page.reload();
+  await expect(page.getByText("Solved 2 times")).toBeVisible();
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByTestId("sudoku-preview-1").click();
+  await expect(page.getByRole("button", {name: "Pause"})).toBeEnabled();
+  await expect(cellValue(page, 5, 0)).toBeEmpty();
+  const replay = await page.evaluate(
+    (puzzle) => JSON.parse(localStorage.getItem("super_sudoku_1_6_" + puzzle)!),
+    FIRST_PUZZLE,
+  );
+  expect(replay.game).toMatchObject({won: false, timesSolved: 2, previousTimes: [100, 91]});
+});
+
+test("saves another game after old completed games fill localStorage", async ({page}) => {
+  await page.goto("/#/select-game");
+  await page.evaluate(
+    ({solution}) => {
+      // Vary the clues to create distinct old-format records with the same valid solution.
+      for (let i = 1; i < 65536; i++) {
+        const sudoku = Array.from(solution, (digit, index) => ({
+          x: index % 9,
+          y: Math.floor(index / 9),
+          initial: index >= 16 || (i & (1 << index)) !== 0,
+          notes: [],
+          number: Number(digit),
+          solution: Number(digit),
+        }));
+        const key = sudoku.map((cell) => (cell.initial ? cell.number : 0)).join("");
+        const game = {
+          won: true,
+          state: "PAUSED",
+          secondsPlayed: 42,
+          timesSolved: 1,
+          previousTimes: [42],
+          sudokuCollectionName: "easy",
+          sudokuIndex: i - 1,
+        };
+        try {
+          localStorage.setItem("super_sudoku_1_6_" + key, JSON.stringify({game, sudoku}));
+        } catch (error) {
+          if (error instanceof DOMException && error.name === "QuotaExceededError") {
+            return;
+          }
+          throw error;
+        }
+      }
+      throw new Error("Expected the browser storage quota to be reached");
+    },
+    {solution: FIRST_SOLUTION},
+  );
+
+  await openGame(page, ONE_EMPTY_CELL_PUZZLE);
+  await selectCell(page, 8, 8);
+  await page.keyboard.press("7");
+  await expect(page.getByText(/Congrats, you won/)).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => localStorage.getItem("super_sudoku_currently_playing_sudoku")))
+    .toBe(ONE_EMPTY_CELL_PUZZLE);
+  await page.evaluate(() => window.history.replaceState(null, "", "/"));
+  await page.reload();
+  await expect(page.getByText(/Congrats, you won/)).toBeVisible();
+  await expect(page.getByRole("button", {name: "Select next sudoku: Easy #2"})).toBeVisible();
+  const firstOldKey = "super_sudoku_1_6_" + FIRST_SOLUTION[0] + "0".repeat(15) + FIRST_SOLUTION.slice(16);
+  const oldWin = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), firstOldKey);
+  expect(oldWin).toMatchObject({game: {timesSolved: 1, previousTimes: [42]}, completedGrid: FIRST_SOLUTION});
 });
 
 test("creates and solves a difficult custom sudoku", async ({page}) => {
