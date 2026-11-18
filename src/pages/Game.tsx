@@ -104,9 +104,9 @@ const NewGameButton: React.FC = () => {
   );
 };
 
-const NextSudokuButton: React.FC<{gameState: GameState; setDisableAutoSync: (disabled: boolean) => void}> = ({
+const NextSudokuButton: React.FC<{gameState: GameState; setDisableUrlSync: (disabled: boolean) => void}> = ({
   gameState,
-  setDisableAutoSync,
+  setDisableUrlSync,
 }) => {
   const {getCollection} = useSudokuCollections();
   const collection = React.useMemo(() => {
@@ -163,10 +163,10 @@ const NextSudokuButton: React.FC<{gameState: GameState; setDisableAutoSync: (dis
     // TODO: Hacky solution for now, but it works.
     // What is happening is that we sync the URL state, but us changing the URL here
     // Will lead to an out of sync state with the game state.
-    setDisableAutoSync(true);
+    setDisableUrlSync(true);
     // Re-enable after a short delay to let navigation complete
     setTimeout(() => {
-      setDisableAutoSync(false);
+      setDisableUrlSync(false);
     }, 2000);
   };
 
@@ -401,7 +401,7 @@ const GameInner: React.FC<{
   hideMenu: () => void;
   resetGame: () => void;
   deactivateNotesMode: () => void;
-  setDisableAutoSync: (disabled: boolean) => void;
+  setDisableUrlSync: (disabled: boolean) => void;
   copyNotes: (notes: number[]) => void;
 }> = ({
   sudokuState,
@@ -423,7 +423,7 @@ const GameInner: React.FC<{
   hideMenu,
   resetGame,
   deactivateNotesMode,
-  setDisableAutoSync,
+  setDisableUrlSync,
   copyNotes,
 }) => {
   const canUndo = sudokuState.historyIndex < sudokuState.history.length - 1;
@@ -577,7 +577,7 @@ const GameInner: React.FC<{
                         </div>
                       </div>
                     </div>
-                    <NextSudokuButton gameState={game} setDisableAutoSync={setDisableAutoSync} />
+                    <NextSudokuButton gameState={game} setDisableUrlSync={setDisableUrlSync} />
                   </div>
                 </div>
               )}
@@ -673,7 +673,7 @@ const GameWithRouteManagement = () => {
     redo,
   } = useSudoku();
   const [initialized, setInitialized] = React.useState(false);
-  const [disableAutoSync, setDisableAutoSync] = React.useState(false);
+  const [disableUrlSync, setDisableUrlSync] = React.useState(false);
   const navigate = useNavigate();
   const {t} = useTranslation();
 
@@ -690,12 +690,16 @@ const GameWithRouteManagement = () => {
   }, []);
 
   useEffect(() => {
-    if (gameState && sudokuState && initialized && currentPath === "/" && !disableAutoSync) {
+    if (initialized && currentPath === "/") {
       throttledSave(gameState, sudokuState);
       if (gameState.won) {
         throttledSave.flush();
       }
-      // Also update the URL to the current game state if it differs.
+    }
+  }, [gameState, sudokuState, initialized, currentPath]);
+
+  useEffect(() => {
+    if (initialized && currentPath === "/" && !disableUrlSync) {
       const stringifiedSudoku = stringifySudoku(cellsToSimpleSudoku(sudokuState.current));
       const shouldUpdateUrl = stringifiedSudoku !== sudoku;
       if (shouldUpdateUrl) {
@@ -710,7 +714,7 @@ const GameWithRouteManagement = () => {
         });
       }
     }
-  }, [gameState, sudokuState, initialized, currentPath, sudoku, navigate, disableAutoSync]);
+  }, [gameState, sudokuState, initialized, currentPath, sudoku, navigate, disableUrlSync]);
 
   // In the AppProvider, we load the sudoku from the local storage.
   // TODO: Combine it with this logic.
@@ -823,7 +827,7 @@ const GameWithRouteManagement = () => {
       hideMenu={hideMenu}
       resetGame={resetGame}
       deactivateNotesMode={deactivateNotesMode}
-      setDisableAutoSync={setDisableAutoSync}
+      setDisableUrlSync={setDisableUrlSync}
       copyNotes={copyNotes}
     />
   );

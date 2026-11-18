@@ -7,6 +7,7 @@ import {getCurrentSudokuFromStorage, localStoragePlayedSudokuRepository as repos
 
 const key = stringifySudoku(ISSUE_33_CUSTOM_SUDOKU.unsolved);
 const recordKey = "super_sudoku_1_6_" + key;
+const compactKey = "super_sudoku_1_7_" + key;
 const currentKey = "super_sudoku_currently_playing_sudoku";
 const cells = simpleSudokuToCells(ISSUE_33_CUSTOM_SUDOKU.unsolved, ISSUE_33_CUSTOM_SUDOKU.solved);
 const completed = cells.map((cell) => ({...cell, number: cell.solution}));
@@ -21,12 +22,16 @@ const wonGame = {
 };
 
 beforeEach(() => {
-  const records = new Map<string, string>();
-  vi.stubGlobal("localStorage", {
-    getItem: (key: string) => records.get(key) ?? null,
-    setItem: (key: string, value: string) => records.set(key, value),
-    removeItem: (key: string) => records.delete(key),
+  const records: Record<string, string> = Object.create({
+    getItem: (key: string) => records[key] ?? null,
+    setItem: (key: string, value: string) => {
+      records[key] = value;
+    },
+    removeItem: (key: string) => {
+      delete records[key];
+    },
   });
+  vi.stubGlobal("localStorage", records);
 });
 
 afterEach(() => {
@@ -37,7 +42,7 @@ afterEach(() => {
 describe("played puzzle storage", () => {
   it("round-trips a compact win and the subsequent unfinished replay", () => {
     repository.saveSudokuState(wonGame, {current: completed});
-    const packed = localStorage.getItem(recordKey)!;
+    const packed = localStorage.getItem(compactKey)!;
     expect(packed.length).toBeLessThan(JSON.stringify({game: wonGame, sudoku: completed}).length / 5);
     expect(getCurrentSudokuFromStorage()).toEqual({game: wonGame, sudoku: completed});
 
@@ -47,6 +52,7 @@ describe("played puzzle storage", () => {
     );
     repository.saveSudokuState(game, {current});
     expect(getCurrentSudokuFromStorage()).toEqual({game, sudoku: current});
+    expect(localStorage.getItem(compactKey)).toBeNull();
   });
 
   it.each(["1_0", "1_1", "1_2", "1_3", "1_4", "1_5"])(
@@ -74,7 +80,7 @@ describe("played puzzle storage", () => {
         sudoku: completed,
       });
       expect(localStorage.getItem(archiveKey)).toBeNull();
-      expect(JSON.parse(localStorage.getItem(recordKey)!)).not.toHaveProperty("sudoku");
+      expect(JSON.parse(localStorage.getItem(compactKey)!)).toHaveProperty("completedGrid");
     },
   );
 
@@ -100,6 +106,56 @@ describe("played puzzle storage", () => {
     });
   });
 
+  it("keeps the current win readable after rollback and retains only its compact history when switching", () => {
+    // Start with the compact record that PR #45 published in the v1.6 namespace.
+    const packed = {game: wonGame, completedGrid: stringifySudoku(ISSUE_33_CUSTOM_SUDOKU.solved)};
+    localStorage.setItem(recordKey, JSON.stringify(packed));
+    localStorage.setItem(currentKey, key);
+    expect(getCurrentSudokuFromStorage()).toEqual({game: wonGame, sudoku: completed});
+    expect(JSON.parse(localStorage.getItem(compactKey)!)).toEqual(packed);
+    // The pre-PR reader dereferences this key and reads its sudoku array directly.
+    expect(JSON.parse(localStorage.getItem(recordKey)!).sudoku).toEqual(completed);
+    expect(repository.getPlayedSudokus()).toEqual([recordKey]);
+    const next = cells.map((cell, i) => (i === 0 ? {...cell, initial: true, number: cell.solution} : cell));
+    repository.saveSudokuState(INITIAL_GAME_STATE, {current: next});
+    expect(localStorage.getItem(recordKey)).toBeNull();
+    expect(repository.getSudokuState(key)).toEqual({game: wonGame, sudoku: completed});
+  });
+
+  it("reads older archives while a newer migration is blocked and preserves precedence on retry", () => {
+    const oldKey = "super_sudoku_1_4_use_this_file_if_you_want_to_cheat";
+    const newKey = "super_sudoku_1_5_use_this_file_if_you_want_to_cheat";
+    const olderCells = cells.map((cell, i) => (i === 0 ? {...cell, initial: true, number: cell.solution} : cell));
+    const olderKey = olderCells[0].number + key.slice(1);
+    const older = {...INITIAL_GAME_STATE, secondsPlayed: 73};
+    localStorage.setItem(
+      oldKey,
+      JSON.stringify({
+        active: 1,
+        sudokus: {
+          1: {game: older, sudoku: olderCells},
+          2: {game: older, sudoku: cells},
+        },
+      }),
+    );
+    localStorage.setItem(newKey, JSON.stringify({active: key, sudokus: {[key]: {game: wonGame, sudoku: completed}}}));
+    const setItem = localStorage.setItem.bind(localStorage);
+    const write = vi.spyOn(localStorage, "setItem").mockImplementation((destination, value) => {
+      if (destination === compactKey) {
+        throw new DOMException("Full", "QuotaExceededError");
+      }
+      setItem(destination, value);
+    });
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    expect(repository.getSudokuState(olderKey)?.game.secondsPlayed).toBe(73);
+    expect(getCurrentSudokuFromStorage()?.game).toEqual(wonGame);
+    expect(localStorage.getItem(oldKey)).not.toBeNull();
+    write.mockRestore();
+    expect(repository.getSudokuState(olderKey)?.game.secondsPlayed).toBe(73);
+    expect(getCurrentSudokuFromStorage()?.game).toEqual(wonGame);
+    expect(localStorage.getItem(oldKey)).toBeNull();
+  });
+
   it("keeps legacy progress readable if migration cannot finish writing", () => {
     const archiveKey = "super_sudoku_1_5_use_this_file_if_you_want_to_cheat";
     localStorage.setItem(
@@ -108,7 +164,7 @@ describe("played puzzle storage", () => {
     );
     const setItem = localStorage.setItem.bind(localStorage);
     const failWrite = vi.spyOn(localStorage, "setItem").mockImplementation((destination, value) => {
-      if (destination === recordKey) {
+      if (destination === compactKey) {
         throw new DOMException("Full", "QuotaExceededError");
       }
       setItem(destination, value);
