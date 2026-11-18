@@ -112,6 +112,18 @@ test("undo after a new edit keeps previously undone moves off the board", async 
   await expect(cellValue(page, 5, 0)).toBeEmpty();
 });
 
+test("erasing an already empty cell preserves redo", async ({page}) => {
+  await openGame(page);
+  await selectCell(page, 5, 0);
+  await page.keyboard.press("1");
+  const undo = page.getByRole("button", {name: "Undo"});
+  await undo.click();
+  await page.getByRole("button", {name: "Erase"}).click();
+  await expect(undo).toBeDisabled();
+  await page.keyboard.press(`${SHORTCUT_MODIFIER}+Y`);
+  await expect(cellValue(page, 5, 0)).toHaveText("1");
+});
+
 test("supports number entry, erase, undo, redo, notes, hints, and keyboard shortcuts", async ({page}) => {
   await openGame(page);
 
@@ -232,6 +244,32 @@ test("solves a sudoku and starts the next game from the win screen", async ({pag
   await expect(page).toHaveURL(/sudokuCollectionName=easy/);
 });
 
+test("saves a second win while the next-puzzle URL update is delayed", async ({page}) => {
+  await page.goto("/#/select-game");
+  const first = "0" + FIRST_SOLUTION.slice(1);
+  await page.evaluate(
+    ({first, second}) => {
+      localStorage.setItem("super_sudoku_collections_names_pair", "Pair");
+      localStorage.setItem("super_sudoku_collections_sudokus_pair", [first, second].join("\n"));
+    },
+    {first, second: ONE_EMPTY_CELL_PUZZLE},
+  );
+  await openGame(page, first, 1, "pair", "Pair");
+  await selectCell(page, 0, 0);
+  await page.keyboard.press("5");
+  const next = page.getByRole("button", {name: "Select next sudoku: Pair #2"});
+  await expect(next).toBeVisible();
+
+  await next.click();
+  await expect(page.getByTestId("current-game-label")).toHaveText("Pair #2");
+  await selectCell(page, 8, 8);
+  await page.keyboard.press("7");
+  await expect(page.getByText(/Congrats, you won/)).toBeVisible();
+  await page.reload();
+  await expect(page.getByTestId("current-game-label")).toHaveText("Pair #2");
+  await expect(page.getByText(/Congrats, you won/)).toBeVisible();
+});
+
 test("changes games through the selection screen", async ({page}) => {
   await openGame(page);
 
@@ -304,6 +342,19 @@ test("saves another game after old completed games fill localStorage", async ({p
           localStorage.setItem("super_sudoku_1_6_" + key, JSON.stringify({game, sudoku}));
         } catch (error) {
           if (error instanceof DOMException && error.name === "QuotaExceededError") {
+            // Fill the remaining bytes so even a single compact record cannot be staged.
+            let padding = "";
+            for (let chunk = 4096; chunk >= 1; chunk /= 2) {
+              const value = padding + "x".repeat(chunk);
+              try {
+                localStorage.setItem("quota-padding", value);
+                padding = value;
+              } catch (failure) {
+                if (!(failure instanceof DOMException && failure.name === "QuotaExceededError")) {
+                  throw failure;
+                }
+              }
+            }
             return;
           }
           throw error;
@@ -325,7 +376,7 @@ test("saves another game after old completed games fill localStorage", async ({p
   await page.reload();
   await expect(page.getByText(/Congrats, you won/)).toBeVisible();
   await expect(page.getByRole("button", {name: "Select next sudoku: Easy #2"})).toBeVisible();
-  const firstOldKey = "super_sudoku_1_6_" + FIRST_SOLUTION[0] + "0".repeat(15) + FIRST_SOLUTION.slice(16);
+  const firstOldKey = "super_sudoku_1_7_" + FIRST_SOLUTION[0] + "0".repeat(15) + FIRST_SOLUTION.slice(16);
   const oldWin = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), firstOldKey);
   expect(oldWin).toMatchObject({game: {timesSolved: 1, previousTimes: [42]}, completedGrid: FIRST_SOLUTION});
 });

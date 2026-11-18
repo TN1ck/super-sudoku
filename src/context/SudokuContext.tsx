@@ -1,4 +1,5 @@
 import React, {createContext, useContext, useReducer, useCallback, ReactNode} from "react";
+import isEqual from "lodash-es/isEqual";
 import {Cell, SimpleSudoku, CellCoordinates} from "src/lib/engine/types";
 import {simpleSudokuToCells, squareIndex} from "src/lib/engine/utility";
 import {START_SUDOKU} from "src/lib/game/sudokus";
@@ -177,6 +178,9 @@ function sudokuReducer(state: SudokuState, action: SudokuAction): SudokuState {
       }
 
       // A new edit replaces any moves that could have been redone.
+      if (isEqual(newGrid, state.current)) {
+        return state;
+      }
       const newHistory = [newGrid, ...state.history.slice(state.historyIndex)];
 
       return {
