@@ -74,6 +74,16 @@ async function enterSudokuValues(
   }
 }
 
+async function storeCollection(page: Page, id: string, name: string, puzzles: string[]) {
+  await page.evaluate(
+    ({id, name, puzzles}) => {
+      localStorage.setItem(`super_sudoku_collections_names_${id}`, name);
+      localStorage.setItem(`super_sudoku_collections_sudokus_${id}`, puzzles.join("\n"));
+    },
+    {id, name, puzzles},
+  );
+}
+
 async function expectStoredPreferences(page: Page, preferences: Record<string, boolean>) {
   await expect
     .poll(() =>
@@ -92,6 +102,174 @@ test.beforeEach(async ({context}) => {
 test("uses the application name as the browser tab title", async ({page}) => {
   await page.goto("/");
   await expect(page).toHaveTitle("Super Sudoku");
+});
+
+test("rejects an invalid puzzle link once and restores the current puzzle URL", async ({page}) => {
+  const dialogs: string[] = [];
+  page.on("dialog", async (dialog) => {
+    dialogs.push(dialog.type());
+    await dialog.dismiss();
+  });
+  await page.goto(gameUrl("invalid"));
+  await expect(page).toHaveURL(new RegExp(FIRST_PUZZLE));
+  await continueIfPaused(page);
+  await expect(cellValue(page, 0, 0)).toHaveText("5");
+  expect(dialogs).toEqual(["alert"]);
+});
+
+test("fills in the collection and index on an incomplete link to the current grid", async ({page}) => {
+  await page.goto(`/#/?sudoku=${FIRST_PUZZLE}`);
+  await expect(page.getByTestId("current-game-label")).toHaveText("Easy #1");
+  await expect(page).toHaveURL(/sudokuIndex=1(?:&|$)/);
+  await expect(page).toHaveURL(/sudokuCollectionName=easy(?:&|$)/);
+});
+
+test("declining a puzzle switch restores the URL and keeps the last move", async ({page}) => {
+  await page.clock.install();
+  await openGame(page);
+  await selectCell(page, 5, 0);
+  await page.keyboard.press("1");
+  await page.clock.fastForward(7000);
+  const dialogs: string[] = [];
+  page.on("dialog", async (dialog) => {
+    dialogs.push(dialog.type());
+    await dialog.dismiss();
+  });
+  await page.getByRole("button", {name: "New game"}).click();
+  await page.getByTestId("sudoku-preview-2").click();
+  await expect(page).toHaveURL(new RegExp(FIRST_PUZZLE));
+  await continueIfPaused(page);
+  await expect(cellValue(page, 5, 0)).toHaveText("1");
+  expect(dialogs).toEqual(["confirm"]);
+});
+
+test("keeps the latest move when reloaded before the autosave interval", async ({page}) => {
+  await page.clock.setFixedTime(new Date("2026-01-01T12:00:00Z"));
+  await openGame(page);
+  await selectCell(page, 5, 0);
+  await page.keyboard.press("1");
+  await expect(cellValue(page, 5, 0)).toHaveText("1");
+
+  await page.reload();
+  await continueIfPaused(page);
+  await expect(cellValue(page, 5, 0)).toHaveText("1");
+});
+
+test("locks the editing controls when paused and after a win", async ({page}) => {
+  await openGame(page, ONE_EMPTY_CELL_PUZZLE);
+  await selectCell(page, 8, 8);
+  await page.keyboard.press("1");
+  await page.getByRole("button", {name: "Pause"}).click();
+  const number = page.getByRole("button", {name: "Set 7"});
+  const controls = [
+    number,
+    page.getByRole("button", {name: "Undo"}),
+    page.getByRole("button", {name: "Hint"}),
+    page.getByRole("button", {name: "Erase"}),
+    page.getByRole("button", {name: /Notes/}),
+  ];
+  for (const control of controls) {
+    await expect(control).toBeDisabled();
+  }
+  await page.getByRole("button", {name: "Continue"}).click();
+  await expect(cellValue(page, 8, 8)).toHaveText("1");
+  await number.click();
+  await expect(page.getByText(/Congrats, you won/)).toBeVisible();
+  for (const control of controls) {
+    await expect(control).toBeDisabled();
+  }
+});
+
+test("hint and erase require a selected cell", async ({page}) => {
+  await openGame(page, "0" + FIRST_SOLUTION.slice(1));
+  await expect(page.getByRole("button", {name: "Hint"})).toBeDisabled();
+  await expect(page.getByRole("button", {name: "Erase"})).toBeDisabled();
+  await selectCell(page, 0, 0);
+  await expect(page.getByRole("button", {name: "Erase"})).toBeEnabled();
+  await page.getByRole("button", {name: "Hint"}).click();
+  await expect(page.getByText(/Congrats, you won/)).toBeVisible();
+});
+
+test("a hint removes conflicting pencil notes and undo restores them", async ({page}) => {
+  await openGame(page);
+  await page.locator("#circle_menu").uncheck();
+  await selectCell(page, 7, 0);
+  await page.keyboard.press("n");
+  await page.keyboard.press("1");
+  await page.keyboard.press("6");
+  await expect(cellNotes(page, 7, 0)).toHaveText("16");
+  await selectCell(page, 5, 0);
+  await page.keyboard.press("h");
+  await expect(cellValue(page, 5, 0)).toHaveText("1");
+  await expect(cellNotes(page, 7, 0)).toHaveText("6");
+  await page.getByRole("button", {name: "Undo"}).click();
+  await expect(cellValue(page, 5, 0)).toBeEmpty();
+  await expect(cellNotes(page, 7, 0)).toHaveText("16");
+});
+
+test("edits generated and manual notes through all three input methods", async ({page}) => {
+  await openGame(page);
+  await page.locator("#generated_notes").check();
+  await selectCell(page, 5, 0);
+  const notes = cellNotes(page, 5, 0);
+  await expect(notes).toHaveText("18");
+  await page.keyboard.press("n");
+  await page.keyboard.press("8");
+  await expect(notes).toHaveText("1");
+  await page.getByRole("button", {name: "Set 3"}).click();
+  await expect(notes).toHaveText("13");
+  await selectCell(page, 5, 0);
+  const slice = page.getByTestId("sudoku-menu-circle").locator("g").filter({hasText: /^1$/});
+  await slice.locator("circle").dispatchEvent("click");
+  await expect(notes).toHaveText("3");
+});
+
+test("a keypad press on a given leaves the board and its notes unchanged", async ({page}) => {
+  await openGame(page);
+  await page.locator("#circle_menu").uncheck();
+  await selectCell(page, 5, 0);
+  await page.keyboard.press("n");
+  await page.keyboard.press("5");
+  await page.keyboard.press("n");
+  await selectCell(page, 0, 0);
+  await page.getByRole("button", {name: "Set 9"}).click();
+  await expect(cellValue(page, 0, 0)).toHaveText("5");
+  await expect(cellNotes(page, 5, 0)).toHaveText("5");
+});
+
+for (const isCurrent of [true, false]) {
+  test(`resumes the ${isCurrent ? "current" : "previous"} puzzle in the selected collection`, async ({page}) => {
+    await openGame(page);
+    await selectCell(page, 5, 0);
+    await page.keyboard.press("1");
+    await storeCollection(page, "favorites", "Favorites", [ONE_EMPTY_CELL_PUZZLE, FIRST_PUZZLE]);
+    const newGame = page.getByRole("button", {name: "New game"});
+    await newGame.click();
+    if (!isCurrent) {
+      await page.getByTestId("sudoku-preview-2").click();
+      await expect(page.getByTestId("current-game-label")).toHaveText("Easy #2");
+      await newGame.click();
+    }
+    await page.getByRole("button", {name: "Favorites"}).click();
+    await page.getByTestId("sudoku-preview-2").click();
+    await expect(page.getByTestId("current-game-label")).toHaveText("Favorites #2");
+    await continueIfPaused(page);
+    await expect(cellValue(page, 5, 0)).toHaveText("1");
+    await page.reload();
+    await expect(page.getByTestId("current-game-label")).toHaveText("Favorites #2");
+  });
+}
+
+test("starts a new attempt when consecutive collection entries share a grid", async ({page}) => {
+  await page.goto("/#/select-game");
+  await storeCollection(page, "pair", "Pair", [ONE_EMPTY_CELL_PUZZLE, ONE_EMPTY_CELL_PUZZLE]);
+  await openGame(page, ONE_EMPTY_CELL_PUZZLE, 1, "pair", "Pair");
+  await selectCell(page, 8, 8);
+  await page.keyboard.press("7");
+  await page.getByRole("button", {name: "Select next sudoku: Pair #2"}).click();
+  await expect(page.getByTestId("current-game-label")).toHaveText("Pair #2");
+  await expect(page.getByRole("button", {name: "Pause"})).toBeEnabled();
+  await expect(cellValue(page, 8, 8)).toBeEmpty();
 });
 
 test("undo after a new edit keeps previously undone moves off the board", async ({page}) => {
@@ -244,16 +422,10 @@ test("solves a sudoku and starts the next game from the win screen", async ({pag
   await expect(page).toHaveURL(/sudokuCollectionName=easy/);
 });
 
-test("saves a second win while the next-puzzle URL update is delayed", async ({page}) => {
+test("saves a second win immediately after advancing to the next puzzle", async ({page}) => {
   await page.goto("/#/select-game");
   const first = "0" + FIRST_SOLUTION.slice(1);
-  await page.evaluate(
-    ({first, second}) => {
-      localStorage.setItem("super_sudoku_collections_names_pair", "Pair");
-      localStorage.setItem("super_sudoku_collections_sudokus_pair", [first, second].join("\n"));
-    },
-    {first, second: ONE_EMPTY_CELL_PUZZLE},
-  );
+  await storeCollection(page, "pair", "Pair", [first, ONE_EMPTY_CELL_PUZZLE]);
   await openGame(page, first, 1, "pair", "Pair");
   await selectCell(page, 0, 0);
   await page.keyboard.press("5");
@@ -397,6 +569,13 @@ test("creates and solves a difficult custom sudoku", async ({page}) => {
 
   await page.getByRole("button", {name: "Add sudoku +"}).click();
   await expect(page.getByText("Create new sudoku")).toBeVisible();
+
+  await selectCell(page, 0, 0);
+  await page.keyboard.press("1");
+  const undo = page.getByRole("button", {name: "Undo"});
+  await undo.click();
+  await expect(cellValue(page, 0, 0)).toBeEmpty();
+  await expect(undo).toBeDisabled();
 
   await enterSudokuValues(page, ISSUE_33_CUSTOM_PUZZLE);
 
