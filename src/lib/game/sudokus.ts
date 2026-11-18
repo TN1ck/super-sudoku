@@ -32,27 +32,13 @@ const BASE_SUDOKU_COLLECTIONS: Record<BaseCollection, string> = {
   [BaseCollection.Evil]: evilSudokus,
 } as const;
 
-function getLineCount(collection: Collection): number {
-  return collection.sudokusRaw.split("\n").filter((line) => line.trim()).length;
-}
-
 export function getSudokusPaginated(collection: Collection, page: number = 0, pageSize: number = 12): PaginatedSudokus {
-  const totalRows = getLineCount(collection);
+  const rawLines = collection.sudokusRaw.split("\n").map((line) => line.trim()).filter(Boolean);
+  const totalRows = rawLines.length;
   const totalPages = Math.ceil(totalRows / pageSize);
   const startIndex = page * pageSize;
   const endIndex = startIndex + pageSize;
 
-  if (collection.sudokusRaw === "") {
-    return {
-      sudokus: [],
-      totalRows: 0,
-      page,
-      pageSize,
-      totalPages: 0,
-    };
-  }
-
-  const rawLines = collection.sudokusRaw.split("\n");
   const sudokus: SudokuRaw[] = [];
 
   for (const line of rawLines.slice(startIndex, endIndex)) {

@@ -16,12 +16,17 @@ export const UndoButton: React.FC<{
   );
 };
 
-export const EraseButton: React.FC<{
-  activeCellCoordinates: CellCoordinates | undefined;
-  clearCell: (cellCoordinates: CellCoordinates) => void;
-}> = ({activeCellCoordinates, clearCell}) => {
+export const CellActionButton: React.FC<{
+  label: "erase_btn" | "hint_btn";
+  cell?: CellCoordinates;
+  onClick: (cell: CellCoordinates) => void;
+}> = ({label, cell, onClick}) => {
   const {t} = useTranslation();
-  return <Button onClick={() => activeCellCoordinates && clearCell(activeCellCoordinates)}>{t("erase_btn")}</Button>;
+  return (
+    <Button disabled={!cell} onClick={() => cell && onClick(cell)}>
+      {t(label)}
+    </Button>
+  );
 };
 
 const NotesButton: React.FC<{
@@ -43,17 +48,9 @@ const NotesButton: React.FC<{
   );
 };
 
-const HintButton: React.FC<{
-  activeCellCoordinates: CellCoordinates;
-  getHint: (cellCoordinates: CellCoordinates) => void;
-}> = ({activeCellCoordinates, getHint}) => {
-  const {t} = useTranslation();
-  return <Button onClick={() => activeCellCoordinates && getHint(activeCellCoordinates)}>{t("hint_btn")}</Button>;
-};
-
 const SudokuMenuControls: React.FC<{
   notesMode: boolean;
-  activeCellCoordinates: CellCoordinates;
+  activeCellCoordinates?: CellCoordinates;
   clearCell: (cellCoordinates: CellCoordinates) => void;
   activateNotesMode: () => void;
   deactivateNotesMode: () => void;
@@ -73,13 +70,13 @@ const SudokuMenuControls: React.FC<{
   return (
     <div className="grid w-full grid-cols-4 gap-2">
       <UndoButton canUndo={canUndo} undo={undo} />
-      <EraseButton activeCellCoordinates={activeCellCoordinates} clearCell={clearCell} />
+      <CellActionButton label="erase_btn" cell={activeCellCoordinates} onClick={clearCell} />
       <NotesButton
         notesMode={notesMode}
         activateNotesMode={activateNotesMode}
         deactivateNotesMode={deactivateNotesMode}
       />
-      <HintButton activeCellCoordinates={activeCellCoordinates} getHint={getHint} />
+      <CellActionButton label="hint_btn" cell={activeCellCoordinates} onClick={getHint} />
     </div>
   );
 };

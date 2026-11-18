@@ -1,5 +1,5 @@
 import * as React from "react";
-import {SUDOKU_NUMBERS} from "src/lib/engine/utility";
+import {findCell, SUDOKU_NUMBERS} from "src/lib/engine/utility";
 import {CellCoordinates, Cell} from "src/lib/engine/types";
 import Button from "src/components/Button";
 import clsx from "clsx";
@@ -24,30 +24,23 @@ const SudokuMenuNumbers: React.FC<SudokuMenuNumbersProps> = ({
   setNumber,
   setNotes,
 }) => {
+  const cell = findCell(sudoku, activeCell);
+  const notes = cell ? SudokuGame.visibleNotes(cell, sudoku, showHints) : [];
+  const editingNotes = notesMode && cell?.number === 0;
+
   return (
     <div className="grid w-full overflow-hidden justify-center gap-2 md:grid-cols-3 grid-cols-9">
       {SUDOKU_NUMBERS.map((n) => {
         const occurrences = sudoku.filter((c) => c.number === n).length;
 
-        const conflicting = SudokuGame.conflictingFields(sudoku);
-
-        const activeCellData = activeCell ? sudoku[activeCell.y * 9 + activeCell.x] : undefined;
-        const userNotes = activeCellData?.notes ?? [];
-        const conflictingCell = activeCell ? conflicting[activeCell.y * 9 + activeCell.x] : undefined;
-        const autoNotes = (showHints ? conflictingCell?.possibilities : []) ?? [];
-
         const setNumberOrNote = () => {
-          if (!activeCell) {
+          if (!cell) {
             return;
           }
-
           if (notesMode) {
-            const startingNotes = userNotes.length === 0 && autoNotes.length > 0 ? autoNotes : userNotes;
-
-            const newNotes = startingNotes.includes(n) ? startingNotes.filter((note) => note !== n) : [...userNotes, n];
-            setNotes(activeCell, newNotes);
+            setNotes(cell, SudokuGame.toggleNote(cell, notes, n));
           } else {
-            setNumber(activeCell, n);
+            setNumber(cell, n);
           }
         };
 
@@ -57,14 +50,8 @@ const SudokuMenuNumbers: React.FC<SudokuMenuNumbersProps> = ({
             className={clsx("relative font-bold", {
               "bg-gray-400": occurrences == 9,
               "bg-red-400 dark:bg-red-400": showOccurrences && occurrences > 9,
-              "bg-sky-600 dark:bg-sky-600 text-white":
-                notesMode && userNotes.includes(n) && activeCellData?.number === 0,
-              "bg-sky-300 dark:bg-sky-300":
-                notesMode &&
-                userNotes.length === 0 &&
-                autoNotes.includes(n) &&
-                !userNotes.includes(n) &&
-                activeCellData?.number === 0,
+              "bg-sky-600 dark:bg-sky-600 text-white": editingNotes && cell.notes.includes(n),
+              "bg-sky-300 dark:bg-sky-300": editingNotes && cell.notes.length === 0 && notes.includes(n),
             })}
             data-testid={`sudoku-number-${n}`}
             onClick={setNumberOrNote}

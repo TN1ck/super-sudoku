@@ -1,12 +1,5 @@
-import groupBy from "lodash-es/groupBy";
-import uniq from "lodash-es/uniq";
-import uniqBy from "lodash-es/uniqBy";
-import {SUDOKU_NUMBERS} from "src/lib/engine/utility";
+import {SUDOKU_NUMBERS, sharesUnit} from "src/lib/engine/utility";
 import {Cell} from "src/lib/engine/types";
-
-export interface CellIndexed extends Cell {
-  index: number;
-}
 
 export interface PositionedCell {
   cell: Cell;
@@ -20,28 +13,7 @@ export interface NoteCell {
   note: number;
 }
 
-export interface ConflictingCell {
-  cell: CellIndexed;
-  conflicting: CellIndexed[];
-  possibilities: number[];
-}
-
-export interface ConflictingPath {
-  from: Cell;
-  to: Cell;
-  index: number;
-}
-
 export default class SudokuGame {
-  static uniquePaths(paths: ConflictingPath[]) {
-    return uniqBy(paths, (p) => {
-      const fromCell = p.from;
-      const toCell = p.to;
-      const str = [`${fromCell.x}-${fromCell.y}`, `${toCell.x}-${toCell.y}`].sort().join("-");
-      return str;
-    });
-  }
-
   static getPathBetweenCell(c1: Cell, c2: Cell) {
     const {x: x1, y: y1} = c1;
     const {x: x2, y: y2} = c2;
@@ -89,13 +61,7 @@ export default class SudokuGame {
   }
 
   static isSolved(sudoku: Cell[]): boolean {
-    if (!sudoku) {
-      return false;
-    }
-    const noConflicts = this.correct(sudoku);
-    const set = sudoku.filter((c) => c.number !== 0);
-    const allSet = set.length === sudoku.length;
-    return allSet && noConflicts;
+    return Boolean(sudoku && sudoku.every((cell) => cell.number !== 0) && this.correct(sudoku));
   }
 
   static getCellPosition(c: Cell, width: number, height: number): PositionedCell {
@@ -115,95 +81,35 @@ export default class SudokuGame {
   }
 
   static correct(sudoku: Cell[]): boolean {
-    if (!sudoku) {
-      return false;
+    return Boolean(sudoku && this.conflictingPaths(sudoku).length === 0);
+  }
+
+  static visibleNotes(cell: Cell, sudoku: Cell[], showHints: boolean): number[] {
+    if (!showHints || cell.notes.length > 0) {
+      return cell.notes;
     }
-    const sudokuFiltered = sudoku.filter((c) => c.number !== 0);
-    const rows = Object.values(
-      groupBy(sudokuFiltered, (c) => {
-        return c.x;
-      }),
-    );
-    const columns = Object.values(
-      groupBy(sudokuFiltered, (c) => {
-        return c.y;
-      }),
-    );
-    const squares = Object.values(
-      groupBy(sudokuFiltered, (c) => {
-        return `${Math.floor(c.x / 3)}-${Math.floor(c.y / 3)}`;
-      }),
-    );
-    const correctRows = rows.every((row) => uniqBy(row, (r) => r.number).length === row.length);
-    const correctColumns = columns.every((row) => uniqBy(row, (r) => r.number).length === row.length);
-    const correctSquares = squares.every((row) => uniqBy(row, (r) => r.number).length === row.length);
-    return correctRows && correctColumns && correctSquares;
+    const occupied = sudoku
+      .filter((other) => (other.x !== cell.x || other.y !== cell.y) && sharesUnit(cell, other))
+      .map((other) => other.number);
+    return SUDOKU_NUMBERS.filter((number) => !occupied.includes(number));
   }
 
-  static sameNumber(cell: Cell, sudoku: Cell[]): Cell[] {
-    return sudoku.filter((c) => c.number === cell.number);
+  static toggleNote(cell: Cell, visibleNotes: number[], number: number): number[] {
+    // Removing a suggestion keeps the others. Adding a number starts or extends the player's own notes.
+    return visibleNotes.includes(number) ? visibleNotes.filter((note) => note !== number) : [...cell.notes, number];
   }
 
-  static sameSquareColumnRow(cell: Cell, sudoku: Cell[]): Cell[] {
-    const column = sudoku.filter((c) => cell.y === c.y);
-    const row = sudoku.filter((c) => cell.x === c.x);
-    const square = sudoku.filter(
-      (c) => Math.floor(c.x / 3) === Math.floor(cell.x / 3) && Math.floor(c.y / 3) === Math.floor(cell.y / 3),
-    );
-    return [...column, ...row, ...square];
-  }
-
-  static conflictingFields(sudoku: Cell[]): ConflictingCell[] {
-    const sudokuWithIndex: CellIndexed[] = sudoku.map((c, i) => ({
-      ...c,
-      index: i,
-    }));
-
-    return sudokuWithIndex.map((cell) => {
-      const rowCells = sudokuWithIndex.filter((c) => c.x === cell.x);
-      const columnCells = sudokuWithIndex.filter((c) => c.y === cell.y);
-      const squares = Object.values(
-        groupBy(sudokuWithIndex, (c) => {
-          return `${Math.floor(c.x / 3)}-${Math.floor(c.y / 3)}`;
-        }),
-      );
-      const squareCells = squares.filter((square) => {
-        return square.indexOf(cell) !== -1;
-      })[0];
-
-      const all = rowCells
-        .concat(columnCells)
-        .concat(squareCells)
-        .filter((c) => c.index !== cell.index)
-        .filter((c) => c.number !== 0);
-
-      const otherNumbers = uniq(all.map((c) => c.number));
-      const possibilities = SUDOKU_NUMBERS.filter((n) => !otherNumbers.includes(n));
-
-      return {
-        cell,
-        conflicting: all,
-        possibilities,
-      };
-    });
-  }
-
-  static getPathsFromConflicting(conflictingCell: ConflictingCell, sudoku: Cell[]): ConflictingPath[] {
-    const {conflicting, cell} = conflictingCell;
-    const paths: ConflictingPath[] = [];
-    conflicting.forEach((c) => {
-      const targetPosition = sudoku[c.index];
-      const fromPosition = sudoku[cell.index];
-      if (c.number === cell.number && c.index !== cell.index) {
-        const path: ConflictingPath = {
-          from: fromPosition,
-          to: targetPosition,
-          index: c.index,
-        };
-        paths.push(path);
+  static conflictingPaths(sudoku: Cell[]): {from: Cell; to: Cell}[] {
+    const filled = sudoku.filter((cell) => cell.number !== 0);
+    const paths = [];
+    for (const [i, from] of filled.entries()) {
+      for (let j = i + 1; j < filled.length; j++) {
+        const to = filled[j];
+        if (from.number === to.number && sharesUnit(from, to)) {
+          paths.push({from, to});
+        }
       }
-    });
-
+    }
     return paths;
   }
 }

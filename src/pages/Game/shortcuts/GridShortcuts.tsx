@@ -1,6 +1,6 @@
 import * as React from "react";
 import hotkeys from "hotkeys-js";
-import {SUDOKU_COORDINATES, SUDOKU_NUMBERS} from "src/lib/engine/utility";
+import {findCell, SUDOKU_COORDINATES, SUDOKU_NUMBERS} from "src/lib/engine/utility";
 import {Cell} from "src/lib/engine/types";
 import {ShortcutScope} from "./ShortcutScope";
 import SudokuGame from "src/lib/game/SudokuGame";
@@ -84,11 +84,7 @@ const GridShortcuts: React.FC<{
   });
 
   React.useEffect(() => {
-    const getCellByXY = (x: number, y: number) => {
-      return stateRef.current.sudoku.find((cell) => {
-        return cell.x === x && cell.y === y;
-      })!;
-    };
+    const getCellByXY = (x: number, y: number) => findCell(stateRef.current.sudoku, {x, y})!;
 
     const setDefault = () => {
       if (stateRef.current.sudoku.length > 0) {
@@ -167,14 +163,8 @@ const GridShortcuts: React.FC<{
         const {activeCell, notesMode, showHints, sudoku, setNumber, setNotes} = stateRef.current;
         if (activeCell && !activeCell.initial) {
           if (notesMode) {
-            const conflicting = SudokuGame.conflictingFields(sudoku);
-            const userNotes = activeCell.notes;
-            const conflictingCell = conflicting[activeCell.y * 9 + activeCell.x];
-            const autoNotes = showHints ? conflictingCell.possibilities : [];
-            const notesToUse = userNotes.length === 0 && autoNotes.length > 0 ? autoNotes : userNotes;
-
-            const newNotes = notesToUse.includes(n) ? notesToUse.filter((note) => note !== n) : [...userNotes, n];
-            setNotes(activeCell, newNotes);
+            const notes = SudokuGame.visibleNotes(activeCell, sudoku, showHints);
+            setNotes(activeCell, SudokuGame.toggleNote(activeCell, notes, n));
           } else {
             setNumber(activeCell, n);
           }
