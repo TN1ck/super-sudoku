@@ -9,10 +9,10 @@ import {
   CellNote,
   CellNoteContainer,
 } from "src/components/sudoku/SudokuGrid";
+import {findCell, sharesUnit} from "src/lib/engine/utility";
 import SudokuGame from "src/lib/game/SudokuGame";
 import {Bounds} from "src/components/sudoku/types";
 import {Cell, CellCoordinates} from "src/lib/engine/types";
-import flatten from "lodash-es/flatten";
 import {useElementWidth} from "src/utils/hooks";
 
 const SudokuGrid = React.memo(
@@ -161,29 +161,16 @@ export const Sudoku: React.FC<SudokuProps> = ({
   const xSection = height / 9;
   const ySection = width / 9;
 
-  const activeCell = passedActiveCell && sudoku.find((c) => c.x === passedActiveCell.x && c.y === passedActiveCell.y);
+  const activeCell = findCell(sudoku, passedActiveCell);
   const selectionPosition = {
     x: (activeCell && activeCell.x) || 0,
     y: (activeCell && activeCell.y) || 0,
   };
 
   const positionedCells = SudokuGame.positionedCells(sudoku, width, height);
-  const conflicting = SudokuGame.conflictingFields(sudoku);
-  const uniquePaths = SudokuGame.uniquePaths(
-    flatten(
-      conflicting.map((c) => {
-        return SudokuGame.getPathsFromConflicting(c, sudoku);
-      }),
-    ),
-  );
-
-  const pathCells = flatten(
-    uniquePaths.map((p) => {
-      return SudokuGame.getPathBetweenCell(p.from, p.to);
-    }),
-  );
-
-  const friendsOfActiveCell = activeCell ? SudokuGame.sameSquareColumnRow(activeCell, sudoku) : [];
+  const pathCells = showConflicts
+    ? SudokuGame.conflictingPaths(sudoku).flatMap(({from, to}) => SudokuGame.getPathBetweenCell(from, to))
+    : [];
 
   const sudokuContainerRef = React.useRef(null);
   const containerWidth = useElementWidth(sudokuContainerRef);
@@ -218,15 +205,8 @@ export const Sudoku: React.FC<SudokuProps> = ({
             }
           };
           const position = positionedCells[i];
-          const conflicted = conflicting[i];
-
-          const notes = showHints && c.notes.length === 0 ? conflicted.possibilities : c.notes;
-
-          const inConflictPath =
-            showConflicts &&
-            pathCells.some((d) => {
-              return d.x === c.x && d.y === c.y;
-            });
+          const notes = SudokuGame.visibleNotes(c, sudoku, showHints);
+          const inConflictPath = pathCells.some((cell) => cell.x === c.x && cell.y === c.y);
 
           const bounds: Bounds = {
             width: xSection,
@@ -236,9 +216,7 @@ export const Sudoku: React.FC<SudokuProps> = ({
           };
 
           const isActive = activeCell ? c.x === activeCell.x && c.y === activeCell.y : false;
-          const highlight = friendsOfActiveCell.some((cc) => {
-            return cc.x === c.x && cc.y === c.y;
-          });
+          const highlight = activeCell ? sharesUnit(activeCell, c) : false;
           const isWrong = showWrongEntries && (c.number === 0 ? false : c.solution !== c.number);
           const highlightNumber = activeCell && c.number !== 0 ? activeCell.number === c.number : false;
 

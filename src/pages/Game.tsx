@@ -1,7 +1,7 @@
 import * as React from "react";
 
-import {useGame, GameStateMachine, GameState, INITIAL_GAME_STATE, GameProvider} from "src/context/GameContext";
-import {emptyGrid, INITIAL_SUDOKU_STATE, SudokuProvider, SudokuState, useSudoku} from "src/context/SudokuContext";
+import {useGame, GameStateMachine, GameState, GameProvider} from "src/context/GameContext";
+import {canUndo, createSudokuState, emptyGrid, SudokuProvider, SudokuState, useSudoku} from "src/context/SudokuContext";
 
 import {Sudoku} from "src/components/sudoku/Sudoku";
 
@@ -14,24 +14,18 @@ import SudokuMenuControls from "src/components/sudoku/SudokuMenuControls";
 import {Container} from "src/components/Layout";
 import Shortcuts from "./Game/shortcuts/Shortcuts";
 import Checkbox from "src/components/Checkbox";
-import {cellsToSimpleSudoku, stringifySudoku, parseSudoku} from "src/lib/engine/utility";
+import {cellsToSimpleSudoku, findCell, stringifySudoku, parseSudoku, simpleSudokuToCells} from "src/lib/engine/utility";
 import {solve} from "src/lib/engine/solverAC3";
 import {Link, useLocation, useNavigate} from "@tanstack/react-router";
 import {getCurrentSudokuFromStorage, localStoragePlayedSudokuRepository} from "src/lib/database/playedSudokus";
-import {UserPreferences} from "src/lib/database/userPreferences";
 import {formatDuration} from "src/utils/format";
-import {throttle} from "lodash";
+import throttle from "lodash-es/throttle";
 import {TimerProvider} from "src/context/TimerContext";
 import {useEffect} from "react";
-import {CellCoordinates, SimpleSudoku} from "src/lib/engine/types";
 import {DarkModeButton} from "src/components/DarkModeButton";
 import LanguageSelector from "src/components/LanguageSelector";
 import {useTranslation} from "react-i18next";
-import {
-  INITIAL_USER_PREFERENCES_STATE,
-  UserPreferencesProvider,
-  useUserPreferences,
-} from "src/context/UserPrefencesContext";
+import {UserPreferencesProvider, useUserPreferences} from "src/context/UserPrefencesContext";
 import {getSudokusPaginated, useSudokuCollections} from "src/lib/game/sudokus";
 import {t} from "i18next";
 import {translateCollectionName} from "src/lib/database/collections";
@@ -104,10 +98,7 @@ const NewGameButton: React.FC = () => {
   );
 };
 
-const NextSudokuButton: React.FC<{gameState: GameState; setDisableUrlSync: (disabled: boolean) => void}> = ({
-  gameState,
-  setDisableUrlSync,
-}) => {
+const NextSudokuButton = ({gameState}: {gameState: GameState}) => {
   const {getCollection} = useSudokuCollections();
   const collection = React.useMemo(() => {
     try {
@@ -159,19 +150,8 @@ const NextSudokuButton: React.FC<{gameState: GameState; setDisableUrlSync: (disa
     );
   }
 
-  const handleClick = () => {
-    // TODO: Hacky solution for now, but it works.
-    // What is happening is that we sync the URL state, but us changing the URL here
-    // Will lead to an out of sync state with the game state.
-    setDisableUrlSync(true);
-    // Re-enable after a short delay to let navigation complete
-    setTimeout(() => {
-      setDisableUrlSync(false);
-    }, 2000);
-  };
-
   return (
-    <Link to="/" search={nextSudokuParams} className="w-full" onClick={handleClick}>
+    <Link to="/" search={nextSudokuParams} className="w-full">
       <Button className="bg-teal-700 text-white w-full">
         {t("select_next_sudoku", {
           collection: collectionName,
@@ -381,52 +361,22 @@ const SettingsAndInformation = () => {
   );
 };
 
-const GameInner: React.FC<{
-  sudokuState: SudokuState;
-  setSudoku: (sudoku: SimpleSudoku, solvedSudoku: SimpleSudoku) => void;
-  setNumber: (cellCoordinates: CellCoordinates, number: number) => void;
-  setNotes: (cellCoordinates: CellCoordinates, notes: number[]) => void;
-  clearCell: (cellCoordinates: CellCoordinates) => void;
-  getHint: (cellCoordinates: CellCoordinates) => void;
-  undo: () => void;
-  redo: () => void;
-  game: GameState;
-  userPreferencesState: UserPreferences;
-  pauseGame: () => void;
-  continueGame: () => void;
-  wonGame: () => void;
-  showMenu: () => void;
-  selectCell: (cellCoordinates: CellCoordinates) => void;
-  activateNotesMode: () => void;
-  hideMenu: () => void;
-  resetGame: () => void;
-  deactivateNotesMode: () => void;
-  setDisableUrlSync: (disabled: boolean) => void;
-  copyNotes: (notes: number[]) => void;
-}> = ({
-  sudokuState,
-  setSudoku,
-  setNumber,
-  setNotes,
-  clearCell,
-  getHint,
-  undo,
-  redo,
-  game,
-  userPreferencesState,
-  pauseGame,
-  continueGame,
-  wonGame,
-  showMenu,
-  selectCell,
-  activateNotesMode,
-  hideMenu,
-  resetGame,
-  deactivateNotesMode,
-  setDisableUrlSync,
-  copyNotes,
-}) => {
-  const canUndo = sudokuState.historyIndex < sudokuState.history.length - 1;
+const GameInner = () => {
+  const {
+    state: game,
+    pauseGame,
+    continueGame,
+    wonGame,
+    showMenu,
+    hideMenu,
+    selectCell,
+    activateNotesMode,
+    deactivateNotesMode,
+    resetGame,
+    copyNotes,
+  } = useGame();
+  const {state: sudokuState, setSudoku, setNumber, setNotes, clearCell, getHint, undo, redo} = useSudoku();
+  const {state: userPreferencesState} = useUserPreferences();
   const sudoku = sudokuState.current;
   const {t} = useTranslation();
   const {getCollection} = useSudokuCollections();
@@ -469,11 +419,7 @@ const GameInner: React.FC<{
   }, [onVisibilityChange]);
 
   const pausedGame = game.state === GameStateMachine.paused;
-  const activeCell = game.activeCellCoordinates
-    ? sudoku.find((s) => {
-        return s.x === game.activeCellCoordinates!.x && s.y === game.activeCellCoordinates!.y;
-      })
-    : undefined;
+  const activeCell = findCell(sudoku, game.activeCellCoordinates);
 
   return (
     <Container>
@@ -516,12 +462,12 @@ const GameInner: React.FC<{
                 <ClearGameButton
                   pauseGame={pauseGame}
                   continueGame={continueGame}
-                  disabled={game.won || game.state === GameStateMachine.paused}
+                  disabled={game.won || pausedGame}
                   clearGame={() => {
                     const simpleSudoku = cellsToSimpleSudoku(sudokuState.current);
                     const solved = solve(simpleSudoku);
                     if (solved.sudoku) {
-                      setSudoku(simpleSudoku, solved.sudoku);
+                      setSudoku(simpleSudokuToCells(simpleSudoku, solved.sudoku));
                     }
                     resetGame();
                   }}
@@ -530,7 +476,7 @@ const GameInner: React.FC<{
               <div className="flex gap-2">
                 <PauseButton
                   disabled={game.won}
-                  paused={game.state === GameStateMachine.paused}
+                  paused={pausedGame}
                   continueGame={continueGame}
                   pauseGame={pauseGame}
                 />
@@ -542,18 +488,16 @@ const GameInner: React.FC<{
         <div className="flex gap-4 flex-col md:flex-row">
           <main className="mt-4 flex-grow md:min-w-96 w-full">
             <Sudoku
-              showWrongEntries={userPreferencesState.showWrongEntries && game.state === GameStateMachine.running}
-              showConflicts={userPreferencesState.showConflicts && game.state === GameStateMachine.running}
+              showWrongEntries={userPreferencesState.showWrongEntries && !pausedGame}
+              showConflicts={userPreferencesState.showConflicts && !pausedGame}
               notesMode={game.notesMode}
-              shouldShowMenu={
-                game.showMenu && userPreferencesState.showCircleMenu && game.state === GameStateMachine.running
-              }
-              sudoku={game.state === GameStateMachine.paused ? emptyGrid : sudoku}
+              shouldShowMenu={game.showMenu && userPreferencesState.showCircleMenu && !pausedGame}
+              sudoku={pausedGame ? emptyGrid : sudoku}
               showMenu={showMenu}
               hideMenu={hideMenu}
               selectCell={selectCell}
-              showHints={userPreferencesState.showHints && game.state === GameStateMachine.running}
-              activeCell={game.state === GameStateMachine.running ? activeCell : undefined}
+              showHints={userPreferencesState.showHints && !pausedGame}
+              activeCell={pausedGame ? undefined : activeCell}
               setNumber={setNumber}
               setNotes={setNotes}
               clearNumber={clearCell}
@@ -577,7 +521,7 @@ const GameInner: React.FC<{
                         </div>
                       </div>
                     </div>
-                    <NextSudokuButton gameState={game} setDisableUrlSync={setDisableUrlSync} />
+                    <NextSudokuButton gameState={game} />
                   </div>
                 </div>
               )}
@@ -586,25 +530,27 @@ const GameInner: React.FC<{
             </Sudoku>
           </main>
           <div className="grid gap-4 mt-4">
-            <SudokuMenuNumbers
-              notesMode={game.notesMode}
-              showOccurrences={userPreferencesState.showOccurrences}
-              activeCell={game.activeCellCoordinates}
-              sudoku={sudokuState.current}
-              showHints={userPreferencesState.showHints}
-              setNumber={setNumber}
-              setNotes={setNotes}
-            />
-            <SudokuMenuControls
-              notesMode={game.notesMode}
-              activeCellCoordinates={game.activeCellCoordinates ?? {x: 0, y: 0}}
-              clearCell={clearCell}
-              activateNotesMode={activateNotesMode}
-              deactivateNotesMode={deactivateNotesMode}
-              getHint={getHint}
-              canUndo={canUndo}
-              undo={undo}
-            />
+            <fieldset disabled={pausedGame} className="contents">
+              <SudokuMenuNumbers
+                notesMode={game.notesMode}
+                showOccurrences={userPreferencesState.showOccurrences}
+                activeCell={game.activeCellCoordinates}
+                sudoku={sudokuState.current}
+                showHints={userPreferencesState.showHints}
+                setNumber={setNumber}
+                setNotes={setNotes}
+              />
+              <SudokuMenuControls
+                notesMode={game.notesMode}
+                activeCellCoordinates={activeCell?.initial ? undefined : activeCell}
+                clearCell={clearCell}
+                activateNotesMode={activateNotesMode}
+                deactivateNotesMode={deactivateNotesMode}
+                getHint={getHint}
+                canUndo={canUndo(sudokuState)}
+                undo={undo}
+              />
+            </fieldset>
             <SettingsAndInformation />
           </div>
         </div>
@@ -617,24 +563,12 @@ const GameInner: React.FC<{
 const throttledSave = throttle(localStoragePlayedSudokuRepository.saveSudokuState, 2000);
 
 export function AppProvider({children}: {children: React.ReactNode}) {
-  // Load initial state from persistence
-  const [currentSudoku] = React.useState(getCurrentSudokuFromStorage);
-
-  const initialSudokuState: SudokuState = currentSudoku
-    ? {
-        history: [currentSudoku.sudoku],
-        historyIndex: 0,
-        current: currentSudoku.sudoku,
-      }
-    : INITIAL_SUDOKU_STATE;
-
-  const initialGameState: GameState = currentSudoku ? currentSudoku.game : INITIAL_GAME_STATE;
-
-  const initialUserPreferencesState: UserPreferences = INITIAL_USER_PREFERENCES_STATE;
+  const [saved] = React.useState(getCurrentSudokuFromStorage);
+  const initialSudokuState = saved ? createSudokuState(saved.sudoku) : undefined;
 
   return (
-    <GameProvider initialState={initialGameState}>
-      <UserPreferencesProvider initialState={initialUserPreferencesState}>
+    <GameProvider initialState={saved?.game}>
+      <UserPreferencesProvider>
         <TimerProvider>
           <SudokuProvider initialState={initialSudokuState}>{children}</SudokuProvider>
         </TimerProvider>
@@ -645,35 +579,8 @@ export function AppProvider({children}: {children: React.ReactNode}) {
 
 const GameWithRouteManagement = () => {
   const location = useLocation();
-  const {
-    setGameState,
-    state: gameState,
-    continueGame,
-    newGame,
-    pauseGame,
-    wonGame,
-    showMenu,
-    selectCell,
-    activateNotesMode,
-    deactivateNotesMode,
-    resetGame,
-    hideMenu,
-    copyNotes,
-  } = useGame();
-  const {state: userPreferencesState} = useUserPreferences();
-  const {
-    setSudokuState,
-    state: sudokuState,
-    setSudoku,
-    setNumber,
-    setNotes,
-    clearCell,
-    getHint,
-    undo,
-    redo,
-  } = useSudoku();
-  const [initialized, setInitialized] = React.useState(false);
-  const [disableUrlSync, setDisableUrlSync] = React.useState(false);
+  const {state: gameState, setGameState, newGame} = useGame();
+  const {state: sudokuState, setSudoku} = useSudoku();
   const navigate = useNavigate();
   const {t} = useTranslation();
 
@@ -684,55 +591,58 @@ const GameWithRouteManagement = () => {
   const sudokuCollectionName = getSearchString(search, "sudokuCollectionName");
 
   useEffect(() => {
+    const flushSave = () => throttledSave.flush();
+    window.addEventListener("pagehide", flushSave);
     return () => {
-      throttledSave.flush();
+      window.removeEventListener("pagehide", flushSave);
+      flushSave();
     };
   }, []);
 
+  const currentGrid = stringifySudoku(cellsToSimpleSudoku(sudokuState.current));
+  const matchesUrl =
+    sudoku === currentGrid &&
+    sudokuIndex !== undefined &&
+    sudokuIndex - 1 === gameState.sudokuIndex &&
+    sudokuCollectionName === gameState.sudokuCollectionName;
   useEffect(() => {
-    if (initialized && currentPath === "/") {
+    if (currentPath === "/" && matchesUrl) {
       throttledSave(gameState, sudokuState);
       if (gameState.won) {
         throttledSave.flush();
       }
     }
-  }, [gameState, sudokuState, initialized, currentPath]);
+  }, [currentPath, matchesUrl, gameState, sudokuState]);
 
   useEffect(() => {
-    if (initialized && currentPath === "/" && !disableUrlSync) {
-      const stringifiedSudoku = stringifySudoku(cellsToSimpleSudoku(sudokuState.current));
-      const shouldUpdateUrl = stringifiedSudoku !== sudoku;
-      if (shouldUpdateUrl) {
+    if (matchesUrl) {
+      return;
+    }
+    const restoreCurrentUrl = () => {
+      if (currentPath === "/") {
         navigate({
           replace: true,
           to: "/",
           search: {
             sudokuIndex: gameState.sudokuIndex + 1,
-            sudoku: stringifiedSudoku,
+            sudoku: currentGrid,
             sudokuCollectionName: gameState.sudokuCollectionName,
           },
         });
       }
-    }
-  }, [gameState, sudokuState, initialized, currentPath, sudoku, navigate, disableUrlSync]);
+    };
 
-  // In the AppProvider, we load the sudoku from the local storage.
-  // TODO: Combine it with this logic.
-  React.useEffect(() => {
-    // If the URL does not contain a sudoku, we don't need to do anything.
     if (sudokuIndex === undefined || sudoku === undefined || sudokuCollectionName === undefined) {
-      setInitialized(true);
+      restoreCurrentUrl();
       return;
     }
 
-    const currentSudoku = cellsToSimpleSudoku(sudokuState.current);
-    // If the current sudoku is the same as the one in the URL, we don't need to do anything.
-    if (stringifySudoku(currentSudoku) === sudoku) {
-      setInitialized(true);
+    const entry = {sudokuCollectionName, sudokuIndex: sudokuIndex - 1};
+    if (sudoku === currentGrid && !gameState.won) {
+      setGameState({...gameState, ...entry});
       return;
     }
 
-    console.info("Loading sudoku from URL", sudokuIndex, sudoku, sudokuCollectionName);
     // We only show a message if the user has played for more than 5 seconds and has not won.
     if (gameState.secondsPlayed > 5 && !gameState.won) {
       const areYouSure = confirm(
@@ -744,93 +654,40 @@ const GameWithRouteManagement = () => {
         }),
       );
       if (!areYouSure) {
-        setInitialized(true);
+        restoreCurrentUrl();
         return;
       }
     }
 
-    // The user wants to play the sudoku from the URL.
+    // Finish any pending write for the outgoing puzzle before loading another.
+    throttledSave.flush();
     try {
-      const parsedSudoku = parseSudoku(sudoku);
-      const solvedSudoku = solve(parsedSudoku);
-      if (solvedSudoku.sudoku) {
-        setSudoku(parsedSudoku, solvedSudoku.sudoku);
-      } else {
-        alert(t("invalid_sudoku_url"));
-        setInitialized(true);
+      const grid = parseSudoku(sudoku);
+      const saved = localStoragePlayedSudokuRepository.getSudokuState(sudoku);
+      if (saved && !saved.game.won) {
+        setSudoku(saved.sudoku);
+        setGameState({...saved.game, ...entry, state: GameStateMachine.running});
+        return;
+      }
+
+      const solution = solve(grid).sudoku;
+      if (solution) {
+        setSudoku(simpleSudokuToCells(grid, solution));
+        newGame(entry.sudokuIndex, sudokuCollectionName, saved?.game.timesSolved ?? 0, saved?.game.previousTimes ?? []);
         return;
       }
     } catch (error) {
-      alert(t("invalid_sudoku_url"));
-      setInitialized(true);
       console.error(error);
-      return;
     }
 
-    const storedSudoku = localStoragePlayedSudokuRepository.getSudokuState(sudoku);
-    newGame(
-      sudokuIndex - 1, // We subtract 1 because the index is 0-based, but we want to display it as 1-based in the URL.
-      sudokuCollectionName,
-      storedSudoku?.game.timesSolved ?? 0,
-      storedSudoku?.game.previousTimes ?? [],
-    );
-
-    // If we have a stored sudoku, we need to set the game state and sudoku state.
-    if (storedSudoku && !storedSudoku.game.won) {
-      setGameState({
-        ...storedSudoku.game,
-      });
-      setSudokuState({
-        current: storedSudoku.sudoku,
-        history: [storedSudoku.sudoku],
-        historyIndex: 0,
-      });
-    }
-    setInitialized(true);
-    continueGame();
+    alert(t("invalid_sudoku_url"));
+    restoreCurrentUrl();
   }, [
-    sudokuIndex,
-    sudoku,
-    sudokuCollectionName,
-    setGameState,
-    setSudokuState,
-    setInitialized,
-    continueGame,
-    sudokuState,
-    gameState.secondsPlayed,
-    gameState.won,
-    gameState.sudokuCollectionName,
-    gameState.sudokuIndex,
-    newGame,
-    setSudoku,
-    t,
+    matchesUrl, sudokuIndex, sudoku, sudokuCollectionName, currentGrid, currentPath,
+    navigate, gameState, setGameState, setSudoku, newGame, t,
   ]);
 
-  return (
-    <GameInner
-      sudokuState={sudokuState}
-      setSudoku={setSudoku}
-      setNumber={setNumber}
-      setNotes={setNotes}
-      clearCell={clearCell}
-      getHint={getHint}
-      undo={undo}
-      redo={redo}
-      game={gameState}
-      userPreferencesState={userPreferencesState}
-      pauseGame={pauseGame}
-      continueGame={continueGame}
-      wonGame={wonGame}
-      showMenu={showMenu}
-      selectCell={selectCell}
-      activateNotesMode={activateNotesMode}
-      hideMenu={hideMenu}
-      resetGame={resetGame}
-      deactivateNotesMode={deactivateNotesMode}
-      setDisableUrlSync={setDisableUrlSync}
-      copyNotes={copyNotes}
-    />
-  );
+  return <GameInner />;
 };
 
 const Game = () => {

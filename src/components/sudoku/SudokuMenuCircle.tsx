@@ -121,9 +121,7 @@ const MenuCircle: React.FC<{
   clearNumber: (cell: Cell) => void;
   sudoku: Cell[];
 }> = ({cell, notesMode, showHints, setNumber, setNotes, clearNumber, sudoku, showMenu}) => {
-  if (cell === null) {
-    return null;
-  }
+  const notes = SudokuGame.visibleNotes(cell, sudoku, showHints);
 
   const circleRadius = 45;
   const minRad = 0;
@@ -161,17 +159,7 @@ const MenuCircle: React.FC<{
       {SUDOKU_NUMBERS.map((number, i) => {
         const currentMinRad = minRad + radPerStep * (i + 1);
         const currentMaxRad = currentMinRad + radPerStep;
-        let isActive = number === cell.number;
-
-        const conflicting = SudokuGame.conflictingFields(sudoku);
-        const userNotes = sudoku[cell.y * 9 + cell.x].notes;
-        const conflictingCell = conflicting[cell.y * 9 + cell.x];
-        const autoNotes = showHints ? conflictingCell.possibilities : [];
-        const notesToUse = userNotes.length === 0 && autoNotes.length > 0 ? autoNotes : userNotes;
-
-        if (notesMode) {
-          isActive = notesToUse.includes(number);
-        }
+        const isActive = notesMode ? notes.includes(number) : number === cell.number;
 
         const colors = notesMode
           ? [
@@ -195,18 +183,11 @@ const MenuCircle: React.FC<{
               if (notesMode) {
                 e.preventDefault();
                 e.stopPropagation();
-              }
-              if (notesMode) {
-                const newNotes = notesToUse.includes(number)
-                  ? notesToUse.filter((note) => note !== number)
-                  : [...userNotes, number];
-                setNotes(cell, newNotes);
+                setNotes(cell, SudokuGame.toggleNote(cell, notes, number));
+              } else if (number === cell.number) {
+                clearNumber(cell);
               } else {
-                if (number === cell.number) {
-                  clearNumber(cell);
-                } else {
-                  setNumber(cell, number);
-                }
+                setNumber(cell, number);
               }
             }}
           >

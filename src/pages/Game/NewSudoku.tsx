@@ -2,12 +2,12 @@ import hotkeys from "hotkeys-js";
 import * as React from "react";
 import Button from "src/components/Button";
 import {Sudoku} from "src/components/sudoku/Sudoku";
-import {EraseButton, UndoButton} from "src/components/sudoku/SudokuMenuControls";
+import {CellActionButton, UndoButton} from "src/components/sudoku/SudokuMenuControls";
 import SudokuMenuNumbers from "src/components/sudoku/SudokuMenuNumbers";
-import {INITIAL_CREATE_NEW_SUDOKU_STATE, SudokuProvider, useSudoku} from "src/context/SudokuContext";
+import {canUndo, INITIAL_CREATE_NEW_SUDOKU_STATE, SudokuProvider, useSudoku} from "src/context/SudokuContext";
 import {solve} from "src/lib/engine/solverAC3";
 import {Cell, CellCoordinates, SimpleSudoku} from "src/lib/engine/types";
-import {cellsToSimpleSudoku, SUDOKU_COORDINATES, SUDOKU_NUMBERS} from "src/lib/engine/utility";
+import {cellsToSimpleSudoku, findCell, SUDOKU_COORDINATES, SUDOKU_NUMBERS} from "src/lib/engine/utility";
 import {useSudokuUniqueWorker} from "src/utils/useSudokuUniqueWorker";
 
 const SHORTCUT_SCOPE = "new-sudoku";
@@ -44,11 +44,7 @@ const GridShortcuts: React.FC<{
   });
 
   React.useEffect(() => {
-    const getCellByXY = (x: number, y: number) => {
-      return stateRef.current.sudoku.find((cell) => {
-        return cell.x === x && cell.y === y;
-      })!;
-    };
+    const getCellByXY = (x: number, y: number) => findCell(stateRef.current.sudoku, {x, y})!;
 
     const setDefault = () => {
       if (stateRef.current.sudoku.length > 0) {
@@ -147,7 +143,6 @@ const GridShortcuts: React.FC<{
 
 const NewSudokuInner = ({saveSudoku}: {saveSudoku: (sudoku: SimpleSudoku) => Promise<void>}) => {
   const {state: sudokuState, setNumber, clearNumber, undo, redo} = useSudoku();
-  const canUndo = sudokuState.history.length > 1;
   const [activeCell, setActiveCell] = React.useState<CellCoordinates | undefined>(undefined);
   const currentSudoku = sudokuState.current.map((cell) => ({
     ...cell,
@@ -225,8 +220,8 @@ const NewSudokuInner = ({saveSudoku}: {saveSudoku: (sudoku: SimpleSudoku) => Pro
           setNotes={() => {}}
         />
         <div className="grid w-full grid-cols-4 gap-2">
-          <UndoButton canUndo={canUndo} undo={undo} />
-          <EraseButton activeCellCoordinates={activeCell} clearCell={clearNumber} />
+          <UndoButton canUndo={canUndo(sudokuState)} undo={undo} />
+          <CellActionButton label="erase_btn" cell={activeCell} onClick={clearNumber} />
         </div>
         <div>
           <Button

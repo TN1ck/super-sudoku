@@ -1,6 +1,6 @@
 import groupBy from "lodash-es/groupBy";
 import sortBy from "lodash-es/sortBy";
-import {SimpleSudoku, Cell} from "./types";
+import {SimpleSudoku, Cell, CellCoordinates} from "./types";
 export const SUDOKU_COORDINATES = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 export const SUDOKU_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -39,6 +39,14 @@ export const SQUARE_TABLE = (function () {
 
 export function squareIndex(x: number, y: number): number {
   return Math.floor(y / 3) * 3 + Math.floor(x / 3);
+}
+
+export function sharesUnit(a: CellCoordinates, b: CellCoordinates) {
+  return a.x === b.x || a.y === b.y || squareIndex(a.x, a.y) === squareIndex(b.x, b.y);
+}
+
+export function findCell(sudoku: Cell[], position?: CellCoordinates) {
+  return position && sudoku.find((cell) => cell.x === position.x && cell.y === position.y);
 }
 
 export function simpleSudokuToCells(grid: SimpleSudoku, solution?: SimpleSudoku): Cell[] {
