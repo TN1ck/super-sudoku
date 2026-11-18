@@ -82,21 +82,26 @@ type GameAction =
   | {type: typeof WON_GAME}
   | {type: typeof COPY_NOTES; notes: number[]};
 
+export function createNewGameState({
+  sudokuIndex, sudokuCollectionName, timesSolved, previousTimes,
+}: Pick<GameState, "sudokuIndex" | "sudokuCollectionName" | "timesSolved" | "previousTimes">): GameState {
+  return {
+    ...INITIAL_GAME_STATE,
+    sudokuIndex,
+    sudokuCollectionName,
+    timesSolved,
+    previousTimes,
+    state: GameStateMachine.running,
+    ...localStorageUserPreferencesRepository.getPreferences(),
+  };
+}
+
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case SET_GAME_STATE:
       return action.state;
     case NEW_GAME:
-      const currentPreferences = localStorageUserPreferencesRepository.getPreferences();
-      return {
-        ...INITIAL_GAME_STATE,
-        sudokuIndex: action.sudokuIndex,
-        sudokuCollectionName: action.sudokuCollectionName,
-        timesSolved: action.timesSolved,
-        previousTimes: action.previousTimes,
-        state: GameStateMachine.running,
-        ...currentPreferences,
-      };
+      return createNewGameState(action);
     case WON_GAME:
       const justWon = state.won === false;
       return {

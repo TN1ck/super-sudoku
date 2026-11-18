@@ -176,8 +176,8 @@ function sudokuReducer(state: SudokuState, action: SudokuAction): SudokuState {
         }
       }
 
-      // Add to history
-      const newHistory = [newGrid, ...state.history];
+      // A new edit replaces any moves that could have been redone.
+      const newHistory = [newGrid, ...state.history.slice(state.historyIndex)];
 
       return {
         current: newGrid,
