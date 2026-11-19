@@ -74,7 +74,7 @@ export function simpleSudokuToCells(grid: SimpleSudoku, solution?: SimpleSudoku)
   );
 }
 
-export function cellsToSimpleSudoku(cells: Cell[], includePlayerEntries = false): SimpleSudoku {
+export function cellsToSimpleSudoku(cells: Cell[]): SimpleSudoku {
   const simple: number[][] = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -87,7 +87,7 @@ export function cellsToSimpleSudoku(cells: Cell[], includePlayerEntries = false)
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
   ];
   cells.forEach((cell) => {
-    if (cell.initial || includePlayerEntries) {
+    if (cell.initial) {
       simple[cell.y][cell.x] = cell.number;
     }
   });

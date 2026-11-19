@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import {getSudokusPaginated, SudokuRaw, useSudokuCollections} from "src/lib/game/sudokus";
+import {countSolutions} from "src/lib/engine/solverBacktracking";
 import {SimpleSudoku} from "src/lib/engine/types";
 import SudokuPreview from "../../components/sudoku/SudokuPreview";
 import {formatDuration} from "src/utils/format";
@@ -119,7 +120,7 @@ const SudokuToSelect = ({
   const {t} = useTranslation();
 
   const choose = () => {
-    if (finished) {
+    if (finished && countSolutions(sudoku.sudoku, 2).count === 1) {
       const areYouSure = confirm(
         "Are you sure? This will restart the sudoku and reset the timer. It will continue to say that you solved it.",
       );
