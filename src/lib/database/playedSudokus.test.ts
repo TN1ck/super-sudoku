@@ -55,6 +55,20 @@ describe("played puzzle storage", () => {
     expect(localStorage.getItem(compactKey)).toBeNull();
   });
 
+  it("ignores a previous tab's win after a replay has started", () => {
+    repository.saveSudokuState(wonGame, {current: completed});
+    const replay = {...wonGame, won: false, secondsPlayed: 3, state: GameStateMachine.running};
+    repository.saveSudokuState(replay, {current: cells});
+    repository.saveSudokuState(wonGame, {current: completed});
+    expect(getCurrentSudokuFromStorage()).toEqual({game: replay, sudoku: cells});
+  });
+
+  it("keeps the first recorded time when two tabs finish the same attempt", () => {
+    repository.saveSudokuState(wonGame, {current: completed});
+    repository.saveSudokuState({...wonGame, previousTimes: [96, 80], secondsPlayed: 80}, {current: completed});
+    expect(getCurrentSudokuFromStorage()?.game.previousTimes).toEqual([96, 75]);
+  });
+
   it.each(["1_0", "1_1", "1_2", "1_3", "1_4", "1_5"])(
     "restores the active puzzle and completion times from %s",
     (version) => {
