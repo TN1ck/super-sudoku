@@ -69,6 +69,21 @@ describe("played puzzle storage", () => {
     expect(getCurrentSudokuFromStorage()?.game.previousTimes).toEqual([96, 75]);
   });
 
+  it("retains a win committed between an older tab's read and write", () => {
+    const setItem = localStorage.setItem.bind(localStorage);
+    let interleaveWin = true;
+    vi.spyOn(localStorage, "setItem").mockImplementation((destination, value) => {
+      if (destination === recordKey && interleaveWin) {
+        interleaveWin = false;
+        repository.saveSudokuState(wonGame, {current: completed});
+      }
+      setItem(destination, value);
+    });
+
+    repository.saveSudokuState(INITIAL_GAME_STATE, {current: cells});
+    expect(getCurrentSudokuFromStorage()).toEqual({game: wonGame, sudoku: completed});
+  });
+
   it.each(["1_0", "1_1", "1_2", "1_3", "1_4", "1_5"])(
     "restores the active puzzle and completion times from %s",
     (version) => {
