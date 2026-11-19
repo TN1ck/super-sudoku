@@ -1,12 +1,27 @@
 import * as React from "react";
 
-import {createHashHistory, createRootRoute, createRoute, createRouter, RouterProvider} from "@tanstack/react-router";
+import {
+  createHashHistory,
+  createRootRoute,
+  createRoute,
+  createRouter,
+  Navigate,
+  Outlet,
+  RouterProvider,
+  useLocation,
+} from "@tanstack/react-router";
 
-import Game from "./pages/Game";
+import Game, {AppProvider} from "./pages/Game";
 import SelectGame from "./pages/SelectGame";
 import {OfflineIndicator} from "./components/OfflineIndicator";
 
-const rootRoute = createRootRoute();
+const rootRoute = createRootRoute({
+  component: () => (
+    <AppProvider>
+      <Outlet />
+    </AppProvider>
+  ),
+});
 
 const gameRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -24,9 +39,14 @@ rootRoute.addChildren([gameRoute, selectGameRoute]);
 
 const hashHistory = createHashHistory();
 
+function RedirectToGame() {
+  const {search} = useLocation();
+  return <Navigate to="/" search={search} replace />;
+}
+
 const router = createRouter({
   routeTree: rootRoute,
-  defaultNotFoundComponent: Game,
+  defaultNotFoundComponent: RedirectToGame,
   history: hashHistory,
 });
 

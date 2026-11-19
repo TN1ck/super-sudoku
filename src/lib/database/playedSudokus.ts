@@ -109,8 +109,16 @@ function writeRecord(key: string, record: SavedSudoku, activeWin?: StoredPlayedS
     }
     localStorage.removeItem(fullKey);
   } else {
+    const previousWin = localStorage.getItem(compactKey);
     localStorage.setItem(fullKey, JSON.stringify(record));
-    localStorage.removeItem(compactKey);
+    // Clear only the completion this replay supersedes. A different tab can
+    // commit its win between the progress write and this cleanup.
+    if (previousWin && localStorage.getItem(compactKey) === previousWin) {
+      const packed: CompletedSudoku = JSON.parse(previousWin);
+      if (!isLaterAttempt(packed.game, record.game)) {
+        localStorage.removeItem(compactKey);
+      }
+    }
   }
 }
 
@@ -285,9 +293,16 @@ export function getCurrentSudokuFromStorage(): StoredPlayedSudokuState | undefin
 
 function getSudokuFromStorage(key: string): StoredPlayedSudokuState | undefined {
   const full = localStorage.getItem(STORAGE_KEY_V_1_6_PREFIX + key);
+  const raw = localStorage.getItem(STORAGE_KEY_V_1_7_PREFIX + key);
   if (full) {
     const record: SavedSudoku = JSON.parse(full);
     const restored = restore(record, key);
+    if (raw) {
+      const packed: CompletedSudoku = JSON.parse(raw);
+      if (isLaterAttempt(packed.game, restored.game)) {
+        return restore(packed, key);
+      }
+    }
     // PR #45 briefly wrote compact wins under the v1.6 prefix.
     if ("completedGrid" in record) {
       try {
@@ -299,9 +314,21 @@ function getSudokuFromStorage(key: string): StoredPlayedSudokuState | undefined 
     }
     return restored;
   }
-  const raw = localStorage.getItem(STORAGE_KEY_V_1_7_PREFIX + key);
   const record: SavedSudoku | undefined = raw ? JSON.parse(raw) : migrateLegacyStorage().sudokus[key];
   return record ? restore(record, key) : undefined;
+}
+
+// Completing an attempt increments timesSolved. A replay starts at that same
+// count, so an unfinished replay is newer than the win immediately before it.
+export function isLaterAttempt(candidate: GameState, current: GameState) {
+  return (
+    candidate.timesSolved > current.timesSolved ||
+    (candidate.timesSolved === current.timesSolved && current.won && !candidate.won)
+  );
+}
+
+export function isPuzzleRecordKey(storageKey: string | null, puzzle: string) {
+  return storageKey === STORAGE_KEY_V_1_6_PREFIX + puzzle || storageKey === STORAGE_KEY_V_1_7_PREFIX + puzzle;
 }
 
 function saveCurrentSudokuToLocalStorage(game: GameState, sudoku: Pick<SudokuState, "current">) {
@@ -309,6 +336,18 @@ function saveCurrentSudokuToLocalStorage(game: GameState, sudoku: Pick<SudokuSta
   const full = {game, sudoku: sudoku.current};
   const record = compact(full);
   const save = () => {
+    const stored = getSudokuFromStorage(key)?.game;
+    if (stored && isLaterAttempt(stored, game)) {
+      return;
+    }
+    if (
+      stored?.won &&
+      game.won &&
+      stored.timesSolved === game.timesSolved &&
+      stored.secondsPlayed !== game.secondsPlayed
+    ) {
+      return;
+    }
     const previous = localStorage.getItem(STORAGE_CURRENTLY_PLAYING_SUDOKU_KEY);
     writeRecord(key, record, full);
     localStorage.setItem(STORAGE_CURRENTLY_PLAYING_SUDOKU_KEY, key);

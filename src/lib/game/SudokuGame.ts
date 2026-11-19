@@ -1,4 +1,4 @@
-import {SUDOKU_NUMBERS, sharesUnit} from "src/lib/engine/utility";
+import {hasBoardShape, SUDOKU_NUMBERS, sharesUnit} from "src/lib/engine/utility";
 import {Cell} from "src/lib/engine/types";
 
 export interface PositionedCell {
@@ -61,7 +61,9 @@ export default class SudokuGame {
   }
 
   static isSolved(sudoku: Cell[]): boolean {
-    return Boolean(sudoku && sudoku.every((cell) => cell.number !== 0) && this.correct(sudoku));
+    return Boolean(
+      sudoku?.every((c) => SUDOKU_NUMBERS.includes(c.number)) && hasBoardShape(sudoku) && this.correct(sudoku),
+    );
   }
 
   static getCellPosition(c: Cell, width: number, height: number): PositionedCell {
@@ -85,7 +87,7 @@ export default class SudokuGame {
   }
 
   static visibleNotes(cell: Cell, sudoku: Cell[], showHints: boolean): number[] {
-    if (!showHints || cell.notes.length > 0) {
+    if (!showHints || cell.autoNotesHidden || cell.notes.length > 0) {
       return cell.notes;
     }
     const occupied = sudoku

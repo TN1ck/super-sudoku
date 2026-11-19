@@ -15,5 +15,6 @@ export interface Cell extends CellCoordinates {
   number: number;
   initial: boolean;
   notes: number[];
+  autoNotesHidden?: true;
   solution: number;
 }

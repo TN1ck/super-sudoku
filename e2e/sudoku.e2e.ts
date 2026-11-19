@@ -95,8 +95,8 @@ async function expectStoredPreferences(page: Page, preferences: Record<string, b
     .toMatchObject(preferences);
 }
 
-test.beforeEach(async ({context}) => {
-  await context.grantPermissions(["clipboard-read", "clipboard-write"], {origin: "http://127.0.0.1:4173"});
+test.beforeEach(async ({context, baseURL}) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"], {origin: new URL(baseURL!).origin});
 });
 
 test("uses the application name as the browser tab title", async ({page}) => {
@@ -642,7 +642,10 @@ test.describe("gameplay regressions", () => {
     await page.reload();
     await expect(page.getByText(/Congrats, you won/)).toBeVisible();
     await expect(page.getByText("You solved this sudoku 1 time")).toBeVisible();
-    const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem("super_sudoku_1_7_" + key)!), ONE_EMPTY_CELL_PUZZLE);
+    const saved = await page.evaluate(
+      (key) => JSON.parse(localStorage.getItem("super_sudoku_1_7_" + key)!),
+      ONE_EMPTY_CELL_PUZZLE,
+    );
     expect(saved.completedGrid).toBe(FIRST_SOLUTION);
     expect(saved.game.previousTimes).toHaveLength(1);
   });
@@ -767,7 +770,9 @@ test.describe("gameplay regressions", () => {
       await page.clock.runFor(800);
       await page.keyboard.press("Escape");
       await expect(page.getByRole("button", {name: "Continue", exact: true})).toBeVisible();
-      if (i < 9) await page.keyboard.press("Escape");
+      if (i < 9) {
+        await page.keyboard.press("Escape");
+      }
     }
     await expect(page.getByText("00:08 min", {exact: true})).toBeVisible();
     await page.reload();
@@ -777,10 +782,11 @@ test.describe("gameplay regressions", () => {
   test("a delayed resume does not start a hidden game", async ({page}) => {
     await page.clock.install();
     await openGame(page);
-    const setVisibility = (visibility: DocumentVisibilityState) => page.evaluate((value) => {
-      Object.defineProperty(document, "visibilityState", {configurable: true, get: () => value});
-      document.dispatchEvent(new Event("visibilitychange"));
-    }, visibility);
+    const setVisibility = (visibility: "hidden" | "visible") =>
+      page.evaluate((value) => {
+        Object.defineProperty(document, "visibilityState", {configurable: true, get: () => value});
+        document.dispatchEvent(new Event("visibilitychange"));
+      }, visibility);
     await setVisibility("hidden");
     const resume = page.getByRole("button", {name: "Continue", exact: true});
     await expect(resume).toBeVisible();

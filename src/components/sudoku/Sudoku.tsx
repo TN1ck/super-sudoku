@@ -129,6 +129,7 @@ interface SudokuProps {
   showWrongEntries: boolean;
   showConflicts: boolean;
   shouldShowMenu: boolean;
+  showNotesMenu?: boolean;
   notesMode: boolean;
   showMenu: (showNotes?: boolean) => void;
   hideMenu: () => void;
@@ -154,6 +155,7 @@ export const Sudoku: React.FC<SudokuProps> = ({
   showWrongEntries,
   notesMode,
   shouldShowMenu,
+  showNotesMenu = false,
 }) => {
   const height = 100;
   const width = 100;
@@ -253,7 +255,7 @@ export const Sudoku: React.FC<SudokuProps> = ({
             <MenuWrapper>
               <SudokuMenuCircle
                 cell={activeCell}
-                notesMode={notesMode}
+                notesMode={notesMode || showNotesMenu}
                 showHints={showHints}
                 setNumber={setNumber}
                 setNotes={setNotes}

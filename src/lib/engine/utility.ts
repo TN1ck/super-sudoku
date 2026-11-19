@@ -45,6 +45,14 @@ export function sharesUnit(a: CellCoordinates, b: CellCoordinates) {
   return a.x === b.x || a.y === b.y || squareIndex(a.x, a.y) === squareIndex(b.x, b.y);
 }
 
+export function hasBoardShape(cells: Cell[]) {
+  return (
+    cells?.length === 81 &&
+    cells.every((c) => SUDOKU_COORDINATES.includes(c.x) && SUDOKU_COORDINATES.includes(c.y)) &&
+    new Set(cells.map((c) => c.y * 9 + c.x)).size === 81
+  );
+}
+
 export function findCell(sudoku: Cell[], position?: CellCoordinates) {
   return position && sudoku.find((cell) => cell.x === position.x && cell.y === position.y);
 }
@@ -66,7 +74,7 @@ export function simpleSudokuToCells(grid: SimpleSudoku, solution?: SimpleSudoku)
   );
 }
 
-export function cellsToSimpleSudoku(cells: Cell[]): SimpleSudoku {
+export function cellsToSimpleSudoku(cells: Cell[], includePlayerEntries = false): SimpleSudoku {
   const simple: number[][] = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -79,7 +87,7 @@ export function cellsToSimpleSudoku(cells: Cell[]): SimpleSudoku {
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
   ];
   cells.forEach((cell) => {
-    if (cell.initial) {
+    if (cell.initial || includePlayerEntries) {
       simple[cell.y][cell.x] = cell.number;
     }
   });

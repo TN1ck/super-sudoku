@@ -1,7 +1,15 @@
 import React, {createContext, useContext, useReducer, useCallback, ReactNode} from "react";
 import isEqual from "lodash-es/isEqual";
 import {Cell, CellCoordinates} from "src/lib/engine/types";
-import {findCell, sharesUnit, simpleSudokuToCells} from "src/lib/engine/utility";
+import {
+  cellsToSimpleSudoku,
+  findCell,
+  hasBoardShape,
+  sharesUnit,
+  simpleSudokuToCells,
+  SUDOKU_NUMBERS,
+} from "src/lib/engine/utility";
+import {solveBacktracking} from "src/lib/engine/solverBacktracking";
 import {START_SUDOKU} from "src/lib/game/sudokus";
 
 export interface SudokuState {
@@ -22,7 +30,19 @@ export const emptyGrid: Cell[] = simpleSudokuToCells([
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
 ]);
 
-export function createSudokuState(current: Cell[]): SudokuState {
+// A shared puzzle can have multiple completions. Keep the reference for hints and
+// highlighting consistent with the player's entries whenever a completion exists.
+function alignSolution(cells: Cell[]): Cell[] {
+  if (!cells.some((c) => c.solution && c.number && c.number !== c.solution)) {
+    return cells;
+  }
+  const grid = cellsToSimpleSudoku(cells, true);
+  const solution = solveBacktracking(grid).sudoku;
+  return solution ? cells.map((c) => ({...c, solution: solution[c.y][c.x]})) : cells;
+}
+
+export function createSudokuState(cells: Cell[]): SudokuState {
+  const current = alignSolution(cells);
   return {current, history: [current], historyIndex: 0};
 }
 
@@ -56,7 +76,7 @@ type SudokuAction =
 export function sudokuReducer(state: SudokuState, action: SudokuAction): SudokuState {
   switch (action.type) {
     case SET_SUDOKU:
-      return createSudokuState(action.sudoku);
+      return hasBoardShape(action.sudoku) ? createSudokuState(action.sudoku) : state;
     case UNDO:
     case REDO: {
       const historyIndex = state.historyIndex + (action.type === UNDO ? 1 : -1);
@@ -70,29 +90,43 @@ export function sudokuReducer(state: SudokuState, action: SudokuAction): SudokuS
     return state;
   }
 
+  const cleared = {...selected};
+  delete cleared.autoNotesHidden;
   let edited: Cell;
   switch (action.type) {
     case SET_NOTES:
-      edited = {...selected, number: 0, notes: action.notes};
+      if (!action.notes.every((note) => SUDOKU_NUMBERS.includes(note))) {
+        return state;
+      }
+      edited = {...cleared, number: 0, notes: [...new Set(action.notes)]};
+      if (!edited.notes.length) {
+        edited.autoNotesHidden = true;
+      }
       break;
     case CLEAR_NUMBER:
       edited = {...selected, number: 0};
       break;
     case CLEAR_CELL:
-      edited = {...selected, number: 0, notes: []};
+      edited = {...cleared, number: 0, notes: []};
       break;
     case SET_NUMBER:
-    case GET_HINT:
-      edited = {...selected, number: action.type === GET_HINT ? selected.solution : action.number, notes: []};
+    case GET_HINT: {
+      const number = action.type === GET_HINT ? selected.solution : action.number;
+      if (!SUDOKU_NUMBERS.includes(number)) {
+        return state;
+      }
+      edited = {...cleared, number, notes: []};
       break;
+    }
   }
 
-  const newGrid = state.current.map((cell) => {
+  const newGrid = state.current.map((cell): Cell => {
     if (cell === selected) {
       return edited;
     }
     if (edited.number !== 0 && cell.notes.includes(edited.number) && sharesUnit(cell, edited)) {
-      return {...cell, notes: cell.notes.filter((note) => note !== edited.number)};
+      const notes = cell.notes.filter((note) => note !== edited.number);
+      return notes.length ? {...cell, notes} : {...cell, notes, autoNotesHidden: true};
     }
     return cell;
   });
@@ -101,10 +135,11 @@ export function sudokuReducer(state: SudokuState, action: SudokuAction): SudokuS
   if (isEqual(newGrid, state.current)) {
     return state;
   }
-  const newHistory = [newGrid, ...state.history.slice(state.historyIndex)];
+  const current = edited.number !== selected.number ? alignSolution(newGrid) : newGrid;
+  const newHistory = [current, ...state.history.slice(state.historyIndex)];
 
   return {
-    current: newGrid,
+    current,
     history: newHistory,
     historyIndex: 0,
   };

@@ -17,10 +17,14 @@ import Checkbox from "src/components/Checkbox";
 import {cellsToSimpleSudoku, findCell, stringifySudoku, parseSudoku, simpleSudokuToCells} from "src/lib/engine/utility";
 import {solve} from "src/lib/engine/solverAC3";
 import {Link, useLocation, useNavigate} from "@tanstack/react-router";
-import {getCurrentSudokuFromStorage, localStoragePlayedSudokuRepository} from "src/lib/database/playedSudokus";
+import {
+  getCurrentSudokuFromStorage,
+  isLaterAttempt,
+  isPuzzleRecordKey,
+  localStoragePlayedSudokuRepository,
+} from "src/lib/database/playedSudokus";
 import {formatDuration} from "src/utils/format";
 import throttle from "lodash-es/throttle";
-import {TimerProvider} from "src/context/TimerContext";
 import {useEffect} from "react";
 import {DarkModeButton} from "src/components/DarkModeButton";
 import LanguageSelector from "src/components/LanguageSelector";
@@ -66,10 +70,6 @@ const ClearGameButton: React.FC<{
       return;
     }
     clearGame();
-    // Wait 100ms as we have to wait until the updateTimer is called (should normally take 1/60 second)
-    // This is certainly not ideal and should be fixed there.
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    continueGame();
   };
 
   return (
@@ -98,7 +98,7 @@ const NewGameButton: React.FC = () => {
   );
 };
 
-const NextSudokuButton = ({gameState}: {gameState: GameState}) => {
+const NextSudokuButton = ({gameState, onAdvance}: {gameState: GameState; onAdvance: () => void}) => {
   const {getCollection} = useSudokuCollections();
   const collection = React.useMemo(() => {
     try {
@@ -151,7 +151,16 @@ const NextSudokuButton = ({gameState}: {gameState: GameState}) => {
   }
 
   return (
-    <Link to="/" search={nextSudokuParams} className="w-full">
+    <Link
+      to="/"
+      search={nextSudokuParams}
+      className="w-full"
+      onClick={(event) => {
+        if (event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) {
+          onAdvance();
+        }
+      }}
+    >
       <Button className="bg-teal-700 text-white w-full">
         {t("select_next_sudoku", {
           collection: collectionName,
@@ -361,7 +370,7 @@ const SettingsAndInformation = () => {
   );
 };
 
-const GameInner = () => {
+const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
   const {
     state: game,
     pauseGame,
@@ -395,28 +404,22 @@ const GameInner = () => {
       wonGame();
     }
   }, [sudoku, wonGame]);
-  const onVisibilityChange = React.useCallback(() => {
-    if (document.visibilityState === "hidden") {
-      pauseGame();
-    } else {
-      // So the user knows that it was paused, we wait a bit before continuing.
-      setTimeout(() => {
-        continueGame();
-      }, 200);
-    }
-  }, [pauseGame, continueGame]);
-
   React.useEffect(() => {
-    if (typeof document !== "undefined") {
-      document.addEventListener("visibilitychange", onVisibilityChange, false);
-    }
-
-    return () => {
-      if (typeof document !== "undefined") {
-        document.removeEventListener("visibilitychange", onVisibilityChange, false);
+    let resumeTimeout: number | undefined;
+    const onVisibilityChange = () => {
+      window.clearTimeout(resumeTimeout);
+      if (document.visibilityState === "hidden") {
+        pauseGame();
+      } else {
+        resumeTimeout = window.setTimeout(continueGame, 200);
       }
     };
-  }, [onVisibilityChange]);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      window.clearTimeout(resumeTimeout);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [pauseGame, continueGame]);
 
   const pausedGame = game.state === GameStateMachine.paused;
   const activeCell = findCell(sudoku, game.activeCellCoordinates);
@@ -491,6 +494,7 @@ const GameInner = () => {
               showWrongEntries={userPreferencesState.showWrongEntries && !pausedGame}
               showConflicts={userPreferencesState.showConflicts && !pausedGame}
               notesMode={game.notesMode}
+              showNotesMenu={game.showNotes}
               shouldShowMenu={game.showMenu && userPreferencesState.showCircleMenu && !pausedGame}
               sudoku={pausedGame ? emptyGrid : sudoku}
               showMenu={showMenu}
@@ -521,7 +525,7 @@ const GameInner = () => {
                         </div>
                       </div>
                     </div>
-                    <NextSudokuButton gameState={game} />
+                    <NextSudokuButton gameState={game} onAdvance={onAdvance} />
                   </div>
                 </div>
               )}
@@ -564,20 +568,19 @@ const throttledSave = throttle(localStoragePlayedSudokuRepository.saveSudokuStat
 
 export function AppProvider({children}: {children: React.ReactNode}) {
   const [saved] = React.useState(getCurrentSudokuFromStorage);
-  const initialSudokuState = saved ? createSudokuState(saved.sudoku) : undefined;
+  const [initialSudokuState] = React.useState(() => (saved ? createSudokuState(saved.sudoku) : undefined));
 
   return (
     <GameProvider initialState={saved?.game}>
       <UserPreferencesProvider>
-        <TimerProvider>
-          <SudokuProvider initialState={initialSudokuState}>{children}</SudokuProvider>
-        </TimerProvider>
+        <SudokuProvider initialState={initialSudokuState}>{children}</SudokuProvider>
       </UserPreferencesProvider>
     </GameProvider>
   );
 }
 
-const GameWithRouteManagement = () => {
+const Game = () => {
+  const advancing = React.useRef(false);
   const location = useLocation();
   const {state: gameState, setGameState, newGame} = useGame();
   const {state: sudokuState, setSudoku} = useSudoku();
@@ -600,6 +603,29 @@ const GameWithRouteManagement = () => {
   }, []);
 
   const currentGrid = stringifySudoku(cellsToSimpleSudoku(sudokuState.current));
+  const latestGame = React.useRef(gameState);
+  latestGame.current = gameState;
+  useEffect(() => {
+    const syncAttempt = () => {
+      const game = latestGame.current;
+      const saved = localStoragePlayedSudokuRepository.getSudokuState(currentGrid);
+      if (saved && isLaterAttempt(saved.game, game)) {
+        throttledSave.cancel();
+        setSudoku(saved.sudoku);
+        setGameState({...saved.game, sudokuIndex: game.sudokuIndex, sudokuCollectionName: game.sudokuCollectionName});
+      }
+    };
+    const onStorage = (event: StorageEvent) => {
+      if (isPuzzleRecordKey(event.key, currentGrid)) {
+        syncAttempt();
+      }
+    };
+    // The other tab may have won while this tab was in the puzzle picker.
+    syncAttempt();
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [currentGrid, setGameState, setSudoku]);
+
   const matchesUrl =
     sudoku === currentGrid &&
     sudokuIndex !== undefined &&
@@ -664,9 +690,16 @@ const GameWithRouteManagement = () => {
     try {
       const grid = parseSudoku(sudoku);
       const saved = localStoragePlayedSudokuRepository.getSudokuState(sudoku);
-      if (saved && !saved.game.won) {
+      // Only the Next button asks to replay an already completed destination.
+      const startReplay = advancing.current && saved?.game.won;
+      advancing.current = false;
+      if (saved && !startReplay) {
         setSudoku(saved.sudoku);
-        setGameState({...saved.game, ...entry, state: GameStateMachine.running});
+        setGameState({
+          ...saved.game,
+          ...entry,
+          state: saved.game.won ? GameStateMachine.paused : GameStateMachine.running,
+        });
         return;
       }
 
@@ -683,18 +716,26 @@ const GameWithRouteManagement = () => {
     alert(t("invalid_sudoku_url"));
     restoreCurrentUrl();
   }, [
-    matchesUrl, sudokuIndex, sudoku, sudokuCollectionName, currentGrid, currentPath,
-    navigate, gameState, setGameState, setSudoku, newGame, t,
+    matchesUrl,
+    sudokuIndex,
+    sudoku,
+    sudokuCollectionName,
+    currentGrid,
+    currentPath,
+    navigate,
+    gameState,
+    setGameState,
+    setSudoku,
+    newGame,
+    t,
   ]);
 
-  return <GameInner />;
-};
-
-const Game = () => {
   return (
-    <AppProvider>
-      <GameWithRouteManagement />
-    </AppProvider>
+    <GameInner
+      onAdvance={() => {
+        advancing.current = true;
+      }}
+    />
   );
 };
 

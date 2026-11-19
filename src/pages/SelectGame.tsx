@@ -2,12 +2,15 @@ import * as React from "react";
 import GameSelect from "./Game/GameSelect";
 import {Container} from "src/components/Layout";
 import Button from "../components/Button";
+import {useGame} from "src/context/GameContext";
 import {useNavigate} from "@tanstack/react-router";
 import {DarkModeButton} from "src/components/DarkModeButton";
 import {useTranslation} from "react-i18next";
 
 const SelectGame = () => {
   const navigate = useNavigate();
+  const {pauseGame} = useGame();
+  React.useEffect(pauseGame, [pauseGame]);
   const {t} = useTranslation();
 
   const goBack = () => {

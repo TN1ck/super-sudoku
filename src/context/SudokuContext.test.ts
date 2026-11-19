@@ -24,10 +24,9 @@ describe("board input boundaries", () => {
   });
 });
 
-
 it("toggles visible pencil marks and restores them through undo and redo across 64 seeds", () => {
   const starting = simpleSudokuToCells(START_SUDOKU.sudoku, START_SUDOKU.solution);
-  const editable = starting.filter(cell => !cell.initial);
+  const editable = starting.filter((cell) => !cell.initial);
   for (let seed = 1; seed <= 64; seed++) {
     const random = createSeededRandom(seed);
     let board = createSudokuState(starting);
@@ -39,7 +38,9 @@ it("toggles visible pencil marks and restores them through undo and redo across 
       const digit = visible.length && random() < 0.7 ? sample(visible, random) : 1 + Math.floor(random() * 9);
       const previous = board.current;
       board = sudokuReducer(board, {
-        type: "sudoku/SET_NOTES", cellCoordinates: cell, notes: SudokuGame.toggleNote(cell, visible, digit),
+        type: "sudoku/SET_NOTES",
+        cellCoordinates: cell,
+        notes: SudokuGame.toggleNote(cell, visible, digit),
       });
       const after = SudokuGame.visibleNotes(board.current[index], board.current, true);
       expect(after.includes(digit), `seed ${seed}, step ${step}`).toBe(!visible.includes(digit));
