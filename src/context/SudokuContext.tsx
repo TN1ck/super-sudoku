@@ -53,7 +53,7 @@ type SudokuAction =
   | {type: typeof UNDO}
   | {type: typeof REDO};
 
-function sudokuReducer(state: SudokuState, action: SudokuAction): SudokuState {
+export function sudokuReducer(state: SudokuState, action: SudokuAction): SudokuState {
   switch (action.type) {
     case SET_SUDOKU:
       return createSudokuState(action.sudoku);
