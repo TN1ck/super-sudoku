@@ -250,7 +250,8 @@ const GameSelect: React.FC = () => {
   };
 
   const saveSudoku = async (sudoku: SimpleSudoku) => {
-    addSudokuToCollection(activeCollection.id, sudoku);
+    const savedIndex = addSudokuToCollection(activeCollection.id, sudoku);
+    setPage(Math.floor(savedIndex / pageSize));
     // TODO: add a toast notification
     setShowNewSudokuComponent(false);
   };
