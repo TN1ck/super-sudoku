@@ -553,6 +553,39 @@ test("saves another game after old completed games fill localStorage", async ({p
   expect(oldWin).toMatchObject({game: {timesSolved: 1, previousTimes: [42]}, completedGrid: FIRST_SOLUTION});
 });
 
+test("shows the newly saved custom puzzle on the next collection page", async ({page}) => {
+  await page.goto("/#/select-game");
+  await storeCollection(page, "custom", "Custom", Array(12).fill(FIRST_PUZZLE));
+  await page.reload();
+  await page.getByRole("button", {name: "Custom", exact: true}).click();
+  await expect(page.getByTestId("sudoku-preview-12")).toBeVisible();
+
+  await page.getByRole("button", {name: "Add sudoku +"}).click();
+  await enterSudokuValues(page, ISSUE_33_CUSTOM_PUZZLE);
+  await page.getByRole("button", {name: "Save sudoku"}).click();
+
+  const savedPuzzle = page.getByTestId("sudoku-preview-13");
+  await expect(savedPuzzle).toBeVisible();
+  await savedPuzzle.click();
+  await expect(page.getByTestId("current-game-label")).toHaveText("Custom #13");
+  await expect(page).toHaveURL(new RegExp(ISSUE_33_CUSTOM_PUZZLE));
+});
+
+test("shows the newly saved puzzle when another tab fills the first page during editing", async ({page, context}) => {
+  await page.goto("/#/select-game");
+  await storeCollection(page, "custom", "Custom", Array(11).fill(FIRST_PUZZLE));
+  await page.reload();
+  await page.getByRole("button", {name: "Custom", exact: true}).click();
+  await page.getByRole("button", {name: "Add sudoku +"}).click();
+  await enterSudokuValues(page, ISSUE_33_CUSTOM_PUZZLE);
+
+  const otherTab = await context.newPage();
+  await otherTab.goto("/#/select-game");
+  await storeCollection(otherTab, "custom", "Custom", [...Array(11).fill(FIRST_PUZZLE), ONE_EMPTY_CELL_PUZZLE]);
+  await page.getByRole("button", {name: "Save sudoku"}).click();
+  await expect(page.getByTestId("sudoku-preview-13")).toBeVisible();
+});
+
 test("creates and solves a difficult custom sudoku", async ({page}) => {
   test.setTimeout(60_000);
   const customCollectionName = "Issue #33 custom";

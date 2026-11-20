@@ -1,4 +1,4 @@
-import generateSudoku, {isSudokuUnique} from "./generate";
+import generateSudoku, {DIFFICULTY_RANGES, isSudokuUnique} from "./generate";
 import {createSeededRandom} from "./seededRandom";
 import {solve} from "./solverAC3";
 import {EMPTY_SUDOKU, ISSUE_33_CUSTOM_SUDOKU, SOLVED_SUDOKUS} from "./testutils";
@@ -22,6 +22,17 @@ describe("generate", () => {
     expect(solve(sudoku.sudoku).iterations).toBe(4);
   });
 
+  it("keeps simplifying an easy puzzle when an added clue leaves its rating unchanged", () => {
+    const result = generateSudoku(DIFFICULTY.EASY, createSeededRandom(0));
+    const [min, max] = DIFFICULTY_RANGES[DIFFICULTY.EASY];
+    const {iterations} = solve(result.sudoku);
+
+    expect(iterations).toBeGreaterThanOrEqual(min);
+    expect(iterations).toBeLessThanOrEqual(max);
+    expect(result).toMatchObject({iterations, isInDifficultyRange: true, reachedMaxIterations: false});
+    expect(isSudokuUnique(result.sudoku)).toBe(true);
+  });
+
   it("generates the difficult sudoku using a seed", () => {
     const randomFn = createSeededRandom(10);
     const sudoku = generateSudoku(DIFFICULTY.EVIL, randomFn);
@@ -30,6 +41,7 @@ describe("generate", () => {
     // Check if it can be solved.
     // The difficulty is capped, as we don't do to many changes.
     expect(solve(sudoku.sudoku).iterations).toBe(32);
+    expect(sudoku.reachedMaxIterations).toBe(true);
   });
 
 });
