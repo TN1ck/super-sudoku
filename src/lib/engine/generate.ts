@@ -310,7 +310,7 @@ export function generateSudoku(
       newSudoku = increaseDifficultyOfSudoku(sudoku, randomFn);
     }
     const newIterations = sudokuSolver(newSudoku).iterations;
-    if (currentIterations === newIterations) {
+    if (currentIterations === newIterations && newSudoku === sudoku) {
       reachedMaxIterations = true;
       break;
     }
