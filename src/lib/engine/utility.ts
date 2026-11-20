@@ -97,7 +97,10 @@ export function stringifySudoku(grid: SimpleSudoku) {
 export function parseSudoku(sudoku: string): SimpleSudoku {
   // Handle multi-line format with underscores (for tests)
   if (sudoku.includes("\n")) {
-    const lines = sudoku.split("\n").filter((line) => line.trim() !== "");
+    const lines = sudoku
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line !== "");
     if (lines.length !== 9) {
       throw new Error(`Wrong number of lines! Only 9 allowed: ${sudoku}`);
     }
