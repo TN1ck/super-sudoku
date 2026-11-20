@@ -77,13 +77,16 @@ type GameAction =
   | {type: typeof SELECT_CELL; cellCoordinates: CellCoordinates}
   | {type: typeof ACTIVATE_NOTES_MODE}
   | {type: typeof DEACTIVATE_NOTES_MODE}
-  | {type: typeof UPDATE_TIMER; secondsPlayed: number}
+  | {type: typeof UPDATE_TIMER}
   | {type: typeof RESET_GAME}
   | {type: typeof WON_GAME}
   | {type: typeof COPY_NOTES; notes: number[]};
 
 export function createNewGameState({
-  sudokuIndex, sudokuCollectionName, timesSolved, previousTimes,
+  sudokuIndex,
+  sudokuCollectionName,
+  timesSolved,
+  previousTimes,
 }: Pick<GameState, "sudokuIndex" | "sudokuCollectionName" | "timesSolved" | "previousTimes">): GameState {
   return {
     ...INITIAL_GAME_STATE,
@@ -164,10 +167,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         notesMode: false,
       };
     case UPDATE_TIMER:
-      return {
-        ...state,
-        secondsPlayed: action.secondsPlayed,
-      };
+      return state;
     case RESET_GAME:
       return {
         ...state,
@@ -203,7 +203,7 @@ interface GameContextType {
   ) => void;
   activateNotesMode: () => void;
   deactivateNotesMode: () => void;
-  updateTimer: (secondsPlayed: number) => void;
+  updateTimer: () => void;
   resetGame: () => void;
   copyNotes: (notes: number[]) => void;
 }
@@ -216,69 +216,94 @@ interface GameProviderProps {
 }
 
 export function GameProvider({children, initialState = INITIAL_GAME_STATE}: GameProviderProps) {
-  const [state, dispatch] = useReducer(gameReducer, initialState);
+  const [{game: state}, dispatchTimed] = useReducer(
+    (session: {game: GameState; at: number}, {action, at}: {action: GameAction; at: number}) => {
+      const {game} = session;
+      // Account for play up to the action itself, including the final fraction before a pause or win.
+      const elapsed = game.state === GameStateMachine.running ? Math.max(0, at - session.at) : 0;
+      const current = elapsed
+        ? {...game, secondsPlayed: (Math.round(game.secondsPlayed * 1000) + elapsed) / 1000}
+        : game;
+      return {game: gameReducer(current, action), at};
+    },
+    initialState,
+    (game) => ({game, at: Date.now()}),
+  );
+  const dispatch = useCallback((action: GameAction) => dispatchTimed({action, at: Date.now()}), []);
 
   const newGame = useCallback(
     (sudokuIndex: number, sudokuCollectionName: string, timesSolved: number, previousTimes: number[]) => {
       dispatch({type: NEW_GAME, sudokuIndex, sudokuCollectionName, timesSolved, previousTimes});
     },
-    [],
+    [dispatch],
   );
 
-  const setGameState = useCallback((gameState: GameState) => {
-    dispatch({type: SET_GAME_STATE, state: gameState});
-  }, []);
+  const setGameState = useCallback(
+    (gameState: GameState) => {
+      dispatch({type: SET_GAME_STATE, state: gameState});
+    },
+    [dispatch],
+  );
 
   const wonGame = useCallback(() => {
     dispatch({type: WON_GAME});
-  }, []);
+  }, [dispatch]);
 
   const pauseGame = useCallback(() => {
     dispatch({type: PAUSE_GAME});
-  }, []);
+  }, [dispatch]);
 
   const continueGame = useCallback(() => {
     dispatch({type: CONTINUE_GAME});
-  }, []);
+  }, [dispatch]);
 
-  const selectCell = useCallback((cellCoordinates: CellCoordinates) => {
-    dispatch({type: SELECT_CELL, cellCoordinates});
-  }, []);
+  const selectCell = useCallback(
+    (cellCoordinates: CellCoordinates) => {
+      dispatch({type: SELECT_CELL, cellCoordinates});
+    },
+    [dispatch],
+  );
 
-  const showMenu = useCallback((showNotes?: boolean) => {
-    dispatch({type: SHOW_MENU, showNotes});
-  }, []);
+  const showMenu = useCallback(
+    (showNotes?: boolean) => {
+      dispatch({type: SHOW_MENU, showNotes});
+    },
+    [dispatch],
+  );
 
   const hideMenu = useCallback(() => {
     dispatch({type: HIDE_MENU});
-  }, []);
+  }, [dispatch]);
 
   const restartGame = useCallback(
     (sudokuIndex: number, sudokuCollectionName: string, timesSolved: number, previousTimes: number[]) => {
       dispatch({type: RESTART_GAME, sudokuIndex, sudokuCollectionName, timesSolved, previousTimes});
     },
-    [],
+    [dispatch],
   );
 
   const activateNotesMode = useCallback(() => {
     dispatch({type: ACTIVATE_NOTES_MODE});
-  }, []);
+  }, [dispatch]);
 
   const deactivateNotesMode = useCallback(() => {
     dispatch({type: DEACTIVATE_NOTES_MODE});
-  }, []);
+  }, [dispatch]);
 
-  const updateTimer = useCallback((secondsPlayed: number) => {
-    dispatch({type: UPDATE_TIMER, secondsPlayed});
-  }, []);
+  const updateTimer = useCallback(() => {
+    dispatch({type: UPDATE_TIMER});
+  }, [dispatch]);
 
   const resetGame = useCallback(() => {
     dispatch({type: RESET_GAME});
-  }, []);
+  }, [dispatch]);
 
-  const copyNotes = useCallback((notes: number[]) => {
-    dispatch({type: COPY_NOTES, notes});
-  }, []);
+  const copyNotes = useCallback(
+    (notes: number[]) => {
+      dispatch({type: COPY_NOTES, notes});
+    },
+    [dispatch],
+  );
 
   const value = {
     state,

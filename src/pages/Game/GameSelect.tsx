@@ -4,7 +4,7 @@ import {getSudokusPaginated, SudokuRaw, useSudokuCollections} from "src/lib/game
 import {SimpleSudoku} from "src/lib/engine/types";
 import SudokuPreview from "../../components/sudoku/SudokuPreview";
 import {formatDuration} from "src/utils/format";
-import {createNewGameState} from "src/context/GameContext";
+import {useGame, createNewGameState} from "src/context/GameContext";
 import {useState} from "react";
 import Button from "src/components/Button";
 import {simpleSudokuToCells, stringifySudoku} from "src/lib/engine/utility";
@@ -13,6 +13,7 @@ import {useNavigate} from "@tanstack/react-router";
 import {localStoragePlayedSudokuRepository, StoredPlayedSudokuState} from "src/lib/database/playedSudokus";
 import {Collection, translateCollectionName} from "src/lib/database/collections";
 import NewSudoku from "./NewSudoku";
+import {useSudoku} from "src/context/SudokuContext";
 import {useTranslation} from "react-i18next";
 
 const TabItem = ({active, children, ...props}: React.ButtonHTMLAttributes<HTMLButtonElement> & {active: boolean}) => (
@@ -109,6 +110,8 @@ const SudokuToSelect = ({
   index: number;
   sudokuCollectionName: string;
 }) => {
+  const {setGameState} = useGame();
+  const {setSudoku} = useSudoku();
   const localSudoku = storedSudoku;
   const unfinished = localSudoku && !localSudoku.game.won;
   const finished = localSudoku && localSudoku.game.won;
@@ -124,9 +127,8 @@ const SudokuToSelect = ({
         return;
       }
       const replay = createNewGameState({...localSudoku.game, sudokuCollectionName, sudokuIndex: index});
-      localStoragePlayedSudokuRepository.saveSudokuState(replay, {
-        current: simpleSudokuToCells(sudoku.sudoku, sudoku.solution),
-      });
+      setSudoku(simpleSudokuToCells(sudoku.sudoku, sudoku.solution));
+      setGameState(replay);
     }
     navigate({
       to: "/",

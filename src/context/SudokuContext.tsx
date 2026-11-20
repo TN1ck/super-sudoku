@@ -1,7 +1,7 @@
 import React, {createContext, useContext, useReducer, useCallback, ReactNode} from "react";
 import isEqual from "lodash-es/isEqual";
 import {Cell, CellCoordinates} from "src/lib/engine/types";
-import {findCell, sharesUnit, simpleSudokuToCells} from "src/lib/engine/utility";
+import {findCell, hasBoardShape, sharesUnit, simpleSudokuToCells, SUDOKU_NUMBERS} from "src/lib/engine/utility";
 import {START_SUDOKU} from "src/lib/game/sudokus";
 
 export interface SudokuState {
@@ -53,10 +53,10 @@ type SudokuAction =
   | {type: typeof UNDO}
   | {type: typeof REDO};
 
-function sudokuReducer(state: SudokuState, action: SudokuAction): SudokuState {
+export function sudokuReducer(state: SudokuState, action: SudokuAction): SudokuState {
   switch (action.type) {
     case SET_SUDOKU:
-      return createSudokuState(action.sudoku);
+      return hasBoardShape(action.sudoku) ? createSudokuState(action.sudoku) : state;
     case UNDO:
     case REDO: {
       const historyIndex = state.historyIndex + (action.type === UNDO ? 1 : -1);
@@ -70,29 +70,43 @@ function sudokuReducer(state: SudokuState, action: SudokuAction): SudokuState {
     return state;
   }
 
+  const cleared = {...selected};
+  delete cleared.autoNotesHidden;
   let edited: Cell;
   switch (action.type) {
     case SET_NOTES:
-      edited = {...selected, number: 0, notes: action.notes};
+      if (!action.notes.every((note) => SUDOKU_NUMBERS.includes(note))) {
+        return state;
+      }
+      edited = {...cleared, number: 0, notes: [...new Set(action.notes)]};
+      if (!edited.notes.length) {
+        edited.autoNotesHidden = true;
+      }
       break;
     case CLEAR_NUMBER:
       edited = {...selected, number: 0};
       break;
     case CLEAR_CELL:
-      edited = {...selected, number: 0, notes: []};
+      edited = {...cleared, number: 0, notes: []};
       break;
     case SET_NUMBER:
-    case GET_HINT:
-      edited = {...selected, number: action.type === GET_HINT ? selected.solution : action.number, notes: []};
+    case GET_HINT: {
+      const number = action.type === GET_HINT ? selected.solution : action.number;
+      if (!SUDOKU_NUMBERS.includes(number)) {
+        return state;
+      }
+      edited = {...cleared, number, notes: []};
       break;
+    }
   }
 
-  const newGrid = state.current.map((cell) => {
+  const newGrid = state.current.map((cell): Cell => {
     if (cell === selected) {
       return edited;
     }
     if (edited.number !== 0 && cell.notes.includes(edited.number) && sharesUnit(cell, edited)) {
-      return {...cell, notes: cell.notes.filter((note) => note !== edited.number)};
+      const notes = cell.notes.filter((note) => note !== edited.number);
+      return notes.length ? {...cell, notes} : {...cell, notes, autoNotesHidden: true};
     }
     return cell;
   });

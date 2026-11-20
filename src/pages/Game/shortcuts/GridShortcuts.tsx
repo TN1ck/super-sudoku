@@ -198,9 +198,9 @@ const GridShortcuts: React.FC<{
     });
 
     hotkeys("ctrl+c,cmd+c", ShortcutScope.Game, () => {
-      const {activeCell, copyNotes} = stateRef.current;
-      if (activeCell && activeCell.notes.length > 0) {
-        copyNotes(activeCell.notes);
+      const {activeCell, copyNotes, sudoku, showHints} = stateRef.current;
+      if (activeCell) {
+        copyNotes(activeCell.number === 0 ? SudokuGame.visibleNotes(activeCell, sudoku, showHints) : []);
       }
       return false;
     });

@@ -95,8 +95,8 @@ async function expectStoredPreferences(page: Page, preferences: Record<string, b
     .toMatchObject(preferences);
 }
 
-test.beforeEach(async ({context}) => {
-  await context.grantPermissions(["clipboard-read", "clipboard-write"], {origin: "http://127.0.0.1:4173"});
+test.beforeEach(async ({context, baseURL}) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"], {origin: new URL(baseURL!).origin});
 });
 
 test("uses the application name as the browser tab title", async ({page}) => {
@@ -659,4 +659,155 @@ test("copies a shareable sudoku URL that opens the same puzzle", async ({context
   await continueIfPaused(sharedPage);
   await expect(cellValue(sharedPage, 0, 0)).toHaveText("5");
   await expect(cellValue(sharedPage, 5, 0)).toHaveText("");
+});
+
+test.describe("gameplay regressions", () => {
+  test("an older tab cannot erase a saved win", async ({page, context}) => {
+    await openGame(page, ONE_EMPTY_CELL_PUZZLE);
+    const other = await context.newPage();
+    await openGame(other, ONE_EMPTY_CELL_PUZZLE);
+    await other.getByRole("button", {name: "Pause", exact: true}).click();
+    await selectCell(page, 8, 8);
+    await page.keyboard.press("7");
+    await expect(page.getByText(/Congrats, you won/)).toBeVisible();
+    await other.keyboard.press("Escape");
+    await other.reload(); // Flush the older tab's pending autosave.
+    await page.reload();
+    await expect(page.getByText(/Congrats, you won/)).toBeVisible();
+    await expect(page.getByText("You solved this sudoku 1 time")).toBeVisible();
+    const saved = await page.evaluate(
+      (key) => JSON.parse(localStorage.getItem("super_sudoku_1_7_" + key)!),
+      ONE_EMPTY_CELL_PUZZLE,
+    );
+    expect(saved.completedGrid).toBe(FIRST_SOLUTION);
+    expect(saved.game.previousTimes).toHaveLength(1);
+  });
+
+  test("browser Back restores the completed board", async ({page}) => {
+    await openGame(page, ONE_EMPTY_CELL_PUZZLE);
+    await selectCell(page, 8, 8);
+    await page.keyboard.press("7");
+    await page.getByRole("button", {name: /Select next sudoku/}).click();
+    await expect(page.getByTestId("current-game-label")).toHaveText("Easy #2");
+    await page.goBack();
+    await expect(page.getByTestId("current-game-label")).toHaveText("Easy #1");
+    await expect(page.getByText(/Congrats, you won/)).toBeVisible();
+    await page.reload();
+    await expect(page.getByText("You solved this sudoku 1 time")).toBeVisible();
+  });
+
+  test("the fallback game saves moves across reload", async ({page}) => {
+    await page.goto("/#/play");
+    await continueIfPaused(page);
+    await selectCell(page, 5, 0);
+    await page.keyboard.press("1");
+    await expect(cellValue(page, 5, 0)).toHaveText("1");
+    await page.reload();
+    await continueIfPaused(page);
+    await expect(cellValue(page, 5, 0)).toHaveText("1");
+  });
+
+  test("visiting the picker preserves undo and redo", async ({page}) => {
+    await openGame(page);
+    await selectCell(page, 5, 0);
+    await page.keyboard.press("1");
+    await page.keyboard.press("2");
+    await page.keyboard.press("Control+z");
+    await expect(cellValue(page, 5, 0)).toHaveText("1");
+    await page.getByRole("button", {name: "New game"}).click();
+    await page.getByRole("button", {name: /Go back/}).click();
+    await continueIfPaused(page);
+    await expect(page.getByRole("button", {name: "Undo"})).toBeEnabled();
+    await page.keyboard.press("Control+y");
+    await expect(cellValue(page, 5, 0)).toHaveText("2");
+    await page.keyboard.press("Control+z");
+    await page.keyboard.press("Control+z");
+    await expect(cellValue(page, 5, 0)).toBeEmpty();
+  });
+
+  test("removing the last visible candidate keeps it empty", async ({page}) => {
+    await openGame(page);
+    await page.locator("#generated_notes").check();
+    await selectCell(page, 5, 0);
+    await page.keyboard.press("n");
+    await page.keyboard.press("8");
+    await expect(cellNotes(page, 5, 0)).toHaveText("1");
+    await page.keyboard.press("1");
+    await expect(cellNotes(page, 5, 0)).toBeEmpty();
+    await page.keyboard.press("Control+z");
+    await expect(cellNotes(page, 5, 0)).toHaveText("1");
+    await page.keyboard.press("Control+y");
+    await page.reload();
+    await continueIfPaused(page);
+    await expect(cellNotes(page, 5, 0)).toBeEmpty();
+    await page.getByRole("button", {name: "Erase"}).click();
+    await expect(cellNotes(page, 5, 0)).toHaveText("18");
+  });
+
+  test("copying generated notes replaces the previous clipboard", async ({page}) => {
+    await openGame(page);
+    await page.locator("#circle_menu").uncheck();
+    await selectCell(page, 7, 0);
+    await page.keyboard.press("n");
+    await page.keyboard.press("3");
+    await page.keyboard.press("Control+c");
+    await page.locator("#generated_notes").check();
+    await selectCell(page, 5, 0);
+    await expect(cellNotes(page, 5, 0)).toHaveText("18");
+    await page.keyboard.press("Control+c");
+    await selectCell(page, 8, 0);
+    await page.keyboard.press("Control+v");
+    await expect(cellNotes(page, 8, 0)).toHaveText("18");
+  });
+
+  test("right-click enters a note without changing number mode", async ({page}) => {
+    await openGame(page);
+    await cell(page, 5, 0).click({button: "right"});
+    const slice = page.getByTestId("sudoku-menu-circle").locator("g").filter({hasText: /^8$/});
+    await slice.locator("circle").dispatchEvent("click");
+    await expect(cellNotes(page, 5, 0)).toHaveText("8");
+    await expect(cellValue(page, 5, 0)).toBeEmpty();
+    await page.keyboard.press("1");
+    await expect(cellValue(page, 5, 0)).toHaveText("1");
+  });
+
+  test("short play intervals count towards elapsed time", async ({page}) => {
+    await page.clock.install({time: new Date("2026-01-01T00:00:00Z")});
+    await page.goto(gameUrl());
+    await expect(page.getByTestId("sudoku-board")).toBeVisible();
+    await page.clock.pauseAt(new Date("2026-01-01T00:01:00Z"));
+    await continueIfPaused(page);
+    for (let i = 0; i < 10; i++) {
+      await page.clock.runFor(800);
+      await page.keyboard.press("Escape");
+      await expect(page.getByRole("button", {name: "Continue", exact: true})).toBeVisible();
+      if (i < 9) {
+        await page.keyboard.press("Escape");
+      }
+    }
+    await expect(page.getByText("00:08 min", {exact: true})).toBeVisible();
+    await page.reload();
+    await expect(page.getByText("00:08 min", {exact: true})).toBeVisible();
+  });
+
+  test("a delayed resume does not start a hidden game", async ({page}) => {
+    await page.clock.install();
+    await openGame(page);
+    const setVisibility = (visibility: "hidden" | "visible") =>
+      page.evaluate((value) => {
+        Object.defineProperty(document, "visibilityState", {configurable: true, get: () => value});
+        document.dispatchEvent(new Event("visibilitychange"));
+      }, visibility);
+    await setVisibility("hidden");
+    const resume = page.getByRole("button", {name: "Continue", exact: true});
+    await expect(resume).toBeVisible();
+    await setVisibility("visible");
+    await page.clock.runFor(50);
+    await setVisibility("hidden");
+    await page.clock.runFor(2000);
+    await expect(resume).toBeVisible();
+    await setVisibility("visible");
+    await page.clock.runFor(300);
+    await expect(page.getByRole("button", {name: "Pause", exact: true})).toBeVisible();
+  });
 });
