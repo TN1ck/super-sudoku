@@ -250,7 +250,9 @@ const GameSelect: React.FC = () => {
   };
 
   const saveSudoku = async (sudoku: SimpleSudoku) => {
+    const puzzleCount = activeCollection.sudokusRaw.split(/\r?\n/).filter((line) => line.trim()).length;
     addSudokuToCollection(activeCollection.id, sudoku);
+    setPage(Math.floor(puzzleCount / pageSize));
     // TODO: add a toast notification
     setShowNewSudokuComponent(false);
   };
