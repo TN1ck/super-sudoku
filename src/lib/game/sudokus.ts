@@ -32,8 +32,15 @@ const BASE_SUDOKU_COLLECTIONS: Record<BaseCollection, string> = {
   [BaseCollection.Evil]: evilSudokus,
 } as const;
 
+function getPuzzleRows(sudokusRaw: string): string[] {
+  return sudokusRaw
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
 export function getSudokusPaginated(collection: Collection, page: number = 0, pageSize: number = 12): PaginatedSudokus {
-  const rawLines = collection.sudokusRaw.split("\n").map((line) => line.trim()).filter(Boolean);
+  const rawLines = getPuzzleRows(collection.sudokusRaw);
   const totalRows = rawLines.length;
   const totalPages = Math.ceil(totalRows / pageSize);
   const startIndex = page * pageSize;
@@ -96,6 +103,7 @@ export function useSudokuCollections() {
   const addSudokuToCollection = useCallback((collectionId: string, sudoku: SimpleSudoku) => {
     const stringifiedSudoku = stringifySudoku(sudoku);
     const collection = localStorageCollectionRepository.getCollection(collectionId);
+    const appendedIndex = getPuzzleRows(collection.sudokusRaw).length;
     const newSudokusRaw =
       collection.sudokusRaw.length > 0 ? collection.sudokusRaw + "\n" + stringifiedSudoku : stringifiedSudoku;
     localStorageCollectionRepository.saveCollection({
@@ -103,6 +111,7 @@ export function useSudokuCollections() {
       sudokusRaw: newSudokusRaw,
     });
     setCollections(getCollections());
+    return appendedIndex;
   }, []);
 
   const getCollection = useCallback(
