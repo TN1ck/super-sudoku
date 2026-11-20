@@ -2,8 +2,6 @@ import {expect, Page, test} from "@playwright/test";
 
 const FIRST_PUZZLE = "534920700060007309900000010008700000496803002721594806000200940800046100003000000";
 const FIRST_SOLUTION = "534921768162487359987635214358762491496813572721594836615278943879346125243159687";
-const MULTIPLE_SOLUTION_PUZZLE = "004921768162487359987635214008762491496813572721594836615278943879346125243159687";
-const MULTIPLE_SOLUTION_MESSAGE = "This sudoku has more than one solution.";
 const ONE_EMPTY_CELL_PUZZLE = `${FIRST_SOLUTION.slice(0, -1)}0`;
 const ISSUE_33_CUSTOM_PUZZLE = "008600700900020000000000800000050046300000010000009000046800000000000900070000000";
 const ISSUE_33_CUSTOM_SOLUTION = "428615793931728654765943821892157346357486219614239578546892137183574962279361485";
@@ -107,14 +105,16 @@ test("uses the application name as the browser tab title", async ({page}) => {
 });
 
 test("rejects an invalid puzzle link once and restores the current puzzle URL", async ({page}) => {
+  const dialogs: string[] = [];
+  page.on("dialog", async (dialog) => {
+    dialogs.push(dialog.type());
+    await dialog.dismiss();
+  });
   await page.goto(gameUrl("invalid"));
-  const warning = page.getByRole("alert").filter({hasText: "This link contains an invalid sudoku."});
-  await expect(warning).toBeVisible();
   await expect(page).toHaveURL(new RegExp(FIRST_PUZZLE));
   await continueIfPaused(page);
   await expect(cellValue(page, 0, 0)).toHaveText("5");
-  await warning.getByRole("button", {name: "Close"}).click();
-  await expect(warning).toHaveCount(0);
+  expect(dialogs).toEqual(["alert"]);
 });
 
 test("fills in the collection and index on an incomplete link to the current grid", async ({page}) => {
@@ -736,62 +736,6 @@ test.describe("gameplay regressions", () => {
     await expect(cellValue(page, 5, 0)).toBeEmpty();
     await page.keyboard.press("1");
     await expect(cellValue(page, 5, 0)).toHaveText("1");
-  });
-
-  test("rejects a shared puzzle with multiple solutions and keeps the current move", async ({page}) => {
-    await openGame(page);
-    await selectCell(page, 5, 0);
-    await page.keyboard.press("1");
-    await expect(cellValue(page, 5, 0)).toHaveText("1");
-    await page.goto(gameUrl(MULTIPLE_SOLUTION_PUZZLE, 2));
-
-    const warning = page.getByRole("alert").filter({hasText: MULTIPLE_SOLUTION_MESSAGE});
-    await expect(warning).toBeVisible();
-    await expect(page).toHaveURL(new RegExp(FIRST_PUZZLE));
-    await expect(cellValue(page, 5, 0)).toHaveText("1");
-    await expect(page.getByRole("button", {name: "Undo"})).toBeEnabled();
-    expect(
-      await page.evaluate((key) => localStorage.getItem(`super_sudoku_1_6_${key}`), MULTIPLE_SOLUTION_PUZZLE),
-    ).toBeNull();
-    await warning.getByRole("button", {name: "Close"}).click();
-    await expect(warning).toHaveCount(0);
-    await page.keyboard.press("Control+z");
-    await expect(cellValue(page, 5, 0)).toBeEmpty();
-  });
-
-  test("rejects a previously saved shared puzzle even when the player's entry resolves the ambiguity", async ({
-    page,
-  }) => {
-    await page.addInitScript(
-      ({puzzle, solution}) => {
-        const sudoku = [...puzzle].map((digit, index) => ({
-          x: index % 9,
-          y: Math.floor(index / 9),
-          initial: digit !== "0",
-          number: index === 0 ? Number(solution[0]) : Number(digit),
-          solution: Number(solution[index]),
-          notes: [],
-        }));
-        localStorage.setItem(
-          `super_sudoku_1_6_${puzzle}`,
-          JSON.stringify({sudoku, game: {sudokuCollectionName: "easy", sudokuIndex: 1}}),
-        );
-        localStorage.setItem("super_sudoku_currently_playing_sudoku", puzzle);
-      },
-      {puzzle: MULTIPLE_SOLUTION_PUZZLE, solution: FIRST_SOLUTION},
-    );
-    await page.goto(gameUrl(MULTIPLE_SOLUTION_PUZZLE, 2));
-    await expect(page.getByRole("alert")).toContainText(MULTIPLE_SOLUTION_MESSAGE);
-    await expect(page).toHaveURL(new RegExp(FIRST_PUZZLE));
-    await continueIfPaused(page);
-    await expect(cellValue(page, 5, 0)).toBeEmpty();
-    expect(await page.evaluate(() => localStorage.getItem("super_sudoku_currently_playing_sudoku"))).toBe(FIRST_PUZZLE);
-  });
-
-  test("reports when a shared puzzle has no solution", async ({page}) => {
-    await page.goto(gameUrl("33" + FIRST_SOLUTION.slice(2)));
-    await expect(page.getByRole("alert")).toContainText("This sudoku has no solution.");
-    await expect(page).toHaveURL(new RegExp(FIRST_PUZZLE));
   });
 
   test("short play intervals count towards elapsed time", async ({page}) => {

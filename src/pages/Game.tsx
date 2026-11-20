@@ -16,8 +16,6 @@ import Shortcuts from "./Game/shortcuts/Shortcuts";
 import Checkbox from "src/components/Checkbox";
 import {cellsToSimpleSudoku, findCell, stringifySudoku, parseSudoku, simpleSudokuToCells} from "src/lib/engine/utility";
 import {solve} from "src/lib/engine/solverAC3";
-import {countSolutions} from "src/lib/engine/solverBacktracking";
-import {SimpleSudoku} from "src/lib/engine/types";
 import {Link, useLocation, useNavigate} from "@tanstack/react-router";
 import {
   getCurrentSudokuFromStorage,
@@ -32,7 +30,7 @@ import {DarkModeButton} from "src/components/DarkModeButton";
 import LanguageSelector from "src/components/LanguageSelector";
 import {useTranslation} from "react-i18next";
 import {UserPreferencesProvider, useUserPreferences} from "src/context/UserPrefencesContext";
-import {getSudokusPaginated, START_SUDOKU, useSudokuCollections} from "src/lib/game/sudokus";
+import {getSudokusPaginated, useSudokuCollections} from "src/lib/game/sudokus";
 import {t} from "i18next";
 import {translateCollectionName} from "src/lib/database/collections";
 
@@ -568,64 +566,21 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
 // Save every 2 seconds.
 const throttledSave = throttle(localStoragePlayedSudokuRepository.saveSudokuState, 2000);
 
-type PuzzleError = "invalid_sudoku_url" | "sudoku_no_solution" | "sudoku_multiple_solutions";
-const PuzzleErrorContext = React.createContext<(error: PuzzleError | null) => void>(() => {});
-
-function validatePuzzle(grid: SimpleSudoku) {
-  const {count, firstSolution} = countSolutions(grid, 2);
-  if (count > 1) {
-    return {error: "sudoku_multiple_solutions"} as const;
-  }
-  if (!firstSolution) {
-    return {error: "sudoku_no_solution"} as const;
-  }
-  return {grid, solution: firstSolution} as const;
-}
-
-function loadCurrentGame() {
-  const saved = getCurrentSudokuFromStorage();
-  if (saved) {
-    const {error} = validatePuzzle(cellsToSimpleSudoku(saved.sudoku));
-    if (error) {
-      // Older releases allowed shared puzzles with multiple solutions.
-      const fallback = localStoragePlayedSudokuRepository.getSudokuState(stringifySudoku(START_SUDOKU.sudoku));
-      return {saved: fallback, error};
-    }
-  }
-  return {saved, error: null};
-}
-
 export function AppProvider({children}: {children: React.ReactNode}) {
-  const {t} = useTranslation();
-  const [initial] = React.useState(loadCurrentGame);
-  const [error, setError] = React.useState<PuzzleError | null>(initial.error);
-  const [initialSudokuState] = React.useState(() => initial.saved && createSudokuState(initial.saved.sudoku));
+  const [saved] = React.useState(getCurrentSudokuFromStorage);
+  const [initialSudokuState] = React.useState(() => (saved ? createSudokuState(saved.sudoku) : undefined));
 
   return (
-    <PuzzleErrorContext.Provider value={setError}>
-      {error && (
-        <Container className="mt-4">
-          <div
-            role="alert"
-            className="flex items-center justify-between gap-4 rounded-sm bg-amber-100 px-4 py-2 text-amber-900"
-          >
-            {t(error)}
-            <Button onClick={() => setError(null)}>{t("close")}</Button>
-          </div>
-        </Container>
-      )}
-      <GameProvider initialState={initial.saved?.game}>
-        <UserPreferencesProvider>
-          <SudokuProvider initialState={initialSudokuState}>{children}</SudokuProvider>
-        </UserPreferencesProvider>
-      </GameProvider>
-    </PuzzleErrorContext.Provider>
+    <GameProvider initialState={saved?.game}>
+      <UserPreferencesProvider>
+        <SudokuProvider initialState={initialSudokuState}>{children}</SudokuProvider>
+      </UserPreferencesProvider>
+    </GameProvider>
   );
 }
 
 const Game = () => {
   const advancing = React.useRef(false);
-  const setPuzzleError = React.useContext(PuzzleErrorContext);
   const location = useLocation();
   const {state: gameState, setGameState, newGame} = useGame();
   const {state: sudokuState, setSudoku} = useSudoku();
@@ -703,49 +658,37 @@ const Game = () => {
       }
     };
 
-    if (sudoku === undefined) {
+    if (sudokuIndex === undefined || sudoku === undefined || sudokuCollectionName === undefined) {
       restoreCurrentUrl();
       return;
     }
 
+    const entry = {sudokuCollectionName, sudokuIndex: sudokuIndex - 1};
+    if (sudoku === currentGrid && !gameState.won) {
+      setGameState({...gameState, ...entry});
+      return;
+    }
+
+    // We only show a message if the user has played for more than 5 seconds and has not won.
+    if (gameState.secondsPlayed > 5 && !gameState.won) {
+      const areYouSure = confirm(
+        t("confirm_new_game", {
+          currentCollectionName: translateCollectionName(gameState.sudokuCollectionName),
+          currentIndex: gameState.sudokuIndex + 1,
+          newCollectionName: translateCollectionName(sudokuCollectionName),
+          newIndex: sudokuIndex,
+        }),
+      );
+      if (!areYouSure) {
+        restoreCurrentUrl();
+        return;
+      }
+    }
+
+    // Finish any pending write for the outgoing puzzle before loading another.
+    throttledSave.flush();
     try {
-      const puzzle = validatePuzzle(parseSudoku(sudoku));
-      if (puzzle.error) {
-        advancing.current = false;
-        setPuzzleError(puzzle.error);
-        restoreCurrentUrl();
-        return;
-      }
-
-      if (sudokuIndex === undefined || sudokuCollectionName === undefined) {
-        restoreCurrentUrl();
-        return;
-      }
-
-      setPuzzleError(null);
-      const entry = {sudokuCollectionName, sudokuIndex: sudokuIndex - 1};
-      if (sudoku === currentGrid && !gameState.won) {
-        setGameState({...gameState, ...entry});
-        return;
-      }
-
-      if (gameState.secondsPlayed > 5 && !gameState.won) {
-        const areYouSure = confirm(
-          t("confirm_new_game", {
-            currentCollectionName: translateCollectionName(gameState.sudokuCollectionName),
-            currentIndex: gameState.sudokuIndex + 1,
-            newCollectionName: translateCollectionName(sudokuCollectionName),
-            newIndex: sudokuIndex,
-          }),
-        );
-        if (!areYouSure) {
-          restoreCurrentUrl();
-          return;
-        }
-      }
-
-      // Finish any pending write for the outgoing puzzle before loading another.
-      throttledSave.flush();
+      const grid = parseSudoku(sudoku);
       const saved = localStoragePlayedSudokuRepository.getSudokuState(sudoku);
       // Only the Next button asks to replay an already completed destination.
       const startReplay = advancing.current && saved?.game.won;
@@ -760,17 +703,20 @@ const Game = () => {
         return;
       }
 
-      setSudoku(simpleSudokuToCells(puzzle.grid, puzzle.solution));
-      newGame(entry.sudokuIndex, sudokuCollectionName, saved?.game.timesSolved ?? 0, saved?.game.previousTimes ?? []);
+      const solution = solve(grid).sudoku;
+      if (solution) {
+        setSudoku(simpleSudokuToCells(grid, solution));
+        newGame(entry.sudokuIndex, sudokuCollectionName, saved?.game.timesSolved ?? 0, saved?.game.previousTimes ?? []);
+        return;
+      }
     } catch (error) {
       console.error(error);
-      advancing.current = false;
-      setPuzzleError("invalid_sudoku_url");
-      restoreCurrentUrl();
     }
+
+    alert(t("invalid_sudoku_url"));
+    restoreCurrentUrl();
   }, [
     matchesUrl,
-    setPuzzleError,
     sudokuIndex,
     sudoku,
     sudokuCollectionName,

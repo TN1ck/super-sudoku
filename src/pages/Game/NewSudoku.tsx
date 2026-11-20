@@ -1,5 +1,4 @@
 import hotkeys from "hotkeys-js";
-import {useTranslation} from "react-i18next";
 import * as React from "react";
 import Button from "src/components/Button";
 import {Sudoku} from "src/components/sudoku/Sudoku";
@@ -152,7 +151,6 @@ const NewSudokuInner = ({saveSudoku}: {saveSudoku: (sudoku: SimpleSudoku) => Pro
   }));
   const simpleSudoku = cellsToSimpleSudoku(currentSudoku);
 
-  const {t} = useTranslation();
   const [isSaving, setIsSaving] = React.useState(false);
   const [errors, setErrors] = React.useState<string[]>([]);
   const {checkUniqueness, isChecking} = useSudokuUniqueWorker();
@@ -162,7 +160,7 @@ const NewSudokuInner = ({saveSudoku}: {saveSudoku: (sudoku: SimpleSudoku) => Pro
     setErrors([]);
     const solvedSudoku = solve(simpleSudoku);
     if (solvedSudoku.sudoku === null) {
-      setErrors([t("sudoku_no_solution")]);
+      setErrors(["This sudoku is not solvable."]);
       setIsSaving(false);
       return;
     }
@@ -174,7 +172,7 @@ const NewSudokuInner = ({saveSudoku}: {saveSudoku: (sudoku: SimpleSudoku) => Pro
       return;
     }
     if (!isUnique) {
-      setErrors([t("sudoku_multiple_solutions")]);
+      setErrors(["This sudoku is not unique. It has multiple solutions."]);
       setIsSaving(false);
       return;
     }
