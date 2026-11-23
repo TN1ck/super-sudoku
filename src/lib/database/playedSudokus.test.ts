@@ -4,6 +4,8 @@ import {GameStateMachine, INITIAL_GAME_STATE} from "src/context/GameContext";
 import {ISSUE_33_CUSTOM_SUDOKU} from "src/lib/engine/testutils";
 import {simpleSudokuToCells, stringifySudoku} from "src/lib/engine/utility";
 import {getCurrentSudokuFromStorage, localStoragePlayedSudokuRepository as repository} from "./playedSudokus";
+import {translateCollectionName} from "./collections";
+import {DEFAULT_USER_PREFERENCES, localStorageUserPreferencesRepository} from "./userPreferences";
 
 const key = stringifySudoku(ISSUE_33_CUSTOM_SUDOKU.unsolved);
 const recordKey = "super_sudoku_1_6_" + key;
@@ -204,5 +206,66 @@ describe("played puzzle storage", () => {
     failWrite.mockRestore();
     expect(getCurrentSudokuFromStorage()).toEqual({game: wonGame, sudoku: completed});
     expect(localStorage.getItem(archiveKey)).toBeNull();
+  });
+
+  it("recovers gracefully from corrupted saved sudoku JSON and falls back to valid sibling records", () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    localStorage.setItem(recordKey, "{broken json");
+    localStorage.setItem(currentKey, key);
+    expect(getCurrentSudokuFromStorage()).toBeUndefined();
+
+    localStorage.setItem(
+      compactKey,
+      JSON.stringify({game: wonGame, completedGrid: stringifySudoku(ISSUE_33_CUSTOM_SUDOKU.solved)}),
+    );
+    expect(getCurrentSudokuFromStorage()).toEqual({game: wonGame, sudoku: completed});
+  });
+
+  it("rejects structurally invalid stored boards (empty array, missing notes, bad completedGrid)", () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    localStorage.setItem(currentKey, key);
+
+    localStorage.setItem(recordKey, JSON.stringify({game: INITIAL_GAME_STATE, sudoku: []}));
+    expect(getCurrentSudokuFromStorage()).toBeUndefined();
+
+    localStorage.setItem(
+      recordKey,
+      JSON.stringify({
+        game: INITIAL_GAME_STATE,
+        sudoku: cells.map((cell) => ({
+          x: cell.x,
+          y: cell.y,
+          number: cell.number,
+          initial: cell.initial,
+          solution: cell.solution,
+        })),
+      }),
+    );
+    expect(getCurrentSudokuFromStorage()).toBeUndefined();
+
+    localStorage.removeItem(recordKey);
+    localStorage.setItem(compactKey, JSON.stringify({game: wonGame, completedGrid: "not-81-digits"}));
+    expect(getCurrentSudokuFromStorage()).toBeUndefined();
+  });
+
+  it("does not treat Object.prototype names as base collection translations", () => {
+    expect(translateCollectionName("toString")).toBe("toString");
+    expect(translateCollectionName("constructor")).toBe("constructor");
+  });
+
+  it("sanitizes corrupted user preference records back to defaults", () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    localStorage.setItem("super-sudoku-user-preferences", "{not json");
+    expect(localStorageUserPreferencesRepository.getPreferences()).toEqual(DEFAULT_USER_PREFERENCES);
+
+    localStorage.setItem(
+      "super-sudoku-user-preferences",
+      JSON.stringify({showHints: "yes", showConflicts: false}),
+    );
+    expect(localStorageUserPreferencesRepository.getPreferences()).toEqual({
+      ...DEFAULT_USER_PREFERENCES,
+      showHints: false,
+      showConflicts: false,
+    });
   });
 });

@@ -2,48 +2,97 @@ import * as React from "react";
 import {Bounds} from "src/components/sudoku/types";
 import clsx from "clsx";
 
-export const GridLineX = ({top, width, makeBold}: {top: number; width: number; makeBold: boolean}) => {
-  return (
-    <div
-      style={{
-        width: `${width}%`,
-        top: `${top}%`,
-        height: makeBold ? 2 : 1,
-      }}
-      className={clsx("absolute left-0 -translate-y-1/2", {
-        "z-10 bg-gray-400 dark:bg-gray-500": makeBold,
-        "z-10 bg-gray-300 dark:bg-gray-600": !makeBold,
-      })}
-    />
-  );
-};
+const GRID_LINE_INDICES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-export const GridLineY = ({left, height, makeBold}: {left: number; height: number; makeBold: boolean}) => {
-  return (
-    <div
-      style={{
-        height: `${height}%`,
-        left: `${left}%`,
-        width: makeBold ? 2 : 1,
-      }}
-      className={clsx("absolute left-0 -translate-x-1/2", {
-        "z-10 bg-gray-400 dark:bg-gray-500": makeBold,
-        "z-10 bg-gray-300 dark:bg-gray-600": !makeBold,
-      })}
-    />
-  );
-};
+export const GridLineX = ({
+  top,
+  width,
+  makeBold,
+  thin = false,
+}: {
+  top: number;
+  width: number;
+  makeBold: boolean;
+  thin?: boolean;
+}) => (
+  <div
+    style={{
+      width: `${width}%`,
+      top: `${top}%`,
+      height: thin ? 1 : makeBold ? 2 : 1,
+    }}
+    className={clsx("absolute left-0 z-10 -translate-y-1/2", {
+      "bg-gray-400 dark:bg-gray-400": thin && makeBold,
+      "bg-gray-200 dark:bg-gray-600": thin && !makeBold,
+      "bg-gray-400 dark:bg-gray-500": !thin && makeBold,
+      "bg-gray-300 dark:bg-gray-600": !thin && !makeBold,
+    })}
+  />
+);
 
-export const CellNote = ({left, top, children}: {left: number; top: number; children: React.ReactNode}) => {
-  return (
-    <div
-      style={{top: `${top}%`, left: `${left}%`}}
-      className="absolute -translate-x-1/2 -translate-y-1/2 text-xs text-sky-400 sm:text-sm"
-    >
-      {children}
+export const GridLineY = ({
+  left,
+  height,
+  makeBold,
+  thin = false,
+}: {
+  left: number;
+  height: number;
+  makeBold: boolean;
+  thin?: boolean;
+}) => (
+  <div
+    style={{
+      height: `${height}%`,
+      left: `${left}%`,
+      width: thin ? 1 : makeBold ? 2 : 1,
+    }}
+    className={clsx("absolute top-0 z-10 -translate-x-1/2", {
+      "bg-gray-400 dark:bg-gray-400": thin && makeBold,
+      "bg-gray-200 dark:bg-gray-600": thin && !makeBold,
+      "bg-gray-400 dark:bg-gray-500": !thin && makeBold,
+      "bg-gray-300 dark:bg-gray-600": !thin && !makeBold,
+    })}
+  />
+);
+
+export const SudokuGridLines = React.memo(
+  ({
+    width,
+    height,
+    hideOuter = false,
+    thin = false,
+  }: {
+    width: number;
+    height: number;
+    hideOuter?: boolean;
+    thin?: boolean;
+  }) => (
+    <div>
+      {GRID_LINE_INDICES.map((i) => {
+        if (hideOuter && (i === 0 || i === 9)) {
+          return null;
+        }
+        const makeBold = i === 3 || i === 6;
+        return (
+          <React.Fragment key={i}>
+            <GridLineX makeBold={makeBold} thin={thin} width={width} top={(i * height) / 9} />
+            <GridLineY makeBold={makeBold} thin={thin} height={height} left={(i * width) / 9} />
+          </React.Fragment>
+        );
+      })}
     </div>
-  );
-};
+  ),
+);
+
+export const CellNote = ({left, top, children}: {left: number; top: number; children: React.ReactNode}) => (
+  <div
+    style={{top: `${top}%`, left: `${left}%`}}
+    className="absolute -translate-x-1/2 -translate-y-1/2 text-xs text-sky-400 sm:text-sm"
+  >
+    {children}
+  </div>
+);
 
 export const CellNoteContainer = ({
   initial,
@@ -55,24 +104,22 @@ export const CellNoteContainer = ({
   bounds: Bounds;
   children: React.ReactNode;
   testId?: string;
-}) => {
-  return (
-    <div
-      data-testid={testId}
-      style={{
-        width: `${bounds.width}%`,
-        height: `${bounds.height}%`,
-        top: `${bounds.top}%`,
-        left: `${bounds.left}%`,
-      }}
-      className={clsx("pointer-events-none absolute", {
-        "font-bold": initial,
-      })}
-    >
-      {children}
-    </div>
-  );
-};
+}) => (
+  <div
+    data-testid={testId}
+    style={{
+      width: `${bounds.width}%`,
+      height: `${bounds.height}%`,
+      top: `${bounds.top}%`,
+      left: `${bounds.left}%`,
+    }}
+    className={clsx("pointer-events-none absolute", {
+      "font-bold": initial,
+    })}
+  >
+    {children}
+  </div>
+);
 
 export const GridCell = ({
   conflict,
@@ -114,10 +161,7 @@ export const GridCell = ({
 
   let borderColor = "border-transparent";
   if (active) {
-    borderColor = "border-teal-400 dark:border-teal-600";
-    if (notesMode) {
-      borderColor = "border-sky-400 dark:border-sky-600";
-    }
+    borderColor = notesMode ? "border-sky-400 dark:border-sky-600" : "border-teal-400 dark:border-teal-600";
   }
 
   const dimensions = {
@@ -165,7 +209,6 @@ export const GridCellNumber = ({
   top,
   children,
   testId,
-  // TODO: distinguish between wrong and conflicted.
   conflict,
 }: {
   initial: boolean;
@@ -175,22 +218,20 @@ export const GridCellNumber = ({
   top: number;
   children: React.ReactNode;
   testId?: string;
-}) => {
-  return (
-    <div
-      data-testid={testId}
-      style={{
-        left: `${left}%`,
-        top: `${top}%`,
-      }}
-      className={clsx("pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2 text-lg font-bold", {
-        "text-black dark:text-white": initial,
-        "text-amber-600": highlight && !conflict,
-        "text-teal-600": !initial && !highlight && !conflict,
-        "text-red-600 dark:text-red-300": conflict && !initial,
-      })}
-    >
-      {children}
-    </div>
-  );
-};
+}) => (
+  <div
+    data-testid={testId}
+    style={{
+      left: `${left}%`,
+      top: `${top}%`,
+    }}
+    className={clsx("pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2 text-lg font-bold", {
+      "text-black dark:text-white": initial,
+      "text-amber-600": highlight && !conflict,
+      "text-teal-600": !initial && !highlight && !conflict,
+      "text-red-600 dark:text-red-300": conflict && !initial,
+    })}
+  >
+    {children}
+  </div>
+);

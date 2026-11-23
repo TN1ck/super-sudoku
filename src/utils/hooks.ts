@@ -4,19 +4,31 @@ export function useElementWidth(ref: RefObject<HTMLElement | null>) {
   const [elementWidth, setElementWidth] = useState<number>();
 
   useEffect(() => {
+    const element = ref.current;
+    if (!element) {
+      return;
+    }
+
+    let frameId: number | undefined;
     const resizeObserver = new ResizeObserver(([entry]) => {
-      window.requestAnimationFrame(() => {
-        setElementWidth(entry!.contentRect.width);
+      if (!entry) {
+        return;
+      }
+      if (frameId !== undefined) {
+        window.cancelAnimationFrame(frameId);
+      }
+      frameId = window.requestAnimationFrame(() => {
+        frameId = undefined;
+        setElementWidth(entry.contentRect.width);
       });
     });
 
-    const element = ref.current;
-
-    if (element) {
-      resizeObserver.observe(element);
-    }
+    resizeObserver.observe(element);
 
     return () => {
+      if (frameId !== undefined) {
+        window.cancelAnimationFrame(frameId);
+      }
       resizeObserver.disconnect();
     };
   }, [ref]);

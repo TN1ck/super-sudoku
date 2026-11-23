@@ -1,7 +1,10 @@
-import mean from "lodash-es/mean";
 import {solve} from "./solverAC3";
 import {parseSudoku} from "./utility";
 import {describe, it, expect} from "vitest";
+
+function mean(values: number[]): number {
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
 
 interface SudokusWithStats {
   sudokus: string[];

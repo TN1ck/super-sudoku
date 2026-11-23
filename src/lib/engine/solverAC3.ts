@@ -1,42 +1,15 @@
 import {SQUARE_TABLE, SUDOKU_NUMBERS, squareIndex} from "./utility";
 import {SimpleSudoku} from "./types";
-import sortBy from "lodash-es/sortBy";
 import {solveBacktracking} from "./solverBacktracking";
 
 export type DomainSudoku = number[][][];
 
-// function removeValuesFromDomain(domain1: number[], domain2: number[]): [number[], boolean] {
-//   let change = false;
-//   // this is an optimization:
-//   // AC3 checks if there is a value in domain1 that
-//   // does not comply the constraint with at least one value in domain2.
-//   // But because the constraint is inequality, the case happens only
-//   // when the domain2 is just one variable. The <= is just a safe-check.
-//   if (domain2.length <= 1) {
-//     const index = domain1.indexOf(domain2[0]);
-//     if (index !== -1) {
-//       domain1 = domain1.slice();
-//       domain1.splice(index, 1);
-//       change = true;
-//     }
-//   }
-//   return [domain1, change];
-// }
-
 function toSimpleSudoku(grid: DomainSudoku): SimpleSudoku {
-  return grid.map((row) => {
-    return row.map((cells) => {
-      return cells.length === 1 ? cells[0] : 0;
-    });
-  });
+  return grid.map((row) => row.map((cells) => (cells.length === 1 ? cells[0] : 0)));
 }
 
 function toDomainSudoku(grid: SimpleSudoku): DomainSudoku {
-  return grid.map((row) => {
-    return row.map((c) => {
-      return c === 0 ? SUDOKU_NUMBERS : [c];
-    });
-  });
+  return grid.map((row) => row.map((c) => (c === 0 ? SUDOKU_NUMBERS : [c])));
 }
 
 function ac3(sudoku: DomainSudoku): {
@@ -44,88 +17,72 @@ function ac3(sudoku: DomainSudoku): {
   solvable: boolean;
 } {
   sudoku = sudoku.map((r) => r.map((c) => c.slice()));
-  // Loop until no changes are made to any domain of any cell.
-  // The original paper did not do this, as the iteration counts do not match.
-  // I still leave it here, but do not use it.
-  while (true) {
-    let change = false;
-    // We don't keep an actual set of constraints as some AC3 algorithm explanations do it.
-    // Sudoku has very well defined constraints, we can use loops to check the constraints.
-    for (let y = 0; y < 9; y++) {
-      const row = sudoku[y];
-      for (let x = 0; x < 9; x++) {
-        let domain1 = row[x];
+  // Single constraint-propagation pass (matches the paper's iteration counts).
+  for (let y = 0; y < 9; y++) {
+    const row = sudoku[y];
+    for (let x = 0; x < 9; x++) {
+      const domain1 = row[x];
 
-        // The coordinates of the cells that have a constraint with the
-        // the current cell.
-        const coordinates: [number, number][] = [];
-        // Cells in the same row.
-        for (let xx = 0; xx < 9; xx++) {
-          if (xx === x) {
-            continue;
-          }
+      // Cells in the same row, column, and 3x3 square that constrain this cell.
+      const coordinates: [number, number][] = [];
+      for (let xx = 0; xx < 9; xx++) {
+        if (xx !== x) {
           coordinates.push([y, xx]);
         }
-
-        // Cells in the same column.
-        for (let yy = 0; yy < 9; yy++) {
-          if (yy === y) {
-            continue;
-          }
+      }
+      for (let yy = 0; yy < 9; yy++) {
+        if (yy !== y) {
           coordinates.push([yy, x]);
         }
-
-        // Cells in the same square.
-        const square = SQUARE_TABLE[squareIndex(x, y)];
-        for (let c = 0; c < 9; c++) {
-          const s = square[c];
-          const [xx, yy] = s;
-          if (xx === x && yy === y) {
-            continue;
-          }
+      }
+      const square = SQUARE_TABLE[squareIndex(x, y)];
+      for (let c = 0; c < 9; c++) {
+        const [xx, yy] = square[c];
+        if (xx !== x || yy !== y) {
           coordinates.push([yy, xx]);
         }
+      }
 
-        for (const [yy, xx] of coordinates) {
-          const domain2 = sudoku[yy][xx];
-
-          // If domain2 consists of only one number, remove it from domain1.
-          //
-          // This is an optimization of AC3:
-          // AC3 checks if there is a value in domain1 that
-          // does not comply the constraint with at least one value in domain2.
-          // But because the constraint for sudoku is inequality, the case happens only
-          // when the domain2 is just one variable.
-          let changed = false;
-          if (domain2.length === 1) {
-            const index = domain1.indexOf(domain2[0]);
-            if (index !== -1) {
-              domain1.splice(index, 1);
-              changed = true;
-            }
+      for (const [yy, xx] of coordinates) {
+        const domain2 = sudoku[yy][xx];
+        // For inequality constraints, pruning happens only when the peer domain is fixed to one value.
+        if (domain2.length === 1) {
+          const index = domain1.indexOf(domain2[0]);
+          if (index !== -1) {
+            domain1.splice(index, 1);
           }
-
-          change = change || changed;
-          sudoku[y][x] = domain1;
-        }
-
-        // A domain became empty (e.g. no value works for a cell), we can't solve this Sudoku,
-        // continue with the next one.
-        if (domain1.length === 0) {
-          return {sudoku, solvable: false};
         }
       }
-    }
-    // Note: For "proper" AC3, we wouldn't simply just loop, but only add the constraints to check again if a change was made.
-    // The result is the same, we might do a few more comparisons, but it is easier to implement.
-    // TODO: I initially didn't count the ac3 iterations as proposed by the paper.
-    // But using them now falsifies the tests.
-    change = false;
-    if (!change) {
-      break;
+
+      if (domain1.length === 0) {
+        return {sudoku, solvable: false};
+      }
     }
   }
   return {sudoku, solvable: true};
+}
+
+function findMinRemainingValueCell(grid: DomainSudoku): [number, number] | null {
+  let bestRow = -1;
+  let bestCol = -1;
+  let bestLength = Infinity;
+
+  for (let r = 0; r < 9; r++) {
+    const row = grid[r];
+    for (let c = 0; c < 9; c++) {
+      const len = row[c].length;
+      if (len > 1 && len < bestLength) {
+        bestLength = len;
+        bestRow = r;
+        bestCol = c;
+        if (len === 2) {
+          return [bestRow, bestCol];
+        }
+      }
+    }
+  }
+
+  return bestRow === -1 ? null : [bestRow, bestCol];
 }
 
 /**
@@ -144,8 +101,7 @@ export function _solveGridAC3(
     let [grid, ...rest] = stack;
 
     iterations++;
-    // evil puzzles have an average of about 500, everything more than 1000 that is actually solvable
-    // will be too impossible for the normal user
+    // Evil puzzles average ~500 iterations; anything beyond 4000 falls back to backtracking.
     if (iterations > 4000) {
       return {
         sudoku: toSimpleSudoku(grid),
@@ -160,55 +116,25 @@ export function _solveGridAC3(
     }
     grid = newGrid;
 
-    const isFilled = grid.every((row) => {
-      return row.every((cells) => {
-        return cells.length === 1;
-      });
-    });
-
-    // Every domain is length 1, we found a solution!
-    if (isFilled) {
+    // Pick the first cell with the fewest remaining candidates (MRV heuristic).
+    const nextCell = findMinRemainingValueCell(grid);
+    if (nextCell === null) {
       return {
         sudoku: toSimpleSudoku(grid),
         iterations,
       };
     }
 
-    // No solution found yet. We create a list of all cells that have more than 1 solution as x/y coordinates.
-    const possibleRowAndCells = grid.reduce((current: Array<[number, number]>, row, index) => {
-      const possibleCells = row.reduce((currentCells: Array<[number, number]>, cells, cellIndex) => {
-        if (cells.length > 1) {
-          return currentCells.concat([[index, cellIndex]]);
-        }
-        return currentCells;
-      }, []);
-      return current.concat(possibleCells);
-    }, []);
-    // We sort the possible cells to have the ones with the least possibilities be first.
-    // This is called "Minimum remaining value" and is a very good heuristic. It is similar to how
-    // humans solve Sudokus.
-    const sortedPossibleRowAndCells = sortBy(possibleRowAndCells, ([rowIndex, cellIndex]) => {
-      return grid[rowIndex][cellIndex].length;
-    });
-    // Take the best cell and create a new grid for every possibility the cell has.
-    const [rowIndex, cellIndex] = sortedPossibleRowAndCells[0];
+    const [rowIndex, cellIndex] = nextCell;
     const cell = grid[rowIndex][cellIndex];
-    const newGrids = cell.map((n) => {
-      return grid.map((row, r) => {
-        if (r === rowIndex) {
-          return row.map((cells, c) => {
-            if (c === cellIndex) {
-              return [n];
-            }
-            return cells.slice();
-          });
-        }
-        return row.slice();
-      });
-    });
-    // The new stack is put first and we recursively descend.
-    const newStack = newGrids.concat(rest);
-    stack = newStack;
+    const newGrids = cell.map((n) =>
+      grid.map((row, r) =>
+        r === rowIndex
+          ? row.map((cells, c) => (c === cellIndex ? [n] : cells.slice()))
+          : row.slice(),
+      ),
+    );
+    stack = newGrids.concat(rest);
   }
 
   return {

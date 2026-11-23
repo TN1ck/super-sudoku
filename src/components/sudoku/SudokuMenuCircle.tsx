@@ -28,22 +28,16 @@ export const MenuWrapper = ({children}: {children: React.ReactNode}) => (
       transform: "translate(-50%, -50%)",
     }}
   >
-    <div className="menu-wrapper-mobile">{children}</div>
+    {children}
   </div>
 );
 
 const TAU = Math.PI * 2;
+const CIRCLE_RADIUS = 45;
+const RAD_PER_STEP = TAU / SUDOKU_NUMBERS.length;
 
-const MENU_COLORS = {
-  menuColors: {
-    normal: colors.teal[500],
-    alternate: colors.teal[600],
-    alternate2: colors.teal[400],
-    noteNormal: colors.sky[500],
-    noteAlternate: colors.sky[600],
-    noteAlternate2: colors.sky[400],
-  },
-};
+const NUMBER_SLICE_COLORS = [colors.teal[500], colors.teal[600], colors.teal[400]];
+const NOTE_SLICE_COLORS = [colors.sky[500], colors.sky[600], colors.sky[400]];
 
 const MenuCirclePart = React.memo(
   ({
@@ -57,7 +51,7 @@ const MenuCirclePart = React.memo(
   }: {
     radius: number;
     isActive: boolean;
-    onClick: React.MouseEventHandler<SVGCircleElement> | undefined;
+    onClick: React.MouseEventHandler<SVGCircleElement>;
     minRad: number;
     maxRad: number;
     children?: React.ReactNode;
@@ -75,17 +69,15 @@ const MenuCirclePart = React.memo(
     const strokeDashoffset = -((minRad / TAU) * circumCircle) % circumCircle;
     const strokeDasharray = `${(step / TAU) * circumCircle} ${circumCircle}`;
 
-    const baseClasses = "stroke-[50px] opacity-75";
-    const hoverClasses = "hover:stroke-[60px] hover:cursor-pointer hover:fill-opacity-90";
-    const activeClasses = isActive ? "stroke-[60px] cursor-pointer fill-opacity-90" : "";
-
     return (
       <g>
         <circle
-          className={`${baseClasses} ${hoverClasses} ${activeClasses}`}
+          className={`stroke-[50px] opacity-75 hover:stroke-[60px] hover:cursor-pointer hover:fill-opacity-90 ${
+            isActive ? "stroke-[60px] cursor-pointer fill-opacity-90" : ""
+          }`}
           r={radius}
-          cx={radius * 2}
-          cy={radius * 2}
+          cx={center}
+          cy={center}
           fill="none"
           onClick={onClick}
           style={{
@@ -100,7 +92,6 @@ const MenuCirclePart = React.memo(
           style={{
             fill: "white",
             textAnchor: "middle",
-            zIndex: 100,
             pointerEvents: "none",
           }}
         >
@@ -117,64 +108,33 @@ const MenuCircle: React.FC<{
   showHints: boolean;
   setNumber: (cell: Cell, number: number) => void;
   setNotes: (cell: Cell, notes: number[]) => void;
-  showMenu: () => void;
-  clearNumber: (cell: Cell) => void;
+  clearCell: (cell: Cell) => void;
   sudoku: Cell[];
-}> = ({cell, notesMode, showHints, setNumber, setNotes, clearNumber, sudoku, showMenu}) => {
+}> = ({cell, notesMode, showHints, setNumber, setNotes, clearCell, sudoku}) => {
   const notes = SudokuGame.visibleNotes(cell, sudoku, showHints);
-
-  const circleRadius = 45;
-  const minRad = 0;
-  const maxRad = TAU;
-
-  const usedRad = Math.abs(maxRad - minRad);
-  const circumCircle = TAU * circleRadius;
-  const radPerStep = usedRad / SUDOKU_NUMBERS.length;
+  const sliceColors = notesMode ? NOTE_SLICE_COLORS : NUMBER_SLICE_COLORS;
 
   return (
     <svg
       className="hidden md:block absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 select-none"
       data-testid="sudoku-menu-circle"
       style={{
-        height: circleRadius * 4,
-        width: circleRadius * 4,
-        transform: `translate(-50%, -50%) rotate(${minRad}rad)`,
+        height: CIRCLE_RADIUS * 4,
+        width: CIRCLE_RADIUS * 4,
         WebkitTouchCallout: "none",
         WebkitTapHighlightColor: "rgba(0, 0, 0, 0)",
       }}
-      onClick={() => showMenu()}
     >
-      <circle
-        r={circleRadius}
-        cx={circleRadius * 2}
-        cy={circleRadius * 2}
-        style={{
-          pointerEvents: "none",
-          strokeDashoffset: 0,
-          strokeDasharray: `${(usedRad / TAU) * circumCircle} ${circumCircle}`,
-        }}
-        fill="none"
-        className={notesMode ? "ss_menu-circle-notes" : "ss_menu-circle"}
-      />
       {SUDOKU_NUMBERS.map((number, i) => {
-        const currentMinRad = minRad + radPerStep * (i + 1);
-        const currentMaxRad = currentMinRad + radPerStep;
+        const currentMinRad = RAD_PER_STEP * (i + 1);
+        const currentMaxRad = currentMinRad + RAD_PER_STEP;
         const isActive = notesMode ? notes.includes(number) : number === cell.number;
-
-        const colors = notesMode
-          ? [
-              MENU_COLORS.menuColors.noteNormal,
-              MENU_COLORS.menuColors.noteAlternate,
-              MENU_COLORS.menuColors.noteAlternate2,
-            ]
-          : [MENU_COLORS.menuColors.normal, MENU_COLORS.menuColors.alternate, MENU_COLORS.menuColors.alternate2];
-
-        const stroke = colors[i % colors.length];
+        const stroke = sliceColors[i % sliceColors.length];
 
         return (
           <MenuCirclePart
-            key={i}
-            radius={circleRadius}
+            key={number}
+            radius={CIRCLE_RADIUS}
             isActive={isActive}
             minRad={currentMinRad}
             stroke={stroke}
@@ -185,7 +145,7 @@ const MenuCircle: React.FC<{
                 e.stopPropagation();
                 setNotes(cell, SudokuGame.toggleNote(cell, notes, number));
               } else if (number === cell.number) {
-                clearNumber(cell);
+                clearCell(cell);
               } else {
                 setNumber(cell, number);
               }

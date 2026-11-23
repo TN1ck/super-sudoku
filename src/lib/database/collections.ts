@@ -8,18 +8,20 @@ export enum BaseCollection {
   Evil = "evil",
 }
 
-export function translateCollectionName(collectionName: string) {
-  // TODO: Find better place for this.
-  const BASE_COLLECTION_TRANSLATION: Record<BaseCollection, string> = {
-    [BaseCollection.Easy]: t("difficulty_easy"),
-    [BaseCollection.Medium]: t("difficulty_medium"),
-    [BaseCollection.Hard]: t("difficulty_hard"),
-    [BaseCollection.Expert]: t("difficulty_expert"),
-    [BaseCollection.Evil]: t("difficulty_evil"),
-  };
-  // TODO: We should also pass the collection id, not just the name.
-  if (collectionName in BASE_COLLECTION_TRANSLATION) {
-    return BASE_COLLECTION_TRANSLATION[collectionName as BaseCollection];
+const BASE_COLLECTION_TRANSLATION_KEYS: Record<BaseCollection, string> = {
+  [BaseCollection.Easy]: "difficulty_easy",
+  [BaseCollection.Medium]: "difficulty_medium",
+  [BaseCollection.Hard]: "difficulty_hard",
+  [BaseCollection.Expert]: "difficulty_expert",
+  [BaseCollection.Evil]: "difficulty_evil",
+};
+
+export function translateCollectionName(
+  collectionName: string,
+  translate: (key: string) => string = t,
+): string {
+  if (Object.prototype.hasOwnProperty.call(BASE_COLLECTION_TRANSLATION_KEYS, collectionName)) {
+    return translate(BASE_COLLECTION_TRANSLATION_KEYS[collectionName as BaseCollection]);
   }
   return collectionName;
 }
@@ -40,9 +42,8 @@ interface CollectionRepository {
   removeCollection(collectionId: string): void;
 }
 
-// The collections have an id, name and a list of sudokus.
-// We do not want to parse the whole sudokus, just to show an index of the sudokus.
-// That's why we save the name and and sudokus in different local storage keys.
+// Collections store names and puzzle lists under separate keys so the index
+// can be loaded without reading every puzzle payload.
 const STORAGE_COLLECTION_SUDOKUS_PREFIX = "super_sudoku_collections_sudokus_";
 const STORAGE_COLLECTION_NAMES_PREFIX = "super_sudoku_collections_names_";
 
@@ -56,27 +57,38 @@ function createCollectionNamesKey(collectionId: string) {
 
 export const localStorageCollectionRepository: CollectionRepository = {
   getCollections(): CollectionIndex[] {
+    if (typeof localStorage === "undefined") {
+      return [];
+    }
+
     const collectionNameKeys = Object.keys(localStorage).filter((key) =>
       key.startsWith(STORAGE_COLLECTION_NAMES_PREFIX),
     );
 
-    return collectionNameKeys
-      .map((collectionNameKey) => {
-        const collectionName = localStorage.getItem(collectionNameKey);
-        if (!collectionName) {
-          return null;
-        }
+    const collections: CollectionIndex[] = [];
+    for (const collectionNameKey of collectionNameKeys) {
+      const collectionName = localStorage.getItem(collectionNameKey);
+      if (!collectionName) {
+        continue;
+      }
 
-        const collectionId = collectionNameKey.replace(STORAGE_COLLECTION_NAMES_PREFIX, "");
-        const result: CollectionIndex = {
-          id: collectionId,
-          name: collectionName,
-        };
-        return result;
-      })
-      .filter((collection) => collection !== null);
+      const collectionId = collectionNameKey.slice(STORAGE_COLLECTION_NAMES_PREFIX.length);
+      if (localStorage.getItem(createCollectionSudokusKey(collectionId)) === null) {
+        continue;
+      }
+
+      collections.push({
+        id: collectionId,
+        name: collectionName,
+      });
+    }
+    return collections;
   },
   getCollection(collectionId: string): Collection {
+    if (typeof localStorage === "undefined") {
+      throw new Error("Collection not found");
+    }
+
     const collectionSudokus = localStorage.getItem(createCollectionSudokusKey(collectionId));
     if (collectionSudokus === null) {
       throw new Error("Collection not found");
@@ -94,10 +106,16 @@ export const localStorageCollectionRepository: CollectionRepository = {
     };
   },
   saveCollection(collection: Collection): void {
+    if (typeof localStorage === "undefined") {
+      return;
+    }
     localStorage.setItem(createCollectionSudokusKey(collection.id), collection.sudokusRaw);
     localStorage.setItem(createCollectionNamesKey(collection.id), collection.name);
   },
   removeCollection(collectionId: string): void {
+    if (typeof localStorage === "undefined") {
+      return;
+    }
     localStorage.removeItem(createCollectionSudokusKey(collectionId));
     localStorage.removeItem(createCollectionNamesKey(collectionId));
   },

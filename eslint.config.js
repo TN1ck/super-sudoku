@@ -77,7 +77,7 @@ export default [
 
   // TypeScript worker files
   {
-    files: ['**/*.worker.{ts}'],
+    files: ['**/*.worker.ts'],
     languageOptions: {
       parser: tsparser,
       parserOptions: {
@@ -112,6 +112,18 @@ export default [
 
   // Ignore build output and other files
   {
-    ignores: ['dist/**', 'node_modules/**', '*.min.js', 'coverage/**', 'postcss.config.js', 'prettier.config.js', 'tailwind.config.js'],
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      '*.min.js',
+      'coverage/**',
+      'artifacts/**',
+      'tmp/**',
+      'playwright-report/**',
+      'test-results/**',
+      'postcss.config.js',
+      'prettier.config.js',
+      'tailwind.config.js',
+    ],
   },
 ];

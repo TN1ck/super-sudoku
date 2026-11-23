@@ -1,13 +1,9 @@
 import {SimpleSudoku} from "./types";
-import {SUDOKU_NUMBERS} from "./utility";
+import {cloneSudoku, SUDOKU_NUMBERS} from "./utility";
 
 interface SolverState {
   board: SimpleSudoku;
   iterations: number;
-}
-
-function cloneSudoku(sudoku: SimpleSudoku): SimpleSudoku {
-  return sudoku.map((row) => row.slice());
 }
 
 function isValidPlacement(board: SimpleSudoku, row: number, column: number, number: number): boolean {
@@ -34,11 +30,9 @@ function isValidPlacement(board: SimpleSudoku, row: number, column: number, numb
 }
 
 function hasValidGivens(board: SimpleSudoku): boolean {
-  return board.every((row, y) => {
-    return row.every((number, x) => {
-      return number === 0 || isValidPlacement(board, y, x, number);
-    });
-  });
+  return board.every((row, y) =>
+    row.every((number, x) => number === 0 || isValidPlacement(board, y, x, number)),
+  );
 }
 
 function getCandidates(board: SimpleSudoku, row: number, column: number): number[] {
@@ -66,28 +60,6 @@ function findBestEmptyCell(board: SimpleSudoku): {row: number; column: number; c
   }
 
   return bestCell;
-}
-
-function solveInPlace(state: SolverState): boolean {
-  state.iterations++;
-
-  const cell = findBestEmptyCell(state.board);
-  if (cell === null) {
-    return true;
-  }
-  if (cell.candidates.length === 0) {
-    return false;
-  }
-
-  for (const number of cell.candidates) {
-    state.board[cell.row][cell.column] = number;
-    if (solveInPlace(state)) {
-      return true;
-    }
-    state.board[cell.row][cell.column] = 0;
-  }
-
-  return false;
 }
 
 function countSolutionsInPlace(
@@ -122,37 +94,11 @@ function countSolutionsInPlace(
   }
 }
 
-export function solveBacktracking(sudoku: SimpleSudoku): {sudoku: SimpleSudoku | null; iterations: number} {
-  const state = {
-    board: cloneSudoku(sudoku),
-    iterations: 0,
-  };
-
-  if (!hasValidGivens(state.board)) {
-    return {
-      sudoku: null,
-      iterations: Infinity,
-    };
-  }
-
-  if (!solveInPlace(state)) {
-    return {
-      sudoku: null,
-      iterations: Infinity,
-    };
-  }
-
-  return {
-    sudoku: state.board,
-    iterations: state.iterations,
-  };
-}
-
 export function countSolutions(
   sudoku: SimpleSudoku,
   limit: number = 2,
 ): {count: number; firstSolution: SimpleSudoku | null; iterations: number} {
-  const state = {
+  const state: SolverState = {
     board: cloneSudoku(sudoku),
     iterations: 0,
   };
@@ -173,5 +119,19 @@ export function countSolutions(
   return {
     ...solutions,
     iterations: state.iterations,
+  };
+}
+
+export function solveBacktracking(sudoku: SimpleSudoku): {sudoku: SimpleSudoku | null; iterations: number} {
+  const {firstSolution, iterations} = countSolutions(sudoku, 1);
+  if (firstSolution === null) {
+    return {
+      sudoku: null,
+      iterations: Infinity,
+    };
+  }
+  return {
+    sudoku: firstSolution,
+    iterations,
   };
 }

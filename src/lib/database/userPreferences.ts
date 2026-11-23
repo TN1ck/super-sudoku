@@ -1,3 +1,5 @@
+import {safeGetStorageItem, safeParseJson, safeSetStorageItem} from "src/utils/storage";
+
 const STORAGE_KEY_USER_PREFERENCES = "super-sudoku-user-preferences";
 
 export interface UserPreferences {
@@ -23,39 +25,33 @@ interface UserPreferencesRepository {
 
 export const localStorageUserPreferencesRepository: UserPreferencesRepository = {
   getPreferences(): UserPreferences {
-    if (typeof localStorage === "undefined") {
-      return DEFAULT_USER_PREFERENCES;
-    }
-
-    const storedPreferences = localStorage.getItem(STORAGE_KEY_USER_PREFERENCES);
-
+    const storedPreferences = safeGetStorageItem(STORAGE_KEY_USER_PREFERENCES);
     if (!storedPreferences) {
       return DEFAULT_USER_PREFERENCES;
     }
 
-    try {
-      const parsed = JSON.parse(storedPreferences);
-
-      // Merge with defaults to handle cases where new preferences are added
-      return {
-        ...DEFAULT_USER_PREFERENCES,
-        ...parsed,
-      };
-    } catch (error) {
-      console.warn("Failed to parse user preferences from localStorage:", error);
+    const parsed = safeParseJson<Record<string, unknown>>(storedPreferences);
+    if (!parsed || typeof parsed !== "object") {
+      console.warn("Failed to parse user preferences from localStorage");
       return DEFAULT_USER_PREFERENCES;
     }
+
+    return {
+      showHints: typeof parsed.showHints === "boolean" ? parsed.showHints : DEFAULT_USER_PREFERENCES.showHints,
+      showWrongEntries:
+        typeof parsed.showWrongEntries === "boolean"
+          ? parsed.showWrongEntries
+          : DEFAULT_USER_PREFERENCES.showWrongEntries,
+      showConflicts:
+        typeof parsed.showConflicts === "boolean" ? parsed.showConflicts : DEFAULT_USER_PREFERENCES.showConflicts,
+      showCircleMenu:
+        typeof parsed.showCircleMenu === "boolean" ? parsed.showCircleMenu : DEFAULT_USER_PREFERENCES.showCircleMenu,
+      showOccurrences:
+        typeof parsed.showOccurrences === "boolean" ? parsed.showOccurrences : DEFAULT_USER_PREFERENCES.showOccurrences,
+    };
   },
 
   savePreferences(preferences: UserPreferences): void {
-    if (typeof localStorage === "undefined") {
-      return;
-    }
-
-    try {
-      localStorage.setItem(STORAGE_KEY_USER_PREFERENCES, JSON.stringify(preferences));
-    } catch (error) {
-      console.warn("Failed to save user preferences to localStorage:", error);
-    }
+    safeSetStorageItem(STORAGE_KEY_USER_PREFERENCES, JSON.stringify(preferences));
   },
 };

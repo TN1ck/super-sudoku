@@ -105,16 +105,16 @@ test("uses the application name as the browser tab title", async ({page}) => {
 });
 
 test("rejects an invalid puzzle link once and restores the current puzzle URL", async ({page}) => {
-  const dialogs: string[] = [];
+  const dialogs: Array<{type: string; message: string}> = [];
   page.on("dialog", async (dialog) => {
-    dialogs.push(dialog.type());
+    dialogs.push({type: dialog.type(), message: dialog.message()});
     await dialog.dismiss();
   });
   await page.goto(gameUrl("invalid"));
   await expect(page).toHaveURL(new RegExp(FIRST_PUZZLE));
   await continueIfPaused(page);
   await expect(cellValue(page, 0, 0)).toHaveText("5");
-  expect(dialogs).toEqual(["alert"]);
+  expect(dialogs).toEqual([{type: "alert", message: "This link contains an invalid sudoku."}]);
 });
 
 test("fills in the collection and index on an incomplete link to the current grid", async ({page}) => {
@@ -809,5 +809,252 @@ test.describe("gameplay regressions", () => {
     await setVisibility("visible");
     await page.clock.runFor(300);
     await expect(page.getByRole("button", {name: "Pause", exact: true})).toBeVisible();
+  });
+
+  test("manually paused game stays paused after switching tabs and returning", async ({page}) => {
+    await page.clock.install();
+    await openGame(page);
+    await page.getByRole("button", {name: "Pause", exact: true}).click();
+    const resume = page.getByRole("button", {name: "Continue", exact: true});
+    await expect(resume).toBeVisible();
+
+    const setVisibility = (visibility: "hidden" | "visible") =>
+      page.evaluate((value) => {
+        Object.defineProperty(document, "visibilityState", {configurable: true, get: () => value});
+        document.dispatchEvent(new Event("visibilitychange"));
+      }, visibility);
+    await setVisibility("hidden");
+    await page.clock.runFor(500);
+    await setVisibility("visible");
+    await page.clock.runFor(500);
+    await expect(resume).toBeVisible();
+  });
+
+  test("clicking a given cell closes the circle menu instead of moving it onto the given", async ({page}) => {
+    await openGame(page);
+    await selectCell(page, 5, 0);
+    await expect(page.getByTestId("sudoku-menu-circle")).toBeVisible();
+    await selectCell(page, 0, 0);
+    await expect(page.getByTestId("sudoku-menu-circle")).toHaveCount(0);
+  });
+
+  test("switching language updates the collection label immediately without reload", async ({page}) => {
+    await openGame(page);
+    await expect(page.getByTestId("current-game-label")).toHaveText("Easy #1");
+    await page.getByLabel("Select language").selectOption("es");
+    await expect(page.getByTestId("current-game-label")).toHaveText("Fácil #1");
+    await page.getByLabel("Select language").selectOption("fr");
+    await expect(page.getByTestId("current-game-label")).toHaveText("Facile #1");
+  });
+
+  test("entering a note on a filled cell with auto-notes enabled sets only the entered note", async ({page}) => {
+    await openGame(page);
+    await page.getByText("Show auto generated notes").click();
+    await expect(page.locator("#generated_notes")).toBeChecked();
+
+    await selectCell(page, 5, 0);
+    await page.keyboard.press("2");
+    await expect(cellValue(page, 5, 0)).toHaveText("2");
+
+    await page.keyboard.press("n");
+    await page.keyboard.press("8");
+    await expect(cellValue(page, 5, 0)).toBeEmpty();
+    await expect(cellNotes(page, 5, 0)).toHaveText("8");
+  });
+
+  test("supports Delete key to clear and Ctrl+Shift+Z to redo", async ({page}) => {
+    await openGame(page);
+    await selectCell(page, 5, 0);
+    await page.keyboard.press("1");
+    await expect(cellValue(page, 5, 0)).toHaveText("1");
+    await page.keyboard.press("Delete");
+    await expect(cellValue(page, 5, 0)).toBeEmpty();
+    await page.keyboard.press(`${SHORTCUT_MODIFIER}+Z`);
+    await expect(cellValue(page, 5, 0)).toHaveText("1");
+    await page.keyboard.press(`${SHORTCUT_MODIFIER}+Shift+Z`);
+    await expect(cellValue(page, 5, 0)).toBeEmpty();
+  });
+
+  test("recovers gracefully from corrupted localStorage entries", async ({page}) => {
+    await page.addInitScript(() => {
+      localStorage.setItem("darkMode", "{corrupt");
+      localStorage.setItem("super-sudoku-user-preferences", "{corrupt");
+      localStorage.setItem("super_sudoku_currently_playing_sudoku", "corrupt_key");
+      localStorage.setItem("super_sudoku_1_6_corrupt_key", "{corrupt");
+    });
+    await page.goto("/");
+    await expect(page.getByTestId("sudoku-board")).toBeVisible();
+    await expect(page.getByTestId("current-game-label")).toHaveText("Easy #1");
+  });
+
+  test("rejects unsolvable and non-unique custom puzzles without locking the creator", async ({page}) => {
+    await page.goto("/#/select-game");
+    page.once("dialog", async (dialog) => {
+      await dialog.accept("Validation test");
+    });
+    await page.getByRole("button", {name: "+ New Collection"}).click();
+    await page.getByRole("button", {name: "Add sudoku +"}).click();
+
+    // Empty board has multiple solutions
+    await page.getByRole("button", {name: "Save sudoku"}).click();
+    await expect(page.getByText("This sudoku is not unique. It has multiple solutions.")).toBeVisible();
+    await expect(page.getByRole("button", {name: "Save sudoku"})).toBeEnabled();
+
+    // Conflicting clues make it unsolvable
+    await selectCell(page, 0, 0);
+    await page.keyboard.press("5");
+    await selectCell(page, 1, 0);
+    await page.keyboard.press("5");
+    await page.getByRole("button", {name: "Save sudoku"}).click();
+    await expect(page.getByText("This sudoku is not solvable.")).toBeVisible();
+    await expect(page.getByRole("button", {name: "Save sudoku"})).toBeEnabled();
+  });
+
+  test("clear button cancels cleanly and confirms full reset across reload", async ({page}) => {
+    await page.clock.install();
+    await openGame(page);
+    await selectCell(page, 5, 0);
+    await page.keyboard.press("1");
+    await expect(cellValue(page, 5, 0)).toHaveText("1");
+    await page.clock.fastForward(4000);
+    await expect(page.getByText("00:04 min", {exact: true})).toBeVisible();
+
+    // Cancel clear: keeps move and resumes running
+    page.once("dialog", async (dialog) => {
+      expect(dialog.type()).toBe("confirm");
+      await dialog.dismiss();
+    });
+    await page.getByRole("button", {name: "Clear"}).click();
+    await page.clock.fastForward(50);
+    await expect(page.getByRole("button", {name: "Pause"})).toBeVisible();
+    await expect(cellValue(page, 5, 0)).toHaveText("1");
+
+    // Confirm clear: resets board and timer, persists across reload
+    page.once("dialog", async (dialog) => {
+      expect(dialog.type()).toBe("confirm");
+      await dialog.accept();
+    });
+    await page.getByRole("button", {name: "Clear"}).click();
+    await page.clock.fastForward(50);
+    await expect(cellValue(page, 5, 0)).toBeEmpty();
+    await expect(page.getByText("00:00 min", {exact: true})).toBeVisible();
+
+    await page.reload();
+    await continueIfPaused(page);
+    await expect(cellValue(page, 5, 0)).toBeEmpty();
+  });
+
+  test("shows custom collection display name in switch confirmation and supports deleting collections", async ({
+    page,
+  }) => {
+    await page.clock.install();
+    await page.goto("/#/select-game");
+    await storeCollection(page, "custom-uuid-123", "Weekend Pack", [FIRST_PUZZLE]);
+    await openGame(page, FIRST_PUZZLE, 1, "custom-uuid-123", "Weekend Pack");
+    await page.clock.fastForward(7000);
+
+    const messages: string[] = [];
+    page.on("dialog", async (dialog) => {
+      messages.push(dialog.message());
+      await dialog.accept();
+    });
+
+    await page.getByRole("button", {name: "New game"}).click();
+    await page.getByRole("button", {name: "Easy"}).click();
+    await page.getByTestId("sudoku-preview-2").click();
+    await expect(page.getByTestId("current-game-label")).toHaveText("Easy #2");
+    expect(messages[0]).toContain("Weekend Pack #1");
+    expect(messages[0]).not.toContain("custom-uuid-123");
+
+    // Delete the custom collection and verify clean fallback
+    await page.getByRole("button", {name: "New game"}).click();
+    await page.getByRole("button", {name: "Weekend Pack"}).click();
+    await page.getByRole("button", {name: "Delete collection"}).click();
+    await expect(page.getByRole("button", {name: "Weekend Pack"})).toHaveCount(0);
+    await expect(page.getByTestId("sudoku-preview-1")).toBeVisible();
+  });
+
+  test("paginates through collection pages and opens puzzles from later pages", async ({page}) => {
+    await page.goto("/#/select-game");
+    await expect(page.getByTestId("sudoku-preview-1")).toBeVisible();
+    await expect(page.getByRole("button", {name: "Previous page"})).toBeDisabled();
+
+    await page.getByRole("button", {name: "Next page"}).click();
+    await expect(page.getByTestId("sudoku-preview-13")).toBeVisible();
+    await expect(page.getByRole("button", {name: "2", exact: true})).toHaveAttribute("aria-current", "page");
+
+    await page.getByTestId("sudoku-preview-13").click();
+    await expect(page.getByTestId("current-game-label")).toHaveText("Easy #13");
+  });
+
+  test("ignores benign ResizeObserver window errors and recovers from structurally invalid saved boards", async ({
+    page,
+  }) => {
+    const pageErrors: Error[] = [];
+    page.on("pageerror", (error) => pageErrors.push(error));
+
+    await page.addInitScript((puzzle) => {
+      localStorage.setItem("super_sudoku_currently_playing_sudoku", puzzle);
+      localStorage.setItem("super_sudoku_1_6_" + puzzle, JSON.stringify({game: {}, sudoku: []}));
+    }, FIRST_PUZZLE);
+
+    await page.goto("/");
+    await expect(page.getByTestId("sudoku-board")).toBeVisible();
+    await expect(page.locator("[data-testid^='sudoku-cell-0-']")).toHaveCount(9);
+
+    // Dispatch a benign ResizeObserver loop error event and verify the app does not crash
+    await page.evaluate(() => {
+      window.dispatchEvent(new ErrorEvent("error", {message: "ResizeObserver loop completed with undelivered notifications."}));
+    });
+    await expect(page.getByTestId("sudoku-board")).toBeVisible();
+    await expect(page.getByText("Something went wrong")).toHaveCount(0);
+    expect(pageErrors).toEqual([]);
+  });
+
+  test("supports keyboard navigation, Delete, Undo, and Ctrl+Shift+Z Redo in the custom sudoku creator", async ({
+    page,
+  }) => {
+    await page.goto("/#/select-game");
+    page.once("dialog", async (dialog) => {
+      await dialog.accept("Keyboard Creator");
+    });
+    await page.getByRole("button", {name: "+ New Collection"}).click();
+    await page.getByRole("button", {name: "Add sudoku +"}).click();
+
+    await page.keyboard.press("ArrowRight");
+    await expect(cell(page, 0, 0)).toHaveAttribute("data-cell-active", "true");
+    await page.keyboard.press("ArrowRight");
+    await expect(cell(page, 1, 0)).toHaveAttribute("data-cell-active", "true");
+    await page.keyboard.press("9");
+    await expect(cellValue(page, 1, 0)).toHaveText("9");
+    await page.keyboard.press("Delete");
+    await expect(cellValue(page, 1, 0)).toBeEmpty();
+    await page.keyboard.press(`${SHORTCUT_MODIFIER}+Z`);
+    await expect(cellValue(page, 1, 0)).toHaveText("9");
+    await page.keyboard.press(`${SHORTCUT_MODIFIER}+Shift+Z`);
+    await expect(cellValue(page, 1, 0)).toBeEmpty();
+  });
+
+  test("plays and wins cleanly on a mobile viewport without horizontal overflow", async ({page}) => {
+    await page.setViewportSize({width: 375, height: 812});
+    await openGame(page, ONE_EMPTY_CELL_PUZZLE);
+
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+    expect(overflow).toBe(false);
+
+    await selectCell(page, 8, 8);
+    await expect(page.getByTestId("sudoku-menu-circle")).toBeHidden();
+    await page.getByRole("button", {name: "Set 7"}).click();
+    await expect(page.getByText(/Congrats, you won/)).toBeVisible();
+  });
+
+  test("syncs dark mode across open tabs", async ({page, context}) => {
+    await openGame(page);
+    const secondTab = await context.newPage();
+    await openGame(secondTab);
+
+    await page.getByRole("button", {name: "Toggle dark mode"}).click();
+    await expect(page.locator("body")).toHaveClass(/dark/);
+    await expect(secondTab.locator("body")).toHaveClass(/dark/);
   });
 });

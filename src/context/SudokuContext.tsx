@@ -1,7 +1,14 @@
-import React, {createContext, useContext, useReducer, useCallback, ReactNode} from "react";
-import isEqual from "lodash-es/isEqual";
+import React, {createContext, ReactNode, useCallback, useContext, useMemo, useReducer} from "react";
 import {Cell, CellCoordinates} from "src/lib/engine/types";
-import {findCell, hasBoardShape, sharesUnit, simpleSudokuToCells, SUDOKU_NUMBERS} from "src/lib/engine/utility";
+import {
+  areCellsEqual,
+  createEmptySimpleSudoku,
+  findCell,
+  hasBoardShape,
+  sharesUnit,
+  simpleSudokuToCells,
+  SUDOKU_NUMBERS,
+} from "src/lib/engine/utility";
 import {START_SUDOKU} from "src/lib/game/sudokus";
 
 export interface SudokuState {
@@ -10,17 +17,7 @@ export interface SudokuState {
   historyIndex: number;
 }
 
-export const emptyGrid: Cell[] = simpleSudokuToCells([
-  [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0],
-]);
+export const emptyGrid: Cell[] = simpleSudokuToCells(createEmptySimpleSudoku());
 
 export function createSudokuState(current: Cell[]): SudokuState {
   return {current, history: [current], historyIndex: 0};
@@ -39,7 +36,6 @@ const GET_HINT = "sudoku/GET_HINT";
 const CLEAR_CELL = "sudoku/CLEAR_CELL";
 const SET_NOTES = "sudoku/SET_NOTES";
 const SET_NUMBER = "sudoku/SET_NUMBER";
-const CLEAR_NUMBER = "sudoku/CLEAR_NUMBER";
 const UNDO = "sudoku/UNDO";
 const REDO = "sudoku/REDO";
 
@@ -49,7 +45,6 @@ type SudokuAction =
   | {type: typeof CLEAR_CELL; cellCoordinates: CellCoordinates}
   | {type: typeof SET_NOTES; cellCoordinates: CellCoordinates; notes: number[]}
   | {type: typeof SET_NUMBER; cellCoordinates: CellCoordinates; number: number}
-  | {type: typeof CLEAR_NUMBER; cellCoordinates: CellCoordinates}
   | {type: typeof UNDO}
   | {type: typeof REDO};
 
@@ -78,13 +73,10 @@ export function sudokuReducer(state: SudokuState, action: SudokuAction): SudokuS
       if (!action.notes.every((note) => SUDOKU_NUMBERS.includes(note))) {
         return state;
       }
-      edited = {...cleared, number: 0, notes: [...new Set(action.notes)]};
+      edited = {...cleared, number: 0, notes: [...new Set(action.notes)].sort((a, b) => a - b)};
       if (!edited.notes.length) {
         edited.autoNotesHidden = true;
       }
-      break;
-    case CLEAR_NUMBER:
-      edited = {...selected, number: 0};
       break;
     case CLEAR_CELL:
       edited = {...cleared, number: 0, notes: []};
@@ -112,7 +104,7 @@ export function sudokuReducer(state: SudokuState, action: SudokuAction): SudokuS
   });
 
   // A new edit replaces any moves that could have been redone.
-  if (isEqual(newGrid, state.current)) {
+  if (areCellsEqual(newGrid, state.current)) {
     return state;
   }
   const newHistory = [newGrid, ...state.history.slice(state.historyIndex)];
@@ -131,7 +123,6 @@ interface SudokuContextType {
   clearCell: (cellCoordinates: CellCoordinates) => void;
   setNotes: (cellCoordinates: CellCoordinates, notes: number[]) => void;
   setNumber: (cellCoordinates: CellCoordinates, number: number) => void;
-  clearNumber: (cellCoordinates: CellCoordinates) => void;
   undo: () => void;
   redo: () => void;
 }
@@ -166,10 +157,6 @@ export function SudokuProvider({children, initialState = INITIAL_SUDOKU_STATE}: 
     dispatch({type: SET_NUMBER, cellCoordinates, number});
   }, []);
 
-  const clearNumber = useCallback((cellCoordinates: CellCoordinates) => {
-    dispatch({type: CLEAR_NUMBER, cellCoordinates});
-  }, []);
-
   const undo = useCallback(() => {
     dispatch({type: UNDO});
   }, []);
@@ -178,17 +165,19 @@ export function SudokuProvider({children, initialState = INITIAL_SUDOKU_STATE}: 
     dispatch({type: REDO});
   }, []);
 
-  const value = {
-    state,
-    setSudoku,
-    getHint,
-    clearCell,
-    setNotes,
-    setNumber,
-    clearNumber,
-    undo,
-    redo,
-  };
+  const value = useMemo(
+    () => ({
+      state,
+      setSudoku,
+      getHint,
+      clearCell,
+      setNotes,
+      setNumber,
+      undo,
+      redo,
+    }),
+    [state, setSudoku, getHint, clearCell, setNotes, setNumber, undo, redo],
+  );
 
   return <SudokuContext.Provider value={value}>{children}</SudokuContext.Provider>;
 }

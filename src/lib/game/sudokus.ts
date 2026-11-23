@@ -1,14 +1,20 @@
+import {useCallback, useState} from "react";
 import {SimpleSudoku} from "src/lib/engine/types";
+import {parseSudoku, stringifySudoku} from "src/lib/engine/utility";
+import {solve} from "src/lib/engine/solverAC3";
+import {
+  BaseCollection,
+  Collection,
+  CollectionIndex,
+  localStorageCollectionRepository,
+  translateCollectionName,
+} from "../database/collections";
 
 import easySudokus from "../../../sudokus/easy.txt?raw";
 import mediumSudokus from "../../../sudokus/medium.txt?raw";
 import hardSudokus from "../../../sudokus/hard.txt?raw";
 import expertSudokus from "../../../sudokus/expert.txt?raw";
 import evilSudokus from "../../../sudokus/evil.txt?raw";
-import {parseSudoku, stringifySudoku} from "src/lib/engine/utility";
-import {solve} from "src/lib/engine/solverAC3";
-import {useCallback, useState} from "react";
-import {BaseCollection, Collection, CollectionIndex, localStorageCollectionRepository} from "../database/collections";
 
 export interface SudokuRaw {
   iterations: number;
@@ -49,17 +55,20 @@ export function getSudokusPaginated(collection: Collection, page: number = 0, pa
   const sudokus: SudokuRaw[] = [];
 
   for (const line of rawLines.slice(startIndex, endIndex)) {
-    const sudoku = parseSudoku(line);
-    const solved = solve(sudoku);
-    const result = {
-      sudoku,
-      solution: solved.sudoku,
-      iterations: solved.iterations,
-    };
-    if (result.solution !== null) {
-      sudokus.push(result as SudokuRaw);
-    } else {
-      console.warn("Invalid sudoku: ", sudoku, solved);
+    try {
+      const sudoku = parseSudoku(line);
+      const solved = solve(sudoku);
+      if (solved.sudoku !== null) {
+        sudokus.push({
+          sudoku,
+          solution: solved.sudoku,
+          iterations: solved.iterations,
+        });
+      } else {
+        console.warn("Invalid sudoku: ", sudoku, solved);
+      }
+    } catch (error) {
+      console.warn("Failed to parse sudoku line in collection", collection.id, error);
     }
   }
 
@@ -73,28 +82,52 @@ export function getSudokusPaginated(collection: Collection, page: number = 0, pa
 }
 
 export const START_SUDOKU_INDEX = 0;
-export const START_SUDOKU_COLLECTION = {id: "easy", name: "easy", sudokusRaw: BASE_SUDOKU_COLLECTIONS.easy};
+export const START_SUDOKU_COLLECTION: Collection = {
+  id: BaseCollection.Easy,
+  name: BaseCollection.Easy,
+  sudokusRaw: BASE_SUDOKU_COLLECTIONS.easy,
+};
 export const START_SUDOKU = getSudokusPaginated(START_SUDOKU_COLLECTION, START_SUDOKU_INDEX, START_SUDOKU_INDEX + 1)
   .sudokus[0];
 
-export function getCollections() {
+export function isBaseCollectionId(collectionId: string): collectionId is BaseCollection {
+  return Object.prototype.hasOwnProperty.call(BASE_SUDOKU_COLLECTIONS, collectionId);
+}
+
+export function getCollections(): CollectionIndex[] {
   const baseCollections = Object.keys(BASE_SUDOKU_COLLECTIONS);
-  const collections = localStorageCollectionRepository.getCollections();
-  return [...baseCollections.map((collection) => ({id: collection, name: collection})), ...collections];
+  const customCollections = localStorageCollectionRepository.getCollections();
+  return [...baseCollections.map((collection) => ({id: collection, name: collection})), ...customCollections];
+}
+
+export function resolveCollectionDisplayName(
+  collectionId: string,
+  getCollection: (id: string) => Collection,
+  translate?: (key: string) => string,
+): string {
+  try {
+    return translateCollectionName(getCollection(collectionId).name, translate);
+  } catch {
+    return translateCollectionName(collectionId, translate);
+  }
+}
+
+function createCollectionId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `collection-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 export function useSudokuCollections() {
-  const [collections, setCollections] = useState<CollectionIndex[]>(getCollections());
+  const [collections, setCollections] = useState<CollectionIndex[]>(getCollections);
+  const [activeCollectionId, setActiveCollectionId] = useState<string>(BaseCollection.Easy);
 
-  const [activeCollectionId, setActiveCollectionId] = useState<string>("easy");
+  const isBaseCollection = useCallback((collectionId: string) => isBaseCollectionId(collectionId), []);
 
-  const isBaseCollection = useCallback((collectionId: string) => {
-    return Object.keys(BASE_SUDOKU_COLLECTIONS).includes(collectionId);
-  }, []);
-
-  const addCollection = useCallback((collection: string) => {
-    const collectionId = crypto.randomUUID();
-    const newCollection = {id: collectionId, name: collection, sudokusRaw: ""};
+  const addCollection = useCallback((collectionName: string) => {
+    const collectionId = createCollectionId();
+    const newCollection: Collection = {id: collectionId, name: collectionName, sudokusRaw: ""};
     localStorageCollectionRepository.saveCollection(newCollection);
     setCollections(getCollections());
     return newCollection;
@@ -105,7 +138,7 @@ export function useSudokuCollections() {
     const collection = localStorageCollectionRepository.getCollection(collectionId);
     const appendedIndex = getPuzzleRows(collection.sudokusRaw).length;
     const newSudokusRaw =
-      collection.sudokusRaw.length > 0 ? collection.sudokusRaw + "\n" + stringifiedSudoku : stringifiedSudoku;
+      collection.sudokusRaw.length > 0 ? `${collection.sudokusRaw}\n${stringifiedSudoku}` : stringifiedSudoku;
     localStorageCollectionRepository.saveCollection({
       ...collection,
       sudokusRaw: newSudokusRaw,
@@ -114,26 +147,28 @@ export function useSudokuCollections() {
     return appendedIndex;
   }, []);
 
-  const getCollection = useCallback(
-    (collectionId: string) => {
-      if (isBaseCollection(collectionId)) {
-        return {
-          id: collectionId,
-          name: collectionId,
-          sudokusRaw: BASE_SUDOKU_COLLECTIONS[collectionId as BaseCollection],
-        };
-      }
-      return localStorageCollectionRepository.getCollection(collectionId);
-    },
-    [isBaseCollection],
-  );
+  const getCollection = useCallback((collectionId: string): Collection => {
+    if (isBaseCollectionId(collectionId)) {
+      return {
+        id: collectionId,
+        name: collectionId,
+        sudokusRaw: BASE_SUDOKU_COLLECTIONS[collectionId],
+      };
+    }
+    return localStorageCollectionRepository.getCollection(collectionId);
+  }, []);
 
-  const activeCollection = getCollection(activeCollectionId);
-
-  const removeCollection = (collectionId: string) => {
+  const removeCollection = useCallback((collectionId: string) => {
     localStorageCollectionRepository.removeCollection(collectionId);
     setCollections(getCollections());
-  };
+  }, []);
+
+  let activeCollection: Collection;
+  try {
+    activeCollection = getCollection(activeCollectionId);
+  } catch {
+    activeCollection = START_SUDOKU_COLLECTION;
+  }
 
   return {
     collections,

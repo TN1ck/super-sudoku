@@ -13,20 +13,18 @@ const Checkbox: React.FC<{
           checked={checked}
           onChange={(e) => {
             onChange(e.target.checked);
-            // So the keyboard works again.
-            // TODO: find a better solution for this.
-            if (document.activeElement instanceof HTMLElement) {
-              document.activeElement.blur();
-            }
+            // Blur so keyboard shortcuts keep working immediately after toggling a setting.
+            e.currentTarget.blur();
           }}
           id={id}
-          aria-describedby={`${id}-description`}
           name={id}
           type="checkbox"
-          className="h-6 w-6 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+          className="h-6 w-6 rounded border-gray-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
         />
       </div>
-      <div className="ml-3">{children}</div>
+      <label htmlFor={id} className="ml-3 cursor-pointer select-none">
+        {children}
+      </label>
     </div>
   );
 };

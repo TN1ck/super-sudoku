@@ -2,9 +2,8 @@ import * as React from "react";
 
 import SudokuMenuCircle, {MenuWrapper, MenuContainer} from "./SudokuMenuCircle";
 import {
-  GridLineX,
+  SudokuGridLines,
   GridCell,
-  GridLineY,
   GridCellNumber,
   CellNote,
   CellNoteContainer,
@@ -15,41 +14,16 @@ import {Bounds} from "src/components/sudoku/types";
 import {Cell, CellCoordinates} from "src/lib/engine/types";
 import {useElementWidth} from "src/utils/hooks";
 
-const SudokuGrid = React.memo(
-  ({width, height, hideLeftRight = false}: {width: number; height: number; hideLeftRight?: boolean}) => {
-    return (
-      <div>
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => {
-          const hide = [0, 9].includes(i);
-          if (hideLeftRight && hide) {
-            return null;
-          }
-          const makeBold = [3, 6].includes(i);
-          return <GridLineX makeBold={makeBold} key={i} width={width} top={(i * height) / 9} />;
-        })}
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => {
-          const hide = [0, 9].includes(i);
-          if (hideLeftRight && hide) {
-            return null;
-          }
-          const makeBold = [3, 6].includes(i);
-          return <GridLineY makeBold={makeBold} key={i} height={height} left={(i * height) / 9} />;
-        })}
-      </div>
-    );
-  },
-);
+const BOARD_SIZE = 100;
+const CELL_SECTION = BOARD_SIZE / 9;
 
 const SudokuCell = React.memo(
   ({
     number,
     active,
     highlight,
-    bounds,
-    onClick,
-    onRightClick,
-    left,
-    top,
+    onSelect,
+    onContextMenu,
     initial,
     notes,
     notesMode,
@@ -63,11 +37,8 @@ const SudokuCell = React.memo(
     highlightNumber: boolean;
     highlight: boolean;
     conflict: boolean;
-    bounds: Bounds;
-    onClick: () => void;
-    onRightClick: () => void;
-    top: number;
-    left: number;
+    onSelect: (x: number, y: number, initial: boolean) => void;
+    onContextMenu: (x: number, y: number, initial: boolean) => void;
     initial: boolean;
     notes: number[];
     notesMode: boolean;
@@ -76,6 +47,16 @@ const SudokuCell = React.memo(
   }) => {
     const row = y + 1;
     const column = x + 1;
+
+    const bounds: Bounds = {
+      width: CELL_SECTION,
+      height: CELL_SECTION,
+      left: CELL_SECTION * x,
+      top: CELL_SECTION * y,
+    };
+
+    const handleClick = React.useCallback(() => onSelect(x, y, initial), [onSelect, x, y, initial]);
+    const handleRightClick = React.useCallback(() => onContextMenu(x, y, initial), [onContextMenu, x, y, initial]);
 
     return (
       <div>
@@ -91,13 +72,13 @@ const SudokuCell = React.memo(
           bounds={bounds}
           initial={initial}
           number={number}
-          onClick={onClick}
-          onRightClick={onRightClick}
+          onClick={handleClick}
+          onRightClick={handleRightClick}
           testId={`sudoku-cell-${x}-${y}`}
         />
         <GridCellNumber
-          left={left}
-          top={top}
+          left={CELL_SECTION * (x + 0.5)}
+          top={CELL_SECTION * (y + 0.5)}
           initial={initial}
           highlight={highlightNumber}
           conflict={conflict}
@@ -136,8 +117,8 @@ interface SudokuProps {
   selectCell: (cellCoordinates: CellCoordinates) => void;
   setNumber: (cell: Cell, number: number) => void;
   setNotes: (cell: Cell, notes: number[]) => void;
-  clearNumber: (cell: Cell) => void;
-  children: React.ReactNode;
+  clearCell: (cell: Cell) => void;
+  children?: React.ReactNode;
 }
 
 export const Sudoku: React.FC<SudokuProps> = ({
@@ -149,7 +130,7 @@ export const Sudoku: React.FC<SudokuProps> = ({
   selectCell,
   setNumber,
   setNotes,
-  clearNumber,
+  clearCell,
   children,
   showConflicts,
   showWrongEntries,
@@ -157,83 +138,85 @@ export const Sudoku: React.FC<SudokuProps> = ({
   shouldShowMenu,
   showNotesMenu = false,
 }) => {
-  const height = 100;
-  const width = 100;
-
-  const xSection = height / 9;
-  const ySection = width / 9;
-
   const activeCell = findCell(sudoku, passedActiveCell);
-  const selectionPosition = {
-    x: (activeCell && activeCell.x) || 0,
-    y: (activeCell && activeCell.y) || 0,
-  };
 
-  const positionedCells = SudokuGame.positionedCells(sudoku, width, height);
-  const pathCells = showConflicts
-    ? SudokuGame.conflictingPaths(sudoku).flatMap(({from, to}) => SudokuGame.getPathBetweenCell(from, to))
-    : [];
+  const conflictCellIndices = React.useMemo(() => {
+    if (!showConflicts) {
+      return new Set<number>();
+    }
+    const indices = new Set<number>();
+    for (const {from, to} of SudokuGame.conflictingPaths(sudoku)) {
+      for (const cell of SudokuGame.getPathBetweenCell(from, to)) {
+        indices.add(cell.y * 9 + cell.x);
+      }
+    }
+    return indices;
+  }, [showConflicts, sudoku]);
 
-  const sudokuContainerRef = React.useRef(null);
+  const visibleNotesByCell = React.useMemo(
+    () => sudoku.map((cell) => SudokuGame.visibleNotes(cell, sudoku, showHints)),
+    [sudoku, showHints],
+  );
+
+  const sudokuContainerRef = React.useRef<HTMLDivElement | null>(null);
   const containerWidth = useElementWidth(sudokuContainerRef);
 
   React.useEffect(() => {
-    const handleClick = () => {
-      if (activeCell !== null) {
-        hideMenu();
-      }
-    };
-
+    if (!shouldShowMenu) {
+      return;
+    }
+    const handleClick = () => hideMenu();
     window.addEventListener("click", handleClick);
     return () => window.removeEventListener("click", handleClick);
-  }, [activeCell, hideMenu]);
+  }, [shouldShowMenu, hideMenu]);
+
+  const handleSelectCell = React.useCallback(
+    (x: number, y: number, initial: boolean) => {
+      selectCell({x, y});
+      if (initial) {
+        hideMenu();
+      } else {
+        showMenu();
+      }
+    },
+    [selectCell, showMenu, hideMenu],
+  );
+
+  const handleContextMenuCell = React.useCallback(
+    (x: number, y: number, initial: boolean) => {
+      selectCell({x, y});
+      if (initial) {
+        hideMenu();
+      } else {
+        showMenu(true);
+      }
+    },
+    [selectCell, showMenu, hideMenu],
+  );
 
   return (
     <div className="relative" data-testid="sudoku-board" ref={sudokuContainerRef} style={{height: containerWidth}}>
       {children}
       <div className="absolute h-full w-full rounded-sm">
-        <SudokuGrid width={width} height={height} hideLeftRight />
-        {sudoku.map((c, i) => {
-          const onClick = () => {
-            selectCell(c);
-            if (!c.initial) {
-              showMenu();
-            }
-          };
-          const onRightClick = () => {
-            selectCell(c);
-            if (!c.initial) {
-              showMenu(true);
-            }
-          };
-          const position = positionedCells[i];
-          const notes = SudokuGame.visibleNotes(c, sudoku, showHints);
-          const inConflictPath = pathCells.some((cell) => cell.x === c.x && cell.y === c.y);
-
-          const bounds: Bounds = {
-            width: xSection,
-            height: ySection,
-            left: xSection * c.x,
-            top: ySection * c.y,
-          };
+        <SudokuGridLines width={BOARD_SIZE} height={BOARD_SIZE} hideOuter />
+        {sudoku.map((c, index) => {
+          const notes = visibleNotesByCell[index];
+          const inConflictPath = conflictCellIndices.has(c.y * 9 + c.x);
 
           const isActive = activeCell ? c.x === activeCell.x && c.y === activeCell.y : false;
           const highlight = activeCell ? sharesUnit(activeCell, c) : false;
-          const isWrong = showWrongEntries && (c.number === 0 ? false : c.solution !== c.number);
+          const isWrong = showWrongEntries && c.number !== 0 && c.solution !== c.number;
           const highlightNumber = activeCell && c.number !== 0 ? activeCell.number === c.number : false;
 
           return (
             <SudokuCell
-              key={i}
+              key={`${c.x}-${c.y}`}
               active={isActive}
               highlight={highlight}
               highlightNumber={highlightNumber && !isActive}
               conflict={inConflictPath || isWrong}
-              bounds={bounds}
-              onClick={onClick}
-              onRightClick={onRightClick}
-              left={position.x}
-              top={position.y}
+              onSelect={handleSelectCell}
+              onContextMenu={handleContextMenuCell}
               notes={notes}
               number={c.number}
               initial={c.initial}
@@ -243,13 +226,13 @@ export const Sudoku: React.FC<SudokuProps> = ({
             />
           );
         })}
-        {activeCell && shouldShowMenu ? (
+        {activeCell && !activeCell.initial && shouldShowMenu ? (
           <MenuContainer
             bounds={{
-              top: ySection * selectionPosition.y,
-              left: xSection * selectionPosition.x,
-              height: ySection,
-              width: xSection,
+              top: CELL_SECTION * activeCell.y,
+              left: CELL_SECTION * activeCell.x,
+              height: CELL_SECTION,
+              width: CELL_SECTION,
             }}
           >
             <MenuWrapper>
@@ -259,9 +242,8 @@ export const Sudoku: React.FC<SudokuProps> = ({
                 showHints={showHints}
                 setNumber={setNumber}
                 setNotes={setNotes}
-                clearNumber={clearNumber}
+                clearCell={clearCell}
                 sudoku={sudoku}
-                showMenu={showMenu}
               />
             </MenuWrapper>
           </MenuContainer>

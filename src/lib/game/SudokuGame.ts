@@ -13,6 +13,8 @@ export interface NoteCell {
   note: number;
 }
 
+const EMPTY_NOTES: number[] = [];
+
 export default class SudokuGame {
   static getPathBetweenCell(c1: Cell, c2: Cell) {
     const {x: x1, y: y1} = c1;
@@ -33,29 +35,14 @@ export default class SudokuGame {
     return xpath.concat(ypath);
   }
 
-  static getNotePosition(n: number) {
-    const positions = [
-      {x: 0, y: 0},
-      {x: 0, y: 0},
-      {x: 1, y: 0},
-      {x: 2, y: 0},
-      {x: 0, y: 1},
-      {x: 1, y: 1},
-      {x: 2, y: 1},
-      {x: 0, y: 2},
-      {x: 1, y: 2},
-      {x: 2, y: 2},
-    ];
-
-    // we use percentage
-    const noteWidth = 100;
-    const noteHeight = 100;
-
-    const {x, y} = positions[n];
+  static getNotePosition(n: number): NoteCell {
+    const clamped = SUDOKU_NUMBERS.includes(n) ? n : 1;
+    const x = (clamped - 1) % 3;
+    const y = Math.floor((clamped - 1) / 3);
 
     return {
-      x: (noteWidth / 3) * (x + 0.5),
-      y: (noteHeight / 3) * (y + 0.5),
+      x: (100 / 3) * (x + 0.5),
+      y: (100 / 3) * (y + 0.5),
       note: n,
     };
   }
@@ -67,13 +54,11 @@ export default class SudokuGame {
   }
 
   static getCellPosition(c: Cell, width: number, height: number): PositionedCell {
-    const xSection = height / 9;
-    const ySection = width / 9;
-    const fontXOffset = xSection / 2;
-    const fontYOffset = ySection / 2;
+    const xSection = width / 9;
+    const ySection = height / 9;
     return {
-      x: xSection * c.x + fontXOffset,
-      y: ySection * c.y + fontYOffset,
+      x: xSection * (c.x + 0.5),
+      y: ySection * (c.y + 0.5),
       cell: c,
     };
   }
@@ -87,13 +72,20 @@ export default class SudokuGame {
   }
 
   static visibleNotes(cell: Cell, sudoku: Cell[], showHints: boolean): number[] {
+    if (cell.number !== 0) {
+      return EMPTY_NOTES;
+    }
     if (!showHints || cell.autoNotesHidden || cell.notes.length > 0) {
       return cell.notes;
     }
-    const occupied = sudoku
-      .filter((other) => (other.x !== cell.x || other.y !== cell.y) && sharesUnit(cell, other))
-      .map((other) => other.number);
-    return SUDOKU_NUMBERS.filter((number) => !occupied.includes(number));
+    const occupied = new Set<number>();
+    for (const other of sudoku) {
+      if (other.number !== 0 && (other.x !== cell.x || other.y !== cell.y) && sharesUnit(cell, other)) {
+        occupied.add(other.number);
+      }
+    }
+    const candidates = SUDOKU_NUMBERS.filter((number) => !occupied.has(number));
+    return candidates.length > 0 ? candidates : EMPTY_NOTES;
   }
 
   static toggleNote(cell: Cell, visibleNotes: number[], number: number): number[] {

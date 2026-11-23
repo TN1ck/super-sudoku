@@ -1,222 +1,96 @@
 import * as React from "react";
 import hotkeys from "hotkeys-js";
-import {findCell, SUDOKU_COORDINATES, SUDOKU_NUMBERS} from "src/lib/engine/utility";
-import {Cell} from "src/lib/engine/types";
-import {ShortcutScope} from "./ShortcutScope";
+import {Cell, CellCoordinates} from "src/lib/engine/types";
 import SudokuGame from "src/lib/game/SudokuGame";
+import {ShortcutScope} from "./ShortcutScope";
+import {useBoardShortcuts} from "./useBoardShortcuts";
 
-const GridShortcuts: React.FC<{
-  continueGame: () => void;
+export interface GridShortcutsProps {
   pauseGame: () => void;
   activateNotesMode: () => void;
   deactivateNotesMode: () => void;
-  setNumber: (cell: Cell, number: number) => void;
-  clearNumber: (cell: Cell) => void;
-  getHint: (cell: Cell) => void;
-  setNotes: (cell: Cell, notes: number[]) => void;
+  setNumber: (cell: CellCoordinates, number: number) => void;
+  clearCell: (cell: CellCoordinates) => void;
+  getHint: (cell: CellCoordinates) => void;
+  setNotes: (cell: CellCoordinates, notes: number[]) => void;
   undo: () => void;
   redo: () => void;
   sudoku: Cell[];
   activeCell: Cell | undefined;
   notesMode: boolean;
   showHints: boolean;
-  selectCell: (cell: Cell) => void;
+  selectCell: (cell: CellCoordinates) => void;
   clipboardNotes: number[] | null;
   copyNotes: (notes: number[]) => void;
-}> = ({
-  pauseGame,
-  activateNotesMode,
-  deactivateNotesMode,
-  setNumber,
-  clearNumber,
-  getHint,
-  setNotes,
-  undo,
-  redo,
-  sudoku,
-  activeCell,
-  notesMode,
-  showHints,
-  selectCell,
-  clipboardNotes,
-  copyNotes,
-}) => {
-  // Use refs to store current values so shortcuts don't need to be recreated
-  const stateRef = React.useRef({
-    activeCell,
-    notesMode,
-    showHints,
-    sudoku,
-    selectCell,
-    pauseGame,
-    activateNotesMode,
-    deactivateNotesMode,
-    setNumber,
-    clearNumber,
-    getHint,
-    setNotes,
-    undo,
-    redo,
-    clipboardNotes,
-    copyNotes,
-  });
+}
 
-  // Update refs with current values
-  React.useEffect(() => {
-    stateRef.current = {
-      activeCell,
-      notesMode,
-      showHints,
-      sudoku,
-      selectCell,
-      pauseGame,
-      activateNotesMode,
-      deactivateNotesMode,
-      setNumber,
-      clearNumber,
-      getHint,
-      setNotes,
-      undo,
-      redo,
-      clipboardNotes,
-      copyNotes,
-    };
-  });
+const GridShortcuts: React.FC<GridShortcutsProps> = (props) => {
+  const stateRef = React.useRef(props);
+  stateRef.current = props;
 
-  React.useEffect(() => {
-    const getCellByXY = (x: number, y: number) => findCell(stateRef.current.sudoku, {x, y})!;
-
-    const setDefault = () => {
-      if (stateRef.current.sudoku.length > 0) {
-        stateRef.current.selectCell(stateRef.current.sudoku[0]);
+  useBoardShortcuts({
+    scope: ShortcutScope.Game,
+    sudoku: props.sudoku,
+    activeCell: props.activeCell,
+    selectCell: props.selectCell,
+    undo: props.undo,
+    redo: props.redo,
+    onNumber: (cell, number) => {
+      const {notesMode, showHints, sudoku, setNumber, setNotes} = stateRef.current;
+      if (cell.initial) {
+        return;
       }
-    };
-
-    const minCoordinate = SUDOKU_COORDINATES[0];
-    const maxCoordinate = SUDOKU_COORDINATES[SUDOKU_COORDINATES.length - 1];
-
-    hotkeys("escape", ShortcutScope.Game, () => {
-      stateRef.current.pauseGame();
-      return false;
-    });
-
-    hotkeys("n", ShortcutScope.Game, () => {
-      if (stateRef.current.notesMode) {
-        stateRef.current.deactivateNotesMode();
+      if (notesMode) {
+        const notes = SudokuGame.visibleNotes(cell, sudoku, showHints);
+        setNotes(cell, SudokuGame.toggleNote(cell, notes, number));
       } else {
-        stateRef.current.activateNotesMode();
+        setNumber(cell, number);
       }
-      return false;
-    });
-
-    hotkeys("up", ShortcutScope.Game, () => {
-      const currentCell = stateRef.current.activeCell;
-      if (currentCell === undefined) {
-        return setDefault();
+    },
+    onClear: (cell) => {
+      if (!cell.initial) {
+        stateRef.current.clearCell(cell);
       }
-      const {x, y} = currentCell;
-      const newY = Math.max(y - 1, minCoordinate);
-      const nextCell = getCellByXY(x, newY);
-      stateRef.current.selectCell(nextCell);
-      return false;
-    });
+    },
+    registerExtra: (scope) => {
+      hotkeys("escape", scope, () => {
+        stateRef.current.pauseGame();
+        return false;
+      });
 
-    hotkeys("down", ShortcutScope.Game, () => {
-      const currentCell = stateRef.current.activeCell;
-      if (currentCell === undefined) {
-        return setDefault();
-      }
-      const {x, y} = currentCell;
-      const newY = Math.min(y + 1, maxCoordinate);
-      const nextCell = getCellByXY(x, newY);
-      stateRef.current.selectCell(nextCell);
-      return false;
-    });
+      hotkeys("n", scope, () => {
+        if (stateRef.current.notesMode) {
+          stateRef.current.deactivateNotesMode();
+        } else {
+          stateRef.current.activateNotesMode();
+        }
+        return false;
+      });
 
-    hotkeys("right", ShortcutScope.Game, () => {
-      const currentCell = stateRef.current.activeCell;
-      if (currentCell === undefined) {
-        return setDefault();
-      }
-      const {x, y} = currentCell;
-      const newX = Math.min(x + 1, maxCoordinate);
-      const nextCell = getCellByXY(newX, y);
-      stateRef.current.selectCell(nextCell);
-      return false;
-    });
-
-    hotkeys("left", ShortcutScope.Game, () => {
-      const currentCell = stateRef.current.activeCell;
-      if (currentCell === undefined) {
-        return setDefault();
-      }
-      const {x, y} = currentCell;
-      const newX = Math.max(x - 1, minCoordinate);
-      const nextCell = getCellByXY(newX, y);
-      stateRef.current.selectCell(nextCell);
-      return false;
-    });
-
-    SUDOKU_NUMBERS.forEach((n) => {
-      const keys = [String(n), `num_${n}`].join(",");
-      hotkeys(keys, ShortcutScope.Game, () => {
-        const {activeCell, notesMode, showHints, sudoku, setNumber, setNotes} = stateRef.current;
+      hotkeys("h", scope, () => {
+        const {activeCell, getHint} = stateRef.current;
         if (activeCell && !activeCell.initial) {
-          if (notesMode) {
-            const notes = SudokuGame.visibleNotes(activeCell, sudoku, showHints);
-            setNotes(activeCell, SudokuGame.toggleNote(activeCell, notes, n));
-          } else {
-            setNumber(activeCell, n);
-          }
+          getHint(activeCell);
         }
       });
-    });
 
-    hotkeys("backspace,num_subtract", ShortcutScope.Game, () => {
-      const {activeCell, clearNumber} = stateRef.current;
-      if (activeCell && !activeCell.initial) {
-        clearNumber(activeCell);
-      }
-      return false;
-    });
+      hotkeys("ctrl+c,cmd+c", scope, () => {
+        const {activeCell, copyNotes, sudoku, showHints} = stateRef.current;
+        if (activeCell) {
+          copyNotes(activeCell.number === 0 ? SudokuGame.visibleNotes(activeCell, sudoku, showHints) : []);
+        }
+        return false;
+      });
 
-    hotkeys("h", ShortcutScope.Game, () => {
-      const {activeCell, getHint} = stateRef.current;
-      if (activeCell && !activeCell.initial) {
-        getHint(activeCell);
-      }
-    });
-
-    hotkeys("ctrl+z,cmd+z", ShortcutScope.Game, () => {
-      stateRef.current.undo();
-      return false;
-    });
-
-    hotkeys("ctrl+y,cmd+y", ShortcutScope.Game, () => {
-      stateRef.current.redo();
-      return false;
-    });
-
-    hotkeys("ctrl+c,cmd+c", ShortcutScope.Game, () => {
-      const {activeCell, copyNotes, sudoku, showHints} = stateRef.current;
-      if (activeCell) {
-        copyNotes(activeCell.number === 0 ? SudokuGame.visibleNotes(activeCell, sudoku, showHints) : []);
-      }
-      return false;
-    });
-
-    hotkeys("ctrl+v,cmd+v", ShortcutScope.Game, () => {
-      const {activeCell, clipboardNotes, setNotes} = stateRef.current;
-      if (activeCell && !activeCell.initial && clipboardNotes && clipboardNotes.length > 0) {
-        setNotes(activeCell, clipboardNotes);
-      }
-      return false;
-    });
-
-    return () => {
-      hotkeys.deleteScope(ShortcutScope.Game);
-    };
-  }, []); // Empty dependency array - shortcuts created once
+      hotkeys("ctrl+v,cmd+v", scope, () => {
+        const {activeCell, clipboardNotes, setNotes} = stateRef.current;
+        if (activeCell && !activeCell.initial && clipboardNotes && clipboardNotes.length > 0) {
+          setNotes(activeCell, clipboardNotes);
+        }
+        return false;
+      });
+    },
+  });
 
   return null;
 };
