@@ -39,7 +39,7 @@ const SudokuMenuNumbers: React.FC<SudokuMenuNumbersProps> = ({
   }, [sudoku]);
 
   return (
-    <div className="grid w-full overflow-hidden justify-center gap-2 md:grid-cols-3 grid-cols-9">
+    <div className="grid w-full grid-cols-9 justify-center gap-2 overflow-hidden md:grid-cols-3">
       {SUDOKU_NUMBERS.map((n) => {
         const occurrences = occurrenceCounts[n];
 
@@ -60,7 +60,7 @@ const SudokuMenuNumbers: React.FC<SudokuMenuNumbersProps> = ({
             className={clsx("relative font-bold", {
               "bg-gray-400 dark:bg-gray-700": occurrences === 9,
               "bg-red-400 dark:bg-red-400": showOccurrences && occurrences > 9,
-              "bg-sky-600 dark:bg-sky-600 text-white": editingNotes && cell.notes.includes(n),
+              "bg-sky-600 text-white dark:bg-sky-600": editingNotes && cell.notes.includes(n),
               "bg-sky-300 dark:bg-sky-300": editingNotes && cell.notes.length === 0 && notes.includes(n),
             })}
             data-testid={`sudoku-number-${n}`}
@@ -69,7 +69,7 @@ const SudokuMenuNumbers: React.FC<SudokuMenuNumbersProps> = ({
           >
             {showOccurrences && (
               <div
-                className="absolute right-0 bottom-0 h-3 w-3 rounded-xl bg-teal-700 text-xxs text-white opacity-70 sm:right-1 sm:bottom-1 sm:h-4 sm:w-4 sm:text-xs"
+                className="absolute bottom-0 right-0 h-3 w-3 rounded-xl bg-teal-700 text-xxs text-white opacity-70 sm:bottom-1 sm:right-1 sm:h-4 sm:w-4 sm:text-xs"
                 data-testid={`sudoku-number-occurrences-${n}`}
               >
                 {occurrences}

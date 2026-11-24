@@ -20,7 +20,7 @@ import {useTranslation} from "react-i18next";
 const TabItem = ({active, children, ...props}: React.ButtonHTMLAttributes<HTMLButtonElement> & {active: boolean}) => (
   <button
     type="button"
-    className={`px-1 xs:px-2 sm:px-4 text-xs sm:text-sm md:text-base py-2 cursor-pointer capitalize rounded-sm border-none hover:bg-gray-500 ${
+    className={`cursor-pointer rounded-sm border-none px-1 py-2 text-xs capitalize hover:bg-gray-500 xs:px-2 sm:px-4 sm:text-sm md:text-base ${
       active ? "bg-white text-black dark:bg-gray-600 dark:text-white" : "bg-transparent text-white dark:text-gray-300"
     }`}
     {...props}
@@ -67,7 +67,7 @@ const PageSelector = ({
   pageCount: number;
   setPage: (page: number) => void;
 }) => (
-  <div className="flex justify-center items-center space-x-2 py-4">
+  <div className="flex items-center justify-center space-x-2 py-4">
     <Button aria-label="Previous page" onClick={() => setPage(page - 1)} disabled={page === 0}>
       {"‹"}
     </Button>
@@ -80,7 +80,7 @@ const PageSelector = ({
           <Button
             aria-current={pageNum === page + 1 ? "page" : undefined}
             onClick={() => setPage(pageNum - 1)}
-            className={pageNum === page + 1 ? "bg-teal-600 dark:bg-teal-600 text-white" : ""}
+            className={pageNum === page + 1 ? "bg-teal-600 text-white dark:bg-teal-600" : ""}
           >
             {pageNum}
           </Button>
@@ -122,7 +122,7 @@ const SudokuToSelect = ({
       setSudoku(simpleSudokuToCells(sudoku.sudoku, sudoku.solution));
       setGameState(replay);
     }
-    navigate({
+    void navigate({
       to: "/",
       search: createGameSearchParams(stringifySudoku(sudoku.sudoku), index, sudokuCollectionName),
     });
@@ -134,7 +134,7 @@ const SudokuToSelect = ({
   return (
     <div className="relative" ref={sudokuContainerRef}>
       {storedSudoku && (unfinished || finished) ? (
-        <div className="pointer-events-none absolute left-2 rounded-sm bottom-2 z-10 max-w-min bg-gray-900 px-2 py-1 text-xs text-white md:text-base">
+        <div className="pointer-events-none absolute bottom-2 left-2 z-10 max-w-min rounded-sm bg-gray-900 px-2 py-1 text-xs text-white md:text-base">
           <div>
             <div className="whitespace-nowrap">{`${unfinished ? t("play_time") : t("last_time")} ${formatDuration(
               storedSudoku.game.secondsPlayed,
@@ -157,10 +157,10 @@ const SudokuToSelect = ({
         </div>
       ) : null}
       {size === undefined ? (
-        <div className="inline-block relative w-full">
+        <div className="relative inline-block w-full">
           <div style={{marginTop: "100%"}} />
-          <div className="absolute top-0 left-0 w-full h-full">
-            <div className="w-full h-full bg-gray-300 dark:bg-gray-900 rounded-sm" />
+          <div className="absolute left-0 top-0 h-full w-full">
+            <div className="h-full w-full rounded-sm bg-gray-300 dark:bg-gray-900" />
           </div>
         </div>
       ) : (
@@ -192,7 +192,7 @@ const GameIndex = ({
   }
 
   return (
-    <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
       {pageSudokus.map((sudoku, index) => {
         const globalIndex = pageStart + index;
         const sudokuKey = stringifySudoku(sudoku.sudoku);
@@ -268,7 +268,7 @@ const GameSelect: React.FC = () => {
 
   return (
     <div className="mt-8">
-      <div className="flex justify-between items-center mb-8">
+      <div className="mb-8 flex items-center justify-between">
         <div className="flex flex-wrap gap-2">
           {collections.map((collection) => (
             <TabItem
@@ -294,9 +294,9 @@ const GameSelect: React.FC = () => {
         </div>
       </div>
       {!isBaseCollectionLocal && (
-        <div className="flex justify-between items-center gap-2 mb-4">
+        <div className="mb-4 flex items-center justify-between gap-2">
           {!showNewSudokuComponent ? (
-            <Button className="bg-teal-600 dark:bg-teal-600 text-white" onClick={() => setShowNewSudokuComponent(true)}>
+            <Button className="bg-teal-600 text-white dark:bg-teal-600" onClick={() => setShowNewSudokuComponent(true)}>
               {t("add_sudoku")}
             </Button>
           ) : (
@@ -306,9 +306,9 @@ const GameSelect: React.FC = () => {
         </div>
       )}
       {!isBaseCollectionLocal && showNewSudokuComponent && (
-        <div className="mb-4 p-4 bg-gray-900 rounded-sm border border-gray-700 flex flex-col gap-4">
-          <div className="flex justify-between items-center">
-            <div className="text-white text-lg sm:text-2xl font-bold">{t("create_new_sudoku")}</div>
+        <div className="mb-4 flex flex-col gap-4 rounded-sm border border-gray-700 bg-gray-900 p-4">
+          <div className="flex items-center justify-between">
+            <div className="text-lg font-bold text-white sm:text-2xl">{t("create_new_sudoku")}</div>
             <Button onClick={() => setShowNewSudokuComponent(false)}>{t("close")}</Button>
           </div>
           <p className="text-white">{t("add_your_own_sudoku", {collection: activeCollection.name})}</p>

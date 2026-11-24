@@ -1,4 +1,4 @@
-import {expect, describe, it} from "vitest";
+import {expect, describe, it} from "vite-plus/test";
 
 import {solve} from "src/lib/engine/solverAC3";
 import {ISSUE_33_CUSTOM_SUDOKU} from "src/lib/engine/testutils";

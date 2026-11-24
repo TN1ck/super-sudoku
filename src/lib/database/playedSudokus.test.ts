@@ -1,4 +1,4 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
+import {afterEach, beforeEach, describe, expect, it, vi} from "vite-plus/test";
 
 import {GameStateMachine, INITIAL_GAME_STATE} from "src/context/GameContext";
 import {ISSUE_33_CUSTOM_SUDOKU} from "src/lib/engine/testutils";
@@ -258,10 +258,7 @@ describe("played puzzle storage", () => {
     localStorage.setItem("super-sudoku-user-preferences", "{not json");
     expect(localStorageUserPreferencesRepository.getPreferences()).toEqual(DEFAULT_USER_PREFERENCES);
 
-    localStorage.setItem(
-      "super-sudoku-user-preferences",
-      JSON.stringify({showHints: "yes", showConflicts: false}),
-    );
+    localStorage.setItem("super-sudoku-user-preferences", JSON.stringify({showHints: "yes", showConflicts: false}));
     expect(localStorageUserPreferencesRepository.getPreferences()).toEqual({
       ...DEFAULT_USER_PREFERENCES,
       showHints: false,

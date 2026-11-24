@@ -57,14 +57,7 @@ export function UserPreferencesProvider({children, initialState}: UserPreference
       toggleShowCircleMenu,
       toggleShowWrongEntries,
     }),
-    [
-      state,
-      toggleShowHints,
-      toggleShowOccurrences,
-      toggleShowConflicts,
-      toggleShowCircleMenu,
-      toggleShowWrongEntries,
-    ],
+    [state, toggleShowHints, toggleShowOccurrences, toggleShowConflicts, toggleShowCircleMenu, toggleShowWrongEntries],
   );
 
   return <UserPreferencesContext.Provider value={value}>{children}</UserPreferencesContext.Provider>;

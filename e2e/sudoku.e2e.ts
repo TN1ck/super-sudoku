@@ -70,7 +70,8 @@ async function enterSudokuValues(
   values: string,
   shouldEnter: (value: string, index: number) => boolean = (value) => value !== "0",
 ) {
-  for (const [index, value] of [...values].entries()) {
+  for (let index = 0; index < values.length; index++) {
+    const value = values[index];
     if (!shouldEnter(value, index)) {
       continue;
     }
@@ -791,18 +792,22 @@ test.describe("gameplay regressions", () => {
     await page.goto(gameUrl());
     await expect(page.getByTestId("sudoku-board")).toBeVisible();
     await page.clock.pauseAt(new Date("2026-01-01T00:01:00Z"));
-    await continueIfPaused(page);
-    for (let i = 0; i < 10; i++) {
-      await page.clock.runFor(800);
-      await page.keyboard.press("Escape");
-      await expect(page.getByRole("button", {name: "Continue", exact: true})).toBeVisible();
-      if (i < 9) {
+    try {
+      await continueIfPaused(page);
+      for (let i = 0; i < 10; i++) {
+        await page.clock.runFor(800);
         await page.keyboard.press("Escape");
+        await expect(page.getByRole("button", {name: "Continue", exact: true})).toBeVisible();
+        if (i < 9) {
+          await page.keyboard.press("Escape");
+        }
       }
+      await expect(page.getByText("00:08 min", {exact: true})).toBeVisible();
+      await page.reload();
+      await expect(page.getByText("00:08 min", {exact: true})).toBeVisible();
+    } finally {
+      await page.clock.resume();
     }
-    await expect(page.getByText("00:08 min", {exact: true})).toBeVisible();
-    await page.reload();
-    await expect(page.getByText("00:08 min", {exact: true})).toBeVisible();
   });
 
   test("a delayed resume does not start a hidden game", async ({page}) => {
@@ -1020,7 +1025,9 @@ test.describe("gameplay regressions", () => {
 
     // Dispatch a benign ResizeObserver loop error event and verify the app does not crash
     await page.evaluate(() => {
-      window.dispatchEvent(new ErrorEvent("error", {message: "ResizeObserver loop completed with undelivered notifications."}));
+      window.dispatchEvent(
+        new ErrorEvent("error", {message: "ResizeObserver loop completed with undelivered notifications."}),
+      );
     });
     await expect(page.getByTestId("sudoku-board")).toBeVisible();
     await expect(page.getByText("Something went wrong")).toHaveCount(0);

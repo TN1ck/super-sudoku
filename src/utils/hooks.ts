@@ -1,7 +1,8 @@
-import {RefObject, useEffect, useState} from "react";
+import {RefObject, useEffect, useRef, useState} from "react";
 
 export function useElementWidth(ref: RefObject<HTMLElement | null>) {
   const [elementWidth, setElementWidth] = useState<number>();
+  const frameIdRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const element = ref.current;
@@ -9,16 +10,15 @@ export function useElementWidth(ref: RefObject<HTMLElement | null>) {
       return;
     }
 
-    let frameId: number | undefined;
     const resizeObserver = new ResizeObserver(([entry]) => {
       if (!entry) {
         return;
       }
-      if (frameId !== undefined) {
-        window.cancelAnimationFrame(frameId);
+      if (frameIdRef.current !== undefined) {
+        window.cancelAnimationFrame(frameIdRef.current);
       }
-      frameId = window.requestAnimationFrame(() => {
-        frameId = undefined;
+      frameIdRef.current = window.requestAnimationFrame(() => {
+        frameIdRef.current = undefined;
         setElementWidth(entry.contentRect.width);
       });
     });
@@ -26,8 +26,9 @@ export function useElementWidth(ref: RefObject<HTMLElement | null>) {
     resizeObserver.observe(element);
 
     return () => {
-      if (frameId !== undefined) {
-        window.cancelAnimationFrame(frameId);
+      if (frameIdRef.current !== undefined) {
+        window.cancelAnimationFrame(frameIdRef.current);
+        frameIdRef.current = undefined;
       }
       resizeObserver.disconnect();
     };

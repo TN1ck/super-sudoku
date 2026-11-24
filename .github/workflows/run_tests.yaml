@@ -3,7 +3,7 @@ name: Run tests
 on:
   workflow_dispatch:
   push:
-    branches: '**'
+    branches: "**"
 
 permissions:
   contents: read
@@ -14,50 +14,50 @@ jobs:
   test:
     runs-on: ubuntu-24.04
     steps:
-    - name: Check out code
-      uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: '24'
-        cache: npm
-        cache-dependency-path: ./package-lock.json
-    - name: Install dependencies
-      run: npm ci
-    - name: Run unit tests
-      run: npm test
-    - name: Run type checks
-      run: npm run typecheck
-    - name: Install Playwright browsers
-      run: npx playwright install --with-deps chromium
-    - name: Run Playwright e2e tests
-      run: npm run test:e2e
-    - name: Upload Playwright HTML report
-      id: upload-playwright-report
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: playwright-report
-        path: playwright-report/
-        if-no-files-found: ignore
-        retention-days: 14
-    - name: Upload Playwright traces and videos
-      id: upload-playwright-results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: playwright-results
-        path: test-results/
-        if-no-files-found: ignore
-        retention-days: 14
-    - name: Summarize Playwright e2e results
-      if: always()
-      env:
-        PLAYWRIGHT_REPORT_URL: ${{ steps.upload-playwright-report.outputs.artifact-url }}
-        PLAYWRIGHT_RESULTS_URL: ${{ steps.upload-playwright-results.outputs.artifact-url }}
-        PLAYWRIGHT_SUMMARY_PATH: playwright-summary.md
-      run: node scripts/summarize_playwright_results.js test-results/playwright-results.json
-    - name: Post Playwright e2e PR comment
-      if: always()
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-      run: node scripts/upsert_playwright_comment.js playwright-summary.md
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@v1.22.0
+        with:
+          node-version: "24"
+          cache: true
+      - name: Install dependencies
+        run: vp install --frozen-lockfile
+      - name: Run format, lint, and type checks
+        run: vp check
+      - name: Run unit tests
+        run: vp test run
+      - name: Install Flashwright browsers
+        run: vp exec playwright install --with-deps chromium
+      - name: Run Flashwright e2e tests
+        run: vp run test:e2e
+      - name: Upload Playwright HTML report
+        id: upload-playwright-report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Upload Playwright traces and videos
+        id: upload-playwright-results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Summarize Playwright e2e results
+        if: always()
+        env:
+          PLAYWRIGHT_REPORT_URL: ${{ steps.upload-playwright-report.outputs.artifact-url }}
+          PLAYWRIGHT_RESULTS_URL: ${{ steps.upload-playwright-results.outputs.artifact-url }}
+          PLAYWRIGHT_SUMMARY_PATH: playwright-summary.md
+        run: node scripts/summarize_playwright_results.js test-results/playwright-results.json
+      - name: Post Playwright e2e PR comment
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/upsert_playwright_comment.js playwright-summary.md

@@ -1,7 +1,7 @@
 import {solve} from "./solverAC3";
 import {stringifySudoku} from "./utility";
 import {EMPTY_SUDOKU, ISSUE_33_CUSTOM_SUDOKU, SOLVED_SUDOKUS} from "./testutils";
-import {describe, it, expect} from "vitest";
+import {describe, it, expect} from "vite-plus/test";
 
 describe("solve", () => {
   SOLVED_SUDOKUS.forEach((s, i) => {

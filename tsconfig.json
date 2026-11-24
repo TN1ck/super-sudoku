@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    "target": "ES2022",
     "types": ["vite/client", "@types/node"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -14,19 +14,10 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react",
-    "baseUrl": ".",
+    "jsx": "react-jsx",
     "paths": {
-      "src/*": [
-        "./src/*"
-      ]
-    },
+      "src/*": ["./src/*"]
+    }
   },
-  "include": [
-    "e2e",
-    "src",
-    "scripts",
-    "playwright.config.ts",
-    "vite.config.ts"
-  ]
+  "include": ["e2e", "src", "scripts", "playwright.config.ts", "vite.config.ts"]
 }

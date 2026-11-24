@@ -2,7 +2,7 @@
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://sudoku.tn1ck.com)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D22.18-brightgreen.svg)](https://nodejs.org/)
 
 **A feature-rich, open-source Sudoku game that rivals commercial applications**
 
@@ -50,7 +50,8 @@ Born from a simple request - my Grandma wanted to play Sudoku, but I wasn't sati
 ## 🛠️ Development Setup
 
 ### Prerequisites
-- **Node.js** (version 20 or higher) - [Download here](https://nodejs.org/en/download/package-manager/)
+- **Node.js** (version 22.18 or higher) - [Download here](https://nodejs.org/en/download/package-manager/)
+- **Vite+ (`vp`)** - unified toolchain for dev, build, lint, formatting, type-checking, testing, and running TypeScript scripts ([viteplus.dev](https://viteplus.dev/))
 
 ### Quick Start
 ```bash
@@ -59,19 +60,28 @@ git clone https://github.com/tn1ck/super-sudoku.git
 cd super-sudoku
 
 # Install dependencies
-npm install
+vp install
 
 # Start development server
-npm start
+vp dev
 ```
 
 The app will be available at [http://127.0.0.1:3000](http://127.0.0.1:3000)
 
-### Build for Production
+### Common Commands
 ```bash
-npm run build
+# Build for production (output in dist/)
+vp build
+
+# Format, lint, and typecheck
+vp check
+
+# Run unit tests
+vp test run
+
+# Run Flashwright e2e tests
+vp run test:e2e
 ```
-Generated files will be in the `dist` directory.
 
 ## 🐳 Docker Deployment
 

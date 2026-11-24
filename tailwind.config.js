@@ -18,7 +18,7 @@ export default {
       },
     },
     transitionDuration: {
-      "0": "0ms",
+      0: "0ms",
     },
     colors: {
       inherit: "inherit",

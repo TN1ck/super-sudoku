@@ -1,13 +1,7 @@
 import * as React from "react";
 
 import SudokuMenuCircle, {MenuWrapper, MenuContainer} from "./SudokuMenuCircle";
-import {
-  SudokuGridLines,
-  GridCell,
-  GridCellNumber,
-  CellNote,
-  CellNoteContainer,
-} from "src/components/sudoku/SudokuGrid";
+import {SudokuGridLines, GridCell, GridCellNumber, CellNote, CellNoteContainer} from "src/components/sudoku/SudokuGrid";
 import {findCell, sharesUnit} from "src/lib/engine/utility";
 import SudokuGame from "src/lib/game/SudokuGame";
 import {Bounds} from "src/components/sudoku/types";
@@ -191,10 +185,7 @@ export const Sudoku: React.FC<SudokuProps> = ({
   );
 
   return (
-    <div
-      className="relative mx-auto aspect-square w-full md:max-w-[calc(100dvh-7rem)]"
-      data-testid="sudoku-board"
-    >
+    <div className="relative mx-auto aspect-square w-full md:max-w-[calc(100dvh-7rem)]" data-testid="sudoku-board">
       {children}
       <div className="absolute h-full w-full rounded-sm">
         <SudokuGridLines width={BOARD_SIZE} height={BOARD_SIZE} hideOuter />

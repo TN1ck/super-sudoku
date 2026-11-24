@@ -1,6 +1,6 @@
 import {solve} from "./solverAC3";
 import {parseSudoku} from "./utility";
-import {describe, it, expect} from "vitest";
+import {describe, it, expect} from "vite-plus/test";
 
 function mean(values: number[]): number {
   return values.reduce((sum, value) => sum + value, 0) / values.length;

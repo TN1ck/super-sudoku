@@ -50,11 +50,7 @@ export const InfoModal: React.FC<InfoModalProps> = ({panel, onClose}) => {
           <h2 id="info-modal-title" className="text-2xl font-bold">
             {panel === "shortcuts" ? t("shortcuts") : t("about")}
           </h2>
-          <Button
-            aria-label={t("close")}
-            className="bg-gray-200 dark:bg-gray-600"
-            onClick={onClose}
-          >
+          <Button aria-label={t("close")} className="bg-gray-200 dark:bg-gray-600" onClick={onClose}>
             ✕
           </Button>
         </div>

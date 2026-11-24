@@ -70,7 +70,7 @@ const NewSudokuInner = ({saveSudoku}: {saveSudoku: (sudoku: SimpleSudoku) => Pro
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <main>
         <Sudoku
           sudoku={currentSudoku}
@@ -105,13 +105,13 @@ const NewSudokuInner = ({saveSudoku}: {saveSudoku: (sudoku: SimpleSudoku) => Pro
         <div>
           <Button
             disabled={isSaving || isChecking}
-            className="bg-teal-600 dark:bg-teal-600 text-white"
+            className="bg-teal-600 text-white dark:bg-teal-600"
             onClick={saveSudokuLocal}
           >
             {isChecking ? "Checking uniqueness..." : isSaving ? "Saving..." : "Save sudoku"}
           </Button>
           {errors.length > 0 && (
-            <ul className="text-red-200 mt-2 bg-red-800 p-2 rounded-sm list-disc list-inside pl-4">
+            <ul className="mt-2 list-inside list-disc rounded-sm bg-red-800 p-2 pl-4 text-red-200">
               {errors.map((error) => (
                 <li className="text-red-200" key={error}>
                   {error}

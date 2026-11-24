@@ -72,8 +72,8 @@ const MenuCirclePart = React.memo(
     return (
       <g>
         <circle
-          className={`stroke-[50px] opacity-75 hover:stroke-[60px] hover:cursor-pointer hover:fill-opacity-90 ${
-            isActive ? "stroke-[60px] cursor-pointer fill-opacity-90" : ""
+          className={`hover:fill-opacity-90 stroke-[50px] opacity-75 hover:cursor-pointer hover:stroke-[60px] ${
+            isActive ? "fill-opacity-90 cursor-pointer stroke-[60px]" : ""
           }`}
           r={radius}
           cx={center}
@@ -116,7 +116,7 @@ const MenuCircle: React.FC<{
 
   return (
     <svg
-      className="hidden md:block absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 select-none"
+      className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 transform select-none md:block"
       data-testid="sudoku-menu-circle"
       style={{
         height: CIRCLE_RADIUS * 4,

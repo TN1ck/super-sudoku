@@ -14,7 +14,7 @@ const SelectGame = () => {
   const {t} = useTranslation();
 
   const goBack = () => {
-    navigate({
+    void navigate({
       to: "/",
     });
   };
@@ -22,11 +22,11 @@ const SelectGame = () => {
   return (
     <Container className="mt-4">
       <div className="mb-8 flex flex-col gap-2">
-        <div className="flex gap-4 items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <h1 className="text-2xl text-white">{t("select_game_title")}</h1>
           <div className="flex gap-2">
             <DarkModeButton />
-            <Button className="bg-teal-600 dark:bg-teal-600 text-white flex-shrink-0" onClick={goBack}>
+            <Button className="flex-shrink-0 bg-teal-600 text-white dark:bg-teal-600" onClick={goBack}>
               {"◀ " + t("go_back")}
             </Button>
           </div>

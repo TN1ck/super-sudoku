@@ -135,7 +135,7 @@ const NewGameButton: React.FC = () => {
   };
 
   return (
-    <Button className="bg-teal-600 dark:bg-teal-600 text-white" onClick={pauseAndChoose}>
+    <Button className="bg-teal-600 text-white dark:bg-teal-600" onClick={pauseAndChoose}>
       {t("new_game")}
     </Button>
   );
@@ -187,7 +187,7 @@ const ShareButton: React.FC<{
   return (
     <button
       aria-label={t("share")}
-      className="text-white hover:cursor-pointer p-1 hover:bg-gray-500 rounded-md border-none bg-transparent"
+      className="rounded-md border-none bg-transparent p-1 text-white hover:cursor-pointer hover:bg-gray-500"
       data-testid="share-sudoku"
       onClick={handleShare}
       type="button"
@@ -201,16 +201,16 @@ const CenteredContinueButton: React.FC<{visible: boolean; onClick: () => void}> 
   <div
     onClick={onClick}
     data-testid="continue-overlay"
-    className={`${visible ? "flex" : "hidden"} justify-center items-center w-full h-full absolute z-30 hover:cursor-pointer`}
+    className={`${visible ? "flex" : "hidden"} absolute z-30 h-full w-full items-center justify-center hover:cursor-pointer`}
   >
-    <div className="bg-teal-500 rounded-full w-20 h-20 flex justify-center items-center transition-transform duration-200 ease-out hover:scale-110 relative">
-      <div className="absolute w-0 h-0 border-l-[30px] border-l-white border-t-[20px] border-t-transparent border-b-[20px] border-b-transparent translate-x-[5px]" />
+    <div className="duration-200 relative flex h-20 w-20 items-center justify-center rounded-full bg-teal-500 transition-transform ease-out hover:scale-110">
+      <div className="absolute h-0 w-0 translate-x-[5px] border-b-[20px] border-l-[30px] border-t-[20px] border-b-transparent border-l-white border-t-transparent" />
     </div>
   </div>
 );
 
 const DifficultyShow = ({children, ...props}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className="text-white capitalize" {...props}>
+  <div className="capitalize text-white" {...props}>
     {children}
   </div>
 );
@@ -247,8 +247,11 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
 
   // Only auto-resume when the game was auto-paused by tab hiding, not when manually paused.
   const gameStateRef = React.useRef(game.state);
-  gameStateRef.current = game.state;
+  React.useLayoutEffect(() => {
+    gameStateRef.current = game.state;
+  }, [game.state]);
   const autoPausedByHiddenRef = React.useRef(false);
+  const resumeTimeoutRef = React.useRef<number | undefined>(undefined);
 
   useEffect(() => {
     if (game.state === GameStateMachine.running) {
@@ -257,16 +260,15 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
   }, [game.state]);
 
   useEffect(() => {
-    let resumeTimeout: number | undefined;
     const onVisibilityChange = () => {
-      window.clearTimeout(resumeTimeout);
+      window.clearTimeout(resumeTimeoutRef.current);
       if (document.visibilityState === "hidden") {
         if (gameStateRef.current === GameStateMachine.running) {
           autoPausedByHiddenRef.current = true;
           pauseGame();
         }
       } else if (autoPausedByHiddenRef.current) {
-        resumeTimeout = window.setTimeout(() => {
+        resumeTimeoutRef.current = window.setTimeout(() => {
           autoPausedByHiddenRef.current = false;
           continueGame();
         }, 200);
@@ -274,7 +276,7 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
     return () => {
-      window.clearTimeout(resumeTimeout);
+      window.clearTimeout(resumeTimeoutRef.current);
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, [pauseGame, continueGame]);
@@ -306,18 +308,18 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
           clipboardNotes={game.clipboardNotes}
           copyNotes={copyNotes}
         />
-        <header className="flex justify-between sm:items-center mt-4">
-          <div className="flex text-white flex-col sm:flex-row sm:justify-end sm:items-center gap-2">
-            <div className="flex gap-2 items-center">
+        <header className="mt-4 flex justify-between sm:items-center">
+          <div className="flex flex-col gap-2 text-white sm:flex-row sm:items-center sm:justify-end">
+            <div className="flex items-center gap-2">
               <DifficultyShow data-testid="current-game-label">{`${collectionName} #${game.sudokuIndex + 1}`}</DifficultyShow>
               <ShareButton gameState={game} sudokuState={sudokuState} />
             </div>
             <div className="hidden sm:block">{"|"}</div>
             <GameTimer />
           </div>
-          <div className="text-white text-lg sm:text-2xl font-bold flex items-center gap-2">{t("super_sudoku")}</div>
+          <div className="flex items-center gap-2 text-lg font-bold text-white sm:text-2xl">{t("super_sudoku")}</div>
           <div className="flex">
-            <div className="flex gap-2 flex-col justify-end items-end sm:flex-row">
+            <div className="flex flex-col items-end justify-end gap-2 sm:flex-row">
               <div className="flex gap-2">
                 <LanguageSelector />
                 <DarkModeButton />
@@ -447,9 +449,7 @@ const Game = () => {
   const {getCollection} = useSudokuCollections();
 
   const currentPath = location.pathname;
-  const {sudokuIndex, sudoku, sudokuCollectionName} = parseGameSearchParams(
-    location.search as Record<string, unknown>,
-  );
+  const {sudokuIndex, sudoku, sudokuCollectionName} = parseGameSearchParams(location.search as Record<string, unknown>);
 
   useEffect(() => {
     const flushSave = () => throttledSave.flush();
@@ -462,7 +462,9 @@ const Game = () => {
 
   const currentGrid = stringifySudoku(cellsToSimpleSudoku(sudokuState.current));
   const latestGame = React.useRef(gameState);
-  latestGame.current = gameState;
+  React.useLayoutEffect(() => {
+    latestGame.current = gameState;
+  }, [gameState]);
   useEffect(() => {
     const syncAttempt = () => {
       const game = latestGame.current;
@@ -508,7 +510,7 @@ const Game = () => {
 
     const restoreCurrentUrl = () => {
       if (currentPath === "/") {
-        navigate({
+        void navigate({
           replace: true,
           to: "/",
           search: createGameSearchParams(currentGrid, gameState.sudokuIndex, gameState.sudokuCollectionName),

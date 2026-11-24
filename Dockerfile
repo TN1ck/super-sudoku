@@ -1,14 +1,14 @@
-FROM node:20.12.2-slim as build
+FROM node:24-slim AS build
 
 WORKDIR /app
 
 COPY package.json package-lock.json /app/
-RUN npm install
+RUN npm ci
 
-ADD . /app/
+COPY . /app/
 
 RUN npm run build
 
-FROM nginx:1.25.3-alpine-slim
+FROM nginx:1.27-alpine-slim
 COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80

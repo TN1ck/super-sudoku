@@ -26,7 +26,9 @@ export interface GridShortcutsProps {
 
 const GridShortcuts: React.FC<GridShortcutsProps> = (props) => {
   const stateRef = React.useRef(props);
-  stateRef.current = props;
+  React.useLayoutEffect(() => {
+    stateRef.current = props;
+  });
 
   useBoardShortcuts({
     scope: ShortcutScope.Game,
