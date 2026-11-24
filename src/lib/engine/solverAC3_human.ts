@@ -1,6 +1,6 @@
 import {SQUARE_TABLE, SUDOKU_NUMBERS, squareIndex} from "./utility";
 import {SimpleSudoku} from "./types";
-import {solveBacktracking} from "./solverBacktracking";
+import {solveBacktracking} from "./solverBacktracking_human";
 
 export type DomainSudoku = number[][][];
 
@@ -9,7 +9,7 @@ function toSimpleSudoku(grid: DomainSudoku): SimpleSudoku {
 }
 
 function toDomainSudoku(grid: SimpleSudoku): DomainSudoku {
-  return grid.map((row) => row.map((c) => (c === 0 ? SUDOKU_NUMBERS : [c])));
+  return grid.map((row) => row.map((c) => (c === 0 ? SUDOKU_NUMBERS.slice() : [c])));
 }
 
 function ac3(sudoku: DomainSudoku): {
@@ -23,7 +23,7 @@ function ac3(sudoku: DomainSudoku): {
     for (let x = 0; x < 9; x++) {
       const domain1 = row[x];
 
-      // Cells in the same row, column, and 3x3 square that constrain this cell.
+      // Cells in the same row, column, and 3x3 square that constrain this cell (without duplicates).
       const coordinates: [number, number][] = [];
       for (let xx = 0; xx < 9; xx++) {
         if (xx !== x) {
@@ -38,7 +38,7 @@ function ac3(sudoku: DomainSudoku): {
       const square = SQUARE_TABLE[squareIndex(x, y)];
       for (let c = 0; c < 9; c++) {
         const [xx, yy] = square[c];
-        if (xx !== x || yy !== y) {
+        if (xx !== x && yy !== y) {
           coordinates.push([yy, xx]);
         }
       }
@@ -147,9 +147,10 @@ export function solve(grid: SimpleSudoku): {
 } {
   const stack = [toDomainSudoku(grid)];
   const result = _solveGridAC3(stack, 0);
-  if (result.sudoku !== null && result.iterations !== Infinity) {
-    return result;
+  // Only fall back to backtracking when AC3 hit its iteration limit (not when it proved unsolvability).
+  if (result.sudoku !== null && result.iterations === Infinity) {
+    return solveBacktracking(grid);
   }
 
-  return solveBacktracking(grid);
+  return result;
 }

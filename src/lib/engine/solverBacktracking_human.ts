@@ -96,6 +96,14 @@ export function countSolutions(
   sudoku: SimpleSudoku,
   limit: number = 2,
 ): {count: number; firstSolution: SimpleSudoku | null; iterations: number} {
+  if (limit <= 0) {
+    return {
+      count: 0,
+      firstSolution: null,
+      iterations: 0,
+    };
+  }
+
   const state: SolverState = {
     board: cloneSudoku(sudoku),
     iterations: 0,

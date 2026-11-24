@@ -1,32 +1,15 @@
 /**
+ * Human-readable reference implementation of the CSP-based Sudoku generator.
+ *
  * Based on the paper:
+ * Rating and Generating Sudoku Puzzles Based On Constraint Satisfaction Problems
  *
- * Rating and Generating Sudoku Puzzles Based On
- * Constraint Satisfaction Problems
- *
- * This method will use the AC3-Solver
- * to generate Sudokus with different difficulties
- * according to the amount of times the Solver
- * had to be called
- *
- * They derived the following needed iterations for each difficulty:
- *
- * Easy   - 6.234
- * Medium - 29.2093
- * Hard   - 98.2093
- * Evil   - 527.4318
- *
- * They used Sudokus from websudoku.com for their research. So I checked myself, and I got these numbers (see difficulties.test.ts):
- *
- * Easy   - 7
- * Medium - 19
- * Hard   - 33
- * Expert - 113
- *
+ * Uses the straightforward domain-array AC3 solver (`solverAC3_human`) and
+ * 2D-array backtracking solver (`solverBacktracking_human`).
  */
 
-import {solve as solveAC3} from "./solverAC3";
-import {countSolutions} from "./solverBacktracking";
+import {solve as solveAC3} from "./solverAC3_human";
+import {countSolutions} from "./solverBacktracking_human";
 
 import {cloneSudoku, SUDOKU_NUMBERS, SUDOKU_COORDINATES, SQUARE_TABLE} from "./utility";
 import {DIFFICULTY, SimpleSudoku} from "./types";
@@ -139,10 +122,13 @@ function fixRows(sudoku: SimpleSudoku, randomFn: () => number) {
     const yIndexes = randomIndexes(randomFn);
     for (const y of yIndexes) {
       const number = sudoku[x][y];
-      if (number !== 0 && seen.has(number)) {
-        sudoku[x][y] = 0;
+      if (number !== 0) {
+        if (seen.has(number)) {
+          sudoku[x][y] = 0;
+        } else {
+          seen.add(number);
+        }
       }
-      seen.add(number);
     }
   }
 }
@@ -154,10 +140,13 @@ function fixColumns(sudoku: SimpleSudoku, randomFn: () => number) {
     const yIndexes = randomIndexes(randomFn);
     for (const y of yIndexes) {
       const number = sudoku[y][x];
-      if (number !== 0 && seen.has(number)) {
-        sudoku[y][x] = 0;
+      if (number !== 0) {
+        if (seen.has(number)) {
+          sudoku[y][x] = 0;
+        } else {
+          seen.add(number);
+        }
       }
-      seen.add(number);
     }
   }
 }
@@ -173,10 +162,13 @@ function fixGrid(sudoku: SimpleSudoku, randomFn: () => number) {
     for (const xy of indexes) {
       const [x, y] = square[xy];
       const number = sudoku[x][y];
-      if (number !== 0 && seen.has(number)) {
-        sudoku[x][y] = 0;
+      if (number !== 0) {
+        if (seen.has(number)) {
+          sudoku[x][y] = 0;
+        } else {
+          seen.add(number);
+        }
       }
-      seen.add(number);
     }
   }
 }
@@ -210,6 +202,7 @@ export function increaseDifficultyOfSudoku(sudoku: SimpleSudoku, randomFn: () =>
   let coordinateList = generateCoordinateList(sudoku);
   while (coordinateList.length > 0) {
     const [x, y] = sample(coordinateList, randomFn);
+    // Prunes the rest of row x and column y to cap the number of difficulty search steps.
     coordinateList = coordinateList.filter(([cx, cy]) => cx !== x && cy !== y);
     const newSudoku = cloneSudoku(sudoku);
     newSudoku[x][y] = 0;
@@ -239,12 +232,12 @@ function makeSudokuUnique(sudoku: SimpleSudoku, randomFn: () => number): [Simple
   while (!isSudokuUnique(sudoku)) {
     const newBestSudoku = enhanceUniqueness(sudoku, randomFn);
     if (newBestSudoku === sudoku) {
-      break;
+      return [sudoku, false];
     }
     sudoku = newBestSudoku;
   }
 
-  return [sudoku, isSudokuUnique(sudoku)];
+  return [sudoku, true];
 }
 
 export function generateSudoku(
@@ -285,9 +278,8 @@ export function generateSudoku(
     // Too difficult, make it easier.
     if (currentIterations > iterationGoal) {
       newSudoku = simplifySudoku(sudoku, randomFn);
-    }
-    // Too easy, make it more difficult.
-    if (currentIterations < iterationGoal) {
+    } else if (currentIterations < iterationGoal) {
+      // Too easy, make it more difficult.
       newSudoku = increaseDifficultyOfSudoku(sudoku, randomFn);
     }
     const newIterations = sudokuSolver(newSudoku).iterations;
