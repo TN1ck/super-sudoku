@@ -9,7 +9,7 @@ const ControlLabel: React.FC<{label: string}> = ({label}) => (
   <span className="text-xs font-semibold leading-none md:text-sm">{label}</span>
 );
 
-const controlButtonClassName = "flex min-h-14 md:min-h-16 flex-col items-center justify-center gap-1";
+const controlButtonClassName = "flex min-h-14 flex-col items-center justify-center gap-1 pt-3 md:min-h-16 md:pt-2";
 
 export const UndoButton: React.FC<{
   canUndo: boolean;

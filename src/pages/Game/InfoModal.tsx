@@ -112,7 +112,7 @@ export const InfoModal: React.FC<InfoModalProps> = ({panel, onClose}) => {
       aria-labelledby="info-modal-title"
     >
       <div
-        className="w-full max-w-lg rounded-md border border-border bg-surface p-5 text-ink shadow-xl"
+        className="w-full max-w-lg rounded-sm border border-border bg-surface p-5 text-ink shadow-xl"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between border-b border-border pb-3">
