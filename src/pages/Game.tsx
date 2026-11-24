@@ -35,6 +35,7 @@ import {createGameSearchParams, createShareUrl, parseGameSearchParams} from "src
 import {throttle} from "src/utils/throttle";
 
 import GameTimer from "./Game/GameTimer";
+import {InfoModal, InfoPanelType} from "./Game/InfoModal";
 import SettingsAndInformation from "./Game/SettingsAndInformation";
 import Shortcuts from "./Game/shortcuts/Shortcuts";
 import {WinOverlay} from "./Game/WinOverlay";
@@ -233,6 +234,8 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
   const sudoku = sudokuState.current;
   const {t} = useTranslation();
   const {getCollection} = useSudokuCollections();
+  const [infoPanel, setInfoPanel] = React.useState<InfoPanelType | null>(null);
+  const closeInfoPanel = React.useCallback(() => setInfoPanel(null), []);
 
   const collectionName = resolveCollectionDisplayName(game.sudokuCollectionName, getCollection, t);
 
@@ -283,6 +286,7 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
     <Container>
       <div>
         <Shortcuts
+          disabled={infoPanel !== null}
           gameState={game.state}
           continueGame={continueGame}
           pauseGame={pauseGame}
@@ -339,8 +343,8 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
             </div>
           </div>
         </header>
-        <div className="flex gap-4 flex-col md:flex-row">
-          <main className="mt-4 flex-grow md:min-w-96 w-full">
+        <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-start">
+          <main className="w-full min-w-0 md:flex-1">
             <Sudoku
               showWrongEntries={userPreferencesState.showWrongEntries && !pausedGame}
               showConflicts={userPreferencesState.showConflicts && !pausedGame}
@@ -361,7 +365,7 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
               <CenteredContinueButton visible={pausedGame && !game.won} onClick={continueGame} />
             </Sudoku>
           </main>
-          <div className="grid gap-4 mt-4">
+          <aside className="grid gap-4 md:w-[clamp(17rem,28vw,22rem)] md:flex-none md:shrink-0">
             <fieldset disabled={pausedGame} className="contents">
               <SudokuMenuNumbers
                 notesMode={game.notesMode}
@@ -384,8 +388,34 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
               />
             </fieldset>
             <SettingsAndInformation />
-          </div>
+            <div className="flex items-center justify-center gap-4 text-xs text-gray-400">
+              <button
+                type="button"
+                className="hidden transition-colors hover:text-white md:inline-flex"
+                onClick={(e) => {
+                  setInfoPanel("shortcuts");
+                  e.currentTarget.blur();
+                }}
+              >
+                {t("shortcuts")}
+              </button>
+              <span className="hidden text-gray-600 md:inline" aria-hidden="true">
+                ·
+              </span>
+              <button
+                type="button"
+                className="inline-flex transition-colors hover:text-white"
+                onClick={(e) => {
+                  setInfoPanel("about");
+                  e.currentTarget.blur();
+                }}
+              >
+                {t("about")}
+              </button>
+            </div>
+          </aside>
         </div>
+        <InfoModal panel={infoPanel} onClose={closeInfoPanel} />
       </div>
     </Container>
   );

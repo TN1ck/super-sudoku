@@ -53,6 +53,13 @@ async function continueIfPaused(page: Page) {
   await expect(page.getByRole("button", {name: "Pause"})).toBeVisible();
 }
 
+async function openSettings(page: Page) {
+  const toggle = page.getByRole("button", {name: "Settings"});
+  if ((await toggle.getAttribute("aria-expanded")) !== "true") {
+    await toggle.click();
+  }
+}
+
 async function selectCell(page: Page, x: number, y: number) {
   await cell(page, x, y).click();
   await expect(cell(page, x, y)).toHaveAttribute("data-cell-active", "true");
@@ -192,6 +199,7 @@ test("hint and erase require a selected cell", async ({page}) => {
 
 test("a hint removes conflicting pencil notes and undo restores them", async ({page}) => {
   await openGame(page);
+  await openSettings(page);
   await page.locator("#circle_menu").uncheck();
   await selectCell(page, 7, 0);
   await page.keyboard.press("n");
@@ -209,6 +217,7 @@ test("a hint removes conflicting pencil notes and undo restores them", async ({p
 
 test("edits generated and manual notes through all three input methods", async ({page}) => {
   await openGame(page);
+  await openSettings(page);
   await page.locator("#generated_notes").check();
   await selectCell(page, 5, 0);
   const notes = cellNotes(page, 5, 0);
@@ -226,6 +235,7 @@ test("edits generated and manual notes through all three input methods", async (
 
 test("a keypad press on a given leaves the board and its notes unchanged", async ({page}) => {
   await openGame(page);
+  await openSettings(page);
   await page.locator("#circle_menu").uncheck();
   await selectCell(page, 5, 0);
   await page.keyboard.press("n");
@@ -362,6 +372,7 @@ test("supports number entry, erase, undo, redo, notes, hints, and keyboard short
 
 test("persists game settings, dark mode, and language selection", async ({page}) => {
   await openGame(page);
+  await openSettings(page);
 
   await page.locator("#generated_notes").check();
   await expect(cellNotes(page, 5, 0)).toContainText("1");
@@ -388,6 +399,7 @@ test("persists game settings, dark mode, and language selection", async ({page})
   });
 
   await page.reload();
+  await openSettings(page);
   await expect(page.locator("#generated_notes")).toBeChecked();
   await expect(page.locator("#highlight_wrong_entries")).toBeChecked();
   await expect(page.locator("#highlight_conflicts")).not.toBeChecked();
@@ -621,6 +633,7 @@ test("creates and solves a difficult custom sudoku", async ({page}) => {
   await page.getByTestId("sudoku-preview-1").click();
   await expect(page.getByTestId("current-game-label")).toHaveText(`${customCollectionName} #1`);
   await continueIfPaused(page);
+  await openSettings(page);
   await page.locator("#circle_menu").uncheck();
   await expect(page.locator("#circle_menu")).not.toBeChecked();
 
@@ -727,6 +740,7 @@ test.describe("gameplay regressions", () => {
 
   test("removing the last visible candidate keeps it empty", async ({page}) => {
     await openGame(page);
+    await openSettings(page);
     await page.locator("#generated_notes").check();
     await selectCell(page, 5, 0);
     await page.keyboard.press("n");
@@ -746,6 +760,7 @@ test.describe("gameplay regressions", () => {
 
   test("copying generated notes replaces the previous clipboard", async ({page}) => {
     await openGame(page);
+    await openSettings(page);
     await page.locator("#circle_menu").uncheck();
     await selectCell(page, 7, 0);
     await page.keyboard.press("n");
@@ -849,6 +864,7 @@ test.describe("gameplay regressions", () => {
 
   test("entering a note on a filled cell with auto-notes enabled sets only the entered note", async ({page}) => {
     await openGame(page);
+    await openSettings(page);
     await page.getByText("Show auto generated notes").click();
     await expect(page.locator("#generated_notes")).toBeChecked();
 
@@ -1056,5 +1072,30 @@ test.describe("gameplay regressions", () => {
     await page.getByRole("button", {name: "Toggle dark mode"}).click();
     await expect(page.locator("body")).toHaveClass(/dark/);
     await expect(secondTab.locator("body")).toHaveClass(/dark/);
+  });
+
+  test("opens Shortcuts and About modals without pausing on Escape and toggles settings panel", async ({page}) => {
+    await openGame(page);
+
+    await page.getByRole("button", {name: "Shortcuts", exact: true}).click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await expect(page.getByRole("heading", {name: "Shortcuts"})).toBeVisible();
+
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog")).toBeHidden();
+    await expect(page.getByTestId("continue-overlay")).toBeHidden();
+
+    await page.getByRole("button", {name: "About", exact: true}).click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await expect(page.getByRole("heading", {name: "About"})).toBeVisible();
+    await page.getByRole("button", {name: "Close"}).click();
+    await expect(page.getByRole("dialog")).toBeHidden();
+
+    const settingsToggle = page.getByRole("button", {name: "Settings"});
+    await expect(page.locator("#generated_notes")).toBeHidden();
+    await settingsToggle.click();
+    await expect(page.locator("#generated_notes")).toBeVisible();
+    await settingsToggle.click();
+    await expect(page.locator("#generated_notes")).toBeHidden();
   });
 });
