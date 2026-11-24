@@ -1,5 +1,6 @@
 import i18n from "i18next";
 import {initReactI18next} from "react-i18next";
+import {safeGetStorageItem} from "./utils/storage";
 import en from "./locales/en.json";
 import fr from "./locales/fr.json";
 import es from "./locales/es.json";
@@ -30,16 +31,15 @@ export const LANGUAGE_TRANSLATIONS: Record<Language, string> = {
 
 export const LANGUAGES = [Language.EN, Language.FR, Language.ES, Language.DE, Language.IT, Language.PT, Language.ZH];
 
-// Detect browser language and return a supported language
+// Detect saved or browser language and return a supported language
 const getBrowserLanguage = (): Language => {
-  const savedLang = localStorage.getItem("language");
-  if (savedLang && Object.values(Language).includes(savedLang as Language)) {
+  const savedLang = safeGetStorageItem("language");
+  if (savedLang && LANGUAGES.includes(savedLang as Language)) {
     return savedLang as Language;
   }
 
-  const browserLang = navigator.language.split("-")[0].toLowerCase();
-  const supportedLang = Object.values(Language).find((lang) => lang === browserLang);
-  return supportedLang || Language.EN;
+  const browserLang = typeof navigator !== "undefined" ? navigator.language?.split("-")[0]?.toLowerCase() : undefined;
+  return LANGUAGES.find((lang) => lang === browserLang) ?? Language.EN;
 };
 
 i18n.use(initReactI18next).init({

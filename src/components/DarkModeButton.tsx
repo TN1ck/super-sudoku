@@ -1,56 +1,67 @@
 import * as React from "react";
 import {useEffect, useState} from "react";
+import {safeGetStorageItem, safeParseJson, safeSetStorageItem} from "src/utils/storage";
+
+const DARK_MODE_STORAGE_KEY = "darkMode";
+
+function getSystemDarkMode(): boolean {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return false;
+  }
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+function getStoredDarkMode(): boolean | undefined {
+  const parsed = safeParseJson<unknown>(safeGetStorageItem(DARK_MODE_STORAGE_KEY));
+  return typeof parsed === "boolean" ? parsed : undefined;
+}
 
 export const DarkModeButton = () => {
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
-      const savedMode = localStorage.getItem("darkMode");
-      if (savedMode !== null) {
-        return JSON.parse(savedMode);
-      }
-      return window.matchMedia("(prefers-color-scheme: dark)").matches;
-    }
-    return false;
-  });
+  const [darkMode, setDarkMode] = useState<boolean>(() => getStoredDarkMode() ?? getSystemDarkMode());
 
   useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add("dark");
-    } else {
-      document.body.classList.remove("dark");
-    }
-    if (typeof localStorage !== "undefined") {
-      localStorage.setItem("darkMode", JSON.stringify(darkMode));
-    }
+    document.body.classList.toggle("dark", darkMode);
   }, [darkMode]);
 
   useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return;
+    }
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = (e: MediaQueryListEvent) => {
-      const newMode = e.matches;
-      setDarkMode(newMode);
-      if (typeof localStorage !== "undefined") {
-        localStorage.setItem("darkMode", JSON.stringify(newMode));
+      if (getStoredDarkMode() === undefined) {
+        setDarkMode(e.matches);
       }
     };
     mediaQuery.addEventListener("change", handleChange);
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  const toggleDarkMode = () => {
-    setDarkMode((prevMode: boolean) => {
-      const newMode = !prevMode;
-      if (typeof localStorage !== "undefined") {
-        localStorage.setItem("darkMode", JSON.stringify(newMode));
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === DARK_MODE_STORAGE_KEY) {
+        const stored = getStoredDarkMode();
+        setDarkMode(stored ?? getSystemDarkMode());
       }
-      return newMode;
-    });
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
+  const toggleDarkMode = () => {
+    const nextMode = !darkMode;
+    setDarkMode(nextMode);
+    safeSetStorageItem(DARK_MODE_STORAGE_KEY, JSON.stringify(nextMode));
   };
 
   return (
     <button
       aria-label="Toggle dark mode"
       onClick={toggleDarkMode}
+      type="button"
       className="md:h-10 md:w-10 h-8 w-8 rounded-sm p-1 hover:bg-gray-800"
     >
       <svg className="fill-violet-700 block dark:hidden" fill="currentColor" viewBox="0 0 20 20">

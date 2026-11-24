@@ -1,7 +1,14 @@
 import {GameState, GameStateMachine, INITIAL_GAME_STATE} from "src/context/GameContext";
 import {SudokuState} from "src/context/SudokuContext";
 import {Cell} from "src/lib/engine/types";
-import {stringifySudoku, cellsToSimpleSudoku, parseSudoku, simpleSudokuToCells} from "src/lib/engine/utility";
+import {
+  cellsToSimpleSudoku,
+  hasBoardShape,
+  parseSudoku,
+  simpleSudokuToCells,
+  stringifySudoku,
+  SUDOKU_NUMBERS,
+} from "src/lib/engine/utility";
 
 const LEGACY_KEYS = ["1_5", "1_4", "1_3", "1_2", "1_1", "1_0"].map(
   (version) => `super_sudoku_${version}_use_this_file_if_you_want_to_cheat`,
@@ -31,7 +38,7 @@ function compact(record: SavedSudoku): SavedSudoku {
     "sudoku" in record &&
     record.game.won &&
     record.sudoku.length === 81 &&
-    record.sudoku.every((c) => c.number > 0)
+    record.sudoku.every((c) => SUDOKU_NUMBERS.includes(c.number))
   ) {
     // Keep the player's actual solution, including for custom or shared puzzles.
     return {game: record.game, completedGrid: record.sudoku.map((c) => c.number).join("")};
@@ -77,7 +84,53 @@ function restore(record: SavedSudoku, key: string): StoredPlayedSudokuState {
   return {game, sudoku: cells.map((cell) => ({...cell, number: cell.solution}))};
 }
 
+function hasValidStoredCells(cells: unknown): cells is Cell[] {
+  return (
+    Array.isArray(cells) &&
+    hasBoardShape(cells as Cell[]) &&
+    cells.every(
+      (cell) =>
+        cell !== null &&
+        typeof cell === "object" &&
+        typeof cell.number === "number" &&
+        typeof cell.initial === "boolean" &&
+        Array.isArray(cell.notes),
+    )
+  );
+}
+
+function parseSavedSudoku(raw: string, label: string): SavedSudoku | undefined {
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || !parsed.game || typeof parsed.game !== "object") {
+      return undefined;
+    }
+    if ("sudoku" in parsed && hasValidStoredCells(parsed.sudoku)) {
+      return parsed as StoredPlayedSudokuState;
+    }
+    if ("completedGrid" in parsed && typeof parsed.completedGrid === "string") {
+      return parsed as CompletedSudoku;
+    }
+    return undefined;
+  } catch (error) {
+    console.warn("Could not parse saved puzzle", label, error);
+    return undefined;
+  }
+}
+
+function safeRestore(record: SavedSudoku, key: string): StoredPlayedSudokuState | undefined {
+  try {
+    return restore(record, key);
+  } catch (error) {
+    console.warn("Could not restore saved puzzle", key, error);
+    return undefined;
+  }
+}
+
 function getPlayedKeys() {
+  if (typeof localStorage === "undefined") {
+    return [];
+  }
   const keys = new Set(Object.keys(localStorage));
   return [...keys].filter((key) => {
     if (key.startsWith(STORAGE_KEY_V_1_6_PREFIX)) {
@@ -114,8 +167,8 @@ function writeRecord(key: string, record: SavedSudoku, activeWin?: StoredPlayedS
     // Clear only the completion this replay supersedes. A different tab can
     // commit its win between the progress write and this cleanup.
     if (previousWin && localStorage.getItem(compactKey) === previousWin) {
-      const packed: CompletedSudoku = JSON.parse(previousWin);
-      if (!isLaterAttempt(packed.game, record.game)) {
+      const packed = parseSavedSudoku(previousWin, compactKey);
+      if (packed && !isLaterAttempt(normalizeGame(packed.game), record.game)) {
         localStorage.removeItem(compactKey);
       }
     }
@@ -141,7 +194,10 @@ function compactOldCompletions() {
       if (!raw) {
         continue;
       }
-      const record: SavedSudoku = JSON.parse(raw);
+      const record = parseSavedSudoku(raw, storageKey);
+      if (!record) {
+        continue;
+      }
       const smaller = compact({...record, game: normalizeGame(record.game)});
       if ("completedGrid" in smaller) {
         const key = storageKey.slice(STORAGE_KEY_V_1_6_PREFIX.length);
@@ -249,6 +305,9 @@ function copyLegacyArchive(
 
 function migrateLegacyStorage(): PuzzleArchive {
   const migrated: PuzzleArchive = {active: "", sudokus: {}};
+  if (typeof localStorage === "undefined") {
+    return migrated;
+  }
   let canCopy = true;
   for (const storageKey of LEGACY_KEYS) {
     const text = localStorage.getItem(storageKey);
@@ -283,6 +342,9 @@ function migrateLegacyStorage(): PuzzleArchive {
 }
 
 function getCurrentSudokuKey(): string | null {
+  if (typeof localStorage === "undefined") {
+    return null;
+  }
   return localStorage.getItem(STORAGE_CURRENTLY_PLAYING_SUDOKU_KEY) || migrateLegacyStorage().active || null;
 }
 
@@ -292,30 +354,40 @@ export function getCurrentSudokuFromStorage(): StoredPlayedSudokuState | undefin
 }
 
 function getSudokuFromStorage(key: string): StoredPlayedSudokuState | undefined {
-  const full = localStorage.getItem(STORAGE_KEY_V_1_6_PREFIX + key);
-  const raw = localStorage.getItem(STORAGE_KEY_V_1_7_PREFIX + key);
-  if (full) {
-    const record: SavedSudoku = JSON.parse(full);
-    const restored = restore(record, key);
-    if (raw) {
-      const packed: CompletedSudoku = JSON.parse(raw);
-      if (isLaterAttempt(packed.game, restored.game)) {
-        return restore(packed, key);
-      }
-    }
-    // PR #45 briefly wrote compact wins under the v1.6 prefix.
-    if ("completedGrid" in record) {
-      try {
-        const active = localStorage.getItem(STORAGE_CURRENTLY_PLAYING_SUDOKU_KEY) === key;
-        writeRecord(key, record, active ? restored : undefined);
-      } catch (error) {
-        console.warn("Could not migrate completed puzzle", key, error);
-      }
-    }
-    return restored;
+  if (typeof localStorage === "undefined") {
+    return undefined;
   }
-  const record: SavedSudoku | undefined = raw ? JSON.parse(raw) : migrateLegacyStorage().sudokus[key];
-  return record ? restore(record, key) : undefined;
+  const fullKey = STORAGE_KEY_V_1_6_PREFIX + key;
+  const compactKey = STORAGE_KEY_V_1_7_PREFIX + key;
+  const full = localStorage.getItem(fullKey);
+  const raw = localStorage.getItem(compactKey);
+
+  if (full) {
+    const record = parseSavedSudoku(full, fullKey);
+    const restored = record ? safeRestore(record, key) : undefined;
+    if (restored) {
+      if (raw) {
+        const packed = parseSavedSudoku(raw, compactKey);
+        const restoredPacked = packed ? safeRestore(packed, key) : undefined;
+        if (restoredPacked && isLaterAttempt(restoredPacked.game, restored.game)) {
+          return restoredPacked;
+        }
+      }
+      // PR #45 briefly wrote compact wins under the v1.6 prefix.
+      if (record && "completedGrid" in record) {
+        try {
+          const active = localStorage.getItem(STORAGE_CURRENTLY_PLAYING_SUDOKU_KEY) === key;
+          writeRecord(key, record, active ? restored : undefined);
+        } catch (error) {
+          console.warn("Could not migrate completed puzzle", key, error);
+        }
+      }
+      return restored;
+    }
+  }
+
+  const record = raw ? parseSavedSudoku(raw, compactKey) : migrateLegacyStorage().sudokus[key];
+  return record ? safeRestore(record, key) : undefined;
 }
 
 // Completing an attempt increments timesSolved. A replay starts at that same
@@ -332,6 +404,9 @@ export function isPuzzleRecordKey(storageKey: string | null, puzzle: string) {
 }
 
 function saveCurrentSudokuToLocalStorage(game: GameState, sudoku: Pick<SudokuState, "current">) {
+  if (typeof localStorage === "undefined") {
+    return;
+  }
   const key = puzzleKey(sudoku.current);
   const full = {game, sudoku: sudoku.current};
   const record = compact(full);
@@ -354,8 +429,14 @@ function saveCurrentSudokuToLocalStorage(game: GameState, sudoku: Pick<SudokuSta
     if (previous && previous !== key && localStorage.getItem(STORAGE_KEY_V_1_7_PREFIX + previous)) {
       const previousKey = STORAGE_KEY_V_1_6_PREFIX + previous;
       const snapshot = localStorage.getItem(previousKey);
-      if (snapshot && JSON.parse(snapshot).activeWinSnapshot) {
-        localStorage.removeItem(previousKey);
+      if (snapshot) {
+        try {
+          if (JSON.parse(snapshot).activeWinSnapshot) {
+            localStorage.removeItem(previousKey);
+          }
+        } catch {
+          // Ignore malformed snapshot cleanup.
+        }
       }
     }
   };
@@ -379,11 +460,17 @@ export const localStoragePlayedSudokuRepository = {
   getPlayedSudokus: getPlayedKeys,
   getCurrentSudokuKey,
   saveCurrentSudokuKey(sudokuKey: string): void {
+    if (typeof localStorage === "undefined") {
+      return;
+    }
     localStorage.setItem(STORAGE_CURRENTLY_PLAYING_SUDOKU_KEY, sudokuKey);
   },
   getSudokuState: getSudokuFromStorage,
   saveSudokuState: saveCurrentSudokuToLocalStorage,
   removeSudokuState(sudokuKey: string): void {
+    if (typeof localStorage === "undefined") {
+      return;
+    }
     localStorage.removeItem(STORAGE_KEY_V_1_6_PREFIX + sudokuKey);
     localStorage.removeItem(STORAGE_KEY_V_1_7_PREFIX + sudokuKey);
   },

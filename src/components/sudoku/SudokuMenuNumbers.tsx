@@ -28,10 +28,20 @@ const SudokuMenuNumbers: React.FC<SudokuMenuNumbersProps> = ({
   const notes = cell ? SudokuGame.visibleNotes(cell, sudoku, showHints) : [];
   const editingNotes = notesMode && cell?.number === 0;
 
+  const occurrenceCounts = React.useMemo(() => {
+    const counts = new Array<number>(10).fill(0);
+    for (const c of sudoku) {
+      if (c.number >= 1 && c.number <= 9) {
+        counts[c.number]++;
+      }
+    }
+    return counts;
+  }, [sudoku]);
+
   return (
     <div className="grid w-full overflow-hidden justify-center gap-2 md:grid-cols-3 grid-cols-9">
       {SUDOKU_NUMBERS.map((n) => {
-        const occurrences = sudoku.filter((c) => c.number === n).length;
+        const occurrences = occurrenceCounts[n];
 
         const setNumberOrNote = () => {
           if (!cell) {
@@ -48,7 +58,7 @@ const SudokuMenuNumbers: React.FC<SudokuMenuNumbersProps> = ({
           <Button
             aria-label={`Set ${n}`}
             className={clsx("relative font-bold", {
-              "bg-gray-400": occurrences == 9,
+              "bg-gray-400 dark:bg-gray-700": occurrences === 9,
               "bg-red-400 dark:bg-red-400": showOccurrences && occurrences > 9,
               "bg-sky-600 dark:bg-sky-600 text-white": editingNotes && cell.notes.includes(n),
               "bg-sky-300 dark:bg-sky-300": editingNotes && cell.notes.length === 0 && notes.includes(n),
@@ -59,7 +69,7 @@ const SudokuMenuNumbers: React.FC<SudokuMenuNumbersProps> = ({
           >
             {showOccurrences && (
               <div
-                className="absolute right-0 bottom-0 h-3 w-3 rounded-xl bg-teal-700 text-xxs text-white opacity-70 sm:right-1 sm:bottom-1 sm:h-4 sm:w-4 sm:text-xs "
+                className="absolute right-0 bottom-0 h-3 w-3 rounded-xl bg-teal-700 text-xxs text-white opacity-70 sm:right-1 sm:bottom-1 sm:h-4 sm:w-4 sm:text-xs"
                 data-testid={`sudoku-number-occurrences-${n}`}
               >
                 {occurrences}

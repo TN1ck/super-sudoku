@@ -1,11 +1,12 @@
 import * as React from "react";
+import {useMemo, useState} from "react";
 
 import {getSudokusPaginated, SudokuRaw, useSudokuCollections} from "src/lib/game/sudokus";
 import {SimpleSudoku} from "src/lib/engine/types";
-import SudokuPreview from "../../components/sudoku/SudokuPreview";
+import SudokuPreview from "src/components/sudoku/SudokuPreview";
 import {formatDuration} from "src/utils/format";
-import {useGame, createNewGameState} from "src/context/GameContext";
-import {useState} from "react";
+import {createGameSearchParams} from "src/utils/gameUrl";
+import {createNewGameState, useGame} from "src/context/GameContext";
 import Button from "src/components/Button";
 import {simpleSudokuToCells, stringifySudoku} from "src/lib/engine/utility";
 import {useElementWidth} from "src/utils/hooks";
@@ -18,7 +19,8 @@ import {useTranslation} from "react-i18next";
 
 const TabItem = ({active, children, ...props}: React.ButtonHTMLAttributes<HTMLButtonElement> & {active: boolean}) => (
   <button
-    className={`px-1 xs:px-2 sm:px-4 text-xs sm:text-sm md:text-base py-2 pointer capitalize rounded-sm border-none hover:bg-gray-500 ${
+    type="button"
+    className={`px-1 xs:px-2 sm:px-4 text-xs sm:text-sm md:text-base py-2 cursor-pointer capitalize rounded-sm border-none hover:bg-gray-500 ${
       active ? "bg-white text-black dark:bg-gray-600 dark:text-white" : "bg-transparent text-white dark:text-gray-300"
     }`}
     {...props}
@@ -27,8 +29,35 @@ const TabItem = ({active, children, ...props}: React.ButtonHTMLAttributes<HTMLBu
   </button>
 );
 
-// Nice page selector. Will show previous / next buttons, then the current page, the first and last page and the surrounding
-// pages of the current. Will use ... to show the missing pages.
+export function getVisiblePages(page: number, pageCount: number): Array<number | "..."> {
+  if (pageCount <= 0) {
+    return [];
+  }
+  const current = page + 1;
+  const pages: Array<number | "..."> = [1];
+
+  const start = Math.max(2, current - 1);
+  const end = Math.min(pageCount - 1, current + 1);
+
+  if (start > 2) {
+    pages.push(start === 3 ? 2 : "...");
+  }
+
+  for (let i = start; i <= end; i++) {
+    pages.push(i);
+  }
+
+  if (end < pageCount - 1) {
+    pages.push(end === pageCount - 2 ? pageCount - 1 : "...");
+  }
+
+  if (pageCount > 1) {
+    pages.push(pageCount);
+  }
+
+  return pages;
+}
+
 const PageSelector = ({
   page,
   pageCount,
@@ -37,67 +66,33 @@ const PageSelector = ({
   page: number;
   pageCount: number;
   setPage: (page: number) => void;
-}) => {
-  const getVisiblePages = () => {
-    const pages: (number | string)[] = [];
-    const current = page + 1; // Convert to 1-based for display
+}) => (
+  <div className="flex justify-center items-center space-x-2 py-4">
+    <Button aria-label="Previous page" onClick={() => setPage(page - 1)} disabled={page === 0}>
+      {"‹"}
+    </Button>
 
-    // Always show first page
-    pages.push(1);
+    {getVisiblePages(page, pageCount).map((pageNum, index) => (
+      <React.Fragment key={pageNum === "..." ? `ellipsis-${index}` : pageNum}>
+        {pageNum === "..." ? (
+          <span className="px-2 text-gray-500">...</span>
+        ) : (
+          <Button
+            aria-current={pageNum === page + 1 ? "page" : undefined}
+            onClick={() => setPage(pageNum - 1)}
+            className={pageNum === page + 1 ? "bg-teal-600 dark:bg-teal-600 text-white" : ""}
+          >
+            {pageNum}
+          </Button>
+        )}
+      </React.Fragment>
+    ))}
 
-    if (current > 4) {
-      pages.push("...");
-    }
-
-    // Show pages around current
-    const start = Math.max(2, current - 1);
-    const end = Math.min(pageCount - 1, current + 1);
-
-    for (let i = start; i <= end; i++) {
-      if (i !== 1 && i !== pageCount) {
-        pages.push(i);
-      }
-    }
-
-    if (current < pageCount - 3) {
-      pages.push("...");
-    }
-
-    // Always show last page
-    if (pageCount > 1) {
-      pages.push(pageCount);
-    }
-
-    return pages;
-  };
-
-  return (
-    <div className="flex justify-center items-center space-x-2 py-4">
-      <Button onClick={() => setPage(page - 1)} disabled={page === 0}>
-        {"‹"}
-      </Button>
-
-      {getVisiblePages().map((pageNum, index) => (
-        <React.Fragment key={index}>
-          {pageNum === "..." ? (
-            <span className="px-2 text-gray-500">...</span>
-          ) : (
-            <Button
-              onClick={() => setPage((pageNum as number) - 1)}
-              className={pageNum === page + 1 ? "bg-teal-600 dark:bg-teal-600 text-white" : ""}
-            >
-              {pageNum}
-            </Button>
-          )}
-        </React.Fragment>
-      ))}
-
-      <Button onClick={() => setPage(page + 1)} disabled={page === pageCount - 1}>
-        {"›"}
-      </Button>
-    </div>
-  );
-};
+    <Button aria-label="Next page" onClick={() => setPage(page + 1)} disabled={page >= pageCount - 1}>
+      {"›"}
+    </Button>
+  </div>
+);
 
 const SudokuToSelect = ({
   sudoku,
@@ -112,68 +107,63 @@ const SudokuToSelect = ({
 }) => {
   const {setGameState} = useGame();
   const {setSudoku} = useSudoku();
-  const localSudoku = storedSudoku;
-  const unfinished = localSudoku && !localSudoku.game.won;
-  const finished = localSudoku && localSudoku.game.won;
+  const unfinished = Boolean(storedSudoku && !storedSudoku.game.won);
+  const finished = Boolean(storedSudoku && storedSudoku.game.won);
   const navigate = useNavigate();
   const {t} = useTranslation();
 
   const choose = () => {
-    if (finished) {
-      const areYouSure = confirm(
-        "Are you sure? This will restart the sudoku and reset the timer. It will continue to say that you solved it.",
-      );
+    if (finished && storedSudoku) {
+      const areYouSure = confirm(t("confirm_restart_completed"));
       if (!areYouSure) {
         return;
       }
-      const replay = createNewGameState({...localSudoku.game, sudokuCollectionName, sudokuIndex: index});
+      const replay = createNewGameState({...storedSudoku.game, sudokuCollectionName, sudokuIndex: index});
       setSudoku(simpleSudokuToCells(sudoku.sudoku, sudoku.solution));
       setGameState(replay);
     }
     navigate({
       to: "/",
-      search: {
-        sudokuIndex: index + 1,
-        sudoku: stringifySudoku(sudoku.sudoku),
-        sudokuCollectionName: sudokuCollectionName,
-      },
+      search: createGameSearchParams(stringifySudoku(sudoku.sudoku), index, sudokuCollectionName),
     });
   };
 
-  const sudokuContainerRef = React.useRef(null);
+  const sudokuContainerRef = React.useRef<HTMLDivElement | null>(null);
   const size = useElementWidth(sudokuContainerRef);
 
   return (
     <div className="relative" ref={sudokuContainerRef}>
-      {unfinished || finished ? (
+      {storedSudoku && (unfinished || finished) ? (
         <div className="pointer-events-none absolute left-2 rounded-sm bottom-2 z-10 max-w-min bg-gray-900 px-2 py-1 text-xs text-white md:text-base">
           <div>
-            <div className="whitespace-nowrap">{`
-              ${unfinished ? t("play_time") : t("last_time")}
-              ${formatDuration(localSudoku.game.secondsPlayed)}
-            `}</div>
-            {localSudoku.game.previousTimes.length > 0 && (
-              <div className="whitespace-nowrap">{`Best time: ${formatDuration(
-                Math.min(...localSudoku.game.previousTimes),
-              )}`}</div>
+            <div className="whitespace-nowrap">{`${unfinished ? t("play_time") : t("last_time")} ${formatDuration(
+              storedSudoku.game.secondsPlayed,
+            )}`}</div>
+            {storedSudoku.game.previousTimes.length > 0 && (
+              <div className="whitespace-nowrap">
+                {t("best_time", {time: formatDuration(Math.min(...storedSudoku.game.previousTimes))})}
+              </div>
             )}
-            {localSudoku.game.timesSolved > 0 && (
-              <div>{`Solved ${localSudoku.game.timesSolved} ${localSudoku.game.timesSolved === 1 ? "time" : "times"}`}</div>
+            {storedSudoku.game.timesSolved > 0 && (
+              <div>
+                {t(storedSudoku.game.timesSolved === 1 ? "solved_count_one" : "solved_count_other", {
+                  count: storedSudoku.game.timesSolved,
+                })}
+              </div>
             )}
             {unfinished && <div>{t("continue")}</div>}
-            {finished && <div>{`Restart?`}</div>}
+            {finished && <div>{t("restart?")}</div>}
           </div>
         </div>
       ) : null}
-      {size === undefined && (
+      {size === undefined ? (
         <div className="inline-block relative w-full">
           <div style={{marginTop: "100%"}} />
           <div className="absolute top-0 left-0 w-full h-full">
             <div className="w-full h-full bg-gray-300 dark:bg-gray-900 rounded-sm" />
           </div>
         </div>
-      )}
-      {size !== undefined && (
+      ) : (
         <SudokuPreview
           size={size}
           onClick={choose}
@@ -202,31 +192,34 @@ const GameIndex = ({
   }
 
   return (
-    <div>
-      <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
-        {pageSudokus.map((sudoku, index) => {
-          const globalIndex = pageStart + index;
-          const sudokuKey = stringifySudoku(sudoku.sudoku);
-          const storedSudoku = localStoragePlayedSudokuRepository.getSudokuState(sudokuKey);
+    <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
+      {pageSudokus.map((sudoku, index) => {
+        const globalIndex = pageStart + index;
+        const sudokuKey = stringifySudoku(sudoku.sudoku);
+        const storedSudoku = localStoragePlayedSudokuRepository.getSudokuState(sudokuKey);
 
-          return (
-            <SudokuToSelect
-              key={globalIndex}
-              sudoku={sudoku}
-              index={globalIndex}
-              sudokuCollectionName={sudokuCollectionName}
-              storedSudoku={storedSudoku}
-            />
-          );
-        })}
-      </div>
+        return (
+          <SudokuToSelect
+            key={`${sudokuCollectionName}-${globalIndex}-${sudokuKey}`}
+            sudoku={sudoku}
+            index={globalIndex}
+            sudokuCollectionName={sudokuCollectionName}
+            storedSudoku={storedSudoku}
+          />
+        );
+      })}
     </div>
   );
 };
 
-const usePaginatedSudokus = (collection: Collection, page: number, pageSize: number) => {
-  return getSudokusPaginated(collection, page, pageSize);
-};
+const usePaginatedSudokus = (collection: Collection, page: number, pageSize: number) =>
+  useMemo(
+    () => getSudokusPaginated(collection, page, pageSize),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [collection.id, collection.name, collection.sudokusRaw, page, pageSize],
+  );
+
+const PAGE_SIZE = 12;
 
 const GameSelect: React.FC = () => {
   const {
@@ -239,26 +232,25 @@ const GameSelect: React.FC = () => {
     removeCollection,
   } = useSudokuCollections();
   const [page, setPage] = useState(0);
+  const [showNewSudokuComponent, setShowNewSudokuComponent] = useState(false);
   const {t} = useTranslation();
 
-  const pageSize = 12;
-  const {sudokus: pageSudokus, totalPages: pageCount} = usePaginatedSudokus(activeCollection, page, pageSize);
-  const pageStart = page * pageSize;
+  const {sudokus: pageSudokus, totalPages: pageCount} = usePaginatedSudokus(activeCollection, page, PAGE_SIZE);
+  const pageStart = page * PAGE_SIZE;
+  const isBaseCollectionLocal = isBaseCollection(activeCollection.id);
 
-  const setActiveCollectionAndResetPage = (collection: string) => {
-    setActiveCollectionId(collection);
+  const setActiveCollectionAndResetPage = (collectionId: string) => {
+    setActiveCollectionId(collectionId);
     setShowNewSudokuComponent(false);
     setPage(0);
   };
 
   const saveSudoku = async (sudoku: SimpleSudoku) => {
     const savedIndex = addSudokuToCollection(activeCollection.id, sudoku);
-    setPage(Math.floor(savedIndex / pageSize));
-    // TODO: add a toast notification
+    setPage(Math.floor(savedIndex / PAGE_SIZE));
     setShowNewSudokuComponent(false);
   };
 
-  const [showNewSudokuComponent, setShowNewSudokuComponent] = useState(false);
   const removeCollectionLocal = () => {
     if (isBaseCollectionLocal) {
       alert(t("cannot_delete_base_collection"));
@@ -271,15 +263,12 @@ const GameSelect: React.FC = () => {
       return;
     }
     removeCollection(activeCollection.id);
-    setActiveCollectionId(collections[0].id);
-    setPage(0);
+    setActiveCollectionAndResetPage(collections[0].id);
   };
-
-  const isBaseCollectionLocal = isBaseCollection(activeCollection.id);
 
   return (
     <div className="mt-8">
-      <div className="flex justify-between items-center  mb-8">
+      <div className="flex justify-between items-center mb-8">
         <div className="flex flex-wrap gap-2">
           {collections.map((collection) => (
             <TabItem
@@ -293,11 +282,10 @@ const GameSelect: React.FC = () => {
           <TabItem
             active={false}
             onClick={() => {
-              const newCollectionName = prompt(t("enter_new_collection_name"));
+              const newCollectionName = prompt(t("enter_new_collection_name"))?.trim();
               if (newCollectionName) {
                 const newCollection = addCollection(newCollectionName);
-                setActiveCollectionId(newCollection.id);
-                setPage(0);
+                setActiveCollectionAndResetPage(newCollection.id);
               }
             }}
           >

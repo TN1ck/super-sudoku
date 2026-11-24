@@ -16,7 +16,7 @@
  * Hard   - 98.2093
  * Evil   - 527.4318
  *
- * They used Sudokus from websudoku.com for their research. So I checked myself, and I got these numbers (see __tests__/difficulties.ts):
+ * They used Sudokus from websudoku.com for their research. So I checked myself, and I got these numbers (see difficulties.test.ts):
  *
  * Easy   - 7
  * Medium - 19
@@ -28,9 +28,8 @@
 import {solve as solveAC3} from "./solverAC3";
 import {countSolutions} from "./solverBacktracking";
 
-import {SUDOKU_NUMBERS, SUDOKU_COORDINATES, SQUARE_TABLE} from "./utility";
+import {cloneSudoku, SUDOKU_NUMBERS, SUDOKU_COORDINATES, SQUARE_TABLE} from "./utility";
 import {DIFFICULTY, SimpleSudoku} from "./types";
-import flatten from "lodash-es/flatten";
 import {sample, shuffle} from "./seededRandom";
 
 export const DIFFICULTY_GOALS = {
@@ -75,9 +74,9 @@ function enhanceUniqueness(sudoku: SimpleSudoku, randomFn: () => number): Simple
       // We hit a 0, that means we can check for how many sudoku numbers it could be solved.
       if (num === 0) {
         let timesSolved = 0;
-        for (const num of SUDOKU_NUMBERS) {
+        for (const candidate of SUDOKU_NUMBERS) {
           const newSudoku = cloneSudoku(sudoku);
-          newSudoku[row][col] = num;
+          newSudoku[row][col] = candidate;
 
           const iterations = sudokuSolver(newSudoku).iterations;
           if (iterations !== Infinity) {
@@ -117,16 +116,16 @@ function simplifySudoku(sudoku: SimpleSudoku, randomFn: () => number): SimpleSud
   return sudoku;
 }
 
-const isCoordinate = (item: number[] | undefined): item is number[] => {
-  return item !== undefined;
-};
-
-function generateCoordinateList(sudoku: SimpleSudoku): number[][] {
-  const coordinates = sudoku.map((row, i) => {
-    return row.map((n, c) => (n !== 0 ? [i, c] : undefined));
-  });
-  const coordinatesWithNumbers = flatten(coordinates).filter(isCoordinate);
-  return coordinatesWithNumbers;
+function generateCoordinateList(sudoku: SimpleSudoku): Array<[number, number]> {
+  const coordinates: Array<[number, number]> = [];
+  for (let row = 0; row < sudoku.length; row++) {
+    for (let col = 0; col < sudoku[row].length; col++) {
+      if (sudoku[row][col] !== 0) {
+        coordinates.push([row, col]);
+      }
+    }
+  }
+  return coordinates;
 }
 
 function randomIndexes(randomFn: () => number) {
@@ -135,30 +134,30 @@ function randomIndexes(randomFn: () => number) {
 
 function fixRows(sudoku: SimpleSudoku, randomFn: () => number) {
   const xIndexes = randomIndexes(randomFn);
-  for (let x of xIndexes) {
-    const wrongNumbers = Array(9).map(() => false);
+  for (const x of xIndexes) {
+    const seen = new Set<number>();
     const yIndexes = randomIndexes(randomFn);
-    for (let y of yIndexes) {
+    for (const y of yIndexes) {
       const number = sudoku[x][y];
-      if (number !== 0 && wrongNumbers[number]) {
+      if (number !== 0 && seen.has(number)) {
         sudoku[x][y] = 0;
       }
-      wrongNumbers[number] = true;
+      seen.add(number);
     }
   }
 }
 
 function fixColumns(sudoku: SimpleSudoku, randomFn: () => number) {
   const xIndexes = randomIndexes(randomFn);
-  for (let x of xIndexes) {
-    const wrongNumbers = Array(9).map(() => false);
+  for (const x of xIndexes) {
+    const seen = new Set<number>();
     const yIndexes = randomIndexes(randomFn);
-    for (let y of yIndexes) {
+    for (const y of yIndexes) {
       const number = sudoku[y][x];
-      if (number !== 0 && wrongNumbers[number]) {
+      if (number !== 0 && seen.has(number)) {
         sudoku[y][x] = 0;
       }
-      wrongNumbers[number] = true;
+      seen.add(number);
     }
   }
 }
@@ -169,15 +168,15 @@ function fixColumns(sudoku: SimpleSudoku, randomFn: () => number) {
 function fixGrid(sudoku: SimpleSudoku, randomFn: () => number) {
   const indexes = randomIndexes(randomFn);
   for (let s = 0; s < 9; s++) {
-    const wrongNumbers = Array(9).map(() => false);
+    const seen = new Set<number>();
     const square = SQUARE_TABLE[s];
-    for (let xy of indexes) {
+    for (const xy of indexes) {
       const [x, y] = square[xy];
       const number = sudoku[x][y];
-      if (number !== 0 && wrongNumbers[number]) {
+      if (number !== 0 && seen.has(number)) {
         sudoku[x][y] = 0;
       }
-      wrongNumbers[number] = true;
+      seen.add(number);
     }
   }
 }
@@ -192,33 +191,25 @@ function fixSudoku(sudoku: SimpleSudoku, randomFn: () => number) {
  * Generate a random sudoku.
  */
 function generateRandomSudoku(randomFn: () => number): SimpleSudoku {
-  const randomSudoku = SUDOKU_NUMBERS.map(() => {
-    return shuffle(
-      SUDOKU_NUMBERS.map((n) => {
-        return randomFn() > 0.8 ? n : 0;
-      }),
+  const randomSudoku = SUDOKU_NUMBERS.map(() =>
+    shuffle(
+      SUDOKU_NUMBERS.map((n) => (randomFn() > 0.8 ? n : 0)),
       randomFn,
-    );
-  });
+    ),
+  );
   fixSudoku(randomSudoku, randomFn);
   return randomSudoku;
 }
 
-function cloneSudoku(sudoku: SimpleSudoku): SimpleSudoku {
-  return [...sudoku.map((r) => [...r])];
-}
-
 const RELATIVE_DRIFT = 20;
-// this is mostly needed for the esay difficulty, because the iterations needed there
-// are too low that the relative drift would do anything
+// Needed for easy difficulty where low iteration counts make relative drift too strict.
 const ABSOLUTE_DRIFT = 3;
 
 export function increaseDifficultyOfSudoku(sudoku: SimpleSudoku, randomFn: () => number): SimpleSudoku {
   const costs = sudokuSolver(sudoku).iterations;
   let coordinateList = generateCoordinateList(sudoku);
   while (coordinateList.length > 0) {
-    const sampleXY = sample(coordinateList, randomFn);
-    const [x, y] = sampleXY;
+    const [x, y] = sample(coordinateList, randomFn);
     coordinateList = coordinateList.filter(([cx, cy]) => cx !== x && cy !== y);
     const newSudoku = cloneSudoku(sudoku);
     newSudoku[x][y] = 0;
@@ -231,7 +222,7 @@ export function increaseDifficultyOfSudoku(sudoku: SimpleSudoku, randomFn: () =>
 }
 
 function createSolvableSudoku(randomFn: () => number): SimpleSudoku {
-  let sudoku = generateRandomSudoku(randomFn);
+  const sudoku = generateRandomSudoku(randomFn);
 
   while (sudokuSolver(sudoku).iterations === Infinity) {
     const randomX = sample(SUDOKU_COORDINATES, randomFn);
@@ -247,8 +238,7 @@ function makeSudokuUnique(sudoku: SimpleSudoku, randomFn: () => number): [Simple
   sudoku = cloneSudoku(sudoku);
   while (!isSudokuUnique(sudoku)) {
     const newBestSudoku = enhanceUniqueness(sudoku, randomFn);
-    if (newBestSudoku === undefined) {
-      console.log("Max uniqueness reached");
+    if (newBestSudoku === sudoku) {
       break;
     }
     sudoku = newBestSudoku;
@@ -263,9 +253,6 @@ export function generateSudoku(
 ): {sudoku: SimpleSudoku; isInDifficultyRange: boolean; reachedMaxIterations: boolean; iterations: number} {
   const iterationGoal = DIFFICULTY_GOALS[difficulty];
 
-  /**
-   * returns the percentage of how close we are to the iteration goal
-   */
   function rateIterationsRelative(cost: number): number {
     if (cost === Infinity) {
       return cost;
@@ -273,16 +260,10 @@ export function generateSudoku(
     return Math.abs(cost / iterationGoal - 1) * 100;
   }
 
-  /**
-   * returns the absolute difference to the iteration goal
-   */
   function rateCostsAbsolute(cost: number): number {
     return Math.abs(cost - iterationGoal);
   }
 
-  /**
-   * returns if the costs are close enough to the requested difficulty level
-   */
   function validIterations(cost: number): boolean {
     return rateIterationsRelative(cost) < RELATIVE_DRIFT || rateCostsAbsolute(cost) < ABSOLUTE_DRIFT;
   }
@@ -290,9 +271,9 @@ export function generateSudoku(
   let unique = false;
   let sudoku: SimpleSudoku = [];
   while (!unique) {
-    // 1. create a random, solvable sudoku.
+    // 1. Create a random, solvable sudoku.
     sudoku = createSolvableSudoku(randomFn);
-    // 2. make it unique.
+    // 2. Make it unique.
     [sudoku, unique] = makeSudokuUnique(sudoku, randomFn);
   }
 
@@ -300,7 +281,7 @@ export function generateSudoku(
 
   let reachedMaxIterations = false;
   while (!validIterations(currentIterations)) {
-    let newSudoku: SimpleSudoku = [];
+    let newSudoku: SimpleSudoku = sudoku;
     // Too difficult, make it easier.
     if (currentIterations > iterationGoal) {
       newSudoku = simplifySudoku(sudoku, randomFn);
