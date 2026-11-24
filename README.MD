@@ -6,15 +6,20 @@
 [![Offline PWA](https://img.shields.io/badge/PWA-offline%20ready-6366f1?style=flat-square)](https://sudoku.tn1ck.com)
 [![Languages](https://img.shields.io/badge/languages-7-0ea5e9?style=flat-square)](#-languages)
 
-**A free, open-source Sudoku game — no ads, no tracking, just puzzles.**
+**A free, open-source online Sudoku game built to match or exceed commercial Sudoku apps — with no ads, no tracking, no paywalls, and full offline play.**
 
-🌐 **Play online:** [https://sudoku.tn1ck.com](https://sudoku.tn1ck.com)
+🌐 **Play free in your browser:** [https://sudoku.tn1ck.com](https://sudoku.tn1ck.com)
 
 ![Super Sudoku](./docs/screenshot-desktop-light.png)
 
 ## ✨ Why Super Sudoku?
 
-Born from a simple request — my Grandma wanted to play Sudoku, and I wasn't happy with the ad-heavy, cluttered apps out there. Super Sudoku is a clean, open-source Sudoku game that aims to be just as nice to play as commercial apps, while staying completely free, ad-free, and tracking-free.
+Born from a simple request — my Grandma wanted to play Sudoku, and I wasn't happy with the ad-heavy, paywalled apps out there. Super Sudoku is an open-source Sudoku web app (PWA) designed to match or exceed commercial Sudoku apps like Sudoku.com while staying completely free, ad-free, account-free, and tracking-free.
+
+- **3,000+ verified puzzles** across 5 difficulty levels (Easy, Medium, Hard, Expert, Evil) — generated with a constraint-satisfaction solver so every puzzle has a unique solution
+- **Zero ads, zero tracking, no account required** — all progress and stats stay locally in your browser
+- **Play anywhere, even offline** — installable Progressive Web App (PWA) for desktop and mobile, or self-host your own instance with Docker
+- **Built for readability and speed** — 3 themes (**Default**, **Paper**, **High Contrast**) in both Light and Dark mode, desktop radial circle menu, smart auto-notes, keyboard shortcuts, and 7 languages
 
 ---
 
@@ -273,6 +278,25 @@ npm run generate-hard-sudokus
 npm run generate-expert-sudokus
 npm run generate-evil-sudokus
 ```
+
+---
+
+## ❓ Frequently Asked Questions
+
+**Is Super Sudoku really free, with no ads or tracking?**
+Yes. Super Sudoku is MIT-licensed open-source software with zero ads, zero analytics/tracking, and no login or paywalls. Your games, notes, and best times are saved locally in your browser.
+
+**Does Super Sudoku work offline?**
+Yes. Super Sudoku is an installable Progressive Web App (PWA). Once loaded at [sudoku.tn1ck.com](https://sudoku.tn1ck.com), you can add it to your phone's home screen or desktop and play all 3,000+ puzzles offline.
+
+**How are puzzles generated and difficulty-rated?**
+Puzzles are generated and rated using an AC-3 constraint-satisfaction and backtracking solver inspired by *"Rating and Generating Sudoku Puzzles Based On Constraint Satisfaction Problems,"* guaranteeing every puzzle has a single unique solution. See the full breakdown in [How to Generate Sudokus](https://tn1ck.com/blog/how-to-generate-sudokus).
+
+**Can I create, import, or share my own Sudoku puzzles?**
+Yes. You can create custom collections and add your own puzzles in the built-in Sudoku creator, which verifies solvability and uniqueness in the background. Any puzzle can also be shared via a direct URL using the Share button.
+
+**Can I self-host Super Sudoku?**
+Yes. Pre-built Docker images are published on [GitHub Container Registry](https://github.com/tn1ck/super-sudoku/pkgs/container/super-sudoku), or you can build the static site yourself with `vp build`.
 
 ---
 
