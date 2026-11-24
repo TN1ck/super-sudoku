@@ -20,7 +20,7 @@ import {
   isPuzzleRecordKey,
   localStoragePlayedSudokuRepository,
 } from "src/lib/database/playedSudokus";
-import {solve} from "src/lib/engine/solverAC3";
+import {solve} from "src/lib/engine/solverAC3_bitmask";
 import {Cell} from "src/lib/engine/types";
 import {
   cellsToSimpleSudoku,

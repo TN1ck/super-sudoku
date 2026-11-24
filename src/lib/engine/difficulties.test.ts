@@ -1,4 +1,4 @@
-import {solve} from "./solverAC3";
+import {solve} from "./solverAC3_bitmask";
 import {parseSudoku} from "./utility";
 import {describe, it, expect} from "vite-plus/test";
 

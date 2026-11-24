@@ -1,6 +1,6 @@
 import {expect, describe, it} from "vite-plus/test";
 
-import {solve} from "src/lib/engine/solverAC3";
+import {solve} from "src/lib/engine/solverAC3_bitmask";
 import {ISSUE_33_CUSTOM_SUDOKU} from "src/lib/engine/testutils";
 import {simpleSudokuToCells} from "src/lib/engine/utility";
 
