@@ -22,6 +22,7 @@ interface UserPreferencesContextType {
   toggleShowConflicts: () => void;
   toggleShowCircleMenu: () => void;
   toggleShowWrongEntries: () => void;
+  toggleShowTimer: () => void;
 }
 
 const UserPreferencesContext = createContext<UserPreferencesContextType | undefined>(undefined);
@@ -47,6 +48,7 @@ export function UserPreferencesProvider({children, initialState}: UserPreference
   const toggleShowConflicts = useCallback(() => dispatch({type: "TOGGLE", key: "showConflicts"}), []);
   const toggleShowCircleMenu = useCallback(() => dispatch({type: "TOGGLE", key: "showCircleMenu"}), []);
   const toggleShowWrongEntries = useCallback(() => dispatch({type: "TOGGLE", key: "showWrongEntries"}), []);
+  const toggleShowTimer = useCallback(() => dispatch({type: "TOGGLE", key: "showTimer"}), []);
 
   const value = useMemo(
     () => ({
@@ -56,8 +58,17 @@ export function UserPreferencesProvider({children, initialState}: UserPreference
       toggleShowConflicts,
       toggleShowCircleMenu,
       toggleShowWrongEntries,
+      toggleShowTimer,
     }),
-    [state, toggleShowHints, toggleShowOccurrences, toggleShowConflicts, toggleShowCircleMenu, toggleShowWrongEntries],
+    [
+      state,
+      toggleShowHints,
+      toggleShowOccurrences,
+      toggleShowConflicts,
+      toggleShowCircleMenu,
+      toggleShowWrongEntries,
+      toggleShowTimer,
+    ],
   );
 
   return <UserPreferencesContext.Provider value={value}>{children}</UserPreferencesContext.Provider>;

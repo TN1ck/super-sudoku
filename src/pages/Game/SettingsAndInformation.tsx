@@ -14,12 +14,13 @@ const SettingsAndInformation: React.FC = () => {
     toggleShowCircleMenu,
     toggleShowWrongEntries,
     toggleShowConflicts,
+    toggleShowTimer,
   } = useUserPreferences();
   const {t} = useTranslation();
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
 
   return (
-    <div className="overflow-hidden rounded-md border border-border bg-surface shadow-sm">
+    <div className="overflow-hidden rounded-sm border border-border bg-surface shadow-sm">
       <button
         type="button"
         className="flex w-full items-center justify-between px-3.5 py-2.5 text-left text-sm font-semibold text-ink transition-colors hover:bg-surface-subtle/60 focus:outline-none"
@@ -57,6 +58,9 @@ const SettingsAndInformation: React.FC = () => {
         </Checkbox>
         <Checkbox id="show_occurrences" checked={state.showOccurrences} onChange={toggleShowOccurrences}>
           {t("show_occurrences")}
+        </Checkbox>
+        <Checkbox id="show_timer" checked={state.showTimer} onChange={toggleShowTimer}>
+          {t("show_timer")}
         </Checkbox>
         <ThemeSelector />
       </div>

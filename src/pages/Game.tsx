@@ -328,9 +328,9 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
               <DifficultyShow data-testid="current-game-label">{`${collectionName} #${game.sudokuIndex + 1}`}</DifficultyShow>
               <ShareButton gameState={game} sudokuState={sudokuState} />
             </div>
-            <div className="hidden text-ink-muted/60 sm:block">{"|"}</div>
+            {userPreferencesState.showTimer && <div className="hidden text-ink-muted/60 sm:block">{"|"}</div>}
             <div className="whitespace-nowrap text-sm tabular-nums text-ink-muted sm:text-base sm:text-ink">
-              <GameTimer />
+              <GameTimer hidden={!userPreferencesState.showTimer} />
             </div>
           </div>
           <div className="hidden items-center gap-2 text-lg font-bold text-ink md:flex md:text-2xl">

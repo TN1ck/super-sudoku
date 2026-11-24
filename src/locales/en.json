@@ -22,6 +22,7 @@
   "highlight_conflicts": "Highlight conflicts",
   "show_circle_menu": "Show circle menu when a cell is clicked (desktop only)",
   "show_occurrences": "Show occurrences of numbers in number buttons",
+  "show_timer": "Show timer",
   "about": "About",
   "about_text": "This sudoku app is and will be free of charge, free of ads and free of tracking. Its source code is available at",
   "created_by": "Created by Tom Nick.",

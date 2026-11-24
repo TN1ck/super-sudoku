@@ -1146,4 +1146,25 @@ test.describe("gameplay regressions", () => {
     await settingsToggle.click();
     await expect(page.locator("#generated_notes")).toBeHidden();
   });
+
+  test("hides the timer via Settings, persists across reload, and still tracks elapsed time", async ({page}) => {
+    await page.clock.install();
+    await openGame(page);
+    await expect(page.getByTestId("game-timer")).toBeVisible();
+
+    await openSettings(page);
+    await page.locator("#show_timer").uncheck();
+    await expect(page.getByTestId("game-timer")).toHaveCount(0);
+
+    await page.clock.fastForward(4000);
+
+    await page.reload();
+    await continueIfPaused(page);
+    await expect(page.getByTestId("game-timer")).toHaveCount(0);
+
+    await openSettings(page);
+    await expect(page.locator("#show_timer")).not.toBeChecked();
+    await page.locator("#show_timer").check();
+    await expect(page.getByTestId("game-timer")).toHaveText("00:04 min");
+  });
 });

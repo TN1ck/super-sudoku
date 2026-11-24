@@ -22,6 +22,7 @@
   "highlight_conflicts": "Destacar conflitos",
   "show_circle_menu": "Mostrar menu circular ao clicar em uma célula (apenas desktop)",
   "show_occurrences": "Mostrar ocorrências de números nos botões numéricos",
+  "show_timer": "Mostrar cronômetro",
   "about": "Sobre",
   "about_text": "Este aplicativo de sudoku é e será gratuito, sem anúncios e sem rastreamento. Seu código-fonte está disponível em",
   "created_by": "Criado por Tom Nick.",

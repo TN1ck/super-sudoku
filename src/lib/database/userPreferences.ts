@@ -8,6 +8,7 @@ export interface UserPreferences {
   showConflicts: boolean;
   showCircleMenu: boolean;
   showOccurrences: boolean;
+  showTimer: boolean;
 }
 
 export const DEFAULT_USER_PREFERENCES: UserPreferences = {
@@ -16,6 +17,7 @@ export const DEFAULT_USER_PREFERENCES: UserPreferences = {
   showConflicts: true,
   showCircleMenu: true,
   showOccurrences: false,
+  showTimer: true,
 };
 
 interface UserPreferencesRepository {
@@ -48,6 +50,7 @@ export const localStorageUserPreferencesRepository: UserPreferencesRepository = 
         typeof parsed.showCircleMenu === "boolean" ? parsed.showCircleMenu : DEFAULT_USER_PREFERENCES.showCircleMenu,
       showOccurrences:
         typeof parsed.showOccurrences === "boolean" ? parsed.showOccurrences : DEFAULT_USER_PREFERENCES.showOccurrences,
+      showTimer: typeof parsed.showTimer === "boolean" ? parsed.showTimer : DEFAULT_USER_PREFERENCES.showTimer,
     };
   },
 

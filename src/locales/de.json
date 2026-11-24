@@ -22,6 +22,7 @@
   "highlight_conflicts": "Konflikte hervorheben",
   "show_circle_menu": "Kreismenü beim Klicken auf eine Zelle anzeigen (nur Desktop)",
   "show_occurrences": "Vorkommen von Zahlen in Zahlen-Buttons anzeigen",
+  "show_timer": "Timer anzeigen",
   "about": "Über",
   "about_text": "Diese Sudoku-App ist und wird kostenlos, werbefrei und ohne Tracking sein. Der Quellcode ist verfügbar unter",
   "created_by": "Erstellt von Tom Nick.",

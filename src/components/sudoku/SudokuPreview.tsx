@@ -9,13 +9,10 @@ interface SudokuPreviewProps {
   sudoku: SimpleSudoku;
   id: number;
   darken?: boolean;
-  size?: number;
   onClick: () => void;
 }
 
-const SudokuPreview = React.memo(({sudoku, id, darken, size = 150, onClick}: SudokuPreviewProps) => {
-  const fontSize = size / 16;
-
+const SudokuPreview = React.memo(({sudoku, id, darken, onClick}: SudokuPreviewProps) => {
   const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
@@ -26,7 +23,8 @@ const SudokuPreview = React.memo(({sudoku, id, darken, size = 150, onClick}: Sud
   return (
     <div
       aria-label={`Select sudoku ${id}`}
-      className="group select-none hover:cursor-pointer"
+      className="group w-full select-none hover:cursor-pointer"
+      style={{containerType: "inline-size"}}
       data-testid={`sudoku-preview-${id}`}
       role="button"
       tabIndex={0}
@@ -34,11 +32,9 @@ const SudokuPreview = React.memo(({sudoku, id, darken, size = 150, onClick}: Sud
       onKeyDown={onKeyDown}
     >
       <div
-        className="relative overflow-hidden rounded-sm border border-board-border/50 bg-board-bg shadow-sm"
+        className="relative aspect-square w-full overflow-hidden rounded-sm border border-board-border/50 bg-board-bg shadow-sm"
         style={{
-          height: size,
-          width: size,
-          fontSize,
+          fontSize: "6.25cqi",
           lineHeight: 1,
         }}
       >
@@ -67,7 +63,7 @@ const SudokuPreview = React.memo(({sudoku, id, darken, size = 150, onClick}: Sud
           <div className="absolute left-0 top-0 z-10 h-full w-full bg-ink/10 transition-opacity duration-300 group-hover:opacity-0" />
         ) : null}
         <div className="pointer-events-none absolute left-0 top-0 z-20 flex h-full w-full items-center justify-center">
-          <div style={{fontSize: size / 3}} className="font-bold text-ink opacity-85">
+          <div style={{fontSize: "33.33cqi"}} className="font-bold text-ink opacity-85">
             {id}
           </div>
         </div>
