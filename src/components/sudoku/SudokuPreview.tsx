@@ -34,7 +34,7 @@ const SudokuPreview = React.memo(({sudoku, id, darken, size = 150, onClick}: Sud
       onKeyDown={onKeyDown}
     >
       <div
-        className="relative rounded-sm bg-gray-100 dark:bg-gray-700"
+        className="relative overflow-hidden rounded-sm border border-board-border/50 bg-board-bg shadow-sm"
         style={{
           height: size,
           width: size,
@@ -43,7 +43,7 @@ const SudokuPreview = React.memo(({sudoku, id, darken, size = 150, onClick}: Sud
         }}
       >
         <div className="absolute left-0 top-0 z-10 flex h-full w-full items-center justify-center">
-          <div style={{fontSize: size / 3}} className="font-bold text-black opacity-80 dark:text-white">
+          <div style={{fontSize: size / 3}} className="font-bold text-ink opacity-80">
             {id}
           </div>
         </div>
@@ -54,7 +54,7 @@ const SudokuPreview = React.memo(({sudoku, id, darken, size = 150, onClick}: Sud
               n !== 0 ? (
                 <div
                   key={x}
-                  className="text-black dark:text-white"
+                  className="text-digit-given"
                   style={{
                     position: "absolute",
                     left: `${CELL_SECTION * (x + 0.5)}%`,
@@ -69,7 +69,7 @@ const SudokuPreview = React.memo(({sudoku, id, darken, size = 150, onClick}: Sud
           </div>
         ))}
         {darken ? (
-          <div className="duration-300 absolute left-0 top-0 z-20 h-full w-full bg-black opacity-20 transition-opacity group-hover:opacity-0" />
+          <div className="absolute left-0 top-0 z-20 h-full w-full bg-ink/10 transition-opacity duration-300 group-hover:opacity-0" />
         ) : null}
       </div>
     </div>

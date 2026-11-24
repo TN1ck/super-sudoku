@@ -135,7 +135,7 @@ const NewGameButton: React.FC = () => {
   };
 
   return (
-    <Button className="bg-teal-600 text-white dark:bg-teal-600" onClick={pauseAndChoose}>
+    <Button variant="accent" onClick={pauseAndChoose}>
       {t("new_game")}
     </Button>
   );
@@ -187,7 +187,7 @@ const ShareButton: React.FC<{
   return (
     <button
       aria-label={t("share")}
-      className="rounded-md border-none bg-transparent p-1 text-white hover:cursor-pointer hover:bg-gray-500"
+      className="rounded-md border-none bg-transparent p-1 text-ink-muted transition-colors hover:cursor-pointer hover:bg-surface-subtle hover:text-ink"
       data-testid="share-sudoku"
       onClick={handleShare}
       type="button"
@@ -203,14 +203,14 @@ const CenteredContinueButton: React.FC<{visible: boolean; onClick: () => void}> 
     data-testid="continue-overlay"
     className={`${visible ? "flex" : "hidden"} absolute z-30 h-full w-full items-center justify-center hover:cursor-pointer`}
   >
-    <div className="duration-200 relative flex h-20 w-20 items-center justify-center rounded-full bg-teal-500 transition-transform ease-out hover:scale-110">
-      <div className="absolute h-0 w-0 translate-x-[5px] border-b-[20px] border-l-[30px] border-t-[20px] border-b-transparent border-l-white border-t-transparent" />
+    <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-accent shadow-lg transition-transform duration-200 ease-out hover:scale-110">
+      <div className="absolute h-0 w-0 translate-x-[5px] border-b-[20px] border-l-[30px] border-t-[20px] border-b-transparent border-l-accent-text border-t-transparent" />
     </div>
   </div>
 );
 
 const DifficultyShow = ({children, ...props}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className="capitalize text-white" {...props}>
+  <div className="font-semibold capitalize text-ink" {...props}>
     {children}
   </div>
 );
@@ -309,15 +309,15 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
           copyNotes={copyNotes}
         />
         <header className="mt-4 flex justify-between sm:items-center">
-          <div className="flex flex-col gap-2 text-white sm:flex-row sm:items-center sm:justify-end">
+          <div className="flex flex-col gap-2 text-ink sm:flex-row sm:items-center sm:justify-end">
             <div className="flex items-center gap-2">
               <DifficultyShow data-testid="current-game-label">{`${collectionName} #${game.sudokuIndex + 1}`}</DifficultyShow>
               <ShareButton gameState={game} sudokuState={sudokuState} />
             </div>
-            <div className="hidden sm:block">{"|"}</div>
+            <div className="hidden text-ink-muted/60 sm:block">{"|"}</div>
             <GameTimer />
           </div>
-          <div className="flex items-center gap-2 text-lg font-bold text-white sm:text-2xl">{t("super_sudoku")}</div>
+          <div className="flex items-center gap-2 text-lg font-bold text-ink sm:text-2xl">{t("super_sudoku")}</div>
           <div className="flex">
             <div className="flex flex-col items-end justify-end gap-2 sm:flex-row">
               <div className="flex gap-2">
@@ -390,10 +390,10 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
               />
             </fieldset>
             <SettingsAndInformation />
-            <div className="flex items-center justify-center gap-4 text-xs text-gray-400">
+            <div className="flex items-center justify-center gap-4 text-xs text-ink-muted">
               <button
                 type="button"
-                className="hidden transition-colors hover:text-white md:inline-flex"
+                className="hidden transition-colors hover:text-ink md:inline-flex"
                 onClick={(e) => {
                   setInfoPanel("shortcuts");
                   e.currentTarget.blur();
@@ -401,12 +401,12 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
               >
                 {t("shortcuts")}
               </button>
-              <span className="hidden text-gray-600 md:inline" aria-hidden="true">
+              <span className="hidden text-ink-muted/50 md:inline" aria-hidden="true">
                 ·
               </span>
               <button
                 type="button"
-                className="inline-flex transition-colors hover:text-white"
+                className="inline-flex transition-colors hover:text-ink"
                 onClick={(e) => {
                   setInfoPanel("about");
                   e.currentTarget.blur();

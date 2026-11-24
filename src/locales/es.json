@@ -67,5 +67,12 @@
   "add_new_collection": "+ Nueva colección",
   "enter_new_collection_name": "Ingresa el nombre de la nueva colección de sudoku:",
   "confirm_clear": "¿Estás seguro de que quieres reiniciar este juego? Tu progreso se perderá.",
-  "copied": "Copiado"
+  "copied": "Copiado",
+  "theme": "Tema",
+  "theme_light": "Claro",
+  "theme_paper": "Papel",
+  "theme_high_contrast": "Alto contraste",
+  "theme_dark": "Oscuro",
+  "theme_ocean": "Océano",
+  "theme_forest": "Bosque"
 }

@@ -16,7 +16,33 @@
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#10b981" />
     <meta name="msapplication-TileColor" content="#1F2937" />
-    <meta name="theme-color" content="#1F2937" />
+    <meta name="theme-color" content="#f1f5f9" />
+    <script>
+      (function () {
+        try {
+          var themes = {
+            light: "light",
+            paper: "light",
+            "high-contrast": "light",
+            dark: "dark",
+            ocean: "dark",
+            forest: "dark",
+          };
+          var theme = localStorage.getItem("theme");
+          if (!theme || !themes[theme]) {
+            var rawDark = localStorage.getItem("darkMode");
+            var parsedDark = rawDark ? JSON.parse(rawDark) : undefined;
+            if (typeof parsedDark === "boolean") {
+              theme = parsedDark ? "dark" : "light";
+            } else {
+              theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+            }
+          }
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = themes[theme];
+        } catch (e) {}
+      })();
+    </script>
     <meta
       name="description"
       content="Play over 500 Sudoku puzzles ranging from easy to evil. Open source and completely free with no tracking."

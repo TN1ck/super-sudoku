@@ -2,11 +2,12 @@ import * as React from "react";
 import clsx from "clsx";
 import {useTranslation} from "react-i18next";
 import Checkbox from "src/components/Checkbox";
+import ThemeSelector from "src/components/ThemeSelector";
 import {useUserPreferences} from "src/context/UserPreferencesContext";
 
 const SlidersIcon: React.FC = () => (
   <svg
-    className="h-4 w-4 text-gray-400"
+    className="h-4 w-4 text-ink-muted"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -22,7 +23,7 @@ const SlidersIcon: React.FC = () => (
 
 const ChevronIcon: React.FC<{open: boolean}> = ({open}) => (
   <svg
-    className={clsx("duration-150 h-4 w-4 text-gray-400 transition-transform", open && "rotate-180")}
+    className={clsx("h-4 w-4 text-ink-muted transition-transform duration-150", open && "rotate-180")}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -46,10 +47,10 @@ const SettingsAndInformation: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
 
   return (
-    <div className="overflow-hidden rounded-md border border-white/10 bg-gray-700/40 dark:bg-gray-800/60">
+    <div className="overflow-hidden rounded-md border border-border bg-surface shadow-sm">
       <button
         type="button"
-        className="flex w-full items-center justify-between px-3.5 py-2.5 text-left text-sm font-semibold text-gray-200 transition-colors hover:bg-white/5 focus:outline-none"
+        className="flex w-full items-center justify-between px-3.5 py-2.5 text-left text-sm font-semibold text-ink transition-colors hover:bg-surface-subtle/60 focus:outline-none"
         onClick={(e) => {
           setIsSettingsOpen((prev) => !prev);
           e.currentTarget.blur();
@@ -65,7 +66,7 @@ const SettingsAndInformation: React.FC = () => {
       </button>
       <div
         id="game-settings-panel"
-        className={isSettingsOpen ? "grid gap-2.5 border-t border-white/10 px-3.5 py-3" : "hidden"}
+        className={isSettingsOpen ? "grid gap-2.5 border-t border-border px-3.5 py-3" : "hidden"}
       >
         <Checkbox id="generated_notes" checked={state.showHints} onChange={toggleShowHints}>
           {t("show_auto_notes")}
@@ -82,6 +83,7 @@ const SettingsAndInformation: React.FC = () => {
         <Checkbox id="show_occurrences" checked={state.showOccurrences} onChange={toggleShowOccurrences}>
           {t("show_occurrences")}
         </Checkbox>
+        <ThemeSelector />
       </div>
     </div>
   );

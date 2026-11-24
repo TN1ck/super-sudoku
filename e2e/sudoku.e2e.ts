@@ -1081,6 +1081,46 @@ test.describe("gameplay regressions", () => {
     await expect(secondTab.locator("body")).toHaveClass(/dark/);
   });
 
+  test("switches themes from Settings, persists across reloads, syncs across tabs, and remembers light/dark pairs", async ({
+    page,
+    context,
+  }) => {
+    await openGame(page);
+
+    // Default light mode uses a bright light canvas instead of dark gray.
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    const lightCanvasBg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    expect(lightCanvasBg).toBe("rgb(241, 245, 249)");
+
+    const secondTab = await context.newPage();
+    await openGame(secondTab);
+
+    await openSettings(page);
+    await page.getByTestId("theme-option-paper").click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "paper");
+    await expect(page.locator("body")).not.toHaveClass(/dark/);
+    await expect(secondTab.locator("html")).toHaveAttribute("data-theme", "paper");
+
+    // Pick a dark theme, then toggle light/dark from the header and verify it restores Paper <-> Ocean.
+    await page.getByTestId("theme-option-ocean").click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "ocean");
+    await expect(page.locator("body")).toHaveClass(/dark/);
+    await expect(secondTab.locator("html")).toHaveAttribute("data-theme", "ocean");
+
+    await page.getByRole("button", {name: "Toggle dark mode"}).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "paper");
+    await expect(page.locator("body")).not.toHaveClass(/dark/);
+
+    await page.getByRole("button", {name: "Toggle dark mode"}).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "ocean");
+    await expect(page.locator("body")).toHaveClass(/dark/);
+
+    // Persists across reload.
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "ocean");
+    await expect(page.locator("body")).toHaveClass(/dark/);
+  });
+
   test("opens Shortcuts and About modals without pausing on Escape and toggles settings panel", async ({page}) => {
     await openGame(page);
 

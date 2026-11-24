@@ -43,14 +43,14 @@ export const InfoModal: React.FC<InfoModalProps> = ({panel, onClose}) => {
       aria-labelledby="info-modal-title"
     >
       <div
-        className="w-full max-w-xl rounded-md bg-gray-100 p-4 text-black shadow-xl dark:bg-gray-800 dark:text-white"
+        className="w-full max-w-xl rounded-md border border-border bg-surface p-4 text-ink shadow-xl"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 id="info-modal-title" className="text-2xl font-bold">
             {panel === "shortcuts" ? t("shortcuts") : t("about")}
           </h2>
-          <Button aria-label={t("close")} className="bg-gray-200 dark:bg-gray-600" onClick={onClose}>
+          <Button aria-label={t("close")} onClick={onClose}>
             ✕
           </Button>
         </div>
@@ -70,17 +70,27 @@ export const InfoModal: React.FC<InfoModalProps> = ({panel, onClose}) => {
         ) : (
           <p>
             {t("about_text")}{" "}
-            <a target="_blank" className="underline" href="https://github.com/TN1ck/super-sudoku" rel="noreferrer">
+            <a
+              target="_blank"
+              className="text-accent underline hover:text-accent-hover"
+              href="https://github.com/TN1ck/super-sudoku"
+              rel="noreferrer"
+            >
               Github
             </a>
             .{" "}
-            <a href="https://tn1ck.com" target="_blank" className="hover:underline" rel="noreferrer">
+            <a
+              href="https://tn1ck.com"
+              target="_blank"
+              className="text-accent hover:text-accent-hover hover:underline"
+              rel="noreferrer"
+            >
               {t("created_by")}
             </a>{" "}
             {t("report_issue")}{" "}
             <a
               target="_blank"
-              className="underline"
+              className="text-accent underline hover:text-accent-hover"
               href="https://github.com/TN1ck/super-sudoku/issues"
               rel="noreferrer"
             >

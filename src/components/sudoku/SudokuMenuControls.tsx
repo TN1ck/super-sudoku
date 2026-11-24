@@ -79,15 +79,14 @@ const NotesButton: React.FC<{
   return (
     <Button
       aria-pressed={notesMode}
+      variant={notesMode ? "note" : "default"}
       onClick={() => (notesMode ? deactivateNotesMode() : activateNotesMode())}
-      className={clsx("relative", controlButtonClassName, {
-        "bg-sky-600 text-white dark:bg-sky-600": notesMode,
-      })}
+      className={clsx("relative", controlButtonClassName)}
     >
       <span
         className={clsx(
           "absolute right-1 top-1 rounded px-1 py-0.5 text-[9px] font-semibold leading-none tracking-wide md:right-1.5 md:top-1.5 md:px-1.5 md:text-[10px]",
-          notesMode ? "bg-white/20 text-white" : "bg-gray-200 text-gray-500 dark:bg-gray-600/80 dark:text-gray-300",
+          notesMode ? "bg-accent-text/20 text-accent-text" : "bg-surface-subtle text-ink-muted",
         )}
       >
         {notesMode ? "ON" : "OFF"}
