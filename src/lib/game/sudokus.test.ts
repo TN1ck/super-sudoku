@@ -55,7 +55,7 @@ describe("chunked base collections", () => {
 
   it("loads base collection pages on demand and caches chunks for synchronous reuse", async () => {
     const easyCount = getBaseCollectionCount(BaseCollection.Easy);
-    expect(easyCount).toBeGreaterThanOrEqual(600);
+    expect(easyCount).toBeGreaterThanOrEqual(6000);
 
     const firstPage = await loadBaseCollectionPage(BaseCollection.Easy, 0, 12);
     expect(firstPage.totalRows).toBe(easyCount);
@@ -74,7 +74,12 @@ describe("chunked base collections", () => {
     expect(evilCount).toBeGreaterThan(SUDOKU_CHUNK_SIZE);
 
     const chunk1 = await loadBaseCollectionChunk(BaseCollection.Evil, 1);
-    expect(chunk1.length).toBe(evilCount - SUDOKU_CHUNK_SIZE);
+    expect(chunk1.length).toBe(Math.min(SUDOKU_CHUNK_SIZE, evilCount - SUDOKU_CHUNK_SIZE));
+
+    const lastChunkIndex = Math.ceil(evilCount / SUDOKU_CHUNK_SIZE) - 1;
+    const lastChunk = await loadBaseCollectionChunk(BaseCollection.Evil, lastChunkIndex);
+    const expectedLastChunkLength = evilCount % SUDOKU_CHUNK_SIZE || SUDOKU_CHUNK_SIZE;
+    expect(lastChunk.length).toBe(expectedLastChunkLength);
 
     const firstInSecondChunk = await loadCollectionPuzzleRaw(BaseCollection.Evil, SUDOKU_CHUNK_SIZE, () => ({
       id: BaseCollection.Evil,
@@ -82,10 +87,36 @@ describe("chunked base collections", () => {
     }));
     expect(firstInSecondChunk).toBe(chunk1[0]);
 
+    const lastPuzzle = await loadCollectionPuzzleRaw(BaseCollection.Evil, evilCount - 1, () => ({
+      id: BaseCollection.Evil,
+      name: BaseCollection.Evil,
+    }));
+    expect(lastPuzzle).toBe(lastChunk[lastChunk.length - 1]);
+
     const pastEnd = await loadCollectionPuzzleRaw(BaseCollection.Evil, evilCount, () => ({
       id: BaseCollection.Evil,
       name: BaseCollection.Evil,
     }));
     expect(pastEnd).toBeNull();
+  });
+
+  it("contains no duplicate puzzles within or across base collections", async () => {
+    const seen = new Set<string>();
+    let total = 0;
+
+    for (const collection of Object.values(BaseCollection)) {
+      const count = getBaseCollectionCount(collection);
+      const chunkCount = Math.ceil(count / SUDOKU_CHUNK_SIZE);
+      for (let chunkIndex = 0; chunkIndex < chunkCount; chunkIndex++) {
+        const chunk = await loadBaseCollectionChunk(collection, chunkIndex);
+        for (const puzzle of chunk) {
+          seen.add(puzzle);
+          total++;
+        }
+      }
+    }
+
+    expect(total).toBeGreaterThanOrEqual(30000);
+    expect(seen.size).toBe(total);
   });
 });
