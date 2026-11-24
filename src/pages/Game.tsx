@@ -58,6 +58,8 @@ function resetBoardCells(cells: Cell[]): Cell[] {
   return simpleSudokuToCells(simpleSudoku, solved.sudoku ?? undefined);
 }
 
+const headerActionButtonClassName = "h-8 whitespace-nowrap px-2.5 text-sm md:h-10 md:px-4 md:text-base";
+
 function PauseButton({
   disabled,
   paused,
@@ -71,7 +73,7 @@ function PauseButton({
 }) {
   const {t} = useTranslation();
   return (
-    <Button disabled={disabled} onClick={paused ? continueGame : pauseGame}>
+    <Button disabled={disabled} className={headerActionButtonClassName} onClick={paused ? continueGame : pauseGame}>
       {paused ? t("continue") : t("pause")}
     </Button>
   );
@@ -118,7 +120,7 @@ const ClearGameButton: React.FC<{
   };
 
   return (
-    <Button disabled={disabled} onClick={clearGameLocal}>
+    <Button disabled={disabled} className={headerActionButtonClassName} onClick={clearGameLocal}>
       {t("clear")}
     </Button>
   );
@@ -135,11 +137,26 @@ const NewGameButton: React.FC = () => {
   };
 
   return (
-    <Button variant="accent" onClick={pauseAndChoose}>
+    <Button variant="accent" className={headerActionButtonClassName} onClick={pauseAndChoose}>
       {t("new_game")}
     </Button>
   );
 };
+
+const ShareIcon: React.FC = () => (
+  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <circle cx="18" cy="5" r="3" />
+    <circle cx="6" cy="12" r="3" />
+    <circle cx="18" cy="19" r="3" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="m8.59 13.51 6.83 3.98m-.01-10.98-6.82 3.98" />
+  </svg>
+);
+
+const CheckIcon: React.FC = () => (
+  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+  </svg>
+);
 
 const ShareButton: React.FC<{
   gameState: GameState;
@@ -187,12 +204,23 @@ const ShareButton: React.FC<{
   return (
     <button
       aria-label={t("share")}
-      className="rounded-md border-none bg-transparent p-1 text-ink-muted transition-colors hover:cursor-pointer hover:bg-surface-subtle hover:text-ink"
+      title={copied ? t("copied") : t("share")}
+      className="inline-flex h-7 items-center justify-center gap-1 rounded-sm border-none bg-transparent px-1.5 text-ink-muted transition-colors hover:cursor-pointer hover:bg-surface-subtle hover:text-ink"
       data-testid="share-sudoku"
-      onClick={handleShare}
+      onClick={(e) => {
+        void handleShare();
+        e.currentTarget.blur();
+      }}
       type="button"
     >
-      {copied ? t("copied") : `🔗 ${t("share")}`}
+      {copied ? (
+        <>
+          <CheckIcon />
+          <span className="text-xs font-semibold text-accent">{t("copied")}</span>
+        </>
+      ) : (
+        <ShareIcon />
+      )}
     </button>
   );
 };
@@ -210,7 +238,7 @@ const CenteredContinueButton: React.FC<{visible: boolean; onClick: () => void}> 
 );
 
 const DifficultyShow = ({children, ...props}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className="font-semibold capitalize text-ink" {...props}>
+  <div className="whitespace-nowrap font-semibold capitalize text-ink" {...props}>
     {children}
   </div>
 );
@@ -308,19 +336,23 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
           clipboardNotes={game.clipboardNotes}
           copyNotes={copyNotes}
         />
-        <header className="mt-4 flex justify-between sm:items-center">
-          <div className="flex flex-col gap-2 text-ink sm:flex-row sm:items-center sm:justify-end">
-            <div className="flex items-center gap-2">
+        <header className="mt-3 flex items-center justify-between gap-2 sm:mt-4">
+          <div className="flex min-w-0 flex-col gap-0.5 text-ink sm:flex-row sm:items-center sm:gap-2">
+            <div className="flex items-center gap-1">
               <DifficultyShow data-testid="current-game-label">{`${collectionName} #${game.sudokuIndex + 1}`}</DifficultyShow>
               <ShareButton gameState={game} sudokuState={sudokuState} />
             </div>
             <div className="hidden text-ink-muted/60 sm:block">{"|"}</div>
-            <GameTimer />
+            <div className="whitespace-nowrap text-sm tabular-nums text-ink-muted sm:text-base sm:text-ink">
+              <GameTimer />
+            </div>
           </div>
-          <div className="flex items-center gap-2 text-lg font-bold text-ink sm:text-2xl">{t("super_sudoku")}</div>
-          <div className="flex">
-            <div className="flex flex-col items-end justify-end gap-2 sm:flex-row">
-              <div className="flex gap-2">
+          <div className="hidden items-center gap-2 text-lg font-bold text-ink md:flex md:text-2xl">
+            {t("super_sudoku")}
+          </div>
+          <div className="flex shrink-0">
+            <div className="flex flex-col items-end justify-end gap-1.5 sm:flex-row sm:items-center sm:gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <LanguageSelector />
                 <DarkModeButton />
                 <ClearGameButton
@@ -333,7 +365,7 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
                   }}
                 />
               </div>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <PauseButton
                   disabled={game.won}
                   paused={pausedGame}
@@ -345,7 +377,7 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
             </div>
           </div>
         </header>
-        <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-start">
+        <div className="mt-3 flex flex-col gap-4 sm:mt-4 md:flex-row md:items-start">
           <main className="w-full min-w-0 md:flex-1">
             <Sudoku
               showWrongEntries={userPreferencesState.showWrongEntries && !pausedGame}
