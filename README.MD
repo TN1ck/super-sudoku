@@ -4,29 +4,28 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D22.18-16a34a?style=flat-square)](https://nodejs.org/)
 [![Offline PWA](https://img.shields.io/badge/PWA-offline%20ready-6366f1?style=flat-square)](https://sudoku.tn1ck.com)
-[![Languages](https://img.shields.io/badge/languages-7-0ea5e9?style=flat-square)](#-internationalization)
+[![Languages](https://img.shields.io/badge/languages-7-0ea5e9?style=flat-square)](#-languages)
 
-**A crisp, open-source Sudoku web app crafted for focus — free, ad-free, tracking-free, and offline-ready.**
+**A free, open-source online Sudoku game built to match or exceed commercial Sudoku apps — with no ads, no tracking, no paywalls, and full offline play.**
 
-🌐 **Play Now:** [https://sudoku.tn1ck.com](https://sudoku.tn1ck.com)
+🌐 **Play free in your browser:** [https://sudoku.tn1ck.com](https://sudoku.tn1ck.com)
 
-<p align="center">
-  <img src="./docs/showcase.webp" alt="Super Sudoku animated showcase" width="100%" />
-  <br />
-  <sub>
-    🎬 <a href="./docs/showcase.mp4"><strong>Watch / Download Full HD Video Showcase (1280×720 · 30fps MP4)</strong></a>
-  </sub>
-</p>
+![Super Sudoku](./docs/screenshot-desktop-light.png)
 
 ## ✨ Why Super Sudoku?
 
-Born from a simple request — my Grandma wanted to play Sudoku, but I wasn't satisfied with the ad-heavy, cluttered apps out there. Super Sudoku delivers a calm, thoughtful puzzle experience that rivals or exceeds commercial apps while staying 100% open source, free of charge, free of ads, and free of tracking.
+Born from a simple request — my Grandma wanted to play Sudoku, and I wasn't happy with the ad-heavy, paywalled apps out there. Super Sudoku is an open-source Sudoku web app (PWA) designed to match or exceed commercial Sudoku apps like Sudoku.com while staying completely free, ad-free, account-free, and tracking-free.
+
+- **3,000+ verified puzzles** across 5 difficulty levels (Easy, Medium, Hard, Expert, Evil) — generated with a constraint-satisfaction solver so every puzzle has a unique solution
+- **Zero ads, zero tracking, no account required** — all progress and stats stay locally in your browser
+- **Play anywhere, even offline** — installable Progressive Web App (PWA) for desktop and mobile, or self-host your own instance with Docker
+- **Built for readability and speed** — 3 themes (**Default**, **Paper**, **High Contrast**) in both Light and Dark mode, desktop radial circle menu, smart auto-notes, keyboard shortcuts, and 7 languages
 
 ---
 
-## 🎨 Themes & Visual Styles
+## 🎨 Themes & Light/Dark Mode
 
-Super Sudoku features a CSS-variable theming system with **3 curated themes** — each supporting both **Light** and **Dark** modes (with automatic system preference detection) and unified **Phosphor** iconography.
+Pick between **3 built-in themes** (**Default**, **Paper**, and **High Contrast**) and switch between **Light** and **Dark** mode independently for any of them (following your system preference by default).
 
 <table>
   <thead>
@@ -75,51 +74,51 @@ Super Sudoku features a CSS-variable theming system with **3 curated themes** �
 
 ---
 
-## 📸 Feature Gallery
+## 📸 Screenshots
 
-### Gameplay, Radial Circle Menu & Smart Assistance
+### Gameplay & Helpers
 
 <table>
   <thead>
     <tr>
-      <th width="50%">Interactive Radial Circle Menu</th>
-      <th width="50%">Conflict Detection &amp; Occurrence Counters</th>
+      <th width="50%">Radial Circle Menu</th>
+      <th width="50%">Conflict Detection &amp; Number Counts</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td>
         <img src="./docs/screenshot-circle-menu.png" alt="Radial circle menu on desktop" />
-        <br /><sub>Left-click any cell for quick number entry, or right-click to toggle pencil notes without leaving number mode.</sub>
+        <br /><sub>Click any cell to pick a number quickly, or right-click to toggle pencil notes without switching modes.</sub>
       </td>
       <td>
         <img src="./docs/screenshot-smart-assist.png" alt="Conflict highlighting, wrong entry detection, and occurrence counters" />
-        <br /><sub>Optional real-time conflict highlighting, wrong-entry alerts, auto-generated notes, and keypad occurrence badges.</sub>
+        <br /><sub>Optional conflict highlighting, wrong-entry alerts, auto-generated notes, and number counts on the keypad.</sub>
       </td>
     </tr>
     <tr>
-      <th width="50%">Keyboard Shortcuts Modal</th>
-      <th width="50%">Victory &amp; Solve Statistics Overlay</th>
+      <th width="50%">Keyboard Shortcuts</th>
+      <th width="50%">Win Screen &amp; Stats</th>
     </tr>
     <tr>
       <td>
         <img src="./docs/screenshot-shortcuts-modal.png" alt="Keyboard shortcuts modal" />
-        <br /><sub>Clean, accessible modal with keycap hints — press <code>Escape</code> to close without pausing your game.</sub>
+        <br /><sub>Quick-reference shortcuts modal — press <code>Escape</code> to close it without pausing your game.</sub>
       </td>
       <td>
         <img src="./docs/screenshot-win-overlay.png" alt="Win overlay with solve stats and next puzzle button" />
-        <br /><sub>Tracks solve counts, personal best times, and lets you jump straight into the next puzzle.</sub>
+        <br /><sub>Shows how many times you've solved a puzzle, your best time, and lets you jump straight into the next one.</sub>
       </td>
     </tr>
   </tbody>
 </table>
 
-### Puzzle Library, Custom Creator & Internationalization
+### Puzzle Library, Custom Puzzles & Languages
 
 <table>
   <thead>
     <tr>
-      <th width="50%">3,000+ Puzzles &amp; Progress Tracking</th>
+      <th width="50%">3,000+ Puzzles &amp; Saved Progress</th>
       <th width="50%">Custom Sudoku Creator</th>
     </tr>
   </thead>
@@ -127,11 +126,11 @@ Super Sudoku features a CSS-variable theming system with **3 curated themes** �
     <tr>
       <td>
         <img src="./docs/screenshot-select-game.png" alt="Select Game screen with 5 difficulties and progress overlays" />
-        <br /><sub>Browse 5 difficulty levels (Easy to Evil) plus your own custom collections, with play times and solve history.</sub>
+        <br /><sub>Browse 5 difficulty levels (Easy to Evil) plus your own collections, with play times and solve history.</sub>
       </td>
       <td>
         <img src="./docs/screenshot-custom-creator.png" alt="Custom Sudoku puzzle creator" />
-        <br /><sub>Build your own puzzles with live solvability and unique-solution verification running in a background Web Worker.</sub>
+        <br /><sub>Add your own puzzles with automatic solvability and unique-solution checking in the background.</sub>
       </td>
     </tr>
   </tbody>
@@ -140,10 +139,10 @@ Super Sudoku features a CSS-variable theming system with **3 curated themes** �
 <p align="center">
   <img src="./docs/screenshot-multilingual.png" alt="Super Sudoku localized in Chinese with Paper theme" width="82%" />
   <br />
-  <sub>🌍 Localized in <strong>7 languages</strong>: English, Français, Español, Deutsch, Italiano, Português, and 中文.</sub>
+  <sub>🌍 Available in <strong>7 languages</strong>: English, Français, Español, Deutsch, Italiano, Português, and 中文.</sub>
 </p>
 
-### Mobile & Responsive PWA
+### Mobile & Offline Play
 
 <table>
   <thead>
@@ -164,29 +163,29 @@ Super Sudoku features a CSS-variable theming system with **3 curated themes** �
 
 ---
 
-## 🚀 Key Features
+## 🚀 Features
 
-### 🎮 Core Gameplay
-- **3,000+ Curated Puzzles**: ~600 puzzles per tier across **5 difficulty levels** (*Easy, Medium, Hard, Expert, Evil*).
-- **Smart Hints**: Reveal a single cell when you're stuck while automatically clearing conflicting notes.
-- **Full Undo / Redo History**: Step backward and forward seamlessly (`Ctrl/Cmd + Z` & `Ctrl/Cmd + Y`).
-- **Auto-Save & Solve Statistics**: Your board, notes, timer, solve counts, and best times persist locally in your browser.
-- **Optional Hide Timer**: Toggle the timer off in Settings for relaxed, pressure-free solving.
-- **Shareable Puzzle Links**: Copy a direct URL to share the exact puzzle with friends.
+### 🎮 Gameplay
+- **3,000+ Puzzles**: Around 600 puzzles per level across **5 difficulties** (*Easy, Medium, Hard, Expert, Evil*).
+- **Hints**: Reveal a single cell when you're stuck, automatically clearing conflicting notes.
+- **Undo & Redo**: Full move history with `Ctrl/Cmd + Z` and `Ctrl/Cmd + Y`.
+- **Automatic Saving**: Your board, notes, timer, solve counts, and best times are saved locally in your browser.
+- **Hide Timer Option**: Hide the timer from the header in Settings if you'd rather play without watching the clock — your elapsed time is still tracked in the background for your solve stats.
+- **Shareable Links**: Copy a link to send the exact same puzzle to a friend.
 
-### 📝 Precision Input & Smart Notes
-- **Desktop Radial Circle Menu**: Click any cell to pick a number in one fluid motion — or right-click for instant note toggling.
-- **Auto-Generated & Manual Notes**: Automatically maintain valid candidates as you play, or manage custom pencil marks with copy/paste support.
-- **Conflict & Error Highlighting**: Real-time visual feedback for duplicate digits and optional wrong-entry indicators.
-- **Number Occurrence Tracking**: See at a glance how many times each digit `1–9` appears on the board.
+### 📝 Notes & Helpers
+- **Desktop Circle Menu**: Click any cell to pick a number right at your cursor, or right-click to add/remove notes without leaving number mode.
+- **Auto & Manual Notes**: Turn on auto-generated candidates that update as you solve, or write your own pencil marks (with copy/paste support).
+- **Conflict & Mistake Highlighting**: Highlight duplicate numbers in real time, with an optional toggle to flag wrong entries.
+- **Number Counts**: Show how many times each digit `1–9` is placed on the board.
 
-### 🎨 Modern Design & Accessibility
-- **3 Themes × Light & Dark Modes**: Switch effortlessly between **Default**, warm **Paper**, and accessible **High Contrast**.
-- **Clean, Collapsible Workspace**: Settings tuck away neatly by default; Shortcuts and About open in distraction-free modals.
-- **Responsive & Offline-Ready PWA**: Install directly to your home screen or desktop and play completely offline.
+### 🎨 Look & Feel
+- **3 Themes × Light & Dark Modes**: Choose **Default**, warm **Paper**, or **High Contrast**, each with its own Light and Dark palette.
+- **Clean Layout**: Collapsible settings panel, simple Phosphor icons, and a decluttered mobile header.
+- **Works Offline (PWA)**: Install it to your phone or desktop and play without an internet connection.
 
-### 🌍 Internationalization
-Available in **7 languages** with automatic browser language detection:
+### 🌍 Languages
+Translated into **7 languages** with automatic browser language detection:
 **English** · **Français** · **Español** · **Deutsch** · **Italiano** · **Português** · **中文**
 
 ---
@@ -210,7 +209,7 @@ Available in **7 languages** with automatic browser language detection:
 
 ### Prerequisites
 - **Node.js** `>= 22.18` — [Download here](https://nodejs.org/en/download/package-manager/)
-- **Vite+ (`vp`)** — unified toolchain for dev, build, lint, formatting, type-checking, unit testing, and TypeScript scripts ([viteplus.dev](https://viteplus.dev/))
+- **Vite+ (`vp`)** — unified toolchain for dev, build, lint, formatting, type-checking, unit tests, and TypeScript scripts ([viteplus.dev](https://viteplus.dev/))
 
 ### Quick Start
 
@@ -260,17 +259,17 @@ docker run -p 8081:80 super-sudoku:latest
 
 ### Pre-built Images
 
-Ready-to-use images are published on [GitHub Container Registry](https://github.com/tn1ck/super-sudoku/pkgs/container/super-sudoku).
+Pre-built images are available on [GitHub Container Registry](https://github.com/tn1ck/super-sudoku/pkgs/container/super-sudoku).
 
 ---
 
 ## 🧩 Puzzle Generation
 
-Super Sudoku includes a constraint-satisfaction puzzle generator and solver (AC-3 + backtracking) inspired by the paper *"Rating and Generating Sudoku Puzzles Based On Constraint Satisfaction Problems."*
+Super Sudoku includes a constraint-satisfaction puzzle generator and solver (AC-3 + backtracking) based on the paper *"Rating and Generating Sudoku Puzzles Based On Constraint Satisfaction Problems."*
 
-📖 **Deep Dive:** Read the full write-up on how the generator and difficulty rating work at [How to Generate Sudokus](https://tn1ck.com/blog/how-to-generate-sudokus).
+📖 Read the full write-up on how the generator and difficulty rating work: [How to Generate Sudokus](https://tn1ck.com/blog/how-to-generate-sudokus).
 
-Generate puzzles by difficulty with [`scripts/generate_sudokus.ts`](./scripts/generate_sudokus.ts):
+You can generate new puzzles by difficulty using [`scripts/generate_sudokus.ts`](./scripts/generate_sudokus.ts):
 
 ```bash
 npm run generate-easy-sudokus
@@ -282,9 +281,28 @@ npm run generate-evil-sudokus
 
 ---
 
+## ❓ Frequently Asked Questions
+
+**Is Super Sudoku really free, with no ads or tracking?**
+Yes. Super Sudoku is MIT-licensed open-source software with zero ads, zero analytics/tracking, and no login or paywalls. Your games, notes, and best times are saved locally in your browser.
+
+**Does Super Sudoku work offline?**
+Yes. Super Sudoku is an installable Progressive Web App (PWA). Once loaded at [sudoku.tn1ck.com](https://sudoku.tn1ck.com), you can add it to your phone's home screen or desktop and play all 3,000+ puzzles offline.
+
+**How are puzzles generated and difficulty-rated?**
+Puzzles are generated and rated using an AC-3 constraint-satisfaction and backtracking solver inspired by *"Rating and Generating Sudoku Puzzles Based On Constraint Satisfaction Problems,"* guaranteeing every puzzle has a single unique solution. See the full breakdown in [How to Generate Sudokus](https://tn1ck.com/blog/how-to-generate-sudokus).
+
+**Can I create, import, or share my own Sudoku puzzles?**
+Yes. You can create custom collections and add your own puzzles in the built-in Sudoku creator, which verifies solvability and uniqueness in the background. Any puzzle can also be shared via a direct URL using the Share button.
+
+**Can I self-host Super Sudoku?**
+Yes. Pre-built Docker images are published on [GitHub Container Registry](https://github.com/tn1ck/super-sudoku/pkgs/container/super-sudoku), or you can build the static site yourself with `vp build`.
+
+---
+
 ## 🤝 Contributing
 
-Contributions are warmly welcomed!
+Contributions are always welcome!
 
 1. **Fork** the repository
 2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
@@ -292,12 +310,12 @@ Contributions are warmly welcomed!
 4. **Push** to the branch (`git push origin feature/amazing-feature`)
 5. **Open** a Pull Request
 
-### Ideas for Contribution
-- 🎨 Additional color themes & visual polish
-- 🧩 New puzzle generation or difficulty-rating algorithms
-- 🌍 Additional language translations
-- 📱 Mobile ergonomics & touch enhancements
-- 🐛 Bug fixes & test coverage
+### Areas for Contribution
+- 🎨 New themes & UI improvements
+- 🧩 Puzzle generation & difficulty rating
+- 🌍 New translations
+- 📱 Mobile improvements
+- 🐛 Bug fixes & tests
 
 ---
 
@@ -308,7 +326,7 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 ## 🙏 Acknowledgments
 
 - Research paper: *"Rating and Generating Sudoku Puzzles Based On Constraint Satisfaction Problems"*
-- [Phosphor Icons](https://phosphoricons.com/) for the crisp icon system
+- [Phosphor Icons](https://phosphoricons.com/)
 - The open-source community for inspiration and tools
 - My Grandma for the original motivation! ❤️
 
