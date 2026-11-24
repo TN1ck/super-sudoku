@@ -12,7 +12,6 @@ import {findCell, sharesUnit} from "src/lib/engine/utility";
 import SudokuGame from "src/lib/game/SudokuGame";
 import {Bounds} from "src/components/sudoku/types";
 import {Cell, CellCoordinates} from "src/lib/engine/types";
-import {useElementWidth} from "src/utils/hooks";
 
 const BOARD_SIZE = 100;
 const CELL_SECTION = BOARD_SIZE / 9;
@@ -158,9 +157,6 @@ export const Sudoku: React.FC<SudokuProps> = ({
     [sudoku, showHints],
   );
 
-  const sudokuContainerRef = React.useRef<HTMLDivElement | null>(null);
-  const containerWidth = useElementWidth(sudokuContainerRef);
-
   React.useEffect(() => {
     if (!shouldShowMenu) {
       return;
@@ -195,7 +191,10 @@ export const Sudoku: React.FC<SudokuProps> = ({
   );
 
   return (
-    <div className="relative" data-testid="sudoku-board" ref={sudokuContainerRef} style={{height: containerWidth}}>
+    <div
+      className="relative mx-auto aspect-square w-full md:max-w-[calc(100dvh-7rem)]"
+      data-testid="sudoku-board"
+    >
       {children}
       <div className="absolute h-full w-full rounded-sm">
         <SudokuGridLines width={BOARD_SIZE} height={BOARD_SIZE} hideOuter />
@@ -205,7 +204,7 @@ export const Sudoku: React.FC<SudokuProps> = ({
 
           const isActive = activeCell ? c.x === activeCell.x && c.y === activeCell.y : false;
           const highlight = activeCell ? sharesUnit(activeCell, c) : false;
-          const isWrong = showWrongEntries && c.number !== 0 && c.solution !== c.number;
+          const isWrong = showWrongEntries && c.number !== 0 && c.solution !== 0 && c.solution !== c.number;
           const highlightNumber = activeCell && c.number !== 0 ? activeCell.number === c.number : false;
 
           return (

@@ -1,7 +1,37 @@
 import * as React from "react";
+import clsx from "clsx";
 import {useTranslation} from "react-i18next";
 import Checkbox from "src/components/Checkbox";
 import {useUserPreferences} from "src/context/UserPreferencesContext";
+
+const SlidersIcon: React.FC = () => (
+  <svg
+    className="h-4 w-4 text-gray-400"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    aria-hidden="true"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+    <circle cx="9" cy="6" r="2" fill="currentColor" />
+    <circle cx="15" cy="12" r="2" fill="currentColor" />
+    <circle cx="11" cy="18" r="2" fill="currentColor" />
+  </svg>
+);
+
+const ChevronIcon: React.FC<{open: boolean}> = ({open}) => (
+  <svg
+    className={clsx("h-4 w-4 text-gray-400 transition-transform duration-150", open && "rotate-180")}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    aria-hidden="true"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="m6 9 6 6 6-6" />
+  </svg>
+);
 
 const SettingsAndInformation: React.FC = () => {
   const {
@@ -13,69 +43,45 @@ const SettingsAndInformation: React.FC = () => {
     toggleShowConflicts,
   } = useUserPreferences();
   const {t} = useTranslation();
+  const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
 
   return (
-    <div className="text-white">
-      <div className="grid gap-4">
-        <div className="md:block hidden">
-          <h2 className="mb-2 text-3xl font-bold">{t("shortcuts")}</h2>
-          <div className="grid gap-2">
-            <ul className="list-disc pl-6">
-              <li>{t("arrow_keys")}</li>
-              <li>{t("number_keys")}</li>
-              <li>{t("backspace")}</li>
-              <li>{t("escape")}</li>
-              <li>{t("hint")}</li>
-              <li>{t("note_mode")}</li>
-              <li>{t("undo")}</li>
-              <li>{t("redo")}</li>
-              <li>{t("copy_paste_notes")}</li>
-            </ul>
-          </div>
-        </div>
-        <div>
-          <h2 className="mb-2 text-3xl font-bold">{t("settings")}</h2>
-          <div className="grid gap-2">
-            <Checkbox id="generated_notes" checked={state.showHints} onChange={toggleShowHints}>
-              {t("show_auto_notes")}
-            </Checkbox>
-            <Checkbox id="highlight_wrong_entries" checked={state.showWrongEntries} onChange={toggleShowWrongEntries}>
-              {t("highlight_wrong_entries")}
-            </Checkbox>
-            <Checkbox id="highlight_conflicts" checked={state.showConflicts} onChange={toggleShowConflicts}>
-              {t("highlight_conflicts")}
-            </Checkbox>
-            <Checkbox id="circle_menu" checked={state.showCircleMenu} onChange={toggleShowCircleMenu}>
-              {t("show_circle_menu")}
-            </Checkbox>
-            <Checkbox id="show_occurrences" checked={state.showOccurrences} onChange={toggleShowOccurrences}>
-              {t("show_occurrences")}
-            </Checkbox>
-          </div>
-        </div>
-        <div>
-          <h2 className="text-3xl font-bold text-white">{t("about")}</h2>
-          <p className="text-white">
-            {t("about_text")}{" "}
-            <a target="_blank" className="underline" href="https://github.com/TN1ck/super-sudoku" rel="noreferrer">
-              Github
-            </a>
-            .{" "}
-            <a href="https://tn1ck.com" target="_blank" className="hover:underline" rel="noreferrer">
-              {t("created_by")}
-            </a>{" "}
-            {t("report_issue")}{" "}
-            <a
-              target="_blank"
-              className="underline"
-              href="https://github.com/TN1ck/super-sudoku/issues"
-              rel="noreferrer"
-            >
-              Github
-            </a>
-            .
-          </p>
-        </div>
+    <div className="overflow-hidden rounded-md border border-white/10 bg-gray-700/40 dark:bg-gray-800/60">
+      <button
+        type="button"
+        className="flex w-full items-center justify-between px-3.5 py-2.5 text-left text-sm font-semibold text-gray-200 transition-colors hover:bg-white/5 focus:outline-none"
+        onClick={(e) => {
+          setIsSettingsOpen((prev) => !prev);
+          e.currentTarget.blur();
+        }}
+        aria-expanded={isSettingsOpen}
+        aria-controls="game-settings-panel"
+      >
+        <span className="flex items-center gap-2">
+          <SlidersIcon />
+          <span>{t("settings")}</span>
+        </span>
+        <ChevronIcon open={isSettingsOpen} />
+      </button>
+      <div
+        id="game-settings-panel"
+        className={isSettingsOpen ? "grid gap-2.5 border-t border-white/10 px-3.5 py-3" : "hidden"}
+      >
+        <Checkbox id="generated_notes" checked={state.showHints} onChange={toggleShowHints}>
+          {t("show_auto_notes")}
+        </Checkbox>
+        <Checkbox id="highlight_wrong_entries" checked={state.showWrongEntries} onChange={toggleShowWrongEntries}>
+          {t("highlight_wrong_entries")}
+        </Checkbox>
+        <Checkbox id="highlight_conflicts" checked={state.showConflicts} onChange={toggleShowConflicts}>
+          {t("highlight_conflicts")}
+        </Checkbox>
+        <Checkbox id="circle_menu" checked={state.showCircleMenu} onChange={toggleShowCircleMenu}>
+          {t("show_circle_menu")}
+        </Checkbox>
+        <Checkbox id="show_occurrences" checked={state.showOccurrences} onChange={toggleShowOccurrences}>
+          {t("show_occurrences")}
+        </Checkbox>
       </div>
     </div>
   );

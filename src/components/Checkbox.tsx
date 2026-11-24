@@ -7,7 +7,7 @@ const Checkbox: React.FC<{
   children: React.ReactNode;
 }> = ({id, onChange, checked, children}) => {
   return (
-    <div className="relative flex items-center">
+    <div className="relative flex items-start">
       <div className="flex h-5 items-center">
         <input
           checked={checked}
@@ -19,10 +19,10 @@ const Checkbox: React.FC<{
           id={id}
           name={id}
           type="checkbox"
-          className="h-6 w-6 rounded border-gray-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
+          className="h-4 w-4 rounded border-gray-400/70 bg-gray-700/60 text-teal-500 focus:ring-teal-500 focus:ring-offset-0 cursor-pointer"
         />
       </div>
-      <label htmlFor={id} className="ml-3 cursor-pointer select-none">
+      <label htmlFor={id} className="ml-2.5 text-sm leading-5 text-gray-200 cursor-pointer select-none">
         {children}
       </label>
     </div>

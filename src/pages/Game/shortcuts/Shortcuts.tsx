@@ -8,16 +8,19 @@ import {ShortcutScope} from "./ShortcutScope";
 interface ShortcutsProps extends GridShortcutsProps {
   gameState: GameStateMachine;
   continueGame: () => void;
+  disabled?: boolean;
 }
 
-const Shortcuts: React.FC<ShortcutsProps> = ({gameState, continueGame, ...gridProps}) => {
+const Shortcuts: React.FC<ShortcutsProps> = ({gameState, continueGame, disabled = false, ...gridProps}) => {
   useEffect(() => {
-    if (gameState === GameStateMachine.paused) {
+    if (disabled) {
+      hotkeys.setScope(ShortcutScope.Modal);
+    } else if (gameState === GameStateMachine.paused) {
       hotkeys.setScope(ShortcutScope.Menu);
     } else if (gameState === GameStateMachine.running) {
       hotkeys.setScope(ShortcutScope.Game);
     }
-  }, [gameState]);
+  }, [disabled, gameState]);
 
   return (
     <>

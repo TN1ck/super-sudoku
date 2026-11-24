@@ -98,7 +98,7 @@ const NewSudokuInner = ({saveSudoku}: {saveSudoku: (sudoku: SimpleSudoku) => Pro
           setNumber={setNumber}
           setNotes={noop}
         />
-        <div className="grid w-full grid-cols-4 gap-2">
+        <div className="grid w-full grid-cols-2 gap-2">
           <UndoButton canUndo={canUndo(sudokuState)} undo={undo} />
           <CellActionButton label="erase_btn" cell={activeCell} onClick={clearCell} />
         </div>
