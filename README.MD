@@ -16,7 +16,7 @@
 
 Born from a simple request — my Grandma wanted to play Sudoku, and I wasn't happy with the ad-heavy, paywalled apps out there. Super Sudoku is an open-source Sudoku web app (PWA) designed to match or exceed commercial Sudoku apps like Sudoku.com while staying completely free, ad-free, account-free, and tracking-free.
 
-- **3,000+ verified puzzles** across 5 difficulty levels (Easy, Medium, Hard, Expert, Evil) — generated with a constraint-satisfaction solver so every puzzle has a unique solution
+- **30,000+ verified puzzles** across 5 difficulty levels (Easy, Medium, Hard, Expert, Evil) — generated with a constraint-satisfaction solver so every puzzle has a unique solution
 - **Zero ads, zero tracking, no account required** — all progress and stats stay locally in your browser
 - **Play anywhere, even offline** — installable Progressive Web App (PWA) for desktop and mobile, or self-host your own instance with Docker
 - **Built for readability and speed** — 3 themes (**Default**, **Paper**, **High Contrast**) in both Light and Dark mode, desktop radial circle menu, smart auto-notes, keyboard shortcuts, and 7 languages
@@ -118,7 +118,7 @@ Pick between **3 built-in themes** (**Default**, **Paper**, and **High Contrast*
 <table>
   <thead>
     <tr>
-      <th width="50%">3,000+ Puzzles &amp; Saved Progress</th>
+      <th width="50%">30,000+ Puzzles &amp; Saved Progress</th>
       <th width="50%">Custom Sudoku Creator</th>
     </tr>
   </thead>
@@ -166,7 +166,7 @@ Pick between **3 built-in themes** (**Default**, **Paper**, and **High Contrast*
 ## 🚀 Features
 
 ### 🎮 Gameplay
-- **3,000+ Puzzles**: Around 600 puzzles per level across **5 difficulties** (*Easy, Medium, Hard, Expert, Evil*).
+- **30,000+ Puzzles**: 6,000+ puzzles per level across **5 difficulties** (*Easy, Medium, Hard, Expert, Evil*).
 - **Hints**: Reveal a single cell when you're stuck, automatically clearing conflicting notes.
 - **Undo & Redo**: Full move history with `Ctrl/Cmd + Z` and `Ctrl/Cmd + Y`.
 - **Automatic Saving**: Your board, notes, timer, solve counts, and best times are saved locally in your browser.
@@ -287,7 +287,7 @@ npm run generate-evil-sudokus
 Yes. Super Sudoku is MIT-licensed open-source software with zero ads, zero analytics/tracking, and no login or paywalls. Your games, notes, and best times are saved locally in your browser.
 
 **Does Super Sudoku work offline?**
-Yes. Super Sudoku is an installable Progressive Web App (PWA). Once loaded at [sudoku.tn1ck.com](https://sudoku.tn1ck.com), you can add it to your phone's home screen or desktop and play all 3,000+ puzzles offline.
+Yes. Super Sudoku is an installable Progressive Web App (PWA). Once loaded at [sudoku.tn1ck.com](https://sudoku.tn1ck.com), you can add it to your phone's home screen or desktop and play all 30,000+ puzzles offline.
 
 **How are puzzles generated and difficulty-rated?**
 Puzzles are generated and rated using an AC-3 constraint-satisfaction and backtracking solver inspired by *"Rating and Generating Sudoku Puzzles Based On Constraint Satisfaction Problems,"* guaranteeing every puzzle has a single unique solution. See the full breakdown in [How to Generate Sudokus](https://tn1ck.com/blog/how-to-generate-sudokus).
