@@ -1,18 +1,29 @@
 import * as React from "react";
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {CaretLeft, CaretRight} from "@phosphor-icons/react";
 
-import {getSudokusPaginated, SudokuRaw, useSudokuCollections} from "src/lib/game/sudokus";
+import {
+  getBaseCollectionCount,
+  getBaseCollectionPageSync,
+  getCustomCollectionPage,
+  isBaseCollectionId,
+  isCustomCollection,
+  loadBaseCollectionPage,
+  PaginatedSudokuPreviews,
+  SudokuPreviewItem,
+  useSudokuCollections,
+} from "src/lib/game/sudokus";
+import {solve} from "src/lib/engine/solverAC3_bitmask";
 import {SimpleSudoku} from "src/lib/engine/types";
 import SudokuPreview from "src/components/sudoku/SudokuPreview";
 import {formatDuration} from "src/utils/format";
 import {createGameSearchParams} from "src/utils/gameUrl";
 import {createNewGameState, useGame} from "src/context/GameContext";
 import Button from "src/components/Button";
-import {simpleSudokuToCells, stringifySudoku} from "src/lib/engine/utility";
+import {cellsToSimpleSudoku, simpleSudokuToCells} from "src/lib/engine/utility";
 import {useNavigate} from "@tanstack/react-router";
 import {localStoragePlayedSudokuRepository, StoredPlayedSudokuState} from "src/lib/database/playedSudokus";
-import {Collection, translateCollectionName} from "src/lib/database/collections";
+import {CollectionIndex, translateCollectionName} from "src/lib/database/collections";
 import NewSudoku from "./NewSudoku";
 import {useSudoku} from "src/context/SudokuContext";
 import {useTranslation} from "react-i18next";
@@ -108,12 +119,12 @@ const PageSelector = ({
 );
 
 const SudokuToSelect = ({
-  sudoku,
+  item,
   index,
   sudokuCollectionName,
   storedSudoku,
 }: {
-  sudoku: SudokuRaw;
+  item: SudokuPreviewItem;
   storedSudoku: StoredPlayedSudokuState | undefined;
   index: number;
   sudokuCollectionName: string;
@@ -125,19 +136,30 @@ const SudokuToSelect = ({
   const navigate = useNavigate();
   const {t} = useTranslation();
 
+  const previewSudoku = useMemo(() => {
+    if (!finished) {
+      return item.sudoku;
+    }
+    if (storedSudoku && storedSudoku.sudoku.length === 81) {
+      return cellsToSimpleSudoku(storedSudoku.sudoku);
+    }
+    return solve(item.sudoku).sudoku ?? item.sudoku;
+  }, [finished, storedSudoku, item.sudoku]);
+
   const choose = () => {
     if (finished && storedSudoku) {
       const areYouSure = confirm(t("confirm_restart_completed"));
       if (!areYouSure) {
         return;
       }
+      const solution = solve(item.sudoku).sudoku ?? undefined;
       const replay = createNewGameState({...storedSudoku.game, sudokuCollectionName, sudokuIndex: index});
-      setSudoku(simpleSudokuToCells(sudoku.sudoku, sudoku.solution));
+      setSudoku(simpleSudokuToCells(item.sudoku, solution));
       setGameState(replay);
     }
     void navigate({
       to: "/",
-      search: createGameSearchParams(stringifySudoku(sudoku.sudoku), index, sudokuCollectionName),
+      search: createGameSearchParams(item.raw, index, sudokuCollectionName),
     });
   };
 
@@ -166,7 +188,7 @@ const SudokuToSelect = ({
           </div>
         </div>
       ) : null}
-      <SudokuPreview onClick={choose} id={index + 1} sudoku={finished ? sudoku.solution : sudoku.sudoku} darken />
+      <SudokuPreview onClick={choose} id={index + 1} sudoku={previewSudoku} darken />
     </div>
   );
 };
@@ -175,14 +197,30 @@ const GameIndex = ({
   pageSudokus,
   pageStart,
   pageCount,
+  isLoading,
   sudokuCollectionName,
 }: {
-  pageSudokus: SudokuRaw[];
+  pageSudokus: SudokuPreviewItem[];
   pageStart: number;
   pageCount: number;
+  isLoading: boolean;
   sudokuCollectionName: string;
 }) => {
   const {t} = useTranslation();
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4" aria-busy="true">
+        {Array.from({length: PAGE_SIZE}, (_, i) => (
+          <div
+            key={`loading-${i}`}
+            className="aspect-square w-full animate-pulse rounded-sm border border-border/40 bg-surface-subtle"
+            aria-hidden="true"
+          />
+        ))}
+      </div>
+    );
+  }
 
   if (pageSudokus.length === 0) {
     return <div className="text-center text-ink-muted">{t("no_sudokus_in_collection")}</div>;
@@ -192,15 +230,14 @@ const GameIndex = ({
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-      {pageSudokus.map((sudoku, index) => {
+      {pageSudokus.map((item, index) => {
         const globalIndex = pageStart + index;
-        const sudokuKey = stringifySudoku(sudoku.sudoku);
-        const storedSudoku = localStoragePlayedSudokuRepository.getSudokuState(sudokuKey);
+        const storedSudoku = localStoragePlayedSudokuRepository.getSudokuState(item.raw);
 
         return (
           <SudokuToSelect
-            key={`${sudokuCollectionName}-${globalIndex}-${sudokuKey}`}
-            sudoku={sudoku}
+            key={`${sudokuCollectionName}-${globalIndex}-${item.raw}`}
+            item={item}
             index={globalIndex}
             sudokuCollectionName={sudokuCollectionName}
             storedSudoku={storedSudoku}
@@ -214,12 +251,67 @@ const GameIndex = ({
   );
 };
 
-const usePaginatedSudokus = (collection: Collection, page: number, pageSize: number) =>
-  useMemo(
-    () => getSudokusPaginated(collection, page, pageSize),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [collection.id, collection.name, collection.sudokusRaw, page, pageSize],
-  );
+interface AsyncPageState {
+  key: string;
+  data: PaginatedSudokuPreviews;
+}
+
+const usePaginatedSudokus = (collection: CollectionIndex, page: number, pageSize: number) => {
+  const customRaw = isCustomCollection(collection) ? collection.sudokusRaw : null;
+  const baseCollectionId = isBaseCollectionId(collection.id) ? collection.id : null;
+  const requestKey = `${collection.id}:${page}:${pageSize}`;
+
+  const syncPage = useMemo((): PaginatedSudokuPreviews | null => {
+    if (baseCollectionId) {
+      return getBaseCollectionPageSync(baseCollectionId, page, pageSize);
+    }
+    if (customRaw !== null) {
+      return getCustomCollectionPage({id: collection.id, name: collection.name, sudokusRaw: customRaw}, page, pageSize);
+    }
+    return {sudokus: [], totalRows: 0, page, pageSize, totalPages: 0};
+  }, [baseCollectionId, collection.id, collection.name, customRaw, page, pageSize]);
+
+  const [asyncState, setAsyncState] = useState<AsyncPageState | null>(null);
+
+  useEffect(() => {
+    if (!baseCollectionId || syncPage !== null) {
+      return;
+    }
+
+    let cancelled = false;
+    void loadBaseCollectionPage(baseCollectionId, page, pageSize)
+      .then((data) => {
+        if (!cancelled) {
+          setAsyncState({key: requestKey, data});
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to load sudoku collection chunk", baseCollectionId, page, error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [baseCollectionId, page, pageSize, requestKey, syncPage]);
+
+  if (syncPage !== null) {
+    return {...syncPage, isLoading: false};
+  }
+
+  if (asyncState && asyncState.key === requestKey) {
+    return {...asyncState.data, isLoading: false};
+  }
+
+  const totalRows = baseCollectionId ? getBaseCollectionCount(baseCollectionId) : 0;
+  return {
+    sudokus: [] as SudokuPreviewItem[],
+    totalRows,
+    page,
+    pageSize,
+    totalPages: Math.ceil(totalRows / pageSize),
+    isLoading: true,
+  };
+};
 
 const PAGE_SIZE = 12;
 
@@ -237,7 +329,11 @@ const GameSelect: React.FC = () => {
   const [showNewSudokuComponent, setShowNewSudokuComponent] = useState(false);
   const {t} = useTranslation();
 
-  const {sudokus: pageSudokus, totalPages: pageCount} = usePaginatedSudokus(activeCollection, page, PAGE_SIZE);
+  const {
+    sudokus: pageSudokus,
+    totalPages: pageCount,
+    isLoading,
+  } = usePaginatedSudokus(activeCollection, page, PAGE_SIZE);
   const pageStart = page * PAGE_SIZE;
   const isBaseCollectionLocal = isBaseCollection(activeCollection.id);
 
@@ -321,6 +417,7 @@ const GameSelect: React.FC = () => {
         pageSudokus={pageSudokus}
         pageStart={pageStart}
         pageCount={pageCount}
+        isLoading={isLoading}
         sudokuCollectionName={activeCollection.id}
       />
       {pageCount > 1 && <PageSelector page={page} pageCount={pageCount} setPage={setPage} />}

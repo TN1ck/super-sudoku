@@ -3,44 +3,79 @@ import {Link} from "@tanstack/react-router";
 import {useTranslation} from "react-i18next";
 import Button from "src/components/Button";
 import {GameState} from "src/context/GameContext";
-import {stringifySudoku} from "src/lib/engine/utility";
-import {getSudokusPaginated, resolveCollectionDisplayName, useSudokuCollections} from "src/lib/game/sudokus";
+import {parseSudoku, stringifySudoku} from "src/lib/engine/utility";
+import {
+  getCollectionPuzzleRawSync,
+  loadCollectionPuzzleRaw,
+  resolveCollectionDisplayName,
+  useSudokuCollections,
+} from "src/lib/game/sudokus";
 import {formatDuration} from "src/utils/format";
 import {createGameSearchParams} from "src/utils/gameUrl";
+
+function toNextSudokuParams(raw: string | null, nextIndex: number, collectionName: string) {
+  if (!raw) {
+    return null;
+  }
+  try {
+    const parsed = parseSudoku(raw);
+    return createGameSearchParams(stringifySudoku(parsed), nextIndex, collectionName);
+  } catch (error) {
+    console.error("Error parsing next sudoku:", error);
+    return null;
+  }
+}
 
 const NextSudokuButton = ({gameState, onAdvance}: {gameState: GameState; onAdvance: () => void}) => {
   const {t} = useTranslation();
   const {getCollection} = useSudokuCollections();
-
-  const collection = React.useMemo(() => {
-    try {
-      return getCollection(gameState.sudokuCollectionName);
-    } catch (error) {
-      console.error("Error loading sudoku collection:", error);
-      return null;
-    }
-  }, [gameState.sudokuCollectionName, getCollection]);
+  const nextIndex = gameState.sudokuIndex + 1;
+  const requestKey = `${gameState.sudokuCollectionName}:${nextIndex}`;
 
   const collectionName = resolveCollectionDisplayName(gameState.sudokuCollectionName, getCollection, t);
 
-  const nextSudokuParams = React.useMemo(() => {
-    if (!collection) {
-      return null;
+  const syncRaw = React.useMemo(
+    () => getCollectionPuzzleRawSync(gameState.sudokuCollectionName, nextIndex, getCollection),
+    [gameState.sudokuCollectionName, nextIndex, getCollection],
+  );
+
+  const [asyncResult, setAsyncResult] = React.useState<{key: string; raw: string | null} | null>(null);
+
+  React.useEffect(() => {
+    if (syncRaw !== undefined) {
+      return;
     }
 
-    try {
-      const nextIndex = gameState.sudokuIndex + 1;
-      const result = getSudokusPaginated(collection, nextIndex, 1);
-      const sudoku = result.sudokus[0];
+    let cancelled = false;
+    void loadCollectionPuzzleRaw(gameState.sudokuCollectionName, nextIndex, getCollection)
+      .then((raw) => {
+        if (!cancelled) {
+          setAsyncResult({key: requestKey, raw});
+        }
+      })
+      .catch((error) => {
+        console.error("Error loading next sudoku:", error);
+        if (!cancelled) {
+          setAsyncResult({key: requestKey, raw: null});
+        }
+      });
 
-      if (sudoku) {
-        return createGameSearchParams(stringifySudoku(sudoku.sudoku), nextIndex, gameState.sudokuCollectionName);
-      }
-    } catch (error) {
-      console.error("Error calculating next sudoku:", error);
-    }
-    return null;
-  }, [gameState.sudokuIndex, gameState.sudokuCollectionName, collection]);
+    return () => {
+      cancelled = true;
+    };
+  }, [gameState.sudokuCollectionName, nextIndex, getCollection, requestKey, syncRaw]);
+
+  const isLoading = syncRaw === undefined && asyncResult?.key !== requestKey;
+  const resolvedRaw = syncRaw !== undefined ? syncRaw : asyncResult?.key === requestKey ? asyncResult.raw : null;
+
+  const nextSudokuParams = React.useMemo(
+    () => (isLoading ? null : toNextSudokuParams(resolvedRaw, nextIndex, gameState.sudokuCollectionName)),
+    [isLoading, resolvedRaw, nextIndex, gameState.sudokuCollectionName],
+  );
+
+  if (isLoading) {
+    return <div className="h-10 w-full" aria-busy="true" />;
+  }
 
   if (!nextSudokuParams) {
     return (
