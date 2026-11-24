@@ -265,54 +265,54 @@
 
 [data-theme="high-contrast"][data-color-mode="dark"] {
   color-scheme: dark;
-  --color-canvas: 0 0 0;
-  --color-surface: 18 18 18;
-  --color-surface-subtle: 38 38 38;
-  --color-border: 229 229 229;
+  --color-canvas: 10 12 16;
+  --color-surface: 17 21 28;
+  --color-surface-subtle: 33 40 52;
+  --color-border: 122 130 142;
   --color-ink: 255 255 255;
-  --color-ink-muted: 212 212 212;
+  --color-ink-muted: 201 209 217;
 
-  --color-button: 24 24 24;
-  --color-button-hover: 52 52 52;
+  --color-button: 26 32 44;
+  --color-button-hover: 42 50 66;
   --color-button-text: 255 255 255;
-  --color-button-muted: 38 38 38;
-  --color-button-muted-text: 163 163 163;
+  --color-button-muted: 22 27 34;
+  --color-button-muted-text: 139 148 158;
 
-  --color-accent: 56 189 248;
-  --color-accent-hover: 125 211 252;
-  --color-accent-text: 0 0 0;
+  --color-accent: 31 111 235;
+  --color-accent-hover: 56 139 253;
+  --color-accent-text: 255 255 255;
 
-  --color-note: 232 121 249;
-  --color-note-subtle: 112 26 117;
-  --color-note-subtle-text: 250 232 255;
-  --color-note-text: 240 171 252;
+  --color-note: 137 87 229;
+  --color-note-subtle: 59 35 110;
+  --color-note-subtle-text: 237 233 254;
+  --color-note-text: 165 214 255;
 
-  --color-danger: 248 113 113;
-  --color-danger-surface: 127 29 29;
-  --color-danger-text: 255 255 255;
+  --color-danger: 248 81 73;
+  --color-danger-surface: 103 6 12;
+  --color-danger-text: 255 220 215;
 
-  --color-board-bg: 0 0 0;
-  --color-board-border: 255 255 255;
-  --color-cell-highlight: 36 36 36;
-  --color-cell-match: 253 224 71;
-  --color-cell-conflict: 153 27 27;
-  --color-grid-line: 130 130 130;
-  --color-grid-box: 255 255 255;
+  --color-board-bg: 1 4 9;
+  --color-board-border: 208 215 222;
+  --color-cell-highlight: 28 36 51;
+  --color-cell-match: 31 58 95;
+  --color-cell-conflict: 103 6 12;
+  --color-grid-line: 72 79 88;
+  --color-grid-box: 208 215 222;
 
   --color-digit-given: 255 255 255;
-  --color-digit-user: 56 189 248;
-  --color-digit-match: 0 0 0;
-  --color-digit-conflict: 255 255 255;
+  --color-digit-user: 121 192 255;
+  --color-digit-match: 255 211 61;
+  --color-digit-conflict: 255 220 215;
 
-  --color-overlay: 0 0 0;
+  --color-overlay: 1 4 9;
 
-  --color-circle-1: 56 189 248;
-  --color-circle-2: 14 165 233;
-  --color-circle-3: 125 211 252;
-  --color-circle-note-1: 232 121 249;
-  --color-circle-note-2: 217 70 239;
-  --color-circle-note-3: 240 171 252;
-  --color-circle-text: 0 0 0;
+  --color-circle-1: 56 139 253;
+  --color-circle-2: 31 111 235;
+  --color-circle-3: 88 166 255;
+  --color-circle-note-1: 163 113 247;
+  --color-circle-note-2: 137 87 229;
+  --color-circle-note-3: 188 140 255;
+  --color-circle-text: 255 255 255;
 }
 
 body {

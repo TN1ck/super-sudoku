@@ -42,11 +42,11 @@ export const THEMES: readonly ThemeDefinition[] = [
     labelKey: "theme_high_contrast",
     themeColor: {
       light: "#ffffff",
-      dark: "#000000",
+      dark: "#0a0c10",
     },
     swatches: {
       light: ["#ffffff", "#fde047", "#0047ab"],
-      dark: ["#000000", "#fde047", "#38bdf8"],
+      dark: ["#0a0c10", "#1f3a5f", "#1f6feb"],
     },
   },
 ] as const;

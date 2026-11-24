@@ -42,11 +42,6 @@ const SudokuPreview = React.memo(({sudoku, id, darken, size = 150, onClick}: Sud
           lineHeight: 1,
         }}
       >
-        <div className="absolute left-0 top-0 z-10 flex h-full w-full items-center justify-center">
-          <div style={{fontSize: size / 3}} className="font-bold text-ink opacity-80">
-            {id}
-          </div>
-        </div>
         <SudokuGridLines width={BOARD_SIZE} height={BOARD_SIZE} hideOuter thin />
         {sudoku.map((row, y) => (
           <div key={y}>
@@ -69,8 +64,13 @@ const SudokuPreview = React.memo(({sudoku, id, darken, size = 150, onClick}: Sud
           </div>
         ))}
         {darken ? (
-          <div className="absolute left-0 top-0 z-20 h-full w-full bg-ink/10 transition-opacity duration-300 group-hover:opacity-0" />
+          <div className="absolute left-0 top-0 z-10 h-full w-full bg-ink/10 transition-opacity duration-300 group-hover:opacity-0" />
         ) : null}
+        <div className="pointer-events-none absolute left-0 top-0 z-20 flex h-full w-full items-center justify-center">
+          <div style={{fontSize: size / 3}} className="font-bold text-ink opacity-85">
+            {id}
+          </div>
+        </div>
       </div>
     </div>
   );
