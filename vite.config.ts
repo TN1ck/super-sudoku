@@ -1,10 +1,12 @@
 import {defineConfig} from "vite-plus";
 import react from "@vitejs/plugin-react";
 import {VitePWA} from "vite-plugin-pwa";
+import {sudokuChunksPlugin} from "./scripts/sudokuChunksPlugin";
 
 // https://viteplus.dev/config/
 export default defineConfig({
   plugins: [
+    sudokuChunksPlugin(),
     react(),
     VitePWA({
       registerType: "autoUpdate",
