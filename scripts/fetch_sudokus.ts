@@ -135,7 +135,9 @@ program
         sudokus.push(sudoku);
         console.log(`Fetched Sudoku #${i + 1} for level ${level}`);
       } catch (error) {
-        console.error(`Failed to fetch Sudoku #${i + 1}: ${error}, breaking the loop and saving the fetched Sudokus`);
+        console.error(
+          `Failed to fetch Sudoku #${i + 1}: ${String(error)}, breaking the loop and saving the fetched Sudokus`,
+        );
         break;
       }
       // Rate limiting, to avoid getting blocked

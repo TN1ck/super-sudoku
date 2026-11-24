@@ -1,4 +1,4 @@
-import {expect, describe, it} from "vitest";
+import {expect, describe, it} from "vite-plus/test";
 
 import {countSolutions, solveBacktracking} from "./solverBacktracking";
 import {EMPTY_SUDOKU, ISSUE_33_CUSTOM_SUDOKU, SOLVED_SUDOKUS} from "./testutils";

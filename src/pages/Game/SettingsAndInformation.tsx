@@ -22,7 +22,7 @@ const SlidersIcon: React.FC = () => (
 
 const ChevronIcon: React.FC<{open: boolean}> = ({open}) => (
   <svg
-    className={clsx("h-4 w-4 text-gray-400 transition-transform duration-150", open && "rotate-180")}
+    className={clsx("duration-150 h-4 w-4 text-gray-400 transition-transform", open && "rotate-180")}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"

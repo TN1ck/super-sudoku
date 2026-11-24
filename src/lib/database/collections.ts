@@ -16,10 +16,7 @@ const BASE_COLLECTION_TRANSLATION_KEYS: Record<BaseCollection, string> = {
   [BaseCollection.Evil]: "difficulty_evil",
 };
 
-export function translateCollectionName(
-  collectionName: string,
-  translate: (key: string) => string = t,
-): string {
+export function translateCollectionName(collectionName: string, translate: (key: string) => string = t): string {
   if (Object.prototype.hasOwnProperty.call(BASE_COLLECTION_TRANSLATION_KEYS, collectionName)) {
     return translate(BASE_COLLECTION_TRANSLATION_KEYS[collectionName as BaseCollection]);
   }

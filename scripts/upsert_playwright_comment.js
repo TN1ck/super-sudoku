@@ -25,7 +25,9 @@ async function request(path, options = {}) {
   });
 
   if (!response.ok) {
-    const error = new Error(`${options.method ?? "GET"} ${path} failed with ${response.status}: ${await response.text()}`);
+    const error = new Error(
+      `${options.method ?? "GET"} ${path} failed with ${response.status}: ${await response.text()}`,
+    );
     error.status = response.status;
     throw error;
   }

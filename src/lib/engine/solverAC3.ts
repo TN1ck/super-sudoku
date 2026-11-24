@@ -129,9 +129,7 @@ export function _solveGridAC3(
     const cell = grid[rowIndex][cellIndex];
     const newGrids = cell.map((n) =>
       grid.map((row, r) =>
-        r === rowIndex
-          ? row.map((cells, c) => (c === cellIndex ? [n] : cells.slice()))
-          : row.slice(),
+        r === rowIndex ? row.map((cells, c) => (c === cellIndex ? [n] : cells.slice())) : row.slice(),
       ),
     );
     stack = newGrids.concat(rest);

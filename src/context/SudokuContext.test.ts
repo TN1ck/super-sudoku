@@ -1,4 +1,4 @@
-import {describe, expect, it} from "vitest";
+import {describe, expect, it} from "vite-plus/test";
 import {createSudokuState, sudokuReducer} from "./SudokuContext";
 import {createNewGameState, gameReducer, GameStateMachine, INITIAL_GAME_STATE} from "./GameContext";
 import SudokuGame from "src/lib/game/SudokuGame";

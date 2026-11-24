@@ -42,7 +42,7 @@ const getBrowserLanguage = (): Language => {
   return LANGUAGES.find((lang) => lang === browserLang) ?? Language.EN;
 };
 
-i18n.use(initReactI18next).init({
+void i18n.use(initReactI18next).init({
   resources: {
     [Language.EN]: {translation: en},
     [Language.FR]: {translation: fr},

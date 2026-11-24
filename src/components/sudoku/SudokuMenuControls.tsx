@@ -86,10 +86,8 @@ const NotesButton: React.FC<{
     >
       <span
         className={clsx(
-          "absolute top-1 right-1 rounded px-1 py-0.5 text-[9px] font-semibold leading-none tracking-wide md:top-1.5 md:right-1.5 md:px-1.5 md:text-[10px]",
-          notesMode
-            ? "bg-white/20 text-white"
-            : "bg-gray-200 text-gray-500 dark:bg-gray-600/80 dark:text-gray-300",
+          "absolute right-1 top-1 rounded px-1 py-0.5 text-[9px] font-semibold leading-none tracking-wide md:right-1.5 md:top-1.5 md:px-1.5 md:text-[10px]",
+          notesMode ? "bg-white/20 text-white" : "bg-gray-200 text-gray-500 dark:bg-gray-600/80 dark:text-gray-300",
         )}
       >
         {notesMode ? "ON" : "OFF"}

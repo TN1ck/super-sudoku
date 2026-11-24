@@ -26,7 +26,7 @@ const SudokuPreview = React.memo(({sudoku, id, darken, size = 150, onClick}: Sud
   return (
     <div
       aria-label={`Select sudoku ${id}`}
-      className="select-none hover:cursor-pointer group"
+      className="group select-none hover:cursor-pointer"
       data-testid={`sudoku-preview-${id}`}
       role="button"
       tabIndex={0}
@@ -34,7 +34,7 @@ const SudokuPreview = React.memo(({sudoku, id, darken, size = 150, onClick}: Sud
       onKeyDown={onKeyDown}
     >
       <div
-        className="relative bg-gray-100 dark:bg-gray-700 rounded-sm"
+        className="relative rounded-sm bg-gray-100 dark:bg-gray-700"
         style={{
           height: size,
           width: size,
@@ -42,8 +42,8 @@ const SudokuPreview = React.memo(({sudoku, id, darken, size = 150, onClick}: Sud
           lineHeight: 1,
         }}
       >
-        <div className="absolute z-10 top-0 left-0 w-full h-full flex items-center justify-center">
-          <div style={{fontSize: size / 3}} className="font-bold text-black dark:text-white opacity-80">
+        <div className="absolute left-0 top-0 z-10 flex h-full w-full items-center justify-center">
+          <div style={{fontSize: size / 3}} className="font-bold text-black opacity-80 dark:text-white">
             {id}
           </div>
         </div>
@@ -69,7 +69,7 @@ const SudokuPreview = React.memo(({sudoku, id, darken, size = 150, onClick}: Sud
           </div>
         ))}
         {darken ? (
-          <div className="absolute z-20 top-0 left-0 w-full h-full bg-black opacity-20 group-hover:opacity-0 transition-opacity duration-300" />
+          <div className="duration-300 absolute left-0 top-0 z-20 h-full w-full bg-black opacity-20 transition-opacity group-hover:opacity-0" />
         ) : null}
       </div>
     </div>

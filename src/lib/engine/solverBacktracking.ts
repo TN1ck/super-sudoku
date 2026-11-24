@@ -30,9 +30,7 @@ function isValidPlacement(board: SimpleSudoku, row: number, column: number, numb
 }
 
 function hasValidGivens(board: SimpleSudoku): boolean {
-  return board.every((row, y) =>
-    row.every((number, x) => number === 0 || isValidPlacement(board, y, x, number)),
-  );
+  return board.every((row, y) => row.every((number, x) => number === 0 || isValidPlacement(board, y, x, number)));
 }
 
 function getCandidates(board: SimpleSudoku, row: number, column: number): number[] {

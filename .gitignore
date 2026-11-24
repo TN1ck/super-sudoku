@@ -6,6 +6,8 @@ typings
 node_modules
 tmp
 artifacts
+playwright-report
+test-results
 sudokus_easy.txt
 sudokus_medium.txt
 sudokus_hard.txt

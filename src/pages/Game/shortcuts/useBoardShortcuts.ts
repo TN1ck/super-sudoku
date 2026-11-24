@@ -21,7 +21,9 @@ const MAX_COORDINATE = SUDOKU_COORDINATES[SUDOKU_COORDINATES.length - 1];
 
 export function useBoardShortcuts(options: UseBoardShortcutsOptions) {
   const optionsRef = React.useRef(options);
-  optionsRef.current = options;
+  React.useLayoutEffect(() => {
+    optionsRef.current = options;
+  });
 
   const {scope, activateScope = false} = options;
 

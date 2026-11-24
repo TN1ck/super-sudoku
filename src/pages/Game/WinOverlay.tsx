@@ -45,11 +45,11 @@ const NextSudokuButton = ({gameState, onAdvance}: {gameState: GameState; onAdvan
   if (!nextSudokuParams) {
     return (
       <div>
-        <p className="dark:text-white text-black mb-4 max-w-64 text-center">
+        <p className="mb-4 max-w-64 text-center text-black dark:text-white">
           {t("collection_finished", {collection: collectionName})}
         </p>
         <Link to="/select-game" className="w-full">
-          <Button className="bg-teal-700 text-white w-full">{t("select_new_sudoku")}</Button>
+          <Button className="w-full bg-teal-700 text-white">{t("select_new_sudoku")}</Button>
         </Link>
       </div>
     );
@@ -66,7 +66,7 @@ const NextSudokuButton = ({gameState, onAdvance}: {gameState: GameState; onAdvan
         }
       }}
     >
-      <Button className="bg-teal-700 text-white w-full">
+      <Button className="w-full bg-teal-700 text-white">
         {t("select_next_sudoku", {
           collection: collectionName,
           sudokuIndex: nextSudokuParams.sudokuIndex,
@@ -80,7 +80,7 @@ export const WinOverlay = ({gameState, onAdvance}: {gameState: GameState; onAdva
   const {t} = useTranslation();
 
   return (
-    <div className="absolute top-0 bottom-0 right-0 left-0 z-30 flex items-center justify-center rounded-sm bg-white dark:bg-black dark:bg-opacity-80 bg-opacity-80 text-black dark:text-white">
+    <div className="absolute bottom-0 left-0 right-0 top-0 z-30 flex items-center justify-center rounded-sm bg-white bg-opacity-80 text-black dark:bg-black dark:bg-opacity-80 dark:text-white">
       <div className="grid gap-8">
         <div className="flex justify-center text-2xl">{t("congrats")}</div>
         <div className="text-md flex justify-center">

@@ -1,4 +1,4 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
+import {afterEach, beforeEach, describe, expect, it, vi} from "vite-plus/test";
 import {formatDuration} from "./format";
 import {createGameSearchParams, parseGameSearchParams} from "./gameUrl";
 import {throttle} from "./throttle";
@@ -39,9 +39,15 @@ describe("gameUrl", () => {
   });
 
   it("rejects zero, negative, and non-integer sudokuIndex values", () => {
-    expect(parseGameSearchParams({sudokuIndex: "0", sudoku: "abc", sudokuCollectionName: "easy"}).sudokuIndex).toBeUndefined();
-    expect(parseGameSearchParams({sudokuIndex: "-2", sudoku: "abc", sudokuCollectionName: "easy"}).sudokuIndex).toBeUndefined();
-    expect(parseGameSearchParams({sudokuIndex: "1.5", sudoku: "abc", sudokuCollectionName: "easy"}).sudokuIndex).toBeUndefined();
+    expect(
+      parseGameSearchParams({sudokuIndex: "0", sudoku: "abc", sudokuCollectionName: "easy"}).sudokuIndex,
+    ).toBeUndefined();
+    expect(
+      parseGameSearchParams({sudokuIndex: "-2", sudoku: "abc", sudokuCollectionName: "easy"}).sudokuIndex,
+    ).toBeUndefined();
+    expect(
+      parseGameSearchParams({sudokuIndex: "1.5", sudoku: "abc", sudokuCollectionName: "easy"}).sudokuIndex,
+    ).toBeUndefined();
     expect(parseGameSearchParams({sudokuIndex: '"3"', sudoku: '"abc"', sudokuCollectionName: '"easy"'})).toEqual({
       sudokuIndex: 3,
       sudoku: "abc",
