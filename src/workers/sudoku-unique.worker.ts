@@ -1,4 +1,4 @@
-import {isSudokuUnique} from "../lib/engine/generate";
+import {isSudokuUnique} from "../lib/engine/generate_bitmask";
 
 // Worker message handler
 self.onmessage = (event) => {

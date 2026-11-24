@@ -1,7 +1,7 @@
 import {useCallback, useState} from "react";
 import {SimpleSudoku} from "src/lib/engine/types";
 import {parseSudoku, stringifySudoku} from "src/lib/engine/utility";
-import {solve} from "src/lib/engine/solverAC3";
+import {solve} from "src/lib/engine/solverAC3_bitmask";
 import {
   BaseCollection,
   Collection,

@@ -16,6 +16,87 @@ export const EMPTY_SUDOKU = parseSudoku(
   ].join("\n"),
 );
 
+// Valid givens (no row/column/square conflicts), yet cell (0,0) and (0,1) both force 2 -> 0 solutions.
+export const UNSOLVABLE_VALID_GIVENS_SUDOKU = parseSudoku(
+  [
+    "__3456789",
+    "_________",
+    "_________",
+    "1________",
+    "_1_______",
+    "_________",
+    "_________",
+    "_________",
+    "_________",
+  ].join("\n"),
+);
+
+// Valid solved grid with a 2x2 deadly rectangle at (0,0), (0,1), (3,0), (3,1) cleared -> exactly 2 solutions.
+export const TWO_SOLUTION_SUDOKU = parseSudoku(
+  [
+    "__3456789",
+    "456789123",
+    "789123456",
+    "__4365897",
+    "365897214",
+    "897214365",
+    "531642978",
+    "642978531",
+    "978531642",
+  ].join("\n"),
+);
+
+export function isValidCompletedSudoku(grid: SimpleSudoku): boolean {
+  if (grid.length !== 9) {
+    return false;
+  }
+  for (let i = 0; i < 9; i++) {
+    if (grid[i].length !== 9) {
+      return false;
+    }
+    const rowSeen = new Set<number>();
+    const colSeen = new Set<number>();
+    for (let j = 0; j < 9; j++) {
+      const rv = grid[i][j];
+      const cv = grid[j][i];
+      if (rv < 1 || rv > 9 || rowSeen.has(rv)) {
+        return false;
+      }
+      if (cv < 1 || cv > 9 || colSeen.has(cv)) {
+        return false;
+      }
+      rowSeen.add(rv);
+      colSeen.add(cv);
+    }
+  }
+  for (let br = 0; br < 9; br += 3) {
+    for (let bc = 0; bc < 9; bc += 3) {
+      const boxSeen = new Set<number>();
+      for (let r = br; r < br + 3; r++) {
+        for (let c = bc; c < bc + 3; c++) {
+          const v = grid[r][c];
+          if (boxSeen.has(v)) {
+            return false;
+          }
+          boxSeen.add(v);
+        }
+      }
+    }
+  }
+  return true;
+}
+
+export function preservesGivens(puzzle: SimpleSudoku, solution: SimpleSudoku): boolean {
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (puzzle[r][c] !== 0 && puzzle[r][c] !== solution[r][c]) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 export const ISSUE_33_CUSTOM_SUDOKU = {
   description: "custom sudoku from issue #33",
   unsolved: parseSudoku("008600700900020000000000800000050046300000010000009000046800000000000900070000000"),

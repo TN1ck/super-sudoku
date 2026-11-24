@@ -4,7 +4,7 @@ import {Sudoku} from "src/components/sudoku/Sudoku";
 import {CellActionButton, UndoButton} from "src/components/sudoku/SudokuMenuControls";
 import SudokuMenuNumbers from "src/components/sudoku/SudokuMenuNumbers";
 import {canUndo, INITIAL_CREATE_NEW_SUDOKU_STATE, SudokuProvider, useSudoku} from "src/context/SudokuContext";
-import {solve} from "src/lib/engine/solverAC3";
+import {solve} from "src/lib/engine/solverAC3_bitmask";
 import {CellCoordinates, SimpleSudoku} from "src/lib/engine/types";
 import {cellsToSimpleSudoku} from "src/lib/engine/utility";
 import {useSudokuUniqueWorker} from "src/utils/useSudokuUniqueWorker";

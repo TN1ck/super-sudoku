@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import {program} from "commander";
-import * as generate from "../src/lib/engine/generate";
-import * as solverAC3 from "../src/lib/engine/solverAC3";
+import * as generate from "../src/lib/engine/generate_bitmask";
+import * as solverAC3 from "../src/lib/engine/solverAC3_bitmask";
 import {stringifySudoku} from "../src/lib/engine/utility";
 import {DIFFICULTY, SimpleSudoku} from "../src/lib/engine/types";
 import {createSeededRandom} from "../src/lib/engine/seededRandom";
