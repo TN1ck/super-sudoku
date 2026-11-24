@@ -1,38 +1,10 @@
 import * as React from "react";
+import {CaretDown, SlidersHorizontal} from "@phosphor-icons/react";
 import clsx from "clsx";
 import {useTranslation} from "react-i18next";
 import Checkbox from "src/components/Checkbox";
 import ThemeSelector from "src/components/ThemeSelector";
 import {useUserPreferences} from "src/context/UserPreferencesContext";
-
-const SlidersIcon: React.FC = () => (
-  <svg
-    className="h-4 w-4 text-ink-muted"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    aria-hidden="true"
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-    <circle cx="9" cy="6" r="2" fill="currentColor" />
-    <circle cx="15" cy="12" r="2" fill="currentColor" />
-    <circle cx="11" cy="18" r="2" fill="currentColor" />
-  </svg>
-);
-
-const ChevronIcon: React.FC<{open: boolean}> = ({open}) => (
-  <svg
-    className={clsx("h-4 w-4 text-ink-muted transition-transform duration-150", open && "rotate-180")}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    aria-hidden="true"
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="m6 9 6 6 6-6" />
-  </svg>
-);
 
 const SettingsAndInformation: React.FC = () => {
   const {
@@ -59,10 +31,13 @@ const SettingsAndInformation: React.FC = () => {
         aria-controls="game-settings-panel"
       >
         <span className="flex items-center gap-2">
-          <SlidersIcon />
+          <SlidersHorizontal className="h-4 w-4 text-ink-muted" aria-hidden="true" />
           <span>{t("settings")}</span>
         </span>
-        <ChevronIcon open={isSettingsOpen} />
+        <CaretDown
+          className={clsx("h-4 w-4 text-ink-muted transition-transform duration-150", isSettingsOpen && "rotate-180")}
+          aria-hidden="true"
+        />
       </button>
       <div
         id="game-settings-panel"

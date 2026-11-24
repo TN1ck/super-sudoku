@@ -1,5 +1,6 @@
 import * as React from "react";
 import {useEffect} from "react";
+import {Check, ShareNetwork} from "@phosphor-icons/react";
 import {useLocation, useNavigate} from "@tanstack/react-router";
 import {useTranslation} from "react-i18next";
 
@@ -143,21 +144,6 @@ const NewGameButton: React.FC = () => {
   );
 };
 
-const ShareIcon: React.FC = () => (
-  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-    <circle cx="18" cy="5" r="3" />
-    <circle cx="6" cy="12" r="3" />
-    <circle cx="18" cy="19" r="3" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="m8.59 13.51 6.83 3.98m-.01-10.98-6.82 3.98" />
-  </svg>
-);
-
-const CheckIcon: React.FC = () => (
-  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-  </svg>
-);
-
 const ShareButton: React.FC<{
   gameState: GameState;
   sudokuState: SudokuState;
@@ -215,11 +201,11 @@ const ShareButton: React.FC<{
     >
       {copied ? (
         <>
-          <CheckIcon />
+          <Check className="h-4 w-4 text-accent" weight="bold" aria-hidden="true" />
           <span className="text-xs font-semibold text-accent">{t("copied")}</span>
         </>
       ) : (
-        <ShareIcon />
+        <ShareNetwork className="h-4 w-4" aria-hidden="true" />
       )}
     </button>
   );
