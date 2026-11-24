@@ -69,10 +69,7 @@
   "confirm_clear": "¿Estás seguro de que quieres reiniciar este juego? Tu progreso se perderá.",
   "copied": "Copiado",
   "theme": "Tema",
-  "theme_light": "Claro",
+  "theme_default": "Predeterminado",
   "theme_paper": "Papel",
-  "theme_high_contrast": "Alto contraste",
-  "theme_dark": "Oscuro",
-  "theme_ocean": "Océano",
-  "theme_forest": "Bosque"
+  "theme_high_contrast": "Alto contraste"
 }

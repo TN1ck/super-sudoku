@@ -1,61 +1,53 @@
-export type ThemeId = "light" | "paper" | "high-contrast" | "dark" | "ocean" | "forest";
+export type ThemeId = "default" | "paper" | "high-contrast";
 
-export type ThemeColorScheme = "light" | "dark";
+export type ColorMode = "light" | "dark";
 
 export interface ThemeDefinition {
   id: ThemeId;
-  labelKey: "theme_light" | "theme_paper" | "theme_high_contrast" | "theme_dark" | "theme_ocean" | "theme_forest";
-  colorScheme: ThemeColorScheme;
-  themeColor: string;
-  /** Preview colors: [canvas, board, accent] */
-  swatches: readonly [string, string, string];
+  labelKey: "theme_default" | "theme_paper" | "theme_high_contrast";
+  themeColor: Record<ColorMode, string>;
+  /** Preview colors per color mode: [canvas, board, accent] */
+  swatches: Record<ColorMode, readonly [string, string, string]>;
 }
 
-export const DEFAULT_LIGHT_THEME: ThemeId = "light";
-export const DEFAULT_DARK_THEME: ThemeId = "dark";
+export const DEFAULT_THEME: ThemeId = "default";
 
 export const THEMES: readonly ThemeDefinition[] = [
   {
-    id: "light",
-    labelKey: "theme_light",
-    colorScheme: "light",
-    themeColor: "#f1f5f9",
-    swatches: ["#f1f5f9", "#ffffff", "#0d9488"],
+    id: "default",
+    labelKey: "theme_default",
+    themeColor: {
+      light: "#f1f5f9",
+      dark: "#111827",
+    },
+    swatches: {
+      light: ["#f1f5f9", "#ffffff", "#0d9488"],
+      dark: ["#111827", "#1f2937", "#0d9488"],
+    },
   },
   {
     id: "paper",
     labelKey: "theme_paper",
-    colorScheme: "light",
-    themeColor: "#f4efe6",
-    swatches: ["#f4efe6", "#fffdf9", "#b45309"],
+    themeColor: {
+      light: "#f4efe6",
+      dark: "#1c1917",
+    },
+    swatches: {
+      light: ["#f4efe6", "#fffdf9", "#b45309"],
+      dark: ["#1c1917", "#292524", "#d97706"],
+    },
   },
   {
     id: "high-contrast",
     labelKey: "theme_high_contrast",
-    colorScheme: "light",
-    themeColor: "#ffffff",
-    swatches: ["#ffffff", "#fde047", "#0047ab"],
-  },
-  {
-    id: "dark",
-    labelKey: "theme_dark",
-    colorScheme: "dark",
-    themeColor: "#111827",
-    swatches: ["#111827", "#1f2937", "#0d9488"],
-  },
-  {
-    id: "ocean",
-    labelKey: "theme_ocean",
-    colorScheme: "dark",
-    themeColor: "#0b1220",
-    swatches: ["#0b1220", "#131f33", "#0891b2"],
-  },
-  {
-    id: "forest",
-    labelKey: "theme_forest",
-    colorScheme: "dark",
-    themeColor: "#0d1712",
-    swatches: ["#0d1712", "#15241c", "#059669"],
+    themeColor: {
+      light: "#ffffff",
+      dark: "#000000",
+    },
+    swatches: {
+      light: ["#ffffff", "#fde047", "#0047ab"],
+      dark: ["#000000", "#fde047", "#38bdf8"],
+    },
   },
 ] as const;
 
@@ -69,8 +61,4 @@ export function isThemeId(value: unknown): value is ThemeId {
 
 export function getThemeDefinition(themeId: ThemeId): ThemeDefinition {
   return THEME_MAP[themeId];
-}
-
-export function isDarkTheme(themeId: ThemeId): boolean {
-  return THEME_MAP[themeId].colorScheme === "dark";
 }

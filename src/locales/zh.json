@@ -69,10 +69,7 @@
   "confirm_clear": "确定要重开这局吗？你的进度将会丢失。",
   "copied": "已复制",
   "theme": "主题",
-  "theme_light": "浅色",
+  "theme_default": "默认",
   "theme_paper": "纸张",
-  "theme_high_contrast": "高对比度",
-  "theme_dark": "深色",
-  "theme_ocean": "海洋",
-  "theme_forest": "森林"
+  "theme_high_contrast": "高对比度"
 }

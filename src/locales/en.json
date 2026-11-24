@@ -69,10 +69,7 @@
   "confirm_clear": "Are you sure you want to restart this game? Your progress will be lost.",
   "copied": "Copied",
   "theme": "Theme",
-  "theme_light": "Light",
+  "theme_default": "Default",
   "theme_paper": "Paper",
-  "theme_high_contrast": "High Contrast",
-  "theme_dark": "Dark",
-  "theme_ocean": "Ocean",
-  "theme_forest": "Forest"
+  "theme_high_contrast": "High Contrast"
 }

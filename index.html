@@ -20,26 +20,24 @@
     <script>
       (function () {
         try {
-          var themes = {
-            light: "light",
-            paper: "light",
-            "high-contrast": "light",
-            dark: "dark",
-            ocean: "dark",
-            forest: "dark",
-          };
+          var validThemes = {default: true, paper: true, "high-contrast": true};
           var theme = localStorage.getItem("theme");
-          if (!theme || !themes[theme]) {
-            var rawDark = localStorage.getItem("darkMode");
-            var parsedDark = rawDark ? JSON.parse(rawDark) : undefined;
-            if (typeof parsedDark === "boolean") {
-              theme = parsedDark ? "dark" : "light";
-            } else {
-              theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-            }
+          if (!theme || !validThemes[theme]) {
+            theme = "default";
           }
+          var rawDark = localStorage.getItem("darkMode");
+          var parsedDark = rawDark ? JSON.parse(rawDark) : undefined;
+          var colorMode =
+            typeof parsedDark === "boolean"
+              ? parsedDark
+                ? "dark"
+                : "light"
+              : window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light";
           document.documentElement.dataset.theme = theme;
-          document.documentElement.style.colorScheme = themes[theme];
+          document.documentElement.dataset.colorMode = colorMode;
+          document.documentElement.style.colorScheme = colorMode;
         } catch (e) {}
       })();
     </script>

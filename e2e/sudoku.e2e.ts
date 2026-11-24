@@ -1081,14 +1081,15 @@ test.describe("gameplay regressions", () => {
     await expect(secondTab.locator("body")).toHaveClass(/dark/);
   });
 
-  test("switches themes from Settings, persists across reloads, syncs across tabs, and remembers light/dark pairs", async ({
+  test("switches themes independently of light/dark mode, persists across reloads, and syncs across tabs", async ({
     page,
     context,
   }) => {
     await openGame(page);
 
-    // Default light mode uses a bright light canvas instead of dark gray.
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    // Default theme in light mode uses a bright light canvas instead of dark gray.
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "default");
+    await expect(page.locator("html")).toHaveAttribute("data-color-mode", "light");
     const lightCanvasBg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
     expect(lightCanvasBg).toBe("rgb(241, 245, 249)");
 
@@ -1098,26 +1099,26 @@ test.describe("gameplay regressions", () => {
     await openSettings(page);
     await page.getByTestId("theme-option-paper").click();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "paper");
+    await expect(page.locator("html")).toHaveAttribute("data-color-mode", "light");
     await expect(page.locator("body")).not.toHaveClass(/dark/);
     await expect(secondTab.locator("html")).toHaveAttribute("data-theme", "paper");
 
-    // Pick a dark theme, then toggle light/dark from the header and verify it restores Paper <-> Ocean.
-    await page.getByTestId("theme-option-ocean").click();
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "ocean");
-    await expect(page.locator("body")).toHaveClass(/dark/);
-    await expect(secondTab.locator("html")).toHaveAttribute("data-theme", "ocean");
-
+    // Toggling dark mode keeps the active Paper theme and switches to its dark palette.
     await page.getByRole("button", {name: "Toggle dark mode"}).click();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "paper");
-    await expect(page.locator("body")).not.toHaveClass(/dark/);
-
-    await page.getByRole("button", {name: "Toggle dark mode"}).click();
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "ocean");
+    await expect(page.locator("html")).toHaveAttribute("data-color-mode", "dark");
     await expect(page.locator("body")).toHaveClass(/dark/);
+    await expect(secondTab.locator("html")).toHaveAttribute("data-theme", "paper");
+    await expect(secondTab.locator("html")).toHaveAttribute("data-color-mode", "dark");
 
-    // Persists across reload.
+    // Switching to High Contrast stays in dark mode and persists across reload.
+    await page.getByTestId("theme-option-high-contrast").click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "high-contrast");
+    await expect(page.locator("html")).toHaveAttribute("data-color-mode", "dark");
+
     await page.reload();
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "ocean");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "high-contrast");
+    await expect(page.locator("html")).toHaveAttribute("data-color-mode", "dark");
     await expect(page.locator("body")).toHaveClass(/dark/);
   });
 

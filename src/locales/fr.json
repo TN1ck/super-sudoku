@@ -69,10 +69,7 @@
   "confirm_clear": "Êtes-vous sûr de vouloir recommencer cette partie ? Votre progression sera perdue.",
   "copied": "Copié",
   "theme": "Thème",
-  "theme_light": "Clair",
+  "theme_default": "Par défaut",
   "theme_paper": "Papier",
-  "theme_high_contrast": "Contraste élevé",
-  "theme_dark": "Sombre",
-  "theme_ocean": "Océan",
-  "theme_forest": "Forêt"
+  "theme_high_contrast": "Contraste élevé"
 }

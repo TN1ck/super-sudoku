@@ -69,10 +69,7 @@
   "confirm_clear": "Sind Sie sicher, dass Sie dieses Spiel neu starten möchten? Ihr Fortschritt geht verloren.",
   "copied": "Kopiert",
   "theme": "Design",
-  "theme_light": "Hell",
+  "theme_default": "Standard",
   "theme_paper": "Papier",
-  "theme_high_contrast": "Hoher Kontrast",
-  "theme_dark": "Dunkel",
-  "theme_ocean": "Ozean",
-  "theme_forest": "Wald"
+  "theme_high_contrast": "Hoher Kontrast"
 }

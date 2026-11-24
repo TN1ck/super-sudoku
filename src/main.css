@@ -3,7 +3,7 @@
 @import "tailwindcss/utilities";
 
 :root,
-[data-theme="light"] {
+[data-theme="default"][data-color-mode="light"] {
   color-scheme: light;
   --color-canvas: 241 245 249;
   --color-surface: 255 255 255;
@@ -55,111 +55,7 @@
   --color-circle-text: 255 255 255;
 }
 
-[data-theme="paper"] {
-  color-scheme: light;
-  --color-canvas: 244 239 230;
-  --color-surface: 251 248 243;
-  --color-surface-subtle: 234 225 210;
-  --color-border: 214 203 184;
-  --color-ink: 41 35 29;
-  --color-ink-muted: 107 95 82;
-
-  --color-button: 251 248 243;
-  --color-button-hover: 239 231 216;
-  --color-button-text: 41 35 29;
-  --color-button-muted: 223 213 196;
-  --color-button-muted-text: 124 112 98;
-
-  --color-accent: 180 83 9;
-  --color-accent-hover: 146 64 14;
-  --color-accent-text: 255 255 255;
-
-  --color-note: 37 99 235;
-  --color-note-subtle: 219 234 254;
-  --color-note-subtle-text: 30 58 138;
-  --color-note-text: 15 118 110;
-
-  --color-danger: 220 38 38;
-  --color-danger-surface: 254 226 226;
-  --color-danger-text: 153 27 27;
-
-  --color-board-bg: 255 253 249;
-  --color-board-border: 92 79 65;
-  --color-cell-highlight: 239 231 216;
-  --color-cell-match: 253 230 138;
-  --color-cell-conflict: 254 202 202;
-  --color-grid-line: 214 203 184;
-  --color-grid-box: 107 91 73;
-
-  --color-digit-given: 28 25 23;
-  --color-digit-user: 29 78 216;
-  --color-digit-match: 146 64 14;
-  --color-digit-conflict: 185 28 28;
-
-  --color-overlay: 251 248 243;
-
-  --color-circle-1: 217 119 6;
-  --color-circle-2: 180 83 9;
-  --color-circle-3: 245 158 11;
-  --color-circle-note-1: 59 130 246;
-  --color-circle-note-2: 37 99 235;
-  --color-circle-note-3: 96 165 250;
-  --color-circle-text: 255 255 255;
-}
-
-[data-theme="high-contrast"] {
-  color-scheme: light;
-  --color-canvas: 255 255 255;
-  --color-surface: 255 255 255;
-  --color-surface-subtle: 229 229 229;
-  --color-border: 23 23 23;
-  --color-ink: 0 0 0;
-  --color-ink-muted: 38 38 38;
-
-  --color-button: 255 255 255;
-  --color-button-hover: 229 229 229;
-  --color-button-text: 0 0 0;
-  --color-button-muted: 212 212 212;
-  --color-button-muted-text: 64 64 64;
-
-  --color-accent: 0 71 171;
-  --color-accent-hover: 0 53 128;
-  --color-accent-text: 255 255 255;
-
-  --color-note: 109 40 217;
-  --color-note-subtle: 221 214 254;
-  --color-note-subtle-text: 46 16 101;
-  --color-note-text: 91 33 182;
-
-  --color-danger: 185 28 28;
-  --color-danger-surface: 254 202 202;
-  --color-danger-text: 127 29 29;
-
-  --color-board-bg: 255 255 255;
-  --color-board-border: 0 0 0;
-  --color-cell-highlight: 229 231 235;
-  --color-cell-match: 253 224 71;
-  --color-cell-conflict: 252 165 165;
-  --color-grid-line: 82 82 82;
-  --color-grid-box: 0 0 0;
-
-  --color-digit-given: 0 0 0;
-  --color-digit-user: 0 71 171;
-  --color-digit-match: 0 0 0;
-  --color-digit-conflict: 127 29 29;
-
-  --color-overlay: 255 255 255;
-
-  --color-circle-1: 0 88 204;
-  --color-circle-2: 0 71 171;
-  --color-circle-3: 37 116 230;
-  --color-circle-note-1: 124 58 237;
-  --color-circle-note-2: 109 40 217;
-  --color-circle-note-3: 139 92 246;
-  --color-circle-text: 255 255 255;
-}
-
-[data-theme="dark"] {
+[data-theme="default"][data-color-mode="dark"] {
   color-scheme: dark;
   --color-canvas: 17 24 39;
   --color-surface: 31 41 55;
@@ -211,108 +107,212 @@
   --color-circle-text: 255 255 255;
 }
 
-[data-theme="ocean"] {
-  color-scheme: dark;
-  --color-canvas: 11 18 32;
-  --color-surface: 19 31 51;
-  --color-surface-subtle: 28 45 71;
-  --color-border: 42 64 98;
-  --color-ink: 226 236 248;
-  --color-ink-muted: 140 163 196;
+[data-theme="paper"][data-color-mode="light"] {
+  color-scheme: light;
+  --color-canvas: 244 239 230;
+  --color-surface: 251 248 243;
+  --color-surface-subtle: 234 225 210;
+  --color-border: 214 203 184;
+  --color-ink: 41 35 29;
+  --color-ink-muted: 107 95 82;
 
-  --color-button: 30 49 77;
-  --color-button-hover: 41 66 102;
-  --color-button-text: 238 245 252;
-  --color-button-muted: 22 36 59;
-  --color-button-muted-text: 100 124 158;
+  --color-button: 251 248 243;
+  --color-button-hover: 239 231 216;
+  --color-button-text: 41 35 29;
+  --color-button-muted: 223 213 196;
+  --color-button-muted-text: 124 112 98;
 
-  --color-accent: 8 145 178;
-  --color-accent-hover: 6 182 212;
+  --color-accent: 180 83 9;
+  --color-accent-hover: 146 64 14;
   --color-accent-text: 255 255 255;
 
-  --color-note: 99 102 241;
-  --color-note-subtle: 49 46 129;
-  --color-note-subtle-text: 224 231 255;
-  --color-note-text: 147 197 253;
+  --color-note: 37 99 235;
+  --color-note-subtle: 219 234 254;
+  --color-note-subtle-text: 30 58 138;
+  --color-note-text: 15 118 110;
 
-  --color-danger: 239 68 68;
-  --color-danger-surface: 127 29 29;
-  --color-danger-text: 254 202 202;
+  --color-danger: 220 38 38;
+  --color-danger-surface: 254 226 226;
+  --color-danger-text: 153 27 27;
 
-  --color-board-bg: 17 28 46;
-  --color-board-border: 58 86 128;
-  --color-cell-highlight: 26 43 69;
-  --color-cell-match: 36 61 99;
-  --color-cell-conflict: 127 29 29;
-  --color-grid-line: 37 57 87;
-  --color-grid-box: 90 122 168;
+  --color-board-bg: 255 253 249;
+  --color-board-border: 92 79 65;
+  --color-cell-highlight: 239 231 216;
+  --color-cell-match: 253 230 138;
+  --color-cell-conflict: 254 202 202;
+  --color-grid-line: 214 203 184;
+  --color-grid-box: 107 91 73;
 
-  --color-digit-given: 240 247 255;
-  --color-digit-user: 56 189 248;
-  --color-digit-match: 253 224 71;
-  --color-digit-conflict: 254 202 202;
+  --color-digit-given: 28 25 23;
+  --color-digit-user: 29 78 216;
+  --color-digit-match: 146 64 14;
+  --color-digit-conflict: 185 28 28;
 
-  --color-overlay: 7 13 24;
+  --color-overlay: 251 248 243;
 
-  --color-circle-1: 6 182 212;
-  --color-circle-2: 8 145 178;
-  --color-circle-3: 34 211 238;
-  --color-circle-note-1: 99 102 241;
-  --color-circle-note-2: 79 70 229;
-  --color-circle-note-3: 129 140 248;
+  --color-circle-1: 217 119 6;
+  --color-circle-2: 180 83 9;
+  --color-circle-3: 245 158 11;
+  --color-circle-note-1: 59 130 246;
+  --color-circle-note-2: 37 99 235;
+  --color-circle-note-3: 96 165 250;
   --color-circle-text: 255 255 255;
 }
 
-[data-theme="forest"] {
+[data-theme="paper"][data-color-mode="dark"] {
   color-scheme: dark;
-  --color-canvas: 13 23 18;
-  --color-surface: 21 36 28;
-  --color-surface-subtle: 30 51 40;
-  --color-border: 45 74 58;
-  --color-ink: 236 247 240;
-  --color-ink-muted: 142 176 155;
+  --color-canvas: 28 25 23;
+  --color-surface: 41 37 36;
+  --color-surface-subtle: 68 64 60;
+  --color-border: 87 83 78;
+  --color-ink: 245 240 230;
+  --color-ink-muted: 168 162 158;
 
-  --color-button: 33 56 44;
-  --color-button-hover: 45 76 60;
-  --color-button-text: 238 248 242;
-  --color-button-muted: 23 41 32;
-  --color-button-muted-text: 104 135 116;
+  --color-button: 68 64 60;
+  --color-button-hover: 87 83 78;
+  --color-button-text: 245 240 230;
+  --color-button-muted: 53 49 46;
+  --color-button-muted-text: 145 138 132;
 
-  --color-accent: 5 150 105;
-  --color-accent-hover: 16 185 129;
+  --color-accent: 217 119 6;
+  --color-accent-hover: 245 158 11;
   --color-accent-text: 255 255 255;
 
-  --color-note: 217 119 6;
-  --color-note-subtle: 120 53 15;
-  --color-note-subtle-text: 254 243 199;
-  --color-note-text: 251 191 36;
+  --color-note: 59 130 246;
+  --color-note-subtle: 30 58 138;
+  --color-note-subtle-text: 219 234 254;
+  --color-note-text: 94 234 212;
 
   --color-danger: 239 68 68;
   --color-danger-surface: 127 29 29;
   --color-danger-text: 254 202 202;
 
-  --color-board-bg: 19 33 25;
-  --color-board-border: 63 102 80;
-  --color-cell-highlight: 28 48 36;
-  --color-cell-match: 40 69 52;
+  --color-board-bg: 41 37 36;
+  --color-board-border: 138 128 118;
+  --color-cell-highlight: 57 52 49;
+  --color-cell-match: 82 74 64;
   --color-cell-conflict: 127 29 29;
-  --color-grid-line: 36 61 47;
-  --color-grid-box: 92 135 110;
+  --color-grid-line: 74 69 65;
+  --color-grid-box: 168 158 148;
 
-  --color-digit-given: 240 250 244;
-  --color-digit-user: 52 211 153;
-  --color-digit-match: 254 240 138;
+  --color-digit-given: 250 245 235;
+  --color-digit-user: 147 197 253;
+  --color-digit-match: 252 211 77;
   --color-digit-conflict: 254 202 202;
 
-  --color-overlay: 8 15 11;
+  --color-overlay: 18 16 14;
 
-  --color-circle-1: 16 185 129;
-  --color-circle-2: 5 150 105;
-  --color-circle-3: 52 211 153;
-  --color-circle-note-1: 217 119 6;
-  --color-circle-note-2: 180 83 9;
-  --color-circle-note-3: 245 158 11;
+  --color-circle-1: 217 119 6;
+  --color-circle-2: 180 83 9;
+  --color-circle-3: 245 158 11;
+  --color-circle-note-1: 59 130 246;
+  --color-circle-note-2: 37 99 235;
+  --color-circle-note-3: 96 165 250;
   --color-circle-text: 255 255 255;
+}
+
+[data-theme="high-contrast"][data-color-mode="light"] {
+  color-scheme: light;
+  --color-canvas: 255 255 255;
+  --color-surface: 255 255 255;
+  --color-surface-subtle: 229 229 229;
+  --color-border: 23 23 23;
+  --color-ink: 0 0 0;
+  --color-ink-muted: 38 38 38;
+
+  --color-button: 255 255 255;
+  --color-button-hover: 229 229 229;
+  --color-button-text: 0 0 0;
+  --color-button-muted: 212 212 212;
+  --color-button-muted-text: 64 64 64;
+
+  --color-accent: 0 71 171;
+  --color-accent-hover: 0 53 128;
+  --color-accent-text: 255 255 255;
+
+  --color-note: 109 40 217;
+  --color-note-subtle: 221 214 254;
+  --color-note-subtle-text: 46 16 101;
+  --color-note-text: 91 33 182;
+
+  --color-danger: 185 28 28;
+  --color-danger-surface: 254 202 202;
+  --color-danger-text: 127 29 29;
+
+  --color-board-bg: 255 255 255;
+  --color-board-border: 0 0 0;
+  --color-cell-highlight: 229 231 235;
+  --color-cell-match: 253 224 71;
+  --color-cell-conflict: 252 165 165;
+  --color-grid-line: 82 82 82;
+  --color-grid-box: 0 0 0;
+
+  --color-digit-given: 0 0 0;
+  --color-digit-user: 0 71 171;
+  --color-digit-match: 0 0 0;
+  --color-digit-conflict: 127 29 29;
+
+  --color-overlay: 255 255 255;
+
+  --color-circle-1: 0 88 204;
+  --color-circle-2: 0 71 171;
+  --color-circle-3: 37 116 230;
+  --color-circle-note-1: 124 58 237;
+  --color-circle-note-2: 109 40 217;
+  --color-circle-note-3: 139 92 246;
+  --color-circle-text: 255 255 255;
+}
+
+[data-theme="high-contrast"][data-color-mode="dark"] {
+  color-scheme: dark;
+  --color-canvas: 0 0 0;
+  --color-surface: 18 18 18;
+  --color-surface-subtle: 38 38 38;
+  --color-border: 229 229 229;
+  --color-ink: 255 255 255;
+  --color-ink-muted: 212 212 212;
+
+  --color-button: 24 24 24;
+  --color-button-hover: 52 52 52;
+  --color-button-text: 255 255 255;
+  --color-button-muted: 38 38 38;
+  --color-button-muted-text: 163 163 163;
+
+  --color-accent: 56 189 248;
+  --color-accent-hover: 125 211 252;
+  --color-accent-text: 0 0 0;
+
+  --color-note: 232 121 249;
+  --color-note-subtle: 112 26 117;
+  --color-note-subtle-text: 250 232 255;
+  --color-note-text: 240 171 252;
+
+  --color-danger: 248 113 113;
+  --color-danger-surface: 127 29 29;
+  --color-danger-text: 255 255 255;
+
+  --color-board-bg: 0 0 0;
+  --color-board-border: 255 255 255;
+  --color-cell-highlight: 36 36 36;
+  --color-cell-match: 253 224 71;
+  --color-cell-conflict: 153 27 27;
+  --color-grid-line: 130 130 130;
+  --color-grid-box: 255 255 255;
+
+  --color-digit-given: 255 255 255;
+  --color-digit-user: 56 189 248;
+  --color-digit-match: 0 0 0;
+  --color-digit-conflict: 255 255 255;
+
+  --color-overlay: 0 0 0;
+
+  --color-circle-1: 56 189 248;
+  --color-circle-2: 14 165 233;
+  --color-circle-3: 125 211 252;
+  --color-circle-note-1: 232 121 249;
+  --color-circle-note-2: 217 70 239;
+  --color-circle-note-3: 240 171 252;
+  --color-circle-text: 0 0 0;
 }
 
 body {
