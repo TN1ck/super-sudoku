@@ -1,5 +1,6 @@
 import * as React from "react";
 import {useMemo, useState} from "react";
+import {CaretLeft, CaretRight} from "@phosphor-icons/react";
 
 import {getSudokusPaginated, SudokuRaw, useSudokuCollections} from "src/lib/game/sudokus";
 import {SimpleSudoku} from "src/lib/engine/types";
@@ -9,7 +10,6 @@ import {createGameSearchParams} from "src/utils/gameUrl";
 import {createNewGameState, useGame} from "src/context/GameContext";
 import Button from "src/components/Button";
 import {simpleSudokuToCells, stringifySudoku} from "src/lib/engine/utility";
-import {useElementWidth} from "src/utils/hooks";
 import {useNavigate} from "@tanstack/react-router";
 import {localStoragePlayedSudokuRepository, StoredPlayedSudokuState} from "src/lib/database/playedSudokus";
 import {Collection, translateCollectionName} from "src/lib/database/collections";
@@ -20,8 +20,10 @@ import {useTranslation} from "react-i18next";
 const TabItem = ({active, children, ...props}: React.ButtonHTMLAttributes<HTMLButtonElement> & {active: boolean}) => (
   <button
     type="button"
-    className={`cursor-pointer rounded-sm border-none px-1 py-2 text-xs capitalize hover:bg-gray-500 xs:px-2 sm:px-4 sm:text-sm md:text-base ${
-      active ? "bg-white text-black dark:bg-gray-600 dark:text-white" : "bg-transparent text-white dark:text-gray-300"
+    className={`cursor-pointer rounded-sm border px-1 py-2 text-xs capitalize transition-colors xs:px-2 sm:px-4 sm:text-sm md:text-base ${
+      active
+        ? "border-border bg-button font-semibold text-button-text shadow-sm"
+        : "border-transparent bg-transparent text-ink-muted hover:bg-surface-subtle hover:text-ink"
     }`}
     {...props}
   >
@@ -67,20 +69,26 @@ const PageSelector = ({
   pageCount: number;
   setPage: (page: number) => void;
 }) => (
-  <div className="flex items-center justify-center space-x-2 py-4">
-    <Button aria-label="Previous page" onClick={() => setPage(page - 1)} disabled={page === 0}>
-      {"‹"}
+  <div className="flex items-center justify-center gap-2 py-4">
+    <Button
+      aria-label="Previous page"
+      className="inline-flex h-9 min-w-9 items-center justify-center px-2 md:h-10 md:min-w-10"
+      onClick={() => setPage(page - 1)}
+      disabled={page === 0}
+    >
+      <CaretLeft className="h-4 w-4" aria-hidden="true" />
     </Button>
 
     {getVisiblePages(page, pageCount).map((pageNum, index) => (
       <React.Fragment key={pageNum === "..." ? `ellipsis-${index}` : pageNum}>
         {pageNum === "..." ? (
-          <span className="px-2 text-gray-500">...</span>
+          <span className="inline-flex min-w-6 justify-center text-ink-muted">...</span>
         ) : (
           <Button
             aria-current={pageNum === page + 1 ? "page" : undefined}
+            className="inline-flex h-9 min-w-9 items-center justify-center px-2 tabular-nums md:h-10 md:min-w-10"
             onClick={() => setPage(pageNum - 1)}
-            className={pageNum === page + 1 ? "bg-teal-600 text-white dark:bg-teal-600" : ""}
+            variant={pageNum === page + 1 ? "accent" : "default"}
           >
             {pageNum}
           </Button>
@@ -88,8 +96,13 @@ const PageSelector = ({
       </React.Fragment>
     ))}
 
-    <Button aria-label="Next page" onClick={() => setPage(page + 1)} disabled={page >= pageCount - 1}>
-      {"›"}
+    <Button
+      aria-label="Next page"
+      className="inline-flex h-9 min-w-9 items-center justify-center px-2 md:h-10 md:min-w-10"
+      onClick={() => setPage(page + 1)}
+      disabled={page >= pageCount - 1}
+    >
+      <CaretRight className="h-4 w-4" aria-hidden="true" />
     </Button>
   </div>
 );
@@ -128,13 +141,10 @@ const SudokuToSelect = ({
     });
   };
 
-  const sudokuContainerRef = React.useRef<HTMLDivElement | null>(null);
-  const size = useElementWidth(sudokuContainerRef);
-
   return (
-    <div className="relative" ref={sudokuContainerRef}>
+    <div className="relative">
       {storedSudoku && (unfinished || finished) ? (
-        <div className="pointer-events-none absolute bottom-2 left-2 z-10 max-w-min rounded-sm bg-gray-900 px-2 py-1 text-xs text-white md:text-base">
+        <div className="pointer-events-none absolute bottom-2 left-2 z-30 max-w-min rounded-sm border border-border bg-surface px-2 py-1 text-xs text-ink shadow-md md:text-base">
           <div>
             <div className="whitespace-nowrap">{`${unfinished ? t("play_time") : t("last_time")} ${formatDuration(
               storedSudoku.game.secondsPlayed,
@@ -156,22 +166,7 @@ const SudokuToSelect = ({
           </div>
         </div>
       ) : null}
-      {size === undefined ? (
-        <div className="relative inline-block w-full">
-          <div style={{marginTop: "100%"}} />
-          <div className="absolute left-0 top-0 h-full w-full">
-            <div className="h-full w-full rounded-sm bg-gray-300 dark:bg-gray-900" />
-          </div>
-        </div>
-      ) : (
-        <SudokuPreview
-          size={size}
-          onClick={choose}
-          id={index + 1}
-          sudoku={finished ? sudoku.solution : sudoku.sudoku}
-          darken
-        />
-      )}
+      <SudokuPreview onClick={choose} id={index + 1} sudoku={finished ? sudoku.solution : sudoku.sudoku} darken />
     </div>
   );
 };
@@ -179,17 +174,21 @@ const SudokuToSelect = ({
 const GameIndex = ({
   pageSudokus,
   pageStart,
+  pageCount,
   sudokuCollectionName,
 }: {
   pageSudokus: SudokuRaw[];
   pageStart: number;
+  pageCount: number;
   sudokuCollectionName: string;
 }) => {
   const {t} = useTranslation();
 
   if (pageSudokus.length === 0) {
-    return <div className="text-center text-white">{t("no_sudokus_in_collection")}</div>;
+    return <div className="text-center text-ink-muted">{t("no_sudokus_in_collection")}</div>;
   }
+
+  const spacerCount = pageCount > 1 ? Math.max(0, PAGE_SIZE - pageSudokus.length) : 0;
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
@@ -208,6 +207,9 @@ const GameIndex = ({
           />
         );
       })}
+      {Array.from({length: spacerCount}, (_, i) => (
+        <div key={`spacer-${i}`} className="aspect-square w-full" aria-hidden="true" />
+      ))}
     </div>
   );
 };
@@ -296,7 +298,7 @@ const GameSelect: React.FC = () => {
       {!isBaseCollectionLocal && (
         <div className="mb-4 flex items-center justify-between gap-2">
           {!showNewSudokuComponent ? (
-            <Button className="bg-teal-600 text-white dark:bg-teal-600" onClick={() => setShowNewSudokuComponent(true)}>
+            <Button variant="accent" onClick={() => setShowNewSudokuComponent(true)}>
               {t("add_sudoku")}
             </Button>
           ) : (
@@ -306,16 +308,21 @@ const GameSelect: React.FC = () => {
         </div>
       )}
       {!isBaseCollectionLocal && showNewSudokuComponent && (
-        <div className="mb-4 flex flex-col gap-4 rounded-sm border border-gray-700 bg-gray-900 p-4">
+        <div className="mb-4 flex flex-col gap-4 rounded-sm border border-border bg-surface p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <div className="text-lg font-bold text-white sm:text-2xl">{t("create_new_sudoku")}</div>
+            <div className="text-lg font-bold text-ink sm:text-2xl">{t("create_new_sudoku")}</div>
             <Button onClick={() => setShowNewSudokuComponent(false)}>{t("close")}</Button>
           </div>
-          <p className="text-white">{t("add_your_own_sudoku", {collection: activeCollection.name})}</p>
+          <p className="text-ink-muted">{t("add_your_own_sudoku", {collection: activeCollection.name})}</p>
           <NewSudoku saveSudoku={saveSudoku} />
         </div>
       )}
-      <GameIndex pageSudokus={pageSudokus} pageStart={pageStart} sudokuCollectionName={activeCollection.id} />
+      <GameIndex
+        pageSudokus={pageSudokus}
+        pageStart={pageStart}
+        pageCount={pageCount}
+        sudokuCollectionName={activeCollection.id}
+      />
       {pageCount > 1 && <PageSelector page={page} pageCount={pageCount} setPage={setPage} />}
     </div>
   );

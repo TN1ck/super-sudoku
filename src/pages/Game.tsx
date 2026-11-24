@@ -1,5 +1,6 @@
 import * as React from "react";
 import {useEffect} from "react";
+import {Check, ShareNetwork} from "@phosphor-icons/react";
 import {useLocation, useNavigate} from "@tanstack/react-router";
 import {useTranslation} from "react-i18next";
 
@@ -58,6 +59,8 @@ function resetBoardCells(cells: Cell[]): Cell[] {
   return simpleSudokuToCells(simpleSudoku, solved.sudoku ?? undefined);
 }
 
+const headerActionButtonClassName = "h-8 whitespace-nowrap px-2.5 text-sm md:h-10 md:px-4 md:text-base";
+
 function PauseButton({
   disabled,
   paused,
@@ -71,7 +74,7 @@ function PauseButton({
 }) {
   const {t} = useTranslation();
   return (
-    <Button disabled={disabled} onClick={paused ? continueGame : pauseGame}>
+    <Button disabled={disabled} className={headerActionButtonClassName} onClick={paused ? continueGame : pauseGame}>
       {paused ? t("continue") : t("pause")}
     </Button>
   );
@@ -118,7 +121,7 @@ const ClearGameButton: React.FC<{
   };
 
   return (
-    <Button disabled={disabled} onClick={clearGameLocal}>
+    <Button disabled={disabled} className={headerActionButtonClassName} onClick={clearGameLocal}>
       {t("clear")}
     </Button>
   );
@@ -135,7 +138,7 @@ const NewGameButton: React.FC = () => {
   };
 
   return (
-    <Button className="bg-teal-600 text-white dark:bg-teal-600" onClick={pauseAndChoose}>
+    <Button variant="accent" className={headerActionButtonClassName} onClick={pauseAndChoose}>
       {t("new_game")}
     </Button>
   );
@@ -187,12 +190,23 @@ const ShareButton: React.FC<{
   return (
     <button
       aria-label={t("share")}
-      className="rounded-md border-none bg-transparent p-1 text-white hover:cursor-pointer hover:bg-gray-500"
+      title={copied ? t("copied") : t("share")}
+      className="inline-flex h-7 items-center justify-center gap-1 rounded-sm border-none bg-transparent px-1.5 text-ink-muted transition-colors hover:cursor-pointer hover:bg-surface-subtle hover:text-ink"
       data-testid="share-sudoku"
-      onClick={handleShare}
+      onClick={(e) => {
+        void handleShare();
+        e.currentTarget.blur();
+      }}
       type="button"
     >
-      {copied ? t("copied") : `🔗 ${t("share")}`}
+      {copied ? (
+        <>
+          <Check className="h-4 w-4 text-accent" weight="bold" aria-hidden="true" />
+          <span className="text-xs font-semibold text-accent">{t("copied")}</span>
+        </>
+      ) : (
+        <ShareNetwork className="h-4 w-4" aria-hidden="true" />
+      )}
     </button>
   );
 };
@@ -203,14 +217,14 @@ const CenteredContinueButton: React.FC<{visible: boolean; onClick: () => void}> 
     data-testid="continue-overlay"
     className={`${visible ? "flex" : "hidden"} absolute z-30 h-full w-full items-center justify-center hover:cursor-pointer`}
   >
-    <div className="duration-200 relative flex h-20 w-20 items-center justify-center rounded-full bg-teal-500 transition-transform ease-out hover:scale-110">
-      <div className="absolute h-0 w-0 translate-x-[5px] border-b-[20px] border-l-[30px] border-t-[20px] border-b-transparent border-l-white border-t-transparent" />
+    <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-accent shadow-lg transition-transform duration-200 ease-out hover:scale-110">
+      <div className="absolute h-0 w-0 translate-x-[5px] border-b-[20px] border-l-[30px] border-t-[20px] border-b-transparent border-l-accent-text border-t-transparent" />
     </div>
   </div>
 );
 
 const DifficultyShow = ({children, ...props}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className="capitalize text-white" {...props}>
+  <div className="whitespace-nowrap font-semibold capitalize text-ink" {...props}>
     {children}
   </div>
 );
@@ -308,19 +322,23 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
           clipboardNotes={game.clipboardNotes}
           copyNotes={copyNotes}
         />
-        <header className="mt-4 flex justify-between sm:items-center">
-          <div className="flex flex-col gap-2 text-white sm:flex-row sm:items-center sm:justify-end">
-            <div className="flex items-center gap-2">
+        <header className="mt-3 flex items-center justify-between gap-2 sm:mt-4">
+          <div className="flex min-w-0 flex-col gap-0.5 text-ink sm:flex-row sm:items-center sm:gap-2">
+            <div className="flex items-center gap-1">
               <DifficultyShow data-testid="current-game-label">{`${collectionName} #${game.sudokuIndex + 1}`}</DifficultyShow>
               <ShareButton gameState={game} sudokuState={sudokuState} />
             </div>
-            <div className="hidden sm:block">{"|"}</div>
-            <GameTimer />
+            {userPreferencesState.showTimer && <div className="hidden text-ink-muted/60 sm:block">{"|"}</div>}
+            <div className="whitespace-nowrap text-sm tabular-nums text-ink-muted sm:text-base sm:text-ink">
+              <GameTimer hidden={!userPreferencesState.showTimer} />
+            </div>
           </div>
-          <div className="flex items-center gap-2 text-lg font-bold text-white sm:text-2xl">{t("super_sudoku")}</div>
-          <div className="flex">
-            <div className="flex flex-col items-end justify-end gap-2 sm:flex-row">
-              <div className="flex gap-2">
+          <div className="hidden items-center gap-2 text-lg font-bold text-ink md:flex md:text-2xl">
+            {t("super_sudoku")}
+          </div>
+          <div className="flex shrink-0">
+            <div className="flex flex-col items-end justify-end gap-1.5 sm:flex-row sm:items-center sm:gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <LanguageSelector />
                 <DarkModeButton />
                 <ClearGameButton
@@ -333,7 +351,7 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
                   }}
                 />
               </div>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <PauseButton
                   disabled={game.won}
                   paused={pausedGame}
@@ -345,7 +363,7 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
             </div>
           </div>
         </header>
-        <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-start">
+        <div className="mt-3 flex flex-col gap-4 sm:mt-4 md:flex-row md:items-start">
           <main className="w-full min-w-0 md:flex-1">
             <Sudoku
               showWrongEntries={userPreferencesState.showWrongEntries && !pausedGame}
@@ -390,10 +408,10 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
               />
             </fieldset>
             <SettingsAndInformation />
-            <div className="flex items-center justify-center gap-4 text-xs text-gray-400">
+            <div className="flex items-center justify-center gap-4 text-xs text-ink-muted">
               <button
                 type="button"
-                className="hidden transition-colors hover:text-white md:inline-flex"
+                className="hidden transition-colors hover:text-ink md:inline-flex"
                 onClick={(e) => {
                   setInfoPanel("shortcuts");
                   e.currentTarget.blur();
@@ -401,12 +419,12 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
               >
                 {t("shortcuts")}
               </button>
-              <span className="hidden text-gray-600 md:inline" aria-hidden="true">
+              <span className="hidden text-ink-muted/50 md:inline" aria-hidden="true">
                 ·
               </span>
               <button
                 type="button"
-                className="inline-flex transition-colors hover:text-white"
+                className="inline-flex transition-colors hover:text-ink"
                 onClick={(e) => {
                   setInfoPanel("about");
                   e.currentTarget.blur();

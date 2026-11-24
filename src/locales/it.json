@@ -22,6 +22,7 @@
   "highlight_conflicts": "Evidenzia conflitti",
   "show_circle_menu": "Mostra menu circolare quando si fa clic su una cella (solo desktop)",
   "show_occurrences": "Mostra occorrenze di numeri nei pulsanti numerici",
+  "show_timer": "Mostra timer",
   "about": "Informazioni",
   "about_text": "Questa app di sudoku è e sarà gratuita, senza pubblicità e senza tracciamento. Il suo codice sorgente è disponibile su",
   "created_by": "Creato da Tom Nick.",
@@ -67,5 +68,9 @@
   "add_new_collection": "+ Nuova collezione",
   "enter_new_collection_name": "Inserisci il nome della nuova collezione di sudoku:",
   "confirm_clear": "Sei sicuro di voler ricominciare questo gioco? Il tuo progresso andrà perso.",
-  "copied": "Copiato"
+  "copied": "Copiato",
+  "theme": "Tema",
+  "theme_default": "Predefinito",
+  "theme_paper": "Carta",
+  "theme_high_contrast": "Alto contrasto"
 }

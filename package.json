@@ -37,6 +37,7 @@
     "generate-evil-sudokus": "vpx ./scripts/generate_sudokus.ts -d evil -n 500"
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
     "@tanstack/react-router": "1.121.34",
     "clsx": "2.1.1",
     "hotkeys-js": "3.13.7",

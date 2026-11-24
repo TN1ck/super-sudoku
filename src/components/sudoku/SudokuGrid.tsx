@@ -22,10 +22,8 @@ export const GridLineX = ({
       height: thin ? 1 : makeBold ? 2 : 1,
     }}
     className={clsx("absolute left-0 z-10 -translate-y-1/2", {
-      "bg-gray-400 dark:bg-gray-400": thin && makeBold,
-      "bg-gray-200 dark:bg-gray-600": thin && !makeBold,
-      "bg-gray-400 dark:bg-gray-500": !thin && makeBold,
-      "bg-gray-300 dark:bg-gray-600": !thin && !makeBold,
+      "bg-grid-box": makeBold,
+      "bg-grid-line": !makeBold,
     })}
   />
 );
@@ -48,10 +46,8 @@ export const GridLineY = ({
       width: thin ? 1 : makeBold ? 2 : 1,
     }}
     className={clsx("absolute top-0 z-10 -translate-x-1/2", {
-      "bg-gray-400 dark:bg-gray-400": thin && makeBold,
-      "bg-gray-200 dark:bg-gray-600": thin && !makeBold,
-      "bg-gray-400 dark:bg-gray-500": !thin && makeBold,
-      "bg-gray-300 dark:bg-gray-600": !thin && !makeBold,
+      "bg-grid-box": makeBold,
+      "bg-grid-line": !makeBold,
     })}
   />
 );
@@ -88,7 +84,7 @@ export const SudokuGridLines = React.memo(
 export const CellNote = ({left, top, children}: {left: number; top: number; children: React.ReactNode}) => (
   <div
     style={{top: `${top}%`, left: `${left}%`}}
-    className="absolute -translate-x-1/2 -translate-y-1/2 text-xs text-sky-400 sm:text-sm"
+    className="absolute -translate-x-1/2 -translate-y-1/2 text-xs font-semibold text-note-text sm:text-sm"
   >
     {children}
   </div>
@@ -148,20 +144,20 @@ export const GridCell = ({
   onClick: () => void;
   onRightClick: () => void;
 }) => {
-  let backgroundColor = "bg-white dark:bg-gray-800";
+  let backgroundColor = "bg-board-bg";
   if (highlight) {
-    backgroundColor = "bg-gray-200 dark:bg-gray-700";
+    backgroundColor = "bg-cell-highlight";
   }
   if (highlightNumber) {
-    backgroundColor = "bg-gray-300 dark:bg-gray-600";
+    backgroundColor = "bg-cell-match";
   }
   if (conflict) {
-    backgroundColor = "bg-red-200 dark:bg-red-900";
+    backgroundColor = "bg-cell-conflict";
   }
 
   let borderColor = "border-transparent";
   if (active) {
-    borderColor = notesMode ? "border-sky-400 dark:border-sky-600" : "border-teal-400 dark:border-teal-600";
+    borderColor = notesMode ? "border-note" : "border-accent";
   }
 
   const dimensions = {
@@ -192,12 +188,9 @@ export const GridCell = ({
           onRightClick();
         }}
         style={dimensions}
-        className={clsx("absolute z-20 border-2", borderColor)}
+        className={clsx("absolute z-20 cursor-pointer border-2 hover:bg-ink/[0.04]", borderColor)}
       />
-      <div
-        style={dimensions}
-        className={clsx("absolute z-0 transition-colors duration-0 hover:bg-opacity-50", backgroundColor)}
-      />
+      <div style={dimensions} className={clsx("absolute z-0 transition-colors duration-0", backgroundColor)} />
     </>
   );
 };
@@ -226,10 +219,10 @@ export const GridCellNumber = ({
       top: `${top}%`,
     }}
     className={clsx("pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2 text-lg font-bold", {
-      "text-black dark:text-white": initial,
-      "text-amber-600": highlight && !conflict,
-      "text-teal-600": !initial && !highlight && !conflict,
-      "text-red-600 dark:text-red-300": conflict && !initial,
+      "text-digit-given": initial && !(highlight && !conflict),
+      "text-digit-match": highlight && !conflict,
+      "text-digit-user": !initial && !highlight && !conflict,
+      "text-digit-conflict": conflict && !initial,
     })}
   >
     {children}

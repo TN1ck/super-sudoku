@@ -54,14 +54,20 @@ const SudokuMenuNumbers: React.FC<SudokuMenuNumbersProps> = ({
           }
         };
 
+        const isManualNote = editingNotes && cell.notes.includes(n);
+        const isAutoNote = editingNotes && cell.notes.length === 0 && notes.includes(n);
+        const isExcess = showOccurrences && occurrences > 9;
+        const isComplete = occurrences === 9;
+
         return (
           <Button
             aria-label={`Set ${n}`}
+            variant={isManualNote ? "note" : "default"}
             className={clsx("relative font-bold", {
-              "bg-gray-400 dark:bg-gray-700": occurrences === 9,
-              "bg-red-400 dark:bg-red-400": showOccurrences && occurrences > 9,
-              "bg-sky-600 text-white dark:bg-sky-600": editingNotes && cell.notes.includes(n),
-              "bg-sky-300 dark:bg-sky-300": editingNotes && cell.notes.length === 0 && notes.includes(n),
+              "border-transparent bg-button-muted text-button-muted-text hover:bg-button-muted":
+                isComplete && !isManualNote && !isAutoNote,
+              "border-danger bg-danger text-accent-text hover:bg-danger": isExcess && !isManualNote,
+              "border-note/40 bg-note-subtle text-note-subtle-text hover:bg-note-subtle": isAutoNote && !isManualNote,
             })}
             data-testid={`sudoku-number-${n}`}
             onClick={setNumberOrNote}
@@ -69,7 +75,7 @@ const SudokuMenuNumbers: React.FC<SudokuMenuNumbersProps> = ({
           >
             {showOccurrences && (
               <div
-                className="absolute bottom-0 right-0 h-3 w-3 rounded-xl bg-teal-700 text-xxs text-white opacity-70 sm:bottom-1 sm:right-1 sm:h-4 sm:w-4 sm:text-xs"
+                className="absolute bottom-0 right-0 flex h-3 w-3 items-center justify-center rounded-xl bg-accent text-xxs text-accent-text opacity-85 sm:bottom-1 sm:right-1 sm:h-4 sm:w-4 sm:text-xs"
                 data-testid={`sudoku-number-occurrences-${n}`}
               >
                 {occurrences}

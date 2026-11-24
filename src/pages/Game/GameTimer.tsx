@@ -2,7 +2,7 @@ import * as React from "react";
 import {GameStateMachine, useGame} from "src/context/GameContext";
 import {formatDuration} from "src/utils/format";
 
-const GameTimer: React.FC = () => {
+const GameTimer: React.FC<{hidden?: boolean}> = ({hidden = false}) => {
   const {state, updateTimer} = useGame();
   React.useEffect(() => {
     if (state.state !== GameStateMachine.running) {
@@ -12,7 +12,11 @@ const GameTimer: React.FC = () => {
     return () => window.clearInterval(interval);
   }, [state.state, updateTimer]);
 
-  return <div>{formatDuration(state.secondsPlayed)}</div>;
+  if (hidden) {
+    return null;
+  }
+
+  return <div data-testid="game-timer">{formatDuration(state.secondsPlayed)}</div>;
 };
 
 export default GameTimer;

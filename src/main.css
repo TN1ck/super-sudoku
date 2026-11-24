@@ -2,8 +2,321 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+:root,
+[data-theme="default"][data-color-mode="light"] {
+  color-scheme: light;
+  --color-canvas: 241 245 249;
+  --color-surface: 255 255 255;
+  --color-surface-subtle: 226 232 240;
+  --color-border: 203 213 225;
+  --color-ink: 15 23 42;
+  --color-ink-muted: 71 85 105;
+
+  --color-button: 255 255 255;
+  --color-button-hover: 241 245 249;
+  --color-button-text: 15 23 42;
+  --color-button-muted: 203 213 225;
+  --color-button-muted-text: 100 116 139;
+
+  --color-accent: 13 148 136;
+  --color-accent-hover: 15 118 110;
+  --color-accent-text: 255 255 255;
+
+  --color-note: 2 132 199;
+  --color-note-subtle: 186 230 253;
+  --color-note-subtle-text: 12 74 110;
+  --color-note-text: 3 105 161;
+
+  --color-danger: 220 38 38;
+  --color-danger-surface: 254 226 226;
+  --color-danger-text: 153 27 27;
+
+  --color-board-bg: 255 255 255;
+  --color-board-border: 51 65 85;
+  --color-cell-highlight: 226 232 240;
+  --color-cell-match: 186 230 253;
+  --color-cell-conflict: 254 202 202;
+  --color-grid-line: 203 213 225;
+  --color-grid-box: 71 85 105;
+
+  --color-digit-given: 15 23 42;
+  --color-digit-user: 15 118 110;
+  --color-digit-match: 146 64 14;
+  --color-digit-conflict: 185 28 28;
+
+  --color-overlay: 255 255 255;
+
+  --color-circle-1: 20 184 166;
+  --color-circle-2: 13 148 136;
+  --color-circle-3: 45 212 191;
+  --color-circle-note-1: 14 165 233;
+  --color-circle-note-2: 2 132 199;
+  --color-circle-note-3: 56 189 248;
+  --color-circle-text: 255 255 255;
+}
+
+[data-theme="default"][data-color-mode="dark"] {
+  color-scheme: dark;
+  --color-canvas: 17 24 39;
+  --color-surface: 31 41 55;
+  --color-surface-subtle: 55 65 81;
+  --color-border: 75 85 99;
+  --color-ink: 249 250 251;
+  --color-ink-muted: 156 163 175;
+
+  --color-button: 75 85 99;
+  --color-button-hover: 107 114 128;
+  --color-button-text: 255 255 255;
+  --color-button-muted: 55 65 81;
+  --color-button-muted-text: 156 163 175;
+
+  --color-accent: 13 148 136;
+  --color-accent-hover: 20 184 166;
+  --color-accent-text: 255 255 255;
+
+  --color-note: 2 132 199;
+  --color-note-subtle: 7 89 133;
+  --color-note-subtle-text: 224 242 254;
+  --color-note-text: 56 189 248;
+
+  --color-danger: 239 68 68;
+  --color-danger-surface: 127 29 29;
+  --color-danger-text: 254 202 202;
+
+  --color-board-bg: 31 41 55;
+  --color-board-border: 107 114 128;
+  --color-cell-highlight: 55 65 81;
+  --color-cell-match: 75 85 99;
+  --color-cell-conflict: 127 29 29;
+  --color-grid-line: 75 85 99;
+  --color-grid-box: 156 163 175;
+
+  --color-digit-given: 255 255 255;
+  --color-digit-user: 45 212 191;
+  --color-digit-match: 251 191 36;
+  --color-digit-conflict: 254 202 202;
+
+  --color-overlay: 3 7 18;
+
+  --color-circle-1: 20 184 166;
+  --color-circle-2: 13 148 136;
+  --color-circle-3: 45 212 191;
+  --color-circle-note-1: 14 165 233;
+  --color-circle-note-2: 2 132 199;
+  --color-circle-note-3: 56 189 248;
+  --color-circle-text: 255 255 255;
+}
+
+[data-theme="paper"][data-color-mode="light"] {
+  color-scheme: light;
+  --color-canvas: 244 239 230;
+  --color-surface: 251 248 243;
+  --color-surface-subtle: 234 225 210;
+  --color-border: 214 203 184;
+  --color-ink: 41 35 29;
+  --color-ink-muted: 107 95 82;
+
+  --color-button: 251 248 243;
+  --color-button-hover: 239 231 216;
+  --color-button-text: 41 35 29;
+  --color-button-muted: 223 213 196;
+  --color-button-muted-text: 124 112 98;
+
+  --color-accent: 180 83 9;
+  --color-accent-hover: 146 64 14;
+  --color-accent-text: 255 255 255;
+
+  --color-note: 37 99 235;
+  --color-note-subtle: 219 234 254;
+  --color-note-subtle-text: 30 58 138;
+  --color-note-text: 15 118 110;
+
+  --color-danger: 220 38 38;
+  --color-danger-surface: 254 226 226;
+  --color-danger-text: 153 27 27;
+
+  --color-board-bg: 255 253 249;
+  --color-board-border: 92 79 65;
+  --color-cell-highlight: 239 231 216;
+  --color-cell-match: 253 230 138;
+  --color-cell-conflict: 254 202 202;
+  --color-grid-line: 214 203 184;
+  --color-grid-box: 107 91 73;
+
+  --color-digit-given: 28 25 23;
+  --color-digit-user: 29 78 216;
+  --color-digit-match: 146 64 14;
+  --color-digit-conflict: 185 28 28;
+
+  --color-overlay: 251 248 243;
+
+  --color-circle-1: 217 119 6;
+  --color-circle-2: 180 83 9;
+  --color-circle-3: 245 158 11;
+  --color-circle-note-1: 59 130 246;
+  --color-circle-note-2: 37 99 235;
+  --color-circle-note-3: 96 165 250;
+  --color-circle-text: 255 255 255;
+}
+
+[data-theme="paper"][data-color-mode="dark"] {
+  color-scheme: dark;
+  --color-canvas: 28 25 23;
+  --color-surface: 41 37 36;
+  --color-surface-subtle: 68 64 60;
+  --color-border: 87 83 78;
+  --color-ink: 245 240 230;
+  --color-ink-muted: 168 162 158;
+
+  --color-button: 68 64 60;
+  --color-button-hover: 87 83 78;
+  --color-button-text: 245 240 230;
+  --color-button-muted: 53 49 46;
+  --color-button-muted-text: 145 138 132;
+
+  --color-accent: 217 119 6;
+  --color-accent-hover: 245 158 11;
+  --color-accent-text: 255 255 255;
+
+  --color-note: 59 130 246;
+  --color-note-subtle: 30 58 138;
+  --color-note-subtle-text: 219 234 254;
+  --color-note-text: 94 234 212;
+
+  --color-danger: 239 68 68;
+  --color-danger-surface: 127 29 29;
+  --color-danger-text: 254 202 202;
+
+  --color-board-bg: 41 37 36;
+  --color-board-border: 138 128 118;
+  --color-cell-highlight: 57 52 49;
+  --color-cell-match: 82 74 64;
+  --color-cell-conflict: 127 29 29;
+  --color-grid-line: 74 69 65;
+  --color-grid-box: 168 158 148;
+
+  --color-digit-given: 250 245 235;
+  --color-digit-user: 147 197 253;
+  --color-digit-match: 252 211 77;
+  --color-digit-conflict: 254 202 202;
+
+  --color-overlay: 18 16 14;
+
+  --color-circle-1: 217 119 6;
+  --color-circle-2: 180 83 9;
+  --color-circle-3: 245 158 11;
+  --color-circle-note-1: 59 130 246;
+  --color-circle-note-2: 37 99 235;
+  --color-circle-note-3: 96 165 250;
+  --color-circle-text: 255 255 255;
+}
+
+[data-theme="high-contrast"][data-color-mode="light"] {
+  color-scheme: light;
+  --color-canvas: 255 255 255;
+  --color-surface: 255 255 255;
+  --color-surface-subtle: 229 229 229;
+  --color-border: 23 23 23;
+  --color-ink: 0 0 0;
+  --color-ink-muted: 38 38 38;
+
+  --color-button: 255 255 255;
+  --color-button-hover: 229 229 229;
+  --color-button-text: 0 0 0;
+  --color-button-muted: 212 212 212;
+  --color-button-muted-text: 64 64 64;
+
+  --color-accent: 0 71 171;
+  --color-accent-hover: 0 53 128;
+  --color-accent-text: 255 255 255;
+
+  --color-note: 109 40 217;
+  --color-note-subtle: 221 214 254;
+  --color-note-subtle-text: 46 16 101;
+  --color-note-text: 91 33 182;
+
+  --color-danger: 185 28 28;
+  --color-danger-surface: 254 202 202;
+  --color-danger-text: 127 29 29;
+
+  --color-board-bg: 255 255 255;
+  --color-board-border: 0 0 0;
+  --color-cell-highlight: 229 231 235;
+  --color-cell-match: 253 224 71;
+  --color-cell-conflict: 252 165 165;
+  --color-grid-line: 82 82 82;
+  --color-grid-box: 0 0 0;
+
+  --color-digit-given: 0 0 0;
+  --color-digit-user: 0 71 171;
+  --color-digit-match: 0 0 0;
+  --color-digit-conflict: 127 29 29;
+
+  --color-overlay: 255 255 255;
+
+  --color-circle-1: 0 88 204;
+  --color-circle-2: 0 71 171;
+  --color-circle-3: 37 116 230;
+  --color-circle-note-1: 124 58 237;
+  --color-circle-note-2: 109 40 217;
+  --color-circle-note-3: 139 92 246;
+  --color-circle-text: 255 255 255;
+}
+
+[data-theme="high-contrast"][data-color-mode="dark"] {
+  color-scheme: dark;
+  --color-canvas: 10 12 16;
+  --color-surface: 17 21 28;
+  --color-surface-subtle: 33 40 52;
+  --color-border: 122 130 142;
+  --color-ink: 255 255 255;
+  --color-ink-muted: 201 209 217;
+
+  --color-button: 26 32 44;
+  --color-button-hover: 42 50 66;
+  --color-button-text: 255 255 255;
+  --color-button-muted: 22 27 34;
+  --color-button-muted-text: 139 148 158;
+
+  --color-accent: 31 111 235;
+  --color-accent-hover: 56 139 253;
+  --color-accent-text: 255 255 255;
+
+  --color-note: 137 87 229;
+  --color-note-subtle: 59 35 110;
+  --color-note-subtle-text: 237 233 254;
+  --color-note-text: 165 214 255;
+
+  --color-danger: 248 81 73;
+  --color-danger-surface: 103 6 12;
+  --color-danger-text: 255 220 215;
+
+  --color-board-bg: 1 4 9;
+  --color-board-border: 208 215 222;
+  --color-cell-highlight: 28 36 51;
+  --color-cell-match: 31 58 95;
+  --color-cell-conflict: 103 6 12;
+  --color-grid-line: 72 79 88;
+  --color-grid-box: 208 215 222;
+
+  --color-digit-given: 255 255 255;
+  --color-digit-user: 121 192 255;
+  --color-digit-match: 255 211 61;
+  --color-digit-conflict: 255 220 215;
+
+  --color-overlay: 1 4 9;
+
+  --color-circle-1: 56 139 253;
+  --color-circle-2: 31 111 235;
+  --color-circle-3: 88 166 255;
+  --color-circle-note-1: 163 113 247;
+  --color-circle-note-2: 137 87 229;
+  --color-circle-note-3: 188 140 255;
+  --color-circle-text: 255 255 255;
+}
+
 body {
-  @apply bg-gray-800 dark:bg-gray-900;
+  @apply bg-canvas text-ink transition-colors duration-150;
 }
 
 html,

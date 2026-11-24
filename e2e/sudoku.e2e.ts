@@ -1081,6 +1081,47 @@ test.describe("gameplay regressions", () => {
     await expect(secondTab.locator("body")).toHaveClass(/dark/);
   });
 
+  test("switches themes independently of light/dark mode, persists across reloads, and syncs across tabs", async ({
+    page,
+    context,
+  }) => {
+    await openGame(page);
+
+    // Default theme in light mode uses a bright light canvas instead of dark gray.
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "default");
+    await expect(page.locator("html")).toHaveAttribute("data-color-mode", "light");
+    const lightCanvasBg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    expect(lightCanvasBg).toBe("rgb(241, 245, 249)");
+
+    const secondTab = await context.newPage();
+    await openGame(secondTab);
+
+    await openSettings(page);
+    await page.getByTestId("theme-option-paper").click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "paper");
+    await expect(page.locator("html")).toHaveAttribute("data-color-mode", "light");
+    await expect(page.locator("body")).not.toHaveClass(/dark/);
+    await expect(secondTab.locator("html")).toHaveAttribute("data-theme", "paper");
+
+    // Toggling dark mode keeps the active Paper theme and switches to its dark palette.
+    await page.getByRole("button", {name: "Toggle dark mode"}).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "paper");
+    await expect(page.locator("html")).toHaveAttribute("data-color-mode", "dark");
+    await expect(page.locator("body")).toHaveClass(/dark/);
+    await expect(secondTab.locator("html")).toHaveAttribute("data-theme", "paper");
+    await expect(secondTab.locator("html")).toHaveAttribute("data-color-mode", "dark");
+
+    // Switching to High Contrast stays in dark mode and persists across reload.
+    await page.getByTestId("theme-option-high-contrast").click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "high-contrast");
+    await expect(page.locator("html")).toHaveAttribute("data-color-mode", "dark");
+
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "high-contrast");
+    await expect(page.locator("html")).toHaveAttribute("data-color-mode", "dark");
+    await expect(page.locator("body")).toHaveClass(/dark/);
+  });
+
   test("opens Shortcuts and About modals without pausing on Escape and toggles settings panel", async ({page}) => {
     await openGame(page);
 
@@ -1104,5 +1145,26 @@ test.describe("gameplay regressions", () => {
     await expect(page.locator("#generated_notes")).toBeVisible();
     await settingsToggle.click();
     await expect(page.locator("#generated_notes")).toBeHidden();
+  });
+
+  test("hides the timer via Settings, persists across reload, and still tracks elapsed time", async ({page}) => {
+    await page.clock.install();
+    await openGame(page);
+    await expect(page.getByTestId("game-timer")).toBeVisible();
+
+    await openSettings(page);
+    await page.locator("#show_timer").uncheck();
+    await expect(page.getByTestId("game-timer")).toHaveCount(0);
+
+    await page.clock.fastForward(4000);
+
+    await page.reload();
+    await continueIfPaused(page);
+    await expect(page.getByTestId("game-timer")).toHaveCount(0);
+
+    await openSettings(page);
+    await expect(page.locator("#show_timer")).not.toBeChecked();
+    await page.locator("#show_timer").check();
+    await expect(page.getByTestId("game-timer")).toHaveText("00:04 min");
   });
 });

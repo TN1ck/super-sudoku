@@ -103,17 +103,13 @@ const NewSudokuInner = ({saveSudoku}: {saveSudoku: (sudoku: SimpleSudoku) => Pro
           <CellActionButton label="erase_btn" cell={activeCell} onClick={clearCell} />
         </div>
         <div>
-          <Button
-            disabled={isSaving || isChecking}
-            className="bg-teal-600 text-white dark:bg-teal-600"
-            onClick={saveSudokuLocal}
-          >
+          <Button disabled={isSaving || isChecking} variant="accent" onClick={saveSudokuLocal}>
             {isChecking ? "Checking uniqueness..." : isSaving ? "Saving..." : "Save sudoku"}
           </Button>
           {errors.length > 0 && (
-            <ul className="mt-2 list-inside list-disc rounded-sm bg-red-800 p-2 pl-4 text-red-200">
+            <ul className="mt-2 list-inside list-disc rounded-sm border border-danger/40 bg-danger-surface p-2 pl-4 text-danger-text">
               {errors.map((error) => (
-                <li className="text-red-200" key={error}>
+                <li className="text-danger-text" key={error}>
                   {error}
                 </li>
               ))}

@@ -19,10 +19,10 @@ const Checkbox: React.FC<{
           id={id}
           name={id}
           type="checkbox"
-          className="h-4 w-4 cursor-pointer rounded border-gray-400/70 bg-gray-700/60 text-teal-500 focus:ring-teal-500 focus:ring-offset-0"
+          className="h-4 w-4 cursor-pointer rounded border-border bg-surface-subtle text-accent focus:ring-accent focus:ring-offset-0"
         />
       </div>
-      <label htmlFor={id} className="ml-2.5 cursor-pointer select-none text-sm leading-5 text-gray-200">
+      <label htmlFor={id} className="ml-2.5 cursor-pointer select-none text-sm leading-5 text-ink">
         {children}
       </label>
     </div>

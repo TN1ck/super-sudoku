@@ -22,6 +22,7 @@
   "highlight_conflicts": "高亮冲突",
   "show_circle_menu": "点击单元格时显示圆形菜单（仅桌面端）",
   "show_occurrences": "在数字按钮上显示出现次数",
+  "show_timer": "显示计时器",
   "about": "关于",
   "about_text": "这款数独应用将始终免费、无广告、无追踪。源码可在以下地址获取：",
   "created_by": "由 Tom Nick 创建。",
@@ -67,5 +68,9 @@
   "add_new_collection": "+ 新建合集",
   "enter_new_collection_name": "请输入新数独合集名称：",
   "confirm_clear": "确定要重开这局吗？你的进度将会丢失。",
-  "copied": "已复制"
+  "copied": "已复制",
+  "theme": "主题",
+  "theme_default": "默认",
+  "theme_paper": "纸张",
+  "theme_high_contrast": "高对比度"
 }

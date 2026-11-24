@@ -22,6 +22,7 @@
   "highlight_conflicts": "Surligner les conflits",
   "show_circle_menu": "Afficher le menu circulaire (ordinateur uniquement)",
   "show_occurrences": "Afficher les occurrences sur les boutons",
+  "show_timer": "Afficher le chronomètre",
   "about": "À propos",
   "about_text": "Cette application Sudoku est gratuite, sans publicité et sans traçage. Le code source est disponible sur",
   "created_by": "Créé par Tom Nick, traduit en français par Jaybi. ",
@@ -67,5 +68,9 @@
   "add_new_collection": "+ Nouvelle collection",
   "enter_new_collection_name": "Entrez le nom de la nouvelle collection de sudoku :",
   "confirm_clear": "Êtes-vous sûr de vouloir recommencer cette partie ? Votre progression sera perdue.",
-  "copied": "Copié"
+  "copied": "Copié",
+  "theme": "Thème",
+  "theme_default": "Par défaut",
+  "theme_paper": "Papier",
+  "theme_high_contrast": "Contraste élevé"
 }

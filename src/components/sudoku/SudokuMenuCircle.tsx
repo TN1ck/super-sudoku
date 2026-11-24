@@ -3,7 +3,6 @@ import {SUDOKU_NUMBERS} from "src/lib/engine/utility";
 import {Cell} from "src/lib/engine/types";
 import {Bounds} from "src/components/sudoku/types";
 import SudokuGame from "src/lib/game/SudokuGame";
-import colors from "tailwindcss/colors";
 
 export const MenuContainer = ({bounds, children}: {bounds: Bounds; children: React.ReactNode}) => (
   <div
@@ -36,8 +35,12 @@ const TAU = Math.PI * 2;
 const CIRCLE_RADIUS = 45;
 const RAD_PER_STEP = TAU / SUDOKU_NUMBERS.length;
 
-const NUMBER_SLICE_COLORS = [colors.teal[500], colors.teal[600], colors.teal[400]];
-const NOTE_SLICE_COLORS = [colors.sky[500], colors.sky[600], colors.sky[400]];
+const NUMBER_SLICE_COLORS = ["rgb(var(--color-circle-1))", "rgb(var(--color-circle-2))", "rgb(var(--color-circle-3))"];
+const NOTE_SLICE_COLORS = [
+  "rgb(var(--color-circle-note-1))",
+  "rgb(var(--color-circle-note-2))",
+  "rgb(var(--color-circle-note-3))",
+];
 
 const MenuCirclePart = React.memo(
   ({
@@ -90,7 +93,7 @@ const MenuCirclePart = React.memo(
           x={x}
           y={y}
           style={{
-            fill: "white",
+            fill: "rgb(var(--color-circle-text))",
             textAnchor: "middle",
             pointerEvents: "none",
           }}
