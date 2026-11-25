@@ -1,6 +1,6 @@
 import * as React from "react";
 import {useEffect} from "react";
-import {Check, Printer, ShareNetwork} from "@phosphor-icons/react";
+import {Check, ShareNetwork} from "@phosphor-icons/react";
 import {useLocation, useNavigate} from "@tanstack/react-router";
 import {useTranslation} from "react-i18next";
 
@@ -212,26 +212,6 @@ const ShareButton: React.FC<{
   );
 };
 
-const PrintButton: React.FC = () => {
-  const {t} = useTranslation();
-
-  return (
-    <button
-      aria-label={t("print")}
-      title={t("print")}
-      className="inline-flex h-7 items-center justify-center rounded-sm border-none bg-transparent px-1.5 text-ink-muted transition-colors hover:cursor-pointer hover:bg-surface-subtle hover:text-ink print:hidden"
-      data-testid="print-sudoku"
-      onClick={(e) => {
-        e.currentTarget.blur();
-        window.print();
-      }}
-      type="button"
-    >
-      <Printer className="h-4 w-4" aria-hidden="true" />
-    </button>
-  );
-};
-
 function useIsPrinting() {
   const [isPrinting, setIsPrinting] = React.useState(
     () =>
@@ -376,7 +356,6 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
             <div className="flex items-center gap-1">
               <DifficultyShow data-testid="current-game-label">{`${collectionName} #${game.sudokuIndex + 1}`}</DifficultyShow>
               <ShareButton gameState={game} sudokuState={sudokuState} />
-              <PrintButton />
             </div>
             {userPreferencesState.showTimer && (
               <div className="hidden text-ink-muted/60 sm:block print:hidden">{"|"}</div>
@@ -466,6 +445,20 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
             </fieldset>
             <SettingsAndInformation />
             <div className="flex items-center justify-center gap-4 text-xs text-ink-muted">
+              <button
+                type="button"
+                data-testid="print-sudoku"
+                className="inline-flex transition-colors hover:text-ink"
+                onClick={(e) => {
+                  e.currentTarget.blur();
+                  window.print();
+                }}
+              >
+                {t("print")}
+              </button>
+              <span className="text-ink-muted/50" aria-hidden="true">
+                ·
+              </span>
               <button
                 type="button"
                 className="hidden transition-colors hover:text-ink md:inline-flex"

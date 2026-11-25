@@ -172,6 +172,7 @@ Pick between **3 built-in themes** (**Default**, **Paper**, and **High Contrast*
 - **Automatic Saving**: Your board, notes, timer, solve counts, and best times are saved locally in your browser.
 - **Hide Timer Option**: Hide the timer from the header in Settings if you'd rather play without watching the clock — your elapsed time is still tracked in the background for your solve stats.
 - **Shareable Links**: Copy a link to send the exact same puzzle to a friend.
+- **Print-Friendly Sheets**: Print the current puzzle cleanly on paper (in crisp black-and-white regardless of theme or dark mode), or print a 6-per-page sheet straight from the puzzle picker.
 
 ### 📝 Notes & Helpers
 - **Desktop Circle Menu**: Click any cell to pick a number right at your cursor, or right-click to add/remove notes without leaving number mode.
