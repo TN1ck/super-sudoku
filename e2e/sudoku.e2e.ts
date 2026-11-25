@@ -1196,18 +1196,24 @@ test.describe("gameplay regressions", () => {
     await page.getByTestId("print-sudoku").click();
     expect(await page.evaluate(() => (window as unknown as {__printCalls: number}).__printCalls)).toBe(1);
 
-    // Pause the game; on screen the board is hidden, but printing should reveal the puzzle cleanly.
+    // Pause the game; on screen the board values are hidden, but CSS reveals the real puzzle immediately in print.
     await page.getByRole("button", {name: "Pause"}).click();
     await expect(page.getByTestId("continue-overlay")).toBeVisible();
-    await expect(cellValue(page, 0, 0)).toBeEmpty();
+    await expect(cellValue(page, 0, 0)).toBeHidden();
+    await expect(cellNotes(page, 7, 0)).toBeHidden();
+    // Confirm the actual puzzle digits are already in the DOM (no async JS re-render needed for print preview).
+    await expect(cellValue(page, 0, 0)).toHaveText("5");
 
     await page.emulateMedia({media: "print"});
 
     await expect(page.getByText("Super Sudoku", {exact: true})).toBeVisible();
     await expect(page.getByTestId("current-game-label")).toBeVisible();
     await expect(page.getByTestId("sudoku-board")).toBeVisible();
+    await expect(cellValue(page, 0, 0)).toBeVisible();
     await expect(cellValue(page, 0, 0)).toHaveText("5");
+    await expect(cellValue(page, 5, 0)).toBeVisible();
     await expect(cellValue(page, 5, 0)).toHaveText("1");
+    await expect(cellNotes(page, 7, 0)).toBeVisible();
     await expect(cellNotes(page, 7, 0)).toHaveText("36");
 
     // Interactive chrome and overlays are hidden when printing.
@@ -1250,7 +1256,8 @@ test.describe("gameplay regressions", () => {
     // Returning to screen restores the paused state cleanly.
     await page.emulateMedia({media: "screen"});
     await expect(page.getByTestId("continue-overlay")).toBeVisible();
-    await expect(cellValue(page, 0, 0)).toBeEmpty();
+    await expect(cellValue(page, 0, 0)).toBeHidden();
+    await expect(cellNotes(page, 7, 0)).toBeHidden();
   });
 
   test("prints a clean multi-puzzle sheet from the selection screen", async ({page}) => {

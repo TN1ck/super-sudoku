@@ -103,11 +103,13 @@ export const CellNoteContainer = ({
   bounds,
   children,
   testId,
+  hiddenOnScreen = false,
 }: {
   initial: boolean;
   bounds: Bounds;
   children: React.ReactNode;
   testId?: string;
+  hiddenOnScreen?: boolean;
 }) => (
   <div
     data-testid={testId}
@@ -119,6 +121,7 @@ export const CellNoteContainer = ({
     }}
     className={clsx("pointer-events-none absolute", {
       "font-bold": initial,
+      "hidden print:block": hiddenOnScreen,
     })}
   >
     {children}
@@ -217,6 +220,7 @@ export const GridCellNumber = ({
   children,
   testId,
   conflict,
+  hiddenOnScreen = false,
 }: {
   initial: boolean;
   highlight: boolean;
@@ -225,6 +229,7 @@ export const GridCellNumber = ({
   top: number;
   children: React.ReactNode;
   testId?: string;
+  hiddenOnScreen?: boolean;
 }) => (
   <div
     data-testid={testId}
@@ -241,6 +246,7 @@ export const GridCellNumber = ({
         "text-digit-conflict": conflict && !initial,
         "print:font-bold print:text-black": initial,
         "print:font-normal print:text-gray-600": !initial,
+        "hidden print:block": hiddenOnScreen,
       },
     )}
   >

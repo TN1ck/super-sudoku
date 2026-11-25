@@ -12,7 +12,7 @@ import {Sudoku} from "src/components/sudoku/Sudoku";
 import SudokuMenuControls from "src/components/sudoku/SudokuMenuControls";
 import SudokuMenuNumbers from "src/components/sudoku/SudokuMenuNumbers";
 import {GameProvider, GameState, GameStateMachine, useGame} from "src/context/GameContext";
-import {canUndo, createSudokuState, emptyGrid, SudokuProvider, SudokuState, useSudoku} from "src/context/SudokuContext";
+import {canUndo, createSudokuState, SudokuProvider, SudokuState, useSudoku} from "src/context/SudokuContext";
 import {UserPreferencesProvider, useUserPreferences} from "src/context/UserPreferencesContext";
 import {
   getCurrentSudokuFromStorage,
@@ -212,32 +212,6 @@ const ShareButton: React.FC<{
   );
 };
 
-function useIsPrinting() {
-  const [isPrinting, setIsPrinting] = React.useState(
-    () =>
-      typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("print").matches,
-  );
-
-  useEffect(() => {
-    const mediaQuery = typeof window.matchMedia === "function" ? window.matchMedia("print") : undefined;
-    const handleBeforePrint = () => setIsPrinting(true);
-    const handleAfterPrint = () => setIsPrinting(false);
-    const handleMediaChange = (event: MediaQueryListEvent) => setIsPrinting(event.matches);
-
-    window.addEventListener("beforeprint", handleBeforePrint);
-    window.addEventListener("afterprint", handleAfterPrint);
-    mediaQuery?.addEventListener?.("change", handleMediaChange);
-
-    return () => {
-      window.removeEventListener("beforeprint", handleBeforePrint);
-      window.removeEventListener("afterprint", handleAfterPrint);
-      mediaQuery?.removeEventListener?.("change", handleMediaChange);
-    };
-  }, []);
-
-  return isPrinting;
-}
-
 const CenteredContinueButton: React.FC<{visible: boolean; onClick: () => void}> = ({visible, onClick}) => (
   <div
     onClick={onClick}
@@ -322,9 +296,7 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
     };
   }, [pauseGame, continueGame]);
 
-  const isPrinting = useIsPrinting();
   const pausedGame = game.state === GameStateMachine.paused;
-  const hideBoardForPause = pausedGame && !isPrinting;
   const activeCell = findCell(sudoku, game.activeCellCoordinates);
 
   return (
@@ -397,23 +369,24 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
         <div className="mt-3 flex flex-col gap-4 sm:mt-4 md:flex-row md:items-start print:mt-6 print:block">
           <main className="w-full min-w-0 md:flex-1 print:w-full">
             <Sudoku
-              showWrongEntries={userPreferencesState.showWrongEntries && !pausedGame && !isPrinting}
-              showConflicts={userPreferencesState.showConflicts && !pausedGame && !isPrinting}
+              showWrongEntries={userPreferencesState.showWrongEntries && !pausedGame}
+              showConflicts={userPreferencesState.showConflicts && !pausedGame}
               notesMode={game.notesMode}
               showNotesMenu={game.showNotes}
-              shouldShowMenu={game.showMenu && userPreferencesState.showCircleMenu && !pausedGame && !isPrinting}
-              sudoku={hideBoardForPause ? emptyGrid : sudoku}
+              shouldShowMenu={game.showMenu && userPreferencesState.showCircleMenu && !pausedGame}
+              sudoku={sudoku}
+              hideContents={pausedGame}
               showMenu={showMenu}
               hideMenu={hideMenu}
               selectCell={selectCell}
-              showHints={userPreferencesState.showHints && !hideBoardForPause}
-              activeCell={hideBoardForPause || isPrinting ? undefined : activeCell}
+              showHints={userPreferencesState.showHints}
+              activeCell={pausedGame ? undefined : activeCell}
               setNumber={setNumber}
               setNotes={setNotes}
               clearCell={clearCell}
             >
               {game.won && <WinOverlay gameState={game} onAdvance={onAdvance} />}
-              <CenteredContinueButton visible={hideBoardForPause && !game.won} onClick={continueGame} />
+              <CenteredContinueButton visible={pausedGame && !game.won} onClick={continueGame} />
             </Sudoku>
             {game.won && (
               <div className="print-game-width hidden print:mt-4 print:flex print:justify-end print:text-sm print:text-gray-600">
