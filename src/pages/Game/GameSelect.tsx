@@ -164,9 +164,9 @@ const SudokuToSelect = ({
   };
 
   return (
-    <div className="relative">
+    <div className="print-preview-card relative">
       {storedSudoku && (unfinished || finished) ? (
-        <div className="pointer-events-none absolute bottom-2 left-2 z-30 max-w-min rounded-sm border border-border bg-surface px-2 py-1 text-xs text-ink shadow-md md:text-base">
+        <div className="pointer-events-none absolute bottom-2 left-2 z-30 max-w-min rounded-sm border border-border bg-surface px-2 py-1 text-xs text-ink shadow-md md:text-base print:hidden">
           <div>
             <div className="whitespace-nowrap">{`${unfinished ? t("play_time") : t("last_time")} ${formatDuration(
               storedSudoku.game.secondsPlayed,
@@ -188,6 +188,9 @@ const SudokuToSelect = ({
           </div>
         </div>
       ) : null}
+      <div className="hidden print:mb-1 print:block print:text-xs print:font-semibold print:text-black">
+        #{index + 1}
+      </div>
       <SudokuPreview onClick={choose} id={index + 1} sudoku={previewSudoku} darken />
     </div>
   );
@@ -229,7 +232,7 @@ const GameIndex = ({
   const spacerCount = pageCount > 1 ? Math.max(0, PAGE_SIZE - pageSudokus.length) : 0;
 
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+    <div className="print-select-grid grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
       {pageSudokus.map((item, index) => {
         const globalIndex = pageStart + index;
         const storedSudoku = localStoragePlayedSudokuRepository.getSudokuState(item.raw);
@@ -245,7 +248,7 @@ const GameIndex = ({
         );
       })}
       {Array.from({length: spacerCount}, (_, i) => (
-        <div key={`spacer-${i}`} className="aspect-square w-full" aria-hidden="true" />
+        <div key={`spacer-${i}`} className="aspect-square w-full print:hidden" aria-hidden="true" />
       ))}
     </div>
   );
@@ -365,8 +368,16 @@ const GameSelect: React.FC = () => {
   };
 
   return (
-    <div className="mt-8">
-      <div className="mb-8 flex items-center justify-between">
+    <div className="mt-8 print:mt-0">
+      <div className="print-select-header hidden print:mb-4 print:flex print:items-baseline print:justify-between print:border-b print:border-gray-300 print:pb-2">
+        <div className="text-xl font-bold tracking-tight text-black">{t("super_sudoku")}</div>
+        <div className="text-base font-semibold capitalize text-black">
+          {pageSudokus.length > 0
+            ? `${translateCollectionName(activeCollection.name)} #${pageStart + 1}–#${pageStart + pageSudokus.length}`
+            : translateCollectionName(activeCollection.name)}
+        </div>
+      </div>
+      <div className="mb-8 flex items-center justify-between print:hidden">
         <div className="flex flex-wrap gap-2">
           {collections.map((collection) => (
             <TabItem
@@ -392,7 +403,7 @@ const GameSelect: React.FC = () => {
         </div>
       </div>
       {!isBaseCollectionLocal && (
-        <div className="mb-4 flex items-center justify-between gap-2">
+        <div className="mb-4 flex items-center justify-between gap-2 print:hidden">
           {!showNewSudokuComponent ? (
             <Button variant="accent" onClick={() => setShowNewSudokuComponent(true)}>
               {t("add_sudoku")}
@@ -404,7 +415,7 @@ const GameSelect: React.FC = () => {
         </div>
       )}
       {!isBaseCollectionLocal && showNewSudokuComponent && (
-        <div className="mb-4 flex flex-col gap-4 rounded-sm border border-border bg-surface p-4 shadow-sm">
+        <div className="mb-4 flex flex-col gap-4 rounded-sm border border-border bg-surface p-4 shadow-sm print:hidden">
           <div className="flex items-center justify-between">
             <div className="text-lg font-bold text-ink sm:text-2xl">{t("create_new_sudoku")}</div>
             <Button onClick={() => setShowNewSudokuComponent(false)}>{t("close")}</Button>
@@ -420,7 +431,11 @@ const GameSelect: React.FC = () => {
         isLoading={isLoading}
         sudokuCollectionName={activeCollection.id}
       />
-      {pageCount > 1 && <PageSelector page={page} pageCount={pageCount} setPage={setPage} />}
+      {pageCount > 1 && (
+        <div className="print:hidden">
+          <PageSelector page={page} pageCount={pageCount} setPage={setPage} />
+        </div>
+      )}
     </div>
   );
 };

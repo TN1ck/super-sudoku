@@ -1,6 +1,6 @@
 import * as React from "react";
 import {useEffect} from "react";
-import {Check, ShareNetwork} from "@phosphor-icons/react";
+import {Check, Printer, ShareNetwork} from "@phosphor-icons/react";
 import {useLocation, useNavigate} from "@tanstack/react-router";
 import {useTranslation} from "react-i18next";
 
@@ -32,6 +32,7 @@ import {
 } from "src/lib/engine/utility";
 import SudokuGame from "src/lib/game/SudokuGame";
 import {resolveCollectionDisplayName, useSudokuCollections} from "src/lib/game/sudokus";
+import {formatDuration} from "src/utils/format";
 import {createGameSearchParams, createShareUrl, parseGameSearchParams} from "src/utils/gameUrl";
 import {throttle} from "src/utils/throttle";
 
@@ -191,7 +192,7 @@ const ShareButton: React.FC<{
     <button
       aria-label={t("share")}
       title={copied ? t("copied") : t("share")}
-      className="inline-flex h-7 items-center justify-center gap-1 rounded-sm border-none bg-transparent px-1.5 text-ink-muted transition-colors hover:cursor-pointer hover:bg-surface-subtle hover:text-ink"
+      className="inline-flex h-7 items-center justify-center gap-1 rounded-sm border-none bg-transparent px-1.5 text-ink-muted transition-colors hover:cursor-pointer hover:bg-surface-subtle hover:text-ink print:hidden"
       data-testid="share-sudoku"
       onClick={(e) => {
         void handleShare();
@@ -211,11 +212,57 @@ const ShareButton: React.FC<{
   );
 };
 
+const PrintButton: React.FC = () => {
+  const {t} = useTranslation();
+
+  return (
+    <button
+      aria-label={t("print")}
+      title={t("print")}
+      className="inline-flex h-7 items-center justify-center rounded-sm border-none bg-transparent px-1.5 text-ink-muted transition-colors hover:cursor-pointer hover:bg-surface-subtle hover:text-ink print:hidden"
+      data-testid="print-sudoku"
+      onClick={(e) => {
+        e.currentTarget.blur();
+        window.print();
+      }}
+      type="button"
+    >
+      <Printer className="h-4 w-4" aria-hidden="true" />
+    </button>
+  );
+};
+
+function useIsPrinting() {
+  const [isPrinting, setIsPrinting] = React.useState(
+    () =>
+      typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("print").matches,
+  );
+
+  useEffect(() => {
+    const mediaQuery = typeof window.matchMedia === "function" ? window.matchMedia("print") : undefined;
+    const handleBeforePrint = () => setIsPrinting(true);
+    const handleAfterPrint = () => setIsPrinting(false);
+    const handleMediaChange = (event: MediaQueryListEvent) => setIsPrinting(event.matches);
+
+    window.addEventListener("beforeprint", handleBeforePrint);
+    window.addEventListener("afterprint", handleAfterPrint);
+    mediaQuery?.addEventListener?.("change", handleMediaChange);
+
+    return () => {
+      window.removeEventListener("beforeprint", handleBeforePrint);
+      window.removeEventListener("afterprint", handleAfterPrint);
+      mediaQuery?.removeEventListener?.("change", handleMediaChange);
+    };
+  }, []);
+
+  return isPrinting;
+}
+
 const CenteredContinueButton: React.FC<{visible: boolean; onClick: () => void}> = ({visible, onClick}) => (
   <div
     onClick={onClick}
     data-testid="continue-overlay"
-    className={`${visible ? "flex" : "hidden"} absolute z-30 h-full w-full items-center justify-center hover:cursor-pointer`}
+    className={`${visible ? "flex" : "hidden"} absolute z-30 h-full w-full items-center justify-center hover:cursor-pointer print:hidden`}
   >
     <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-accent shadow-lg transition-transform duration-200 ease-out hover:scale-110">
       <div className="absolute h-0 w-0 translate-x-[5px] border-b-[20px] border-l-[30px] border-t-[20px] border-b-transparent border-l-accent-text border-t-transparent" />
@@ -224,7 +271,7 @@ const CenteredContinueButton: React.FC<{visible: boolean; onClick: () => void}> 
 );
 
 const DifficultyShow = ({children, ...props}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className="whitespace-nowrap font-semibold capitalize text-ink" {...props}>
+  <div className="whitespace-nowrap font-semibold capitalize text-ink print:text-lg print:text-black" {...props}>
     {children}
   </div>
 );
@@ -295,7 +342,9 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
     };
   }, [pauseGame, continueGame]);
 
+  const isPrinting = useIsPrinting();
   const pausedGame = game.state === GameStateMachine.paused;
+  const hideBoardForPause = pausedGame && !isPrinting;
   const activeCell = findCell(sudoku, game.activeCellCoordinates);
 
   return (
@@ -322,21 +371,24 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
           clipboardNotes={game.clipboardNotes}
           copyNotes={copyNotes}
         />
-        <header className="mt-3 flex items-center justify-between gap-2 sm:mt-4">
-          <div className="flex min-w-0 flex-col gap-0.5 text-ink sm:flex-row sm:items-center sm:gap-2">
+        <header className="print-game-width mt-3 flex items-center justify-between gap-2 sm:mt-4 print:mt-0 print:border-b print:border-gray-300 print:pb-3">
+          <div className="flex min-w-0 flex-col gap-0.5 text-ink sm:flex-row sm:items-center sm:gap-2 print:order-2 print:flex-row print:items-baseline print:gap-2">
             <div className="flex items-center gap-1">
               <DifficultyShow data-testid="current-game-label">{`${collectionName} #${game.sudokuIndex + 1}`}</DifficultyShow>
               <ShareButton gameState={game} sudokuState={sudokuState} />
+              <PrintButton />
             </div>
-            {userPreferencesState.showTimer && <div className="hidden text-ink-muted/60 sm:block">{"|"}</div>}
-            <div className="whitespace-nowrap text-sm tabular-nums text-ink-muted sm:text-base sm:text-ink">
+            {userPreferencesState.showTimer && (
+              <div className="hidden text-ink-muted/60 sm:block print:hidden">{"|"}</div>
+            )}
+            <div className="whitespace-nowrap text-sm tabular-nums text-ink-muted sm:text-base sm:text-ink print:hidden">
               <GameTimer hidden={!userPreferencesState.showTimer} />
             </div>
           </div>
-          <div className="hidden items-center gap-2 text-lg font-bold text-ink md:flex md:text-2xl">
+          <div className="hidden items-center gap-2 text-lg font-bold text-ink md:flex md:text-2xl print:order-1 print:flex print:text-2xl print:tracking-tight print:text-black">
             {t("super_sudoku")}
           </div>
-          <div className="flex shrink-0">
+          <div className="flex shrink-0 print:hidden">
             <div className="flex flex-col items-end justify-end gap-1.5 sm:flex-row sm:items-center sm:gap-2">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <LanguageSelector />
@@ -363,29 +415,34 @@ const GameInner = ({onAdvance}: {onAdvance: () => void}) => {
             </div>
           </div>
         </header>
-        <div className="mt-3 flex flex-col gap-4 sm:mt-4 md:flex-row md:items-start">
-          <main className="w-full min-w-0 md:flex-1">
+        <div className="mt-3 flex flex-col gap-4 sm:mt-4 md:flex-row md:items-start print:mt-6 print:block">
+          <main className="w-full min-w-0 md:flex-1 print:w-full">
             <Sudoku
-              showWrongEntries={userPreferencesState.showWrongEntries && !pausedGame}
-              showConflicts={userPreferencesState.showConflicts && !pausedGame}
+              showWrongEntries={userPreferencesState.showWrongEntries && !pausedGame && !isPrinting}
+              showConflicts={userPreferencesState.showConflicts && !pausedGame && !isPrinting}
               notesMode={game.notesMode}
               showNotesMenu={game.showNotes}
-              shouldShowMenu={game.showMenu && userPreferencesState.showCircleMenu && !pausedGame}
-              sudoku={pausedGame ? emptyGrid : sudoku}
+              shouldShowMenu={game.showMenu && userPreferencesState.showCircleMenu && !pausedGame && !isPrinting}
+              sudoku={hideBoardForPause ? emptyGrid : sudoku}
               showMenu={showMenu}
               hideMenu={hideMenu}
               selectCell={selectCell}
-              showHints={userPreferencesState.showHints && !pausedGame}
-              activeCell={pausedGame ? undefined : activeCell}
+              showHints={userPreferencesState.showHints && !hideBoardForPause}
+              activeCell={hideBoardForPause || isPrinting ? undefined : activeCell}
               setNumber={setNumber}
               setNotes={setNotes}
               clearCell={clearCell}
             >
               {game.won && <WinOverlay gameState={game} onAdvance={onAdvance} />}
-              <CenteredContinueButton visible={pausedGame && !game.won} onClick={continueGame} />
+              <CenteredContinueButton visible={hideBoardForPause && !game.won} onClick={continueGame} />
             </Sudoku>
+            {game.won && (
+              <div className="print-game-width hidden print:mt-4 print:flex print:justify-end print:text-sm print:text-gray-600">
+                {t("this_time", {time: formatDuration(game.secondsPlayed)})}
+              </div>
+            )}
           </main>
-          <aside className="grid gap-4 md:w-[clamp(17rem,28vw,22rem)] md:flex-none md:shrink-0">
+          <aside className="grid gap-4 md:w-[clamp(17rem,28vw,22rem)] md:flex-none md:shrink-0 print:hidden">
             <fieldset disabled={pausedGame} className="contents">
               <SudokuMenuNumbers
                 notesMode={game.notesMode}

@@ -1167,4 +1167,105 @@ test.describe("gameplay regressions", () => {
     await page.locator("#show_timer").check();
     await expect(page.getByTestId("game-timer")).toHaveText("00:04 min");
   });
+
+  test("prints a clean black-on-white puzzle sheet even from dark mode or paused state", async ({page}) => {
+    await openGame(page);
+
+    // Enable dark mode, add a user digit and pencil marks, and verify Print button calls window.print.
+    await page.getByRole("button", {name: "Toggle dark mode"}).click();
+    await expect(page.locator("html")).toHaveAttribute("data-color-mode", "dark");
+
+    await selectCell(page, 5, 0);
+    await page.keyboard.press("1");
+    await expect(cellValue(page, 5, 0)).toHaveText("1");
+
+    await selectCell(page, 7, 0);
+    await page.keyboard.press("n");
+    await page.keyboard.press("3");
+    await page.keyboard.press("6");
+    await expect(cellNotes(page, 7, 0)).toHaveText("36");
+
+    await page.evaluate(() => {
+      let calls = 0;
+      (window as unknown as {__printCalls: number}).__printCalls = 0;
+      window.print = () => {
+        calls += 1;
+        (window as unknown as {__printCalls: number}).__printCalls = calls;
+      };
+    });
+    await page.getByTestId("print-sudoku").click();
+    expect(await page.evaluate(() => (window as unknown as {__printCalls: number}).__printCalls)).toBe(1);
+
+    // Pause the game; on screen the board is hidden, but printing should reveal the puzzle cleanly.
+    await page.getByRole("button", {name: "Pause"}).click();
+    await expect(page.getByTestId("continue-overlay")).toBeVisible();
+    await expect(cellValue(page, 0, 0)).toBeEmpty();
+
+    await page.emulateMedia({media: "print"});
+
+    await expect(page.getByText("Super Sudoku", {exact: true})).toBeVisible();
+    await expect(page.getByTestId("current-game-label")).toBeVisible();
+    await expect(page.getByTestId("sudoku-board")).toBeVisible();
+    await expect(cellValue(page, 0, 0)).toHaveText("5");
+    await expect(cellValue(page, 5, 0)).toHaveText("1");
+    await expect(cellNotes(page, 7, 0)).toHaveText("36");
+
+    // Interactive chrome and overlays are hidden when printing.
+    await expect(page.getByTestId("continue-overlay")).toBeHidden();
+    await expect(page.getByTestId("share-sudoku")).toBeHidden();
+    await expect(page.getByTestId("print-sudoku")).toBeHidden();
+    await expect(page.getByTestId("game-timer")).toBeHidden();
+    await expect(page.getByRole("button", {name: "New game"})).toBeHidden();
+    await expect(page.getByRole("button", {name: "Undo"})).toBeHidden();
+    await expect(page.getByRole("button", {name: "Set 1"})).toBeHidden();
+    await expect(page.getByRole("button", {name: "Settings"})).toBeHidden();
+
+    const printStyles = await page.evaluate(() => {
+      const bodyStyle = getComputedStyle(document.body);
+      const givenEl = document.querySelector("[data-testid='sudoku-cell-value-0-0']")!;
+      const userEl = document.querySelector("[data-testid='sudoku-cell-value-5-0']")!;
+      const activeCellEl = document.querySelector("[data-testid='sudoku-cell-7-0']")!;
+      const boardFrame = document.querySelector("[data-testid='sudoku-board-frame']")!;
+      return {
+        bodyBg: bodyStyle.backgroundColor,
+        givenColor: getComputedStyle(givenEl).color,
+        givenWeight: Number(getComputedStyle(givenEl).fontWeight),
+        userColor: getComputedStyle(userEl).color,
+        userWeight: Number(getComputedStyle(userEl).fontWeight),
+        activeBorderColor: getComputedStyle(activeCellEl).borderTopColor,
+        boardBorderWidth: getComputedStyle(boardFrame).borderTopWidth,
+        boardBorderColor: getComputedStyle(boardFrame).borderTopColor,
+      };
+    });
+
+    expect(printStyles.bodyBg).toBe("rgb(255, 255, 255)");
+    expect(printStyles.givenColor).toBe("rgb(0, 0, 0)");
+    expect(printStyles.givenWeight).toBeGreaterThanOrEqual(700);
+    expect(printStyles.userColor).toBe("rgb(75, 85, 99)");
+    expect(printStyles.userWeight).toBeLessThan(printStyles.givenWeight);
+    expect(printStyles.activeBorderColor).toBe("rgba(0, 0, 0, 0)");
+    expect(parseFloat(printStyles.boardBorderWidth)).toBeGreaterThanOrEqual(2);
+    expect(printStyles.boardBorderColor).toBe("rgb(0, 0, 0)");
+
+    // Returning to screen restores the paused state cleanly.
+    await page.emulateMedia({media: "screen"});
+    await expect(page.getByTestId("continue-overlay")).toBeVisible();
+    await expect(cellValue(page, 0, 0)).toBeEmpty();
+  });
+
+  test("prints a clean multi-puzzle sheet from the selection screen", async ({page}) => {
+    await page.goto("/#/select-game");
+    await expect(page.getByTestId("sudoku-preview-1")).toBeVisible();
+
+    await page.emulateMedia({media: "print"});
+
+    await expect(page.getByText("Super Sudoku", {exact: true})).toBeVisible();
+    await expect(page.getByText("Easy #1–#12", {exact: true})).toBeVisible();
+    await expect(page.getByTestId("sudoku-preview-1")).toBeVisible();
+    await expect(page.getByTestId("sudoku-preview-12")).toBeVisible();
+
+    await expect(page.getByRole("button", {name: /Go back/})).toBeHidden();
+    await expect(page.getByRole("button", {name: "Medium"})).toBeHidden();
+    await expect(page.getByRole("button", {name: "Next page"})).toBeHidden();
+  });
 });

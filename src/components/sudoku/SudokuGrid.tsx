@@ -19,11 +19,15 @@ export const GridLineX = ({
     style={{
       width: `${width}%`,
       top: `${top}%`,
-      height: thin ? 1 : makeBold ? 2 : 1,
     }}
-    className={clsx("absolute left-0 z-10 -translate-y-1/2", {
+    className={clsx("absolute left-0 z-10 -translate-y-1/2 print:h-0 print:bg-transparent", {
       "bg-grid-box": makeBold,
       "bg-grid-line": !makeBold,
+      "h-[2px]": !thin && makeBold,
+      "h-px": thin || !makeBold,
+      "print:border-t-2 print:border-black": !thin && makeBold,
+      "print:border-t-[1.5px] print:border-black": thin && makeBold,
+      "print:border-t print:border-gray-400": !makeBold,
     })}
   />
 );
@@ -43,11 +47,15 @@ export const GridLineY = ({
     style={{
       height: `${height}%`,
       left: `${left}%`,
-      width: thin ? 1 : makeBold ? 2 : 1,
     }}
-    className={clsx("absolute top-0 z-10 -translate-x-1/2", {
+    className={clsx("absolute top-0 z-10 -translate-x-1/2 print:w-0 print:bg-transparent", {
       "bg-grid-box": makeBold,
       "bg-grid-line": !makeBold,
+      "w-[2px]": !thin && makeBold,
+      "w-px": thin || !makeBold,
+      "print:border-l-2 print:border-black": !thin && makeBold,
+      "print:border-l-[1.5px] print:border-black": thin && makeBold,
+      "print:border-l print:border-gray-400": !makeBold,
     })}
   />
 );
@@ -84,7 +92,7 @@ export const SudokuGridLines = React.memo(
 export const CellNote = ({left, top, children}: {left: number; top: number; children: React.ReactNode}) => (
   <div
     style={{top: `${top}%`, left: `${left}%`}}
-    className="absolute -translate-x-1/2 -translate-y-1/2 text-xs font-semibold text-note-text sm:text-sm"
+    className="absolute -translate-x-1/2 -translate-y-1/2 text-xs font-semibold text-note-text sm:text-sm print:text-xs print:font-normal print:text-gray-500"
   >
     {children}
   </div>
@@ -188,9 +196,15 @@ export const GridCell = ({
           onRightClick();
         }}
         style={dimensions}
-        className={clsx("absolute z-20 cursor-pointer border-2 hover:bg-ink/[0.04]", borderColor)}
+        className={clsx(
+          "absolute z-20 cursor-pointer border-2 hover:bg-ink/[0.04] print:border-transparent print:bg-transparent",
+          borderColor,
+        )}
       />
-      <div style={dimensions} className={clsx("absolute z-0 transition-colors duration-0", backgroundColor)} />
+      <div
+        style={dimensions}
+        className={clsx("absolute z-0 transition-colors duration-0 print:bg-white", backgroundColor)}
+      />
     </>
   );
 };
@@ -218,12 +232,17 @@ export const GridCellNumber = ({
       left: `${left}%`,
       top: `${top}%`,
     }}
-    className={clsx("pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2 text-lg font-bold", {
-      "text-digit-given": initial && !(highlight && !conflict),
-      "text-digit-match": highlight && !conflict,
-      "text-digit-user": !initial && !highlight && !conflict,
-      "text-digit-conflict": conflict && !initial,
-    })}
+    className={clsx(
+      "pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2 text-lg font-bold print:text-3xl",
+      {
+        "text-digit-given": initial && !(highlight && !conflict),
+        "text-digit-match": highlight && !conflict,
+        "text-digit-user": !initial && !highlight && !conflict,
+        "text-digit-conflict": conflict && !initial,
+        "print:font-bold print:text-black": initial,
+        "print:font-normal print:text-gray-600": !initial,
+      },
+    )}
   >
     {children}
   </div>
