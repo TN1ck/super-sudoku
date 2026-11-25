@@ -185,9 +185,15 @@ export const Sudoku: React.FC<SudokuProps> = ({
   );
 
   return (
-    <div className="relative mx-auto aspect-square w-full md:max-w-[calc(100dvh-7rem)]" data-testid="sudoku-board">
+    <div
+      className="print-board relative mx-auto aspect-square w-full md:max-w-[calc(100dvh-7rem)]"
+      data-testid="sudoku-board"
+    >
       {children}
-      <div className="absolute h-full w-full rounded-sm shadow-md ring-2 ring-board-border">
+      <div
+        data-testid="sudoku-board-frame"
+        className="absolute h-full w-full rounded-sm shadow-md ring-2 ring-board-border print:rounded-none print:border-[2.5px] print:border-black print:bg-white print:shadow-none print:ring-0"
+      >
         <SudokuGridLines width={BOARD_SIZE} height={BOARD_SIZE} hideOuter />
         {sudoku.map((c, index) => {
           const notes = visibleNotesByCell[index];

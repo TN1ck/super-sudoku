@@ -324,3 +324,106 @@ body,
 #root {
   min-height: 100%;
 }
+
+@page {
+  margin: 12mm;
+}
+
+@media print {
+  :root,
+  [data-theme][data-color-mode] {
+    color-scheme: light;
+    --color-canvas: 255 255 255;
+    --color-surface: 255 255 255;
+    --color-surface-subtle: 245 245 245;
+    --color-border: 148 163 184;
+    --color-ink: 0 0 0;
+    --color-ink-muted: 75 85 99;
+
+    --color-board-bg: 255 255 255;
+    --color-board-border: 0 0 0;
+    --color-cell-highlight: 255 255 255;
+    --color-cell-match: 255 255 255;
+    --color-cell-conflict: 255 255 255;
+    --color-grid-line: 148 163 184;
+    --color-grid-box: 0 0 0;
+
+    --color-digit-given: 0 0 0;
+    --color-digit-user: 71 85 105;
+    --color-digit-match: 0 0 0;
+    --color-digit-conflict: 71 85 105;
+    --color-note-text: 100 116 139;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: auto;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .print-game-width {
+    width: 100%;
+    max-width: 160mm;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .print-board {
+    width: 100% !important;
+    max-width: 160mm !important;
+    margin-left: auto;
+    margin-right: auto;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-select-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 68mm) !important;
+    justify-content: center;
+    column-gap: 14mm !important;
+    row-gap: 5mm !important;
+  }
+
+  .print-select-header {
+    width: 100%;
+    max-width: 150mm;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .print-preview-card {
+    width: 68mm;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+@media print and (orientation: landscape) {
+  .print-game-width,
+  .print-board {
+    max-width: 145mm !important;
+  }
+
+  .print-select-grid {
+    grid-template-columns: repeat(3, 68mm) !important;
+    column-gap: 10mm !important;
+  }
+
+  .print-select-header {
+    max-width: 224mm;
+  }
+}

@@ -115,7 +115,7 @@ export const WinOverlay = ({gameState, onAdvance}: {gameState: GameState; onAdva
   const {t} = useTranslation();
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 top-0 z-30 flex items-center justify-center rounded-sm bg-overlay/85 text-ink backdrop-blur-[2px]">
+    <div className="absolute bottom-0 left-0 right-0 top-0 z-30 flex items-center justify-center rounded-sm bg-overlay/85 text-ink backdrop-blur-[2px] print:hidden">
       <div className="grid gap-8">
         <div className="flex justify-center text-2xl">{t("congrats")}</div>
         <div className="text-md flex justify-center">

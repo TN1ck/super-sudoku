@@ -32,7 +32,7 @@ const SudokuPreview = React.memo(({sudoku, id, darken, onClick}: SudokuPreviewPr
       onKeyDown={onKeyDown}
     >
       <div
-        className="relative aspect-square w-full overflow-hidden rounded-sm border border-board-border/50 bg-board-bg shadow-sm"
+        className="relative aspect-square w-full overflow-hidden rounded-sm border border-board-border/50 bg-board-bg shadow-sm print:rounded-none print:border-2 print:border-black print:bg-white print:shadow-none"
         style={{
           fontSize: "6.25cqi",
           lineHeight: 1,
@@ -45,7 +45,7 @@ const SudokuPreview = React.memo(({sudoku, id, darken, onClick}: SudokuPreviewPr
               n !== 0 ? (
                 <div
                   key={x}
-                  className="text-digit-given"
+                  className="text-digit-given print:font-bold print:text-black"
                   style={{
                     position: "absolute",
                     left: `${CELL_SECTION * (x + 0.5)}%`,
@@ -60,9 +60,9 @@ const SudokuPreview = React.memo(({sudoku, id, darken, onClick}: SudokuPreviewPr
           </div>
         ))}
         {darken ? (
-          <div className="absolute left-0 top-0 z-10 h-full w-full bg-ink/10 transition-opacity duration-300 group-hover:opacity-0" />
+          <div className="absolute left-0 top-0 z-10 h-full w-full bg-ink/10 transition-opacity duration-300 group-hover:opacity-0 print:hidden" />
         ) : null}
-        <div className="pointer-events-none absolute left-0 top-0 z-20 flex h-full w-full items-center justify-center">
+        <div className="pointer-events-none absolute left-0 top-0 z-20 flex h-full w-full items-center justify-center print:hidden">
           <div style={{fontSize: "33.33cqi"}} className="font-bold text-ink opacity-85">
             {id}
           </div>

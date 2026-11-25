@@ -6,7 +6,7 @@ import SudokuGame from "src/lib/game/SudokuGame";
 
 export const MenuContainer = ({bounds, children}: {bounds: Bounds; children: React.ReactNode}) => (
   <div
-    className="absolute"
+    className="absolute print:hidden"
     style={{
       width: `${bounds.width}%`,
       height: `${bounds.height}%`,

@@ -21,8 +21,8 @@ const SelectGame = () => {
   };
 
   return (
-    <Container className="mt-4">
-      <div className="mb-8 flex flex-col gap-2">
+    <Container className="mt-4 print:mt-0">
+      <div className="mb-8 flex flex-col gap-2 print:hidden">
         <div className="flex items-center justify-between gap-4">
           <h1 className="text-2xl font-bold text-ink">{t("select_game_title")}</h1>
           <div className="flex items-center gap-2">
