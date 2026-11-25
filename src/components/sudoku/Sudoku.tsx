@@ -22,6 +22,7 @@ const SudokuCell = React.memo(
     notesMode,
     conflict,
     highlightNumber,
+    hideContents,
     x,
     y,
   }: {
@@ -35,6 +36,7 @@ const SudokuCell = React.memo(
     initial: boolean;
     notes: number[];
     notesMode: boolean;
+    hideContents: boolean;
     x: number;
     y: number;
   }) => {
@@ -75,11 +77,17 @@ const SudokuCell = React.memo(
           initial={initial}
           highlight={highlightNumber}
           conflict={conflict}
+          hiddenOnScreen={hideContents}
           testId={`sudoku-cell-value-${x}-${y}`}
         >
           {number !== 0 ? number : ""}
         </GridCellNumber>
-        <CellNoteContainer initial={initial} bounds={bounds} testId={`sudoku-cell-notes-${x}-${y}`}>
+        <CellNoteContainer
+          initial={initial}
+          bounds={bounds}
+          hiddenOnScreen={hideContents}
+          testId={`sudoku-cell-notes-${x}-${y}`}
+        >
           {initial || number
             ? null
             : notes.map((n) => {
@@ -105,6 +113,7 @@ interface SudokuProps {
   shouldShowMenu: boolean;
   showNotesMenu?: boolean;
   notesMode: boolean;
+  hideContents?: boolean;
   showMenu: (showNotes?: boolean) => void;
   hideMenu: () => void;
   selectCell: (cellCoordinates: CellCoordinates) => void;
@@ -130,6 +139,7 @@ export const Sudoku: React.FC<SudokuProps> = ({
   notesMode,
   shouldShowMenu,
   showNotesMenu = false,
+  hideContents = false,
 }) => {
   const activeCell = findCell(sudoku, passedActiveCell);
 
@@ -217,6 +227,7 @@ export const Sudoku: React.FC<SudokuProps> = ({
               number={c.number}
               initial={c.initial}
               notesMode={notesMode}
+              hideContents={hideContents}
               x={c.x}
               y={c.y}
             />
