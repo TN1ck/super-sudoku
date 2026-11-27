@@ -208,6 +208,8 @@ Translated into **7 languages** with automatic browser language detection:
 
 ## 🛠️ Development Setup
 
+[![Launch on PicoRunner](https://picorunner.com/badges/launch.svg)](https://picorunner.com/launch/?repository=https%3A%2F%2Fgithub.com%2FTN1ck%2Fsuper-sudoku)
+
 ### Prerequisites
 - **Node.js** `>= 22.18` — [Download here](https://nodejs.org/en/download/package-manager/)
 - **Vite+ (`vp`)** — unified toolchain for dev, build, lint, formatting, type-checking, unit tests, and TypeScript scripts ([viteplus.dev](https://viteplus.dev/))
